@@ -122,16 +122,11 @@ a{color:#77a9ff}
 <link rel="icon" type="image/png" href="preview.png">
 <link rel="apple-touch-icon" href="preview.png">
 </head>
-<body><div class="wrap">
-<h1>🌟 繁星仙境機率模擬器</h1>
-<div class="card" style="grid-column:1/-1;padding:10px 14px!important;margin-top:0!important">
-  <div style="display:flex;gap:8px;overflow-x:auto;white-space:nowrap">
-    <button onclick="document.querySelector('h2:nth-of-type(1)')?.scrollIntoView({behavior:'smooth'})">✨ 完整流程</button>
-    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('華金一條龍'))?.scrollIntoView({behavior:'smooth'})">🛡️ 華金</button>
-    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('時光超越靴'))?.scrollIntoView({behavior:'smooth'})">💎 時光超越靴</button>
-    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('龍甲附魔'))?.scrollIntoView({behavior:'smooth'})">🐉 龍甲</button>
-    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('善惡武器'))?.scrollIntoView({behavior:'smooth'})">⚔️ 善惡武器</button>
-  </div>
+<body><div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
+</div>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
