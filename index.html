@@ -254,10 +254,7 @@ function card(l,v,c=""){return `<div class="stat"><span class="label">${l}</span
 function runSingle(){let p=Math.max(0,Math.min(100,+singleRate.value))/100,n=Math.max(1,Math.min(1000000,+singleTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){if(Math.random()<p){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}singleResult.innerHTML=card("成功",s.toLocaleString(),"ok")+card("失敗",(n-s).toLocaleString(),"bad")+card("實際成功率",pct(s/n*100))+card("理論成功率",pct(p*100))+card("第一次成功",first?`第 ${first.toLocaleString()} 次`:"未成功")+card("最長連敗",max+" 次")+card("理論平均",p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2})+" 次":"∞")}
 function esc(s){return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
 function renderSteps(){stepsDiv=document.getElementById("steps");stepsDiv.innerHTML="";steps.forEach((x,i)=>{let d=document.createElement("div");d.className="row flow";d.innerHTML=`<input value="${esc(x.name)}" oninput="steps[${i}].name=this.value"><input type="number" min="0" max="100" step="0.0001" value="${x.rate}" oninput="steps[${i}].rate=+this.value;updateTheory()"><button class="danger" onclick="removeStep(${i})">刪除</button>`;stepsDiv.appendChild(d)});updateTheory()}
-function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];
-
-
-renderSteps();flowResult.innerHTML=""}
+function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];renderSteps();flowResult.innerHTML=""}
 function theoryRate(){return steps.reduce((a,x)=>a*Math.max(0,Math.min(100,+x.rate))/100,1)}
 function updateTheory(){let p=theoryRate();theory.innerHTML=steps.length?`<span class="badge">理論全過 ${pct(p*100)}</span> <span class="tiny">平均約 ${p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2}):"∞"} 次流程 / 1件</span>`:"<span class='tiny'>請新增階段</span>"}
 function runFlow(){if(!steps.length)return alert("請先新增階段");let n=Math.max(1,Math.min(1000000,+flowTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){let ok=true;for(const x of steps){if(Math.random()>=Math.max(0,Math.min(100,+x.rate))/100){ok=false;break}}if(ok){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}let p=theoryRate();flowResult.innerHTML=card("全過成品",s.toLocaleString(),"ok")+card("失敗流程",(n-s).toLocaleString(),"bad")+card("實際全過率",pct(s/n*100))+card("理論全過率",pct(p*100))+card("第一次全過",first?`第 ${first.toLocaleString()} 次`:"未出現")+card("最長連敗",max+" 次")}
@@ -856,7 +853,7 @@ function renderXR(){
 function resetXR(){
  xrG={draws:0,xr:0,ur:0,pity:0,guarantee:0,guaranteeXR:0,guaranteeUR1:0,guaranteeUR2:0,hitLog:[]};
  xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML="";
-};xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML=""}
+}
 
 let urG={draws:0,book:0,huajin:0};
 function urOne(){
