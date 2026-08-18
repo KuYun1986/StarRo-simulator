@@ -229,6 +229,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🐉 龍甲附魔</h2>
+<p class="tiny">⭐ 使用「洗到特級」時，若全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 
 <div class="stat">
 <span class="label">第四洞附魔｜期望值：約 6 次</span>
@@ -257,6 +258,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>⚔️ 善惡武器附魔</h2>
+<p class="tiny">⭐ 使用「洗到 LV5」時，若 LV1→LV5 全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 <div class="tiny"><b>洗到 LV5 期望值：約 14 次</b></div>
 <div class="tiny">LV1 → LV2：60%（期望 2 次）　｜　LV2 → LV3：45%（期望 3 次）　｜　LV3 → LV4：30%（期望 4 次）　｜　LV4 → LV5：15%（期望 7 次）　｜　<b>全程期望：約 14 次</b></div>
 <div class="actions">
@@ -1299,20 +1301,31 @@ function dragon4Rate(){return dragon4.lv===2?50:dragon4.lv===3?25:0}
 function dragon4Name(){return dragon4.lv>=4?"特級":`LV${dragon4.lv}`}
 function dragon4Once(){
  if(dragon4.lv>=4){document.getElementById("dragon4Now").innerHTML=`<b class="ok">已達特級</b>`;return}
- let from=dragon4Name(),rate=dragon4Rate();
+ let fromLv=dragon4.lv,from=dragon4Name(),rate=dragon4Rate();
  if(dragon4.lv===2)dragon4.stage23++;else if(dragon4.lv===3)dragon4.stage3S++;
  let ok=Math.random()*100<rate;
  dragon4.tries++;
- if(ok){dragon4.success++;dragon4.lv=dragon4.lv===2?3:4}
+ if(ok){
+   const stageAttempts=fromLv===2?dragon4.stage23:dragon4.stage3S;
+   dragon4.success++;
+   dragon4.lv=dragon4.lv===2?3:4;
+ }
  document.getElementById("dragon4Now").innerHTML=`<div class="tiny">${from} → ${dragon4Name()}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
  renderDragon4();
 }
 function dragon4ToSpecial(){
  let batch=0,guard=0;
  while(dragon4.lv<4 && guard++<100000){
-   let rate=dragon4Rate();if(dragon4.lv===2)dragon4.stage23++;else if(dragon4.lv===3)dragon4.stage3S++;dragon4.tries++;batch++;
-   if(Math.random()*100<rate){dragon4.success++;dragon4.lv=dragon4.lv===2?3:4}
+   let fromLv=dragon4.lv,from=dragon4Name(),rate=dragon4Rate();
+   if(dragon4.lv===2)dragon4.stage23++;else if(dragon4.lv===3)dragon4.stage3S++;
+   dragon4.tries++;batch++;
+   if(Math.random()*100<rate){
+     const stageAttempts=fromLv===2?dragon4.stage23:dragon4.stage3S;
+     dragon4.success++;
+     dragon4.lv=dragon4.lv===2?3:4;
+   }
  }
+ if(batch===2) starroAnnounce("龍甲附魔","全程一發入魂","第四洞 LV2→LV3→特級｜全程 2 次完成");
  document.getElementById("dragon4Now").innerHTML=`<b class="ok">特級完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
  renderDragon4();
 }
@@ -1325,20 +1338,29 @@ function dragon3Rate(){return dragon3.lv===3?75:dragon3.lv===4?50:dragon3.lv===5
 function dragon3Name(){return dragon3.lv>=6?"特級":`LV${dragon3.lv}`}
 function dragon3Once(){
  if(dragon3.lv>=6){document.getElementById("dragon3Now").innerHTML=`<b class="ok">已達特級</b>`;return}
- let from=dragon3Name(),rate=dragon3Rate();
+ let fromLv=dragon3.lv,from=dragon3Name(),rate=dragon3Rate();
  if(dragon3.lv===3)dragon3.stage34++;else if(dragon3.lv===4)dragon3.stage45++;else if(dragon3.lv===5)dragon3.stage5S++;
  let ok=Math.random()*100<rate;
  dragon3.tries++;
- if(ok){dragon3.success++;dragon3.lv++}
+ if(ok){
+   const stageAttempts=fromLv===3?dragon3.stage34:(fromLv===4?dragon3.stage45:dragon3.stage5S);
+   dragon3.success++;dragon3.lv++;
+ }
  document.getElementById("dragon3Now").innerHTML=`<div class="tiny">${from} → ${dragon3Name()}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
  renderDragon3();
 }
 function dragon3ToSpecial(){
  let batch=0,guard=0;
  while(dragon3.lv<6 && guard++<100000){
-   let rate=dragon3Rate();if(dragon3.lv===3)dragon3.stage34++;else if(dragon3.lv===4)dragon3.stage45++;else if(dragon3.lv===5)dragon3.stage5S++;dragon3.tries++;batch++;
-   if(Math.random()*100<rate){dragon3.success++;dragon3.lv++}
+   let fromLv=dragon3.lv,from=dragon3Name(),rate=dragon3Rate();
+   if(dragon3.lv===3)dragon3.stage34++;else if(dragon3.lv===4)dragon3.stage45++;else if(dragon3.lv===5)dragon3.stage5S++;
+   dragon3.tries++;batch++;
+   if(Math.random()*100<rate){
+     const stageAttempts=fromLv===3?dragon3.stage34:(fromLv===4?dragon3.stage45:dragon3.stage5S);
+     dragon3.success++;dragon3.lv++;
+   }
  }
+ if(batch===3) starroAnnounce("龍甲附魔","全程一發入魂","第三洞 LV3→LV4→LV5→特級｜全程 3 次完成");
  document.getElementById("dragon3Now").innerHTML=`<b class="ok">特級完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
  renderDragon3();
 }
@@ -1360,16 +1382,24 @@ function weaponOnce(){
  if(weaponEnchant.lv>=5){document.getElementById("weaponNow").innerHTML=`<b class="ok">已達 LV5</b>`;return}
  let from=weaponEnchant.lv,rate=weaponRate();weaponStageCount();weaponEnchant.tries++;
  let ok=Math.random()*100<rate;
- if(ok)weaponEnchant.lv++;
+ if(ok){
+   const stageAttempts=from===1?weaponEnchant.stage12:(from===2?weaponEnchant.stage23:(from===3?weaponEnchant.stage34:weaponEnchant.stage45));
+   weaponEnchant.lv++;
+ }
  document.getElementById("weaponNow").innerHTML=`<div class="tiny">LV${from} → LV${from+1}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
  renderWeapon();
 }
 function weaponTo5(){
  let batch=0,guard=0;
  while(weaponEnchant.lv<5&&guard++<100000){
-   let rate=weaponRate();weaponStageCount();weaponEnchant.tries++;batch++;
-   if(Math.random()*100<rate)weaponEnchant.lv++;
+   let from=weaponEnchant.lv,rate=weaponRate();
+   weaponStageCount();weaponEnchant.tries++;batch++;
+   if(Math.random()*100<rate){
+     const stageAttempts=from===1?weaponEnchant.stage12:(from===2?weaponEnchant.stage23:(from===3?weaponEnchant.stage34:weaponEnchant.stage45));
+     weaponEnchant.lv++;
+   }
  }
+ if(batch===4) starroAnnounce("善惡武器附魔","全程一發入魂","LV1→LV2→LV3→LV4→LV5｜全程 4 次完成");
  document.getElementById("weaponNow").innerHTML=`<b class="ok">LV5 完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
  renderWeapon();
 }
