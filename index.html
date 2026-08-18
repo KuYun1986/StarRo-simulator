@@ -589,7 +589,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🀙 推筒子</h2>
-<p class="tiny">最多同時下注 5 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。</p>
+<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。</p>
 
 <div class="row">
 <span>同時下注</span>
@@ -599,6 +599,11 @@ a{color:#77a9ff}
 <option value="3">3 手</option>
 <option value="4">4 手</option>
 <option value="5">5 手</option>
+<option value="6">6 手</option>
+<option value="7">7 手</option>
+<option value="8">8 手</option>
+<option value="9">9 手</option>
+<option value="10">10 手</option>
 </select>
 <span>每手 10萬P</span>
 </div>
@@ -1611,7 +1616,7 @@ function ttCompare(player,dealer){
 }
 
 function ttPlay(){
- let handCount=Math.max(1,Math.min(5,+document.getElementById("ttHands").value||1));
+ let handCount=Math.max(1,Math.min(10,+document.getElementById("ttHands").value||1));
  let d=ttDeck();
 
  // One shared dealer hand for all simultaneous player bets.
