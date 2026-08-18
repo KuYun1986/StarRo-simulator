@@ -134,7 +134,7 @@ a{color:#77a9ff}
 <div id="onlineBar" class="stat" style="margin-top:12px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <span class="label">🌐 全服即時戰報（最近24小時）</span>
-    <span id="fbStatus" class="tiny">連線中…</span>
+    <span id="fbStatus" class="tiny">連線中…</span><span id="onlineCount" class="tiny">👥 在線 0 人</span>
     <button onclick="changeStarroName()" style="margin-left:auto">👤 <span id="fbNameLabel">設定暱稱</span></button>
   </div>
   <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
@@ -465,6 +465,21 @@ a{color:#77a9ff}
 
 
 <section class="card">
+<h2>🏆 SSS評級系統</h2>
+<p class="tiny">每次評級成功機率 <b>15%</b>，每次成本固定 <b>500 台幣</b>。</p>
+
+<div class="actions">
+<button class="primary" onclick="sssBatch(1)">評級 1 次</button>
+<button onclick="sssBatch(10)">評級 10 次</button>
+
+<button onclick="sssUntilSuccess()">洗到 SSS</button>
+<button onclick="sssReset()">清除紀錄</button>
+</div>
+
+<div id="sssNow" style="margin-top:12px"></div>
+<div id="sssStats" style="margin-top:10px"></div>
+</section>
+<section class="card">
 <h2>🔨 +20 → +30 精煉模擬</h2>
 <p class="tiny">每把武器從 <b>+20</b> 開始；每次精煉都消耗 <b>1 把精煉槌</b>。失敗維持原精煉值，成功才進到下一階。每次按 10 / 100 把精煉槌都會從「目前精煉值」繼續往上敲，進度不會重置；可一路累積到 +30。</p>
 
@@ -545,21 +560,7 @@ a{color:#77a9ff}
 </div>
 </section>
 
-<section class="card">
-<h2>🏆 SSS評級系統</h2>
-<p class="tiny">每次評級成功機率 <b>15%</b>，每次成本固定 <b>500 台幣</b>。</p>
 
-<div class="actions">
-<button class="primary" onclick="sssBatch(1)">評級 1 次</button>
-<button onclick="sssBatch(10)">評級 10 次</button>
-
-<button onclick="sssUntilSuccess()">洗到 SSS</button>
-<button onclick="sssReset()">清除紀錄</button>
-</div>
-
-<div id="sssNow" style="margin-top:12px"></div>
-<div id="sssStats" style="margin-top:10px"></div>
-</section>
 
 <section class="card">
 <h2>🃏 21點</h2>
@@ -1974,7 +1975,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/fireba
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, query, orderBy, limit,
-  onSnapshot, serverTimestamp
+  onSnapshot, serverTimestamp, doc, setDoc, deleteDoc, where, Timestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1993,6 +1994,48 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let displayName = localStorage.getItem("starro_display_name") || "";
+let presenceTimer = null;
+let presenceUnsub = null;
+
+async function updatePresence(){
+  if(!currentUser) return;
+  try{
+    await setDoc(doc(db,"online",currentUser.uid),{
+      uid: currentUser.uid,
+      name: displayName || "匿名玩家",
+      lastSeen: serverTimestamp()
+    },{merge:true});
+  }catch(err){
+    console.error("在線狀態更新失敗",err);
+  }
+}
+
+function startPresence(){
+  if(!currentUser) return;
+
+  updatePresence();
+  if(presenceTimer) clearInterval(presenceTimer);
+  presenceTimer=setInterval(updatePresence,30000);
+
+  if(presenceUnsub) presenceUnsub();
+  const cutoff=Timestamp.fromMillis(Date.now()-120000);
+  const oq=query(collection(db,"online"),where("lastSeen",">=",cutoff));
+
+  presenceUnsub=onSnapshot(oq,snap=>{
+    const e=document.getElementById("onlineCount");
+    if(e)e.textContent=`👥 在線 ${snap.size} 人`;
+  },err=>{
+    console.error("在線人數讀取失敗",err);
+    const e=document.getElementById("onlineCount");
+    if(e)e.textContent="👥 在線 -- 人";
+  });
+}
+
+window.addEventListener("beforeunload",()=>{
+  if(currentUser){
+    deleteDoc(doc(db,"online",currentUser.uid)).catch(()=>{});
+  }
+});
 
 function esc(s){
   return String(s ?? "").replace(/[&<>"']/g,c=>({
@@ -2011,6 +2054,7 @@ function askName(force=false){
     }
   }
   updateNameUI();
+  if(currentUser) updatePresence();
   return displayName;
 }
 
@@ -2072,7 +2116,10 @@ onAuthStateChanged(auth,user=>{
   const e=document.getElementById("fbStatus");
   if(e)e.textContent=user?"🟢 已連線":"🔴 未連線";
   updateNameUI();
-  if(user && !displayName) setTimeout(()=>askName(),250);
+  if(user){
+    startPresence();
+    if(!displayName) setTimeout(()=>askName(),250);
+  }
 });
 
 const q=query(collection(db,"jackpots"),orderBy("createdAt","desc"),limit(200));
