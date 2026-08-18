@@ -476,6 +476,7 @@ a{color:#77a9ff}
     <button class="primary" onclick="shieldClearBatch(1)">抽 1 次</button>
     <button onclick="shieldClearBatch(10)">抽 10 次</button>
     <button onclick="shieldClearBatch(100)">抽 100 次</button>
+    <button onclick="shieldClearBatch(1000)">抽 1000 次</button>
     <button onclick="shieldClearReset()">重置</button>
   </div>
   <div id="shieldClearNow" style="margin-top:8px"></div>
@@ -509,6 +510,7 @@ a{color:#77a9ff}
     <button class="primary" onclick="glovePureBatch(1)">抽 1 次</button>
     <button onclick="glovePureBatch(10)">抽 10 次</button>
     <button onclick="glovePureBatch(100)">抽 100 次</button>
+    <button onclick="glovePureBatch(1000)">抽 1000 次</button>
     <button onclick="glovePureReset()">重置</button>
   </div>
   <div id="glovePureNow" style="margin-top:8px"></div>
@@ -1660,16 +1662,18 @@ renderSteps();
   }
 
   window.shieldClearBatch = function(n) {
-    let hits = 0, bads = 0;
+    let hits = 0, bads = 0, hitDraws = [];
     for (let i = 0; i < n; i++) {
       clear.attempts++;
       clear.cost += 500;
+      const batchDraw = i + 1;
 
       if (Math.random() < 0.00033) {
         clear.success++;
         hits++;
-        if (clear.attempts <= 100 && typeof window.starroBroadcast === "function") {
-          window.starroBroadcast("盾牌石","清澈石成功",`100次內中獎｜第 ${clear.attempts} 次`);
+        hitDraws.push(batchDraw);
+        if (batchDraw <= 100 && typeof window.starroBroadcast === "function") {
+          window.starroBroadcast("盾牌石","清澈石成功",`100次內中獎｜第 ${batchDraw} 抽`);
         }
       }
       if (Math.random() < 0.10) {
@@ -1678,9 +1682,10 @@ renderSteps();
       }
     }
 
+    const hitText = hitDraws.length ? `｜出貨：${hitDraws.map(x=>`第 ${x} 抽`).join("、")}` : "";
     el("shieldClearNow").innerHTML =
       `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜成功 ${hits.toLocaleString()} 次｜腐朽 ${bads.toLocaleString()} 個</b>` +
-      `<div class="tiny">本次花費 ${(n * 500).toLocaleString()} P</div></div>`;
+      `<div class="tiny">${hitText || "本次未出貨"}<br>本次花費 ${(n * 500).toLocaleString()} P</div></div>`;
     stats("shieldClearStats", clear, "累計腐朽");
   };
 
@@ -1691,21 +1696,24 @@ renderSteps();
   };
 
   window.shieldEventBatch = function(n) {
-    let glow = 0;
+    let glow = 0, hitDraws = [];
     for (let i = 0; i < n; i++) {
       eventStone.attempts++;
       eventStone.cost += 999;
+      const batchDraw = i + 1;
       if (Math.random() < 0.001) {
         eventStone.success++;
         glow++;
-        if (eventStone.attempts <= 100 && typeof window.starroBroadcast === "function") {
-          window.starroBroadcast("盾牌石","活動石變成光芒",`100次內中獎｜第 ${eventStone.attempts} 次`);
+        hitDraws.push(batchDraw);
+        if (batchDraw <= 100 && typeof window.starroBroadcast === "function") {
+          window.starroBroadcast("盾牌石","活動石變成光芒",`100次內中獎｜第 ${batchDraw} 抽`);
         }
       }
     }
+    const hitText = hitDraws.length ? `｜出貨：${hitDraws.map(x=>`第 ${x} 抽`).join("、")}` : "";
     el("shieldEventNow").innerHTML =
       `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜光芒 ${glow.toLocaleString()} 個</b>` +
-      `<div class="tiny">本次花費 ${(n * 999).toLocaleString()} P</div></div>`;
+      `<div class="tiny">${hitText || "本次未出貨"}<br>本次花費 ${(n * 999).toLocaleString()} P</div></div>`;
 
     const actual = eventStone.attempts
       ? (eventStone.success / eventStone.attempts * 100).toFixed(3)
@@ -1724,16 +1732,18 @@ renderSteps();
   };
 
   window.glovePureBatch = function(n) {
-    let hits = 0, bads = 0;
+    let hits = 0, bads = 0, hitDraws = [];
     for (let i = 0; i < n; i++) {
       pure.attempts++;
       pure.cost += 500;
+      const batchDraw = i + 1;
 
       if (Math.random() < 0.0033) {
         pure.success++;
         hits++;
-        if (pure.attempts <= 100 && typeof window.starroBroadcast === "function") {
-          window.starroBroadcast("手套石","純潔石成功",`100次內中獎｜第 ${pure.attempts} 次`);
+        hitDraws.push(batchDraw);
+        if (batchDraw <= 100 && typeof window.starroBroadcast === "function") {
+          window.starroBroadcast("手套石","純潔石成功",`100次內中獎｜第 ${batchDraw} 抽`);
         }
       }
       if (Math.random() < 0.10) {
@@ -1742,9 +1752,10 @@ renderSteps();
       }
     }
 
+    const hitText = hitDraws.length ? `｜出貨：${hitDraws.map(x=>`第 ${x} 抽`).join("、")}` : "";
     el("glovePureNow").innerHTML =
       `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜成功 ${hits.toLocaleString()} 次｜雜念 ${bads.toLocaleString()} 個</b>` +
-      `<div class="tiny">本次花費 ${(n * 500).toLocaleString()} P</div></div>`;
+      `<div class="tiny">${hitText || "本次未出貨"}<br>本次花費 ${(n * 500).toLocaleString()} P</div></div>`;
     stats("glovePureStats", pure, "累計雜念");
   };
 
