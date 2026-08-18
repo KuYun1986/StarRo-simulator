@@ -793,7 +793,7 @@ function renderLowBook(){
 function resetLowBook(){lb={total:0,tiers:{},results:[]};lowBookNow.innerHTML="";lowBookStats.innerHTML="";lowBookDist.innerHTML=""}
 
 
-let xrG={draws:0,xr:0,ur:0,guarantee:0};
+let xrG={draws:0,xr:0,ur:0,guarantee:0,guaranteeXR:0,guaranteeUR1:0,guaranteeUR2:0};
 function xrOne(){
  xrG.draws++;
  let r=Math.random()*100;
@@ -813,8 +813,11 @@ function xrDraw(n){
  if(n===1001){
    guaranteed=pick(["XR大獎","UR一獎","UR二獎"]);
    xrG.guarantee++;
+   if(guaranteed==="XR大獎") xrG.guaranteeXR++;
+   else if(guaranteed==="UR一獎") xrG.guaranteeUR1++;
+   else if(guaranteed==="UR二獎") xrG.guaranteeUR2++;
  }
- xrNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${gotXR?`XR大獎 × ${gotXR}　`:""}${gotUR1?`UR一獎 × ${gotUR1}　`:""}${gotUR2?`UR二獎 × ${gotUR2}　`:""}${guaranteed?`🎁 保底 3 抽 1：${guaranteed}`:(!gotXR&&!gotUR1&&!gotUR2?"未出 XR / UR":"")}</b></div>`;
+ xrNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${gotXR?`XR大獎 × ${gotXR}　`:""}${gotUR1?`UR一獎 × ${gotUR1}　`:""}${gotUR2?`UR二獎 × ${gotUR2}`:""}${!gotXR&&!gotUR1&&!gotUR2?"未出 XR / UR":""}</b></div>${guaranteed?`<div class="stat" style="margin-top:8px"><span class="label">🎁 1001 抽保底｜3 抽 1</span><b class="ok" style="font-size:26px">${guaranteed}</b></div>`:""}`;
  renderXR();
 }
 function renderXR(){
@@ -822,10 +825,13 @@ function renderXR(){
  xrStats.innerHTML=card("累計抽數",xrG.draws.toLocaleString())+
  card("XR",xrG.xr.toLocaleString(),"ok")+
  card("UR",xrG.ur.toLocaleString(),"ok")+
- card("1001抽保底",xrG.guarantee.toLocaleString());
+ card("1001抽保底",xrG.guarantee.toLocaleString())+
+ card("保底 XR大獎",xrG.guaranteeXR.toLocaleString())+
+ card("保底 UR一獎",xrG.guaranteeUR1.toLocaleString())+
+ card("保底 UR二獎",xrG.guaranteeUR2.toLocaleString());
  xrDist.innerHTML=`<div class="stat"><span class="label">實際出現率</span><div style="line-height:1.9">XR：${(xrG.xr/t*100).toFixed(4)}%（理論 0.07%）<br>UR：${(xrG.ur/t*100).toFixed(4)}%（理論 0.07%）</div></div>`;
 }
-function resetXR(){xrG={draws:0,xr:0,ur:0,guarantee:0};xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML=""}
+function resetXR(){xrG={draws:0,xr:0,ur:0,guarantee:0,guaranteeXR:0,guaranteeUR1:0,guaranteeUR2:0};xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML=""}
 
 let urG={draws:0,book:0,huajin:0};
 function urOne(){
