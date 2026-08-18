@@ -109,6 +109,106 @@ a{color:#77a9ff}
   .actions button{flex:1 1 130px}
 }
 
+
+.mq-wheel-wrap{
+  position:relative;
+  width:min(330px,82vw);
+  aspect-ratio:1/1;
+  margin-left:auto;
+  margin-right:auto;
+  display:grid;
+  place-items:center;
+}
+.mq-pointer{
+  position:absolute;
+  top:-8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:4;
+  font-size:30px;
+  color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,.8);
+}
+.mq-wheel{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  position:relative;
+  border:8px solid #243247;
+  box-shadow:inset 0 0 0 4px rgba(255,255,255,.08),0 8px 30px rgba(0,0,0,.28);
+  transition:transform 2.2s cubic-bezier(.12,.78,.18,1);
+  background:
+    conic-gradient(
+      #d63c3c 0.000000deg 13.846154deg,
+      #f1d46a 13.846154deg 27.692308deg,
+      #d63c3c 27.692308deg 41.538462deg,
+      #3fa55b 41.538462deg 55.384615deg,
+      #d63c3c 55.384615deg 69.230769deg,
+      #f1d46a 69.230769deg 83.076923deg,
+      #d63c3c 83.076923deg 96.923077deg,
+      #8b52c7 96.923077deg 110.769231deg,
+      #d63c3c 110.769231deg 124.615385deg,
+      #f1d46a 124.615385deg 138.461538deg,
+      #d63c3c 138.461538deg 152.307692deg,
+      #3fa55b 152.307692deg 166.153846deg,
+      #d63c3c 166.153846deg 180.000000deg,
+      #f1d46a 180.000000deg 193.846154deg,
+      #d63c3c 193.846154deg 207.692308deg,
+      #3e78cf 207.692308deg 221.538462deg,
+      #d63c3c 221.538462deg 235.384615deg,
+      #f1d46a 235.384615deg 249.230769deg,
+      #d63c3c 249.230769deg 263.076923deg,
+      #3fa55b 263.076923deg 276.923077deg,
+      #d63c3c 276.923077deg 290.769231deg,
+      #8b52c7 290.769231deg 304.615385deg,
+      #d63c3c 304.615385deg 318.461538deg,
+      #f1d46a 318.461538deg 332.307692deg,
+      #d63c3c 332.307692deg 346.153846deg,
+      #dd7b2d 346.153846deg 360.000000deg
+    );
+}
+
+.mq-wheel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg 13.246154deg,
+    rgba(255,255,255,.28) 13.246154deg 13.846154deg
+  );
+  pointer-events:none;
+  z-index:1;
+}
+.mq-wheel-center{ z-index:3; }
+
+.mq-wheel::after{
+  content:"";
+  position:absolute;
+  inset:10%;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.24);
+  pointer-events:none;
+}
+.mq-wheel-center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:31%;
+  aspect-ratio:1/1;
+  border-radius:50%;
+  background:#0c1420;
+  border:4px solid #d2ad4f;
+  display:grid;
+  place-items:center;
+  color:#f7d77a;
+  font-weight:800;
+  letter-spacing:.12em;
+  box-shadow:0 0 20px rgba(0,0,0,.45);
+}
+
 </style>
 <meta property="og:title" content="繁星仙境模擬器">
 <meta property="og:description" content="古雲防上頭用V777（機率僅供參考，實際依遊戲為主）">
@@ -127,6 +227,7 @@ a{color:#77a9ff}
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('跑馬燈遊戲'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 輪盤</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
 </div>
@@ -564,6 +665,77 @@ a{color:#77a9ff}
 </section>
 
 
+
+
+<section class="card">
+<h2>🎡 跑馬燈遊戲</h2>
+<p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 2 種顏色。跑 10 次／100 次時，只要任一局中獎就立即停止。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">顏色 / 賠率 / 機率</span>
+  <div class="tiny" style="line-height:1.9;margin-top:6px">
+    🔴 紅色｜1:1｜46.15%<br>
+    🟡 黃色｜1:3｜23.08%<br>
+    🟢 綠色｜1:5｜15.38%<br>
+    🟣 紫色｜1:11｜7.69%<br>
+    🔵 藍色｜1:23｜3.85%<br>
+    🟠 橘色｜1:23｜3.85%
+  </div>
+</div>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">下注設定｜每次最多 5,000 紅｜最多同時 2 種顏色</span>
+
+  <div class="row" style="margin-top:8px">
+    <span>第 1 色</span>
+    <select id="marqueeBetColor1">
+      <option value="red">🔴 紅色 1:1</option>
+      <option value="yellow">🟡 黃色 1:3</option>
+      <option value="green">🟢 綠色 1:5</option>
+      <option value="purple">🟣 紫色 1:11</option>
+      <option value="blue">🔵 藍色 1:23</option>
+      <option value="orange">🟠 橘色 1:23</option>
+    </select>
+    <input id="marqueeBetAmount1" type="number" min="0" max="5000" step="100" value="1000">
+    <span>紅</span>
+  </div>
+
+  <div class="row" style="margin-top:8px">
+    <span>第 2 色</span>
+    <select id="marqueeBetColor2">
+      <option value="">不下注</option>
+      <option value="red">🔴 紅色 1:1</option>
+      <option value="yellow">🟡 黃色 1:3</option>
+      <option value="green">🟢 綠色 1:5</option>
+      <option value="purple">🟣 紫色 1:11</option>
+      <option value="blue">🔵 藍色 1:23</option>
+      <option value="orange">🟠 橘色 1:23</option>
+    </select>
+    <input id="marqueeBetAmount2" type="number" min="0" max="5000" step="100" value="0">
+    <span>紅</span>
+  </div>
+
+  <div class="tiny" style="margin-top:6px">兩種顏色合計每局不可超過 <b>5,000 紅</b>，且不可選相同顏色。</div>
+</div>
+
+<div class="actions" style="margin-top:10px">
+  <button class="primary" onclick="marqueePlay(1)">跑 1 次</button>
+  <button onclick="marqueePlay(10)">跑 10 次</button>
+  <button onclick="marqueePlay(100)">跑 100 次</button>
+  <button onclick="marqueeReset()">重置</button>
+</div>
+
+<div class="mq-wheel-wrap" style="margin-top:14px">
+  <div class="mq-pointer">▼</div>
+  <div id="marqueeWheel" class="mq-wheel">
+    <div class="mq-wheel-center">繁星</div>
+  </div>
+</div>
+<div id="marqueeWheelLabel" class="tiny" style="text-align:center;margin-top:8px">等待開獎</div>
+
+<div id="marqueeNow" style="margin-top:10px"></div>
+<div id="marqueeStats" style="margin-top:10px"></div>
+</section>
 
 <section class="card">
 <h2>🃏 21點</h2>
@@ -1512,6 +1684,167 @@ function sssReset(){
  sssState={attempts:0,successes:0,cost:0};
  document.getElementById("sssNow").innerHTML="";
  document.getElementById("sssStats").innerHTML="";
+}
+
+
+/* ===== 跑馬燈遊戲 ===== */
+const marqueeOptions=[
+  {key:"red",name:"紅色",icon:"🔴",p:46.15,pay:1},
+  {key:"yellow",name:"黃色",icon:"🟡",p:23.08,pay:3},
+  {key:"green",name:"綠色",icon:"🟢",p:15.38,pay:5},
+  {key:"purple",name:"紫色",icon:"🟣",p:7.69,pay:11},
+  {key:"blue",name:"藍色",icon:"🔵",p:3.85,pay:23},
+  {key:"orange",name:"橘色",icon:"🟠",p:3.85,pay:23}
+];
+let marqueeState={plays:0,wins:0,totalBet:0,net:0,counts:{red:0,yellow:0,green:0,purple:0,blue:0,orange:0}};
+
+function marqueeRoll(){
+  let r=Math.random()*100, acc=0;
+  for(const x of marqueeOptions){
+    acc+=x.p;
+    if(r<acc)return x;
+  }
+  return marqueeOptions[marqueeOptions.length-1];
+}
+
+let marqueeWheelRotation=0;
+
+function marqueeHighlight(key){
+  const wheel=document.getElementById("marqueeWheel");
+  const label=document.getElementById("marqueeWheelLabel");
+  if(!wheel)return;
+
+  // 26格等分：紅12、黃6、綠4、紫2、藍1、橘1。
+  const slots=[
+    "red","yellow","red","green","red","yellow",
+    "red","purple","red","yellow","red","green",
+    "red","yellow","red","blue","red","yellow",
+    "red","green","red","purple","red","yellow",
+    "red","orange"
+  ];
+
+  if(!key){
+    if(label)label.textContent="等待開獎";
+    return;
+  }
+
+  const candidates=[];
+  slots.forEach((v,i)=>{if(v===key)candidates.push(i)});
+  if(!candidates.length)return;
+
+  // 同顏色有多格時隨機停其中一格，看起來更像遊戲中的跑馬輪盤。
+  const slotIndex=candidates[Math.floor(Math.random()*candidates.length)];
+  const slotDeg=360/slots.length;
+  const target=slotIndex*slotDeg + slotDeg/2;
+
+  const opt=marqueeOptions.find(x=>x.key===key);
+  const extraTurns=5*360;
+  const currentMod=((marqueeWheelRotation%360)+360)%360;
+  const desired=(360-target)%360;
+  const delta=(desired-currentMod+360)%360;
+  marqueeWheelRotation += extraTurns + delta;
+
+  wheel.style.transform=`rotate(${marqueeWheelRotation}deg)`;
+  if(label)label.innerHTML=`開獎：${opt.icon} <b>${opt.name}</b>`;
+}
+
+function marqueeRender(){
+  const rows=marqueeOptions.map(x=>{
+    const c=marqueeState.counts[x.key]||0;
+    const rate=marqueeState.plays?c/marqueeState.plays*100:0;
+    return `${x.icon} ${x.name}：${c.toLocaleString()} 次（${rate.toFixed(2)}%）`;
+  }).join("<br>");
+  document.getElementById("marqueeStats").innerHTML=
+    `<div class="stat"><span class="label">累計 ${marqueeState.plays.toLocaleString()} 局</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
+    `累計下注 ${marqueeState.totalBet.toLocaleString()} 紅｜累計淨輸贏 <b class="${marqueeState.net>=0?"ok":"bad"}">${marqueeState.net>=0?"+":""}${marqueeState.net.toLocaleString()} 紅</b><br>`+
+    `${rows}</div></div>`;
+}
+
+function marqueePlay(n){
+  const color1=document.getElementById("marqueeBetColor1").value;
+  const color2=document.getElementById("marqueeBetColor2").value;
+  const amount1=Math.max(0,Math.floor(+document.getElementById("marqueeBetAmount1").value||0));
+  const amount2=Math.max(0,Math.floor(+document.getElementById("marqueeBetAmount2").value||0));
+
+  if(amount1<=0 && amount2<=0) return alert("請至少下注一種顏色");
+  if(amount1+amount2>5000) return alert("每局最多只能下注 5,000 紅");
+  if(color2 && color1===color2) return alert("兩個下注顏色不能相同");
+  if(amount2>0 && !color2) return alert("第 2 色有下注金額時，請選擇顏色");
+
+  const bets=[];
+  if(amount1>0) bets.push({opt:marqueeOptions.find(x=>x.key===color1),amount:amount1});
+  if(amount2>0 && color2) bets.push({opt:marqueeOptions.find(x=>x.key===color2),amount:amount2});
+
+  let last=null;
+  let roundNet=0;
+  let totalStake=0;
+  let actualRuns=0;
+  let stoppedByWin=false;
+  const hitMap={};
+
+  for(const b of bets) hitMap[b.opt.key]=[];
+
+  for(let i=1;i<=n;i++){
+    const x=marqueeRoll();
+    last=x;
+    actualRuns++;
+    marqueeState.plays++;
+    marqueeState.counts[x.key]++;
+
+    const stake=bets.reduce((s,b)=>s+b.amount,0);
+    totalStake+=stake;
+    marqueeState.totalBet+=stake;
+
+    let thisNet=-stake;
+    let thisRoundWin=false;
+
+    for(const b of bets){
+      if(x.key===b.opt.key){
+        thisNet += b.amount*(b.opt.pay+1);
+        marqueeState.wins++;
+        hitMap[b.opt.key].push(i);
+        thisRoundWin=true;
+      }
+    }
+
+    roundNet += thisNet;
+    marqueeState.net += thisNet;
+
+    // 跑10次 / 100次時，中獎即停；跑1次自然只跑一次
+    if(n>1 && thisRoundWin){
+      stoppedByWin=true;
+      break;
+    }
+  }
+
+  marqueeHighlight(last.key);
+
+  const betText=bets.map(b=>`${b.opt.icon} ${b.opt.name} ${b.amount.toLocaleString()}紅（1:${b.opt.pay}）`).join(" ＋ ");
+  const hitText=bets.map(b=>{
+    const hits=hitMap[b.opt.key];
+    return `${b.opt.icon}${b.opt.name}：${hits.length} 次${hits.length?`（${hits.map(i=>`第${i}次`).join("、")}）`:""}`;
+  }).join("<br>");
+
+  document.getElementById("marqueeNow").innerHTML=
+    `<div class="stat"><b>原設定 ${n.toLocaleString()} 次｜實際跑 ${actualRuns.toLocaleString()} 次｜最後結果 ${last.icon} ${last.name}</b>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
+    `每局下注：${betText}<br>`+
+    `${stoppedByWin?'<b class="ok">✅ 中獎即停</b><br>':""}`+
+    `本次總下注：${totalStake.toLocaleString()} 紅｜本次淨輸贏：<b class="${roundNet>=0?"ok":"bad"}">${roundNet>=0?"+":""}${roundNet.toLocaleString()} 紅</b><br>`+
+    `${hitText}`+
+    `</div></div>`;
+  marqueeRender();
+}
+
+function marqueeReset(){
+  marqueeState={plays:0,wins:0,totalBet:0,net:0,counts:{red:0,yellow:0,green:0,purple:0,blue:0,orange:0}};
+  document.getElementById("marqueeNow").innerHTML="";
+  document.getElementById("marqueeStats").innerHTML="";
+  marqueeWheelRotation=0;
+  const wheel=document.getElementById("marqueeWheel");
+  if(wheel)wheel.style.transform="rotate(0deg)";
+  marqueeHighlight("");
 }
 
 /* ===== 21點 ===== */
