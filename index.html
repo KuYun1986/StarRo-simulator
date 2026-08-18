@@ -28,30 +28,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 
 
 
-<section class="card">
-<h2>✨ 完整流程</h2>
-<p class="tiny">每個階段都必須成功，才算一件成品。機率與名稱都能直接修改。</p>
-<div id="steps"></div>
-<div class="actions"><button onclick="addPreset('精煉 1%',1)">＋精煉1%</button><button onclick="addPreset('自訂階段',10)">＋自訂</button></div>
-<label>模擬次數</label><input id="flowTrials" type="number" min="1" max="1000000" value="100000">
-<div class="actions"><button class="primary" onclick="runFlow()">模擬完整流程</button><button onclick="clearSteps()">清空</button></div>
-<div id="theory" style="margin-top:14px"></div><div id="flowResult" class="statgrid"></div>
-<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
-<h3>🎯 終傷隨機數值</h3>
-<p class="tiny">華金流程全過後，再隨機抽出 +1%～+15%。目前採四區間推定：+1～5% = 95%、+6～10% = 4.5%、+11～14% = 0.45%、+15% = 0.05%。</p>
-<div class="row">
-<input id="randomMin" type="number" value="1" min="0" step="1">
-<input id="randomMax" type="number" value="15" min="0" step="1">
-<span>%</span>
-</div>
-<div class="actions">
-<button class="primary" onclick="drawRandomValue()">🎲 抽本次終傷</button>
-<button onclick="resetRandomStats()">清除紀錄</button>
-</div>
-<div id="randomNow" style="margin-top:14px"></div>
-<div id="randomStats" class="statgrid"></div><p class="tiny" style="line-height:1.9;margin-top:12px"><b>目前推定區間：</b><br>+1～5%：89.77%　+6～10%：8.98%　+11～14%：0.90%　+15%：0.36%<br>※ 抽中區間後，區間內數值等機率；此為模擬器設定。</p>
-</div>
-</section>
+
 
 <section class="card">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
