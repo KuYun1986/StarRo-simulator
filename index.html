@@ -20,10 +20,108 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.stat{background:#10152a;border-radius:13px;padding:12px}.stat b{font-size:19px;display:block;margin-top:4px}.label{color:var(--muted);font-size:13px}
 .ok{color:var(--ok)}.bad{color:var(--bad)}.flow{padding:10px 0;border-bottom:1px solid var(--line)}.badge{display:inline-block;background:#292f4d;padding:4px 8px;border-radius:999px;font-size:12px;color:var(--accent)}
 @media(max-width:620px){.row{grid-template-columns:1fr 90px auto}.statgrid{grid-template-columns:repeat(2,1fr)}h1{font-size:23px}}
+
+/* ===== Modern UI v1 — visual override only ===== */
+:root{
+  --bg:#080c12;--card:#10161e;--card2:#151c26;--line:#27313d;
+  --text:#f4f7fb;--muted:#8f9bad;--accent:#55d35a;--blue:#67a0ff;
+  --gold:#ffc42d;--danger:#ff5c42;--violet:#d06cff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0!important;
+  background:
+    radial-gradient(circle at 15% -10%,rgba(48,90,130,.18),transparent 28%),
+    linear-gradient(180deg,#070a0f,#0b1017 42%,#080c12)!important;
+  color:var(--text)!important;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif!important;
+}
+.wrap{max-width:1320px!important;padding:22px!important}
+h1{
+  font-size:30px!important;margin:4px 0 20px!important;letter-spacing:.5px;
+  display:flex;align-items:center;gap:10px
+}
+h1:before{content:"✦";display:grid;place-items:center;width:40px;height:40px;border:1px solid #d83b32;border-radius:9px}
+h2{font-size:21px!important;margin:0 0 14px!important}
+.sub,.tiny{color:var(--muted)!important}
+.card{
+  background:linear-gradient(145deg,rgba(20,27,36,.97),rgba(12,17,24,.98))!important;
+  border:1px solid var(--line)!important;border-radius:14px!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.22)!important;
+  padding:20px!important;margin:14px 0!important
+}
+.row{gap:12px!important}
+input,select{
+  background:#0b1119!important;color:var(--text)!important;border:1px solid #34404e!important;
+  border-radius:9px!important;min-height:42px
+}
+button{
+  background:linear-gradient(180deg,#1b2430,#141b25)!important;
+  color:#f5f7fb!important;border:1px solid #3a4654!important;border-radius:8px!important;
+  min-height:42px;padding:9px 16px!important;font-weight:700!important;
+  transition:.15s transform,.15s border-color,.15s filter
+}
+button:hover{transform:translateY(-1px);border-color:#667587!important;filter:brightness(1.08)}
+button.primary{
+  background:linear-gradient(180deg,#268d34,#176c26)!important;border-color:#319842!important;
+  box-shadow:0 0 18px rgba(50,190,72,.12)
+}
+.actions{display:flex;flex-wrap:wrap;gap:9px!important;margin-top:12px!important}
+.stat{
+  background:linear-gradient(180deg,rgba(17,24,34,.96),rgba(11,16,23,.96))!important;
+  border:1px solid #28323e!important;border-radius:10px!important;padding:14px!important
+}
+.label{color:#aab5c4!important;font-weight:700}
+.ok{color:#57dc67!important}.bad{color:#ff654d!important}
+hr{border:0;border-top:1px solid var(--line)!important}
+table{width:100%;border-collapse:collapse}
+th,td{border-bottom:1px solid #27313b!important;padding:11px 8px!important}
+th{color:#aeb9c8;text-align:left}
+a{color:#77a9ff}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#354252;border-radius:8px}
+::-webkit-scrollbar-track{background:#0b1017}
+
+/* Main feature cards become a responsive dashboard */
+@media(min-width:980px){
+  body .wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+  body .wrap>h1,body .wrap>.sub,body .wrap>p,body .wrap>header{grid-column:1/-1}
+  body .wrap>.card{min-width:0}
+  /* Keep dense / broad simulator cards full width */
+  body .wrap>.card:has(h2:nth-child(1)){align-self:start}
+  body .wrap>.card:has(h2:nth-child(1):not(:only-child)){ }
+  body .wrap>.card:has(h2:where(:not(:empty))){ }
+}
+/* Specific large sections stay full width for readability */
+.card:has(h2:nth-child(1)){}
+
+/* Dragon and weapon cards get dashboard emphasis */
+.card:has(h2:nth-child(1)){position:relative;overflow:hidden}
+.card:has(h2:nth-child(1))::after{
+  content:"";position:absolute;inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(103,160,255,.45),transparent);pointer-events:none
+}
+
+@media(max-width:720px){
+  .wrap{padding:12px!important}
+  h1{font-size:23px!important}
+  .card{padding:15px!important;border-radius:12px!important}
+  .actions button{flex:1 1 130px}
+}
+
 </style>
 </head>
 <body><div class="wrap">
 <h1>🌟 繁星仙境機率模擬器</h1>
+<div class="card" style="grid-column:1/-1;padding:10px 14px!important;margin-top:0!important">
+  <div style="display:flex;gap:8px;overflow-x:auto;white-space:nowrap">
+    <button onclick="document.querySelector('h2:nth-of-type(1)')?.scrollIntoView({behavior:'smooth'})">✨ 完整流程</button>
+    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('華金一條龍'))?.scrollIntoView({behavior:'smooth'})">🛡️ 華金</button>
+    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('時光超越靴'))?.scrollIntoView({behavior:'smooth'})">💎 時光超越靴</button>
+    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('龍甲附魔'))?.scrollIntoView({behavior:'smooth'})">🐉 龍甲</button>
+    <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('善惡武器'))?.scrollIntoView({behavior:'smooth'})">⚔️ 善惡武器</button>
+  </div>
+</div>
 <div class="sub">精煉・華金洗詞・附魔・自訂機率 <span class="badge">V2</span></div>
 
 <section class="card">
