@@ -184,6 +184,21 @@ a{color:#77a9ff}
   box-shadow:0 0 20px rgba(0,0,0,.45);
 }
 
+
+.baccarat-bets label{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  font-size:13px;
+}
+.baccarat-bets input{
+  width:100%;
+  box-sizing:border-box;
+}
+@media(max-width:640px){
+  .baccarat-bets{grid-template-columns:1fr !important;}
+}
+
 </style>
 <meta property="og:title" content="繁星仙境模擬器">
 <meta property="og:description" content="古雲防上頭用V777（機率僅供參考，實際依遊戲為主）">
@@ -203,6 +218,7 @@ a{color:#77a9ff}
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('繁星大輪盤'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 繁星大輪盤</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('百家樂'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎴 百家樂</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
 </div>
@@ -740,6 +756,42 @@ a{color:#77a9ff}
 
 <div id="marqueeNow" style="margin-top:10px"></div>
 <div id="marqueeStats" style="margin-top:10px"></div>
+</section>
+
+
+<section class="card" id="baccaratCard">
+  <h2>🎴 百家樂</h2>
+  <div class="tiny" style="line-height:1.8">
+    每局所有下注合計最高 <b>30,000 紅利</b>。A=1，10/J/Q/K=0，其餘照牌面點數；總點數只看個位數。
+    自動依標準百家樂規則補第三張牌。和局時「閒贏／莊贏」退回本金。
+  </div>
+
+  <div class="stat" style="margin-top:10px">
+    <span class="label">下注金額（可同時下注多種，總額 ≤ 30,000 紅利）</span>
+    <div class="baccarat-bets" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
+      <label>閒贏 1:1.0<input id="bacBetPlayer" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>莊贏 1:0.95<input id="bacBetBanker" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>和局 1:8.0<input id="bacBetTie" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>閒對 1:11.0<input id="bacBetPlayerPair" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>莊對 1:11.0<input id="bacBetBankerPair" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>大 1:0.53<input id="bacBetBig" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>小 1:1.45<input id="bacBetSmall" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>閒單 1:0.95<input id="bacBetPlayerOdd" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>閒雙 1:0.88<input id="bacBetPlayerEven" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>莊單 1:0.92<input id="bacBetBankerOdd" type="number" min="0" max="30000" step="100" value="0"></label>
+      <label>莊雙 1:0.92<input id="bacBetBankerEven" type="number" min="0" max="30000" step="100" value="0"></label>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <button class="primary" onclick="baccaratPlay(1)">發牌 1 次</button>
+    <button onclick="baccaratPlay(10)">發牌 10 次</button>
+    <button onclick="baccaratPlay(100)">發牌 100 次</button>
+    <button onclick="baccaratReset()">重置</button>
+  </div>
+
+  <div id="baccaratNow" style="margin-top:10px"></div>
+  <div id="baccaratStats" style="margin-top:10px"></div>
 </section>
 
 <section class="card">
@@ -2369,6 +2421,161 @@ renderSteps();
 })();
 </script>
 
+<script>
+
+const baccaratBetDefs=[
+  {id:"bacBetPlayer",key:"player",name:"閒贏",pay:1.0},
+  {id:"bacBetBanker",key:"banker",name:"莊贏",pay:0.95},
+  {id:"bacBetTie",key:"tie",name:"和局",pay:8.0},
+  {id:"bacBetPlayerPair",key:"playerPair",name:"閒對",pay:11.0},
+  {id:"bacBetBankerPair",key:"bankerPair",name:"莊對",pay:11.0},
+  {id:"bacBetBig",key:"big",name:"大",pay:0.53},
+  {id:"bacBetSmall",key:"small",name:"小",pay:1.45},
+  {id:"bacBetPlayerOdd",key:"playerOdd",name:"閒單",pay:0.95},
+  {id:"bacBetPlayerEven",key:"playerEven",name:"閒雙",pay:0.88},
+  {id:"bacBetBankerOdd",key:"bankerOdd",name:"莊單",pay:0.92},
+  {id:"bacBetBankerEven",key:"bankerEven",name:"莊雙",pay:0.92}
+];
+
+let baccaratState={rounds:0,totalBet:0,net:0,player:0,banker:0,tie:0};
+
+function baccaratCard(){
+  const ranks=[1,2,3,4,5,6,7,8,9,10,11,12,13];
+  const rank=ranks[Math.floor(Math.random()*ranks.length)];
+  const point=rank>=10?0:rank;
+  const text=rank===1?"A":rank===11?"J":rank===12?"Q":rank===13?"K":String(rank);
+  return {rank,point,text};
+}
+function baccaratPoint(cards){
+  return cards.reduce((s,c)=>s+c.point,0)%10;
+}
+function baccaratDeal(){
+  const p=[baccaratCard(),baccaratCard()];
+  const b=[baccaratCard(),baccaratCard()];
+  const pPair=p[0].rank===p[1].rank;
+  const bPair=b[0].rank===b[1].rank;
+  let pp=baccaratPoint(p), bp=baccaratPoint(b);
+
+  // Natural 8/9: neither side draws.
+  if(pp<8 && bp<8){
+    let p3=null;
+    if(pp<=5){
+      p3=baccaratCard();
+      p.push(p3);
+      pp=baccaratPoint(p);
+    }
+
+    if(!p3){
+      if(bp<=5) b.push(baccaratCard());
+    }else{
+      const v=p3.point;
+      if(bp<=2) b.push(baccaratCard());
+      else if(bp===3 && v!==8) b.push(baccaratCard());
+      else if(bp===4 && v>=2 && v<=7) b.push(baccaratCard());
+      else if(bp===5 && v>=4 && v<=7) b.push(baccaratCard());
+      else if(bp===6 && (v===6 || v===7)) b.push(baccaratCard());
+    }
+    bp=baccaratPoint(b);
+  }
+
+  const winner=pp>bp?"player":bp>pp?"banker":"tie";
+  const totalCards=p.length+b.length;
+  return {
+    p,b,pp,bp,winner,
+    playerPair:pPair,bankerPair:bPair,
+    big:totalCards>=5,small:totalCards===4,
+    playerOdd:pp%2===1,playerEven:pp%2===0,
+    bankerOdd:bp%2===1,bankerEven:bp%2===0
+  };
+}
+function baccaratGetBets(){
+  const bets=[];
+  for(const d of baccaratBetDefs){
+    const el=document.getElementById(d.id);
+    const amount=Math.max(0,Math.floor(+el.value||0));
+    if(amount>0) bets.push({...d,amount});
+  }
+  const total=bets.reduce((s,b)=>s+b.amount,0);
+  if(total<=0){ alert("請至少下注一項"); return null; }
+  if(total>30000){ alert("每局下注總額最高 30,000 紅利"); return null; }
+  return {bets,total};
+}
+function baccaratBetWon(key,r){
+  if(key==="player") return r.winner==="player";
+  if(key==="banker") return r.winner==="banker";
+  if(key==="tie") return r.winner==="tie";
+  return !!r[key];
+}
+function baccaratPlay(n){
+  const got=baccaratGetBets();
+  if(!got)return;
+  const {bets,total}=got;
+  let last=null, batchNet=0, batchBet=0;
+  let batchP=0,batchB=0,batchT=0;
+
+  for(let i=0;i<n;i++){
+    const r=baccaratDeal();
+    last=r;
+    baccaratState.rounds++;
+    baccaratState.totalBet+=total;
+    batchBet+=total;
+
+    if(r.winner==="player"){baccaratState.player++;batchP++;}
+    else if(r.winner==="banker"){baccaratState.banker++;batchB++;}
+    else {baccaratState.tie++;batchT++;}
+
+    let net=-total;
+    for(const bet of bets){
+      // When the hand is a tie, Player/Banker bets are returned.
+      if(r.winner==="tie" && (bet.key==="player" || bet.key==="banker")){
+        net += bet.amount;
+      }else if(baccaratBetWon(bet.key,r)){
+        net += bet.amount*(bet.pay+1);
+      }
+    }
+    batchNet+=net;
+    baccaratState.net+=net;
+  }
+
+  const cardsText=a=>a.map(c=>c.text).join("、");
+  const winText=last.winner==="player"?"閒贏":last.winner==="banker"?"莊贏":"和局";
+  const specials=[
+    last.playerPair?"閒對":"",
+    last.bankerPair?"莊對":"",
+    last.big?"大":"小",
+    last.playerOdd?"閒單":"閒雙",
+    last.bankerOdd?"莊單":"莊雙"
+  ].filter(Boolean).join("｜");
+
+  document.getElementById("baccaratNow").innerHTML=
+    `<div class="stat"><b>最後一局：${winText}</b>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
+    `閒：${cardsText(last.p)} → <b>${last.pp}點</b><br>`+
+    `莊：${cardsText(last.b)} → <b>${last.bp}點</b><br>`+
+    `${specials}<br>`+
+    `本次 ${n.toLocaleString()} 局｜下注 ${batchBet.toLocaleString()} 紅利｜淨輸贏 `+
+    `<b class="${batchNet>=0?"ok":"bad"}">${batchNet>=0?"+":""}${Math.round(batchNet).toLocaleString()} 紅利</b>`+
+    `</div></div>`;
+
+  baccaratRender();
+}
+function baccaratRender(){
+  const s=baccaratState;
+  document.getElementById("baccaratStats").innerHTML=
+    `<div class="stat"><span class="label">累計 ${s.rounds.toLocaleString()} 局</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
+    `閒贏 ${s.player.toLocaleString()}｜莊贏 ${s.banker.toLocaleString()}｜和局 ${s.tie.toLocaleString()}<br>`+
+    `累計下注 ${s.totalBet.toLocaleString()} 紅利｜累計淨輸贏 `+
+    `<b class="${s.net>=0?"ok":"bad"}">${s.net>=0?"+":""}${Math.round(s.net).toLocaleString()} 紅利</b>`+
+    `</div></div>`;
+}
+function baccaratReset(){
+  baccaratState={rounds:0,totalBet:0,net:0,player:0,banker:0,tie:0};
+  document.getElementById("baccaratNow").innerHTML="";
+  document.getElementById("baccaratStats").innerHTML="";
+}
+
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
