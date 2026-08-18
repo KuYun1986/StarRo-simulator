@@ -26,20 +26,13 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <h1>🌟 繁星仙境機率模擬器</h1>
 <div class="sub">精煉・華金洗詞・附魔・自訂機率 <span class="badge">V2</span></div>
 
-<section class="card">
-<h2>🎲 單項機率</h2>
-<div class="row"><select id="singleItem" onchange="syncSingle()"></select><input id="singleRate" type="number" min="0" max="100" step="0.0001"><span>%</span></div>
-<label>模擬次數</label><input id="singleTrials" type="number" min="1" max="1000000" value="10000">
-<div class="preset"><button onclick="setTrials(1)">1</button><button onclick="setTrials(10)">10</button><button onclick="setTrials(100)">100</button><button onclick="setTrials(1000)">1,000</button><button onclick="setTrials(10000)">10,000</button><button onclick="setTrials(100000)">100,000</button></div>
-<div class="actions"><button class="primary" onclick="runSingle()">開始模擬</button></div>
-<div id="singleResult" class="statgrid"></div>
-</section>
+
 
 <section class="card">
 <h2>✨ 完整流程</h2>
 <p class="tiny">每個階段都必須成功，才算一件成品。機率與名稱都能直接修改。</p>
 <div id="steps"></div>
-<div class="actions"><button onclick="addPreset('精煉 1%',1)">＋精煉1%</button><button onclick="addPreset('精煉 2%',2)">＋精煉2%</button><button onclick="addPreset('華金洗詞 50%',50)">＋華金50%</button><button onclick="addPreset('華金洗詞 10%',10)">＋華金10%</button><button onclick="addPreset('附魔5等',15)">＋附魔15%</button><button onclick="addPreset('自訂階段',10)">＋自訂</button></div>
+<div class="actions"><button onclick="addPreset('精煉 1%',1)">＋精煉1%</button><button onclick="addPreset('自訂階段',10)">＋自訂</button></div>
 <label>模擬次數</label><input id="flowTrials" type="number" min="1" max="1000000" value="100000">
 <div class="actions"><button class="primary" onclick="runFlow()">模擬完整流程</button><button onclick="clearSteps()">清空</button></div>
 <div id="theory" style="margin-top:14px"></div><div id="flowResult" class="statgrid"></div>
@@ -92,15 +85,155 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 </section>
 
 <section class="card">
-<h2>➕ 自訂項目庫</h2>
-<div class="row"><input id="newName" placeholder="項目名稱"><input id="newRate" type="number" min="0" max="100" step="0.0001" placeholder="機率"><span>%</span></div>
-<div class="actions"><button onclick="saveCustom()">儲存項目</button><button onclick="resetCustom()">清除自訂</button></div>
-<p class="tiny">自訂項目會保存在目前瀏覽器。</p>
+<h2>🎀 頭中鑑定棒</h2>
+<p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
+<div class="row"><span>每次鑑定花費</span><input id="midWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="midWandOnce()">🎲 鑑定一次</button>
+<button onclick="midWandBatch(100)">連抽 100 次</button>
+<button onclick="resetMidWand()">清除紀錄</button>
+</div>
+<div id="midWandNow" style="margin-top:14px"></div>
+<div id="midWandStats" class="statgrid"></div>
+<div id="midWandFive" style="margin-top:10px"></div>
 </section>
+
+<section class="card">
+<h2>📕 頭中指定書</h2>
+<p class="tiny">固定純5詞。第5詞官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。</p>
+<div class="row"><span>每次指定花費</span><input id="midBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="midBookOnce()">📕 指定一次</button>
+<button onclick="midBookBatch(10)">連抽 10 次</button>
+<button onclick="midBookBatch(100)">連抽 100 次</button>
+<button onclick="resetMidBook()">清除紀錄</button>
+</div>
+<div id="midBookNow" style="margin-top:14px"></div>
+<div id="midBookStats" class="statgrid"></div>
+<div id="midBookDist" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>🎗️ 頭下鑑定棒</h2>
+<p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
+<div class="row"><span>每次鑑定花費</span><input id="lowWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="lowWandOnce()">🎲 鑑定一次</button>
+<button onclick="lowWandBatch(100)">連抽 100 次</button>
+<button onclick="resetLowWand()">清除紀錄</button>
+</div>
+<div id="lowWandNow" style="margin-top:14px"></div>
+<div id="lowWandStats" class="statgrid"></div>
+<div id="lowWandFive" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>📙 頭下指定書</h2>
+<p class="tiny">固定純5詞。第5詞官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。</p>
+<div class="row"><span>每次指定花費</span><input id="lowBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="lowBookOnce()">📙 指定一次</button>
+<button onclick="lowBookBatch(10)">連抽 10 次</button>
+<button onclick="lowBookBatch(100)">連抽 100 次</button>
+<button onclick="resetLowBook()">清除紀錄</button>
+</div>
+<div id="lowBookNow" style="margin-top:14px"></div>
+<div id="lowBookStats" class="statgrid"></div>
+<div id="lowBookDist" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>👟 鞋子鑑定棒</h2>
+<p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
+<div class="row"><span>每次鑑定花費</span><input id="shoeWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="shoeWandOnce()">🎲 鑑定一次</button>
+<button onclick="shoeWandBatch(100)">連抽 100 次</button>
+<button onclick="resetShoeWand()">清除紀錄</button>
+</div>
+<div id="shoeWandNow" style="margin-top:14px"></div>
+<div id="shoeWandStats" class="statgrid"></div>
+<div id="shoeWandFive" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>📘 鞋子指定書</h2>
+<p class="tiny">固定純5詞，直接抽第5詞能力。官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。第5詞包含 POW、SPL、CON、P.ATK%、S.MATK%、C.RATE%。</p>
+<div class="row"><span>每次指定花費</span><input id="shoeBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="shoeBookOnce()">📘 指定一次</button>
+<button onclick="shoeBookBatch(10)">連抽 10 次</button>
+<button onclick="shoeBookBatch(100)">連抽 100 次</button>
+<button onclick="resetShoeBook()">清除紀錄</button>
+</div>
+<div id="shoeBookNow" style="margin-top:14px"></div>
+<div id="shoeBookStats" class="statgrid"></div>
+<div id="shoeBookDist" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>🪄 飾品鑑定棒</h2>
+<div class="row"><span>每次鑑定花費</span><input id="wandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
+<p class="tiny">鑑定魔法棒先抽 1～5 詞；只有出現第5詞才抽下方素質。指定魔法書固定為5詞，直接抽第5詞素質。數值區間內目前採整數等機率。</p>
+<div class="actions">
+<button class="primary" onclick="rollAccessoryIdentify('wand')">🪄 鑑定棒抽一次</button>
+<button onclick="rollWandBatch(100)">鑑定棒連抽100次</button>
+<button onclick="resetIdentify()">清除紀錄</button>
+</div>
+<div id="identifyNow" style="margin-top:14px"></div>
+<div id="identifyStats" class="statgrid"></div>
+<div id="identifyDist" style="margin-top:10px"></div>
+<div id="wandFiveOnly" style="margin-top:10px"></div>
+<p class="tiny" style="line-height:1.8;margin-top:12px">
+<b>指定魔法書（純5詞）：</b>89.77% / 8.98% / 0.9% / 0.36%，四種素質階級依官方機率抽取。<br>
+<b>鑑定魔法棒（1～5詞）：</b>第1～5詞出現率依序 100% / 75% / 50% / 25% / 10%；只有成功取得第5詞後，才會進一步抽第5詞的素質階級。<br>
+※ 圖片未公布同階級內各詞條與區間內各數值的細部權重，因此目前以等機率處理。
+</p>
+</section>
+
+<section class="card">
+<h2>📖 飾品指定魔法書</h2>
+<div class="row"><span>每次指定花費</span><input id="bookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<p class="tiny">固定純 5 詞，直接抽第 5 詞素質階級：89.77% / 8.98% / 0.9% / 0.36%。</p>
+<div class="actions">
+<button class="primary" onclick="rollBookOnce()">📖 指定書抽一次</button>
+<button onclick="rollBookBatch(10)">連抽 10 次</button>
+<button onclick="rollBookBatch(100)">連抽 100 次</button>
+<button onclick="resetBook()">清除紀錄</button>
+</div>
+<div id="bookNow" style="margin-top:14px"></div>
+<div id="bookStats" class="statgrid"></div>
+<div id="bookDist" style="margin-top:10px"></div>
+<p class="tiny">※ 同階級內各詞條及數值區間的細部權重官方未公布，目前採等機率。TOP 20 混合排序換算：POW / SPL / CON +35 = P.ATK / S.MATK / C.RATE +20%。</p>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
 <script>
 const defaults=[{name:"精煉 1%",rate:1},{name:"精煉 2%",rate:2},{name:"華金洗詞第一階段",rate:50},{name:"華金洗詞第二階段",rate:10},{name:"附魔 5 等",rate:15}];
-let steps=[{name:"精煉 1%",rate:1},{name:"華金洗詞 50%",rate:50},{name:"華金洗詞 10%",rate:10},{name:"附魔5等",rate:15}];
+let steps=[{name:"精煉 1%",rate:1}];
 function custom(){try{return JSON.parse(localStorage.getItem("starChanceCustom")||"[]")}catch(e){return[]}}
 function allItems(){return defaults.concat(custom())}
 function refreshSelect(){singleItem.innerHTML="";allItems().forEach((x,i)=>singleItem.add(new Option(`${x.name}（${x.rate}%）`,i)));syncSingle()}
@@ -111,7 +244,10 @@ function card(l,v,c=""){return `<div class="stat"><span class="label">${l}</span
 function runSingle(){let p=Math.max(0,Math.min(100,+singleRate.value))/100,n=Math.max(1,Math.min(1000000,+singleTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){if(Math.random()<p){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}singleResult.innerHTML=card("成功",s.toLocaleString(),"ok")+card("失敗",(n-s).toLocaleString(),"bad")+card("實際成功率",pct(s/n*100))+card("理論成功率",pct(p*100))+card("第一次成功",first?`第 ${first.toLocaleString()} 次`:"未成功")+card("最長連敗",max+" 次")+card("理論平均",p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2})+" 次":"∞")}
 function esc(s){return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
 function renderSteps(){stepsDiv=document.getElementById("steps");stepsDiv.innerHTML="";steps.forEach((x,i)=>{let d=document.createElement("div");d.className="row flow";d.innerHTML=`<input value="${esc(x.name)}" oninput="steps[${i}].name=this.value"><input type="number" min="0" max="100" step="0.0001" value="${x.rate}" oninput="steps[${i}].rate=+this.value;updateTheory()"><button class="danger" onclick="removeStep(${i})">刪除</button>`;stepsDiv.appendChild(d)});updateTheory()}
-function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];renderSteps();flowResult.innerHTML=""}
+function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];
+
+
+renderSteps();flowResult.innerHTML=""}
 function theoryRate(){return steps.reduce((a,x)=>a*Math.max(0,Math.min(100,+x.rate))/100,1)}
 function updateTheory(){let p=theoryRate();theory.innerHTML=steps.length?`<span class="badge">理論全過 ${pct(p*100)}</span> <span class="tiny">平均約 ${p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2}):"∞"} 次流程 / 1件</span>`:"<span class='tiny'>請新增階段</span>"}
 function runFlow(){if(!steps.length)return alert("請先新增階段");let n=Math.max(1,Math.min(1000000,+flowTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){let ok=true;for(const x of steps){if(Math.random()>=Math.max(0,Math.min(100,+x.rate))/100){ok=false;break}}if(ok){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}let p=theoryRate();flowResult.innerHTML=card("全過成品",s.toLocaleString(),"ok")+card("失敗流程",(n-s).toLocaleString(),"bad")+card("實際全過率",pct(s/n*100))+card("理論全過率",pct(p*100))+card("第一次全過",first?`第 ${first.toLocaleString()} 次`:"未出現")+card("最長連敗",max+" 次")}
@@ -248,5 +384,374 @@ function renderAccessory(){
 }
 function resetAccessory(){acc={tries:0,pass50:0,pass10:0,values:{}};accessoryNow.innerHTML="";accessoryStats.innerHTML="";accessoryDist.innerHTML=""}
 
-refreshSelect();renderSteps();
+
+const identifyTiers=[
+ {p:89.77, label:"第5詞一般（89.77%）", pool:[
+   ["對種族物理攻擊",5,10],["對種族魔法攻擊",5,10],
+   ["對屬性物理攻擊",5,10],["對屬性魔法攻擊",5,10],
+   ["全屬性物理攻擊",5,10],["全屬性魔法攻擊",5,10]
+ ]},
+ {p:8.98, label:"第5詞進階（8.98%）", pool:[
+   ["對種族物理攻擊",10,15],["對種族魔法攻擊",10,15],
+   ["對屬性物理攻擊",10,15],["對屬性魔法攻擊",10,15],
+   ["全屬性物理攻擊",10,15],["全屬性魔法攻擊",10,15]
+ ]},
+ {p:0.9, label:"第5詞稀有（0.9%）", pool:[
+   ["對種族物理攻擊",15,25],["對種族魔法攻擊",15,25],
+   ["對屬性物理攻擊",15,25],["對屬性魔法攻擊",15,25],
+   ["全屬性物理攻擊",15,25],["全屬性魔法攻擊",15,25]
+ ]},
+ {p:0.36, label:"第5詞頂級（0.36%）", pool:[
+   ["對種族物理攻擊",25,35],["對種族魔法攻擊",25,35],
+   ["對屬性物理攻擊",25,35],["對屬性魔法攻擊",25,35],
+   ["全屬性物理攻擊",25,35],["全屬性魔法攻擊",25,35]
+ ]}
+];
+let idStats={total:0,tiers:{},lines:{},fiveResults:[]};
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function wandLine1(){let n=randint(10,150);return `${pick(["ATK","MATK"])} +${n}`}
+function wandLine2(){
+ let type=pick(["技能後延遲","變動施法時間","ASPD"]);
+ if(type==="ASPD") return "ASPD +1";
+ return `${type} -${randint(1,20)}%`;
+}
+function wandLine3(){return `${pick(["POW","SPL","STA","WIS","CON","CRT"])} +${randint(1,5)}`}
+function wandLine4(){return `${pick(["P.ATK","S.MATK","C.RATE"])} +${randint(1,10)}`}
+
+function weightedTier(){
+ let total=identifyTiers.reduce((a,x)=>a+x.p,0),r=Math.random()*total;
+ for(const t of identifyTiers){r-=t.p;if(r<0)return t}
+ return identifyTiers[0];
+}
+function randint(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function makeLine(t){
+ let x=t.pool[Math.floor(Math.random()*t.pool.length)];
+ return {name:x[0],value:randint(x[1],x[2])}
+}
+function rollAccessoryIdentify(mode,show=true){
+ if(mode==="book"){
+   let t=weightedTier(),line=makeLine(t);
+   idStats.total++;idStats.tiers[t.label]=(idStats.tiers[t.label]||0)+1;
+   let key=`${line.name} +${line.value}%`;idStats.lines[key]=(idStats.lines[key]||0)+1;
+   if(show) identifyNow.innerHTML=`<div class="stat"><span class="label">指定魔法書結果</span><b class="ok">${t.label}｜${line.name} +${line.value}%</b></div>`;
+ }else{
+   // Wand: number of lines follows 100% / 75% / 50% / 25% / 10%.
+   // Interpret these as cumulative chances of having at least N lines.
+   let r=Math.random(), lines=1;
+   if(r<0.75) lines=2;
+   if(r<0.50) lines=3;
+   if(r<0.25) lines=4;
+   if(r<0.10) lines=5;
+   idStats.total++;
+   let detail=`取得 ${lines} 詞`;
+   if(lines===5){
+      let t=weightedTier(),line=makeLine(t);
+      idStats.tiers[t.label]=(idStats.tiers[t.label]||0)+1;
+      let key=`${line.name} +${line.value}%`;idStats.lines[key]=(idStats.lines[key]||0)+1;
+      idStats.fiveResults.push({
+        tier:t.label,
+        lines:[wandLine1(),wandLine2(),wandLine3(),wandLine4(),`${line.name} +${line.value}%`],
+        value:line.value
+      });
+      detail+=` → 第5詞：${t.label}｜${line.name} +${line.value}%`;
+   }
+   if(show) identifyNow.innerHTML=`<div class="stat"><span class="label">鑑定魔法棒結果</span><b class="${lines===5?'ok':''}">${detail}</b></div>`;
+ }
+ renderIdentify();
+}
+function rollAccessoryIdentifyBatch(n){for(let i=0;i<n;i++)rollAccessoryIdentify("book",false);identifyNow.innerHTML=`<div class="stat"><span class="label">批次完成</span><b>指定魔法書已抽 ${n} 次</b></div>`;renderIdentify()}
+function renderIdentify(){
+ let tierTxt=Object.entries(idStats.tiers).map(([k,v])=>`${k}：${v} 次`).join("　");
+ let top=Object.entries(idStats.lines).sort((a,b)=>{
+   const av=+(a[0].match(/\+(\d+)%/)||[0,0])[1];
+   const bv=+(b[0].match(/\+(\d+)%/)||[0,0])[1];
+   return bv-av || b[1]-a[1];
+ }).slice(0,20);
+ let wc=Math.max(0,+wandCost.value||0);
+ identifyStats.innerHTML=card("累計抽取",idStats.total.toLocaleString())+
+ card("每次花費",wc.toLocaleString()+" 紅利")+
+ card("累計花費",(idStats.total*wc).toLocaleString()+" 紅利")+
+ card("已記錄階級",Object.keys(idStats.tiers).length+" 種");
+ identifyDist.innerHTML=(tierTxt?`<div class="stat"><span class="label">階級分布</span><div style="margin-top:8px">${tierTxt}</div></div>`:"")+
+ (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="margin-top:8px;line-height:1.9">${top.map(x=>`${x[0]}：${x[1]} 次`).join("　")}</div></div>`:"");
+ let five=(idStats.fiveResults||[]).slice().sort((a,b)=>b.value-a.value).slice(0,20);
+ wandFiveOnly.innerHTML=five.length?`<div class="stat"><span class="label">⭐ 抽到 5 詞的完整結果（依第5詞數值排序 TOP 20）</span><div style="margin-top:10px">${five.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((v,j)=>`${j+1}. ${v}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+}
+function resetIdentify(){idStats={total:0,tiers:{},lines:{},fiveResults:[]};identifyNow.innerHTML="";identifyStats.innerHTML="";identifyDist.innerHTML="";wandFiveOnly.innerHTML=""}
+
+
+function rollWandBatch(n){
+ for(let i=0;i<n;i++) rollAccessoryIdentify("wand",false);
+ identifyNow.innerHTML=`<div class="stat"><span class="label">批次完成</span><b>鑑定棒已連抽 ${n} 次</b></div>`;
+ renderIdentify();
+}
+let bookStatsData={total:0,tiers:{},lines:{}};
+function bookTrial(show=true){
+ let t=weightedTier(),line=makeLine(t);
+ bookStatsData.total++;
+ bookStatsData.tiers[t.label]=(bookStatsData.tiers[t.label]||0)+1;
+ let key=`${line.name} +${line.value}%`;
+ bookStatsData.lines[key]=(bookStatsData.lines[key]||0)+1;
+ if(show) bookNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok">${t.label}｜${line.name} +${line.value}%</b></div>`;
+}
+function rollBookOnce(){bookTrial(true);renderBook()}
+function rollBookBatch(n){
+ for(let i=0;i<n;i++)bookTrial(false);
+ bookNow.innerHTML=`<div class="stat"><span class="label">批次完成</span><b>指定魔法書已連抽 ${n} 次</b></div>`;
+ renderBook();
+}
+function renderBook(){
+ let total=bookStatsData.total||1;
+ let tierEntries=Object.entries(bookStatsData.tiers);
+ let bc=Math.max(0,+bookCost.value||0);
+ bookStats.innerHTML=card("累計抽取",bookStatsData.total.toLocaleString())+
+   card("每次花費",bc.toLocaleString()+" 紅利")+
+   card("累計花費",(bookStatsData.total*bc).toLocaleString()+" 紅利")+
+   card("固定詞數","5 詞")+
+   card("已出現階級",tierEntries.length+" 種");
+ let tierTxt=tierEntries.map(([k,v])=>`${k}：${v} 次（${(v/total*100).toFixed(2)}%）`).join("　");
+ let top=Object.entries(bookStatsData.lines).sort((a,b)=>{
+   const av=+(a[0].match(/\+(\d+)%/)||[0,0])[1];
+   const bv=+(b[0].match(/\+(\d+)%/)||[0,0])[1];
+   return bv-av || b[1]-a[1];
+ }).slice(0,20);
+ bookDist.innerHTML=(tierTxt?`<div class="stat"><span class="label">第5詞階級分布</span><div style="margin-top:8px;line-height:1.9">${tierTxt}</div></div>`:"")+
+ (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="margin-top:8px;line-height:1.9">${top.map(x=>`${x[0]}：${x[1]} 次`).join("　")}</div></div>`:"");
+}
+function resetBook(){bookStatsData={total:0,tiers:{},lines:{}};bookNow.innerHTML="";bookStats.innerHTML="";bookDist.innerHTML=""}
+
+const shoeTierData=[
+ {p:89.77,label:"一般 89.77%",pow:[5,15],spl:[5,15],con:[5,15],patk:[1,10],smatk:[1,10],crate:[1,10]},
+ {p:8.98,label:"進階 8.98%",pow:[15,25],spl:[15,25],con:[15,25],patk:[10,15],smatk:[10,15],crate:[10,15]},
+ {p:0.9,label:"稀有 0.9%",pow:[25,35],spl:[25,35],con:[25,35],patk:[15,20],smatk:[15,20],crate:[15,20]},
+ {p:0.36,label:"頂級 0.36%",pow:[35,50],spl:[35,50],con:[35,50],patk:[20,30],smatk:[20,30],crate:[20,30]}
+];
+function shoeTier(){
+ let total=shoeTierData.reduce((a,x)=>a+x.p,0),r=Math.random()*total;
+ for(const t of shoeTierData){r-=t.p;if(r<0)return t}
+ return shoeTierData[0];
+}
+function shoeFifth(){
+ let t=shoeTier();
+ // 六種第五詞皆可出現；目前同階內六種詞條採等機率
+ const pool=[
+   {name:"POW",key:"pow",pct:false},
+   {name:"SPL",key:"spl",pct:false},
+   {name:"CON",key:"con",pct:false},
+   {name:"P.ATK",key:"patk",pct:true},
+   {name:"S.MATK",key:"smatk",pct:true},
+   {name:"C.RATE",key:"crate",pct:true}
+ ];
+ let item=pool[Math.floor(Math.random()*pool.length)];
+ let rg=t[item.key],v=randint(rg[0],rg[1]);
+ return {tier:t.label,name:item.name,value:v,pct:item.pct,text:`${item.name} +${v}${item.pct?"%":""}`};
+}function shoeLine1(){return `${pick(["ATK","MATK"])} +${randint(10,150)}`}
+function shoeLine2(){
+ let k=pick(["技能後延遲","變動施法時間","ASPD","固定詠唱"]);
+ if(k==="ASPD")return "ASPD +1";
+ if(k==="固定詠唱")return `固定詠唱 -${randint(10,200)} 毫秒`;
+ return `${k} -${randint(1,20)}%`;
+}
+function shoeLine3(){
+ let k=pick(["ATK","MATK","DEF","MDEF","完全迴避","CRI"]);
+ let rg=(k==="ATK"||k==="MATK")?[5,15]:(k==="DEF"?[10,100]:(k==="MDEF"?[5,25]:(k==="完全迴避"?[5,25]:[10,50])));
+ return `${k} +${randint(rg[0],rg[1])}`;
+}
+function shoeLine4(){
+ let k=pick(["P.ATK","S.MATK","C.RATE"]);
+ return `${k} +${randint(1,10)}`;
+}
+let sw={total:0,five:[]};
+function shoeWandTrial(show=true){
+ sw.total++; let r=Math.random(),n=1;
+ if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
+ if(n===5){
+   let f=shoeFifth(),lines=[shoeLine1(),shoeLine2(),shoeLine3(),shoeLine4(),f.text];
+   sw.five.push({lines,value:f.value});
+   if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
+ } else if(show) shoeWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
+ renderShoeWand();
+}
+function shoeWandOnce(){shoeWandTrial(true)}
+function shoeWandBatch(n){for(let i=0;i<n;i++)shoeWandTrial(false);shoeWandNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderShoeWand()}
+function renderShoeWand(){
+ let c=Math.max(0,+shoeWandCost.value||0);
+ shoeWandStats.innerHTML=card("累計鑑定",sw.total.toLocaleString())+card("5詞次數",sw.five.length.toLocaleString(),"ok")+card("累計花費",(sw.total*c).toLocaleString()+" 紅利");
+ let a=sw.five.slice().sort((x,y)=>y.value-x.value).slice(0,20);
+ shoeWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 20</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+}
+function resetShoeWand(){sw={total:0,five:[]};shoeWandNow.innerHTML="";shoeWandStats.innerHTML="";shoeWandFive.innerHTML=""}
+
+let sb={total:0,tiers:{},results:[],types:{}};
+function shoeBookTrial(show=true){
+ let f=shoeFifth();sb.total++;sb.tiers[f.tier]=(sb.tiers[f.tier]||0)+1;sb.types[f.name]=(sb.types[f.name]||0)+1;sb.results.push(f);
+ let shown=(f.name==="P.ATK"||f.name==="S.MATK"||f.name==="C.RATE")?`${f.name} +${f.value}%`:`${f.name} +${f.value}`;
+ if(show)shoeBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${shown}</b></div>`;
+}
+function shoeBookOnce(){shoeBookTrial(true);renderShoeBook()}
+function shoeBookBatch(n){for(let i=0;i<n;i++)shoeBookTrial(false);shoeBookNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderShoeBook()}
+function renderShoeBook(){
+ let c=Math.max(0,+shoeBookCost.value||0),t=sb.total||1;
+ shoeBookStats.innerHTML=card("累計指定",sb.total.toLocaleString())+card("固定詞數","5 詞")+card("累計花費",(sb.total*c).toLocaleString()+" 紅利");
+ let tiers=Object.entries(sb.tiers).map(([k,v])=>`${k}：${v}次（${(v/t*100).toFixed(2)}%）`).join("　");
+ let types=["POW","SPL","CON","P.ATK","S.MATK","C.RATE"].map(k=>`${k}：${sb.types[k]||0}次`).join("　");
+ function shoeBookRankScore(x){
+   // 排名換算：POW/SPL/CON 35 = P.ATK/S.MATK/C.RATE 20%
+   return (x.name==="P.ATK"||x.name==="S.MATK"||x.name==="C.RATE") ? x.value*(35/20) : x.value;
+ }
+ let top=sb.results.slice().sort((a,b)=>shoeBookRankScore(b)-shoeBookRankScore(a)).slice(0,20);
+ shoeBookDist.innerHTML=(tiers?`<div class="stat"><span class="label">階級分布</span><div>${tiers}</div></div>`:"")+`<div class="stat" style="margin-top:8px"><span class="label">第五詞種類分布</span><div style="line-height:1.9">${types}</div></div>`+
+ (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="line-height:1.9">${top.map(x=>`${x.name} +${x.value}${(x.name==="P.ATK"||x.name==="S.MATK"||x.name==="C.RATE")?"%":""}｜${x.tier}`).join("<br>")}</div></div>`:"");
+}
+function resetShoeBook(){sb={total:0,tiers:{},results:[],types:{}};shoeBookNow.innerHTML="";shoeBookStats.innerHTML="";shoeBookDist.innerHTML=""}
+
+
+const midTierData=[
+ {p:89.77,label:"一般 89.77%",race:[5,10],head:[5,10]},
+ {p:8.98,label:"進階 8.98%",race:[10,15],head:[10,15]},
+ {p:0.9,label:"稀有 0.9%",race:[15,25],head:[15,25]},
+ {p:0.36,label:"頂級 0.36%",race:[25,35],head:[25,35]}
+];
+function midTier(){
+ let total=midTierData.reduce((a,x)=>a+x.p,0),r=Math.random()*total;
+ for(const t of midTierData){r-=t.p;if(r<0)return t}
+ return midTierData[0];
+}
+function midFifth(){
+ let t=midTier();
+ let kinds=[
+   ["對種族魔物的物理攻擊增加","race"],
+   ["對種族魔物的魔法攻擊增加","race"],
+   ["對屬性魔物的物理攻擊增加","race"],
+   ["對屬性魔物的魔法攻擊增加","race"],
+   ["對首領類魔物的物理攻擊增加","head"],
+   ["對首領類魔物的魔法攻擊增加","head"]
+ ];
+ let x=pick(kinds),rg=t[x[1]],v=randint(rg[0],rg[1]);
+ return {tier:t.label,name:x[0],value:v,text:`${x[0]} ${v}%`};
+}
+function midLine1(){return `${pick(["ATK","MATK"])} +${randint(10,150)}`}
+function midLine2(){
+ let k=pick(["技能後延遲","變動施法時間","ASPD","固定詠唱"]);
+ if(k==="ASPD")return "ASPD +1";
+ if(k==="固定詠唱")return `固定詠唱 -${randint(10,200)} 毫秒`;
+ return `${k} -${randint(1,20)}%`;
+}
+function midLine3(){return `${pick(["POW","SPL","STA","WIS","CON","CRT"])} +${randint(1,5)}`}
+function midLine4(){return `${pick(["P.ATK","S.MATK","C.RATE"])} +${randint(1,10)}`}
+
+let mw={total:0,five:[]};
+function midWandTrial(show=true){
+ mw.total++;let r=Math.random(),n=1;
+ if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
+ if(n===5){
+   let f=midFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),f.text];
+   mw.five.push({lines,value:f.value});
+   if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
+ }else if(show)midWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
+ renderMidWand();
+}
+function midWandOnce(){midWandTrial(true)}
+function midWandBatch(n){for(let i=0;i<n;i++)midWandTrial(false);midWandNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderMidWand()}
+function renderMidWand(){
+ let c=Math.max(0,+midWandCost.value||0);
+ midWandStats.innerHTML=card("累計鑑定",mw.total.toLocaleString())+card("5詞次數",mw.five.length.toLocaleString(),"ok")+card("累計花費",(mw.total*c).toLocaleString()+" 紅利");
+ let a=mw.five.slice().sort((x,y)=>y.value-x.value).slice(0,20);
+ midWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 20</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+}
+function resetMidWand(){mw={total:0,five:[]};midWandNow.innerHTML="";midWandStats.innerHTML="";midWandFive.innerHTML=""}
+
+let mb={total:0,tiers:{},results:[]};
+function midBookTrial(show=true){
+ let f=midFifth();mb.total++;mb.tiers[f.tier]=(mb.tiers[f.tier]||0)+1;mb.results.push(f);
+ if(show)midBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${f.text}</b></div>`;
+}
+function midBookOnce(){midBookTrial(true);renderMidBook()}
+function midBookBatch(n){for(let i=0;i<n;i++)midBookTrial(false);midBookNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderMidBook()}
+function renderMidBook(){
+ let c=Math.max(0,+midBookCost.value||0),t=mb.total||1;
+ midBookStats.innerHTML=card("累計指定",mb.total.toLocaleString())+card("固定詞數","5 詞")+card("累計花費",(mb.total*c).toLocaleString()+" 紅利");
+ let tiers=Object.entries(mb.tiers).map(([k,v])=>`${k}：${v}次（${(v/t*100).toFixed(2)}%）`).join("　");
+ let top=mb.results.slice().sort((a,b)=>b.value-a.value).slice(0,20);
+ midBookDist.innerHTML=(tiers?`<div class="stat"><span class="label">階級分布</span><div>${tiers}</div></div>`:"")+
+ (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="line-height:1.9">${top.map(x=>`${x.text}｜${x.tier}`).join("<br>")}</div></div>`:"");
+}
+function resetMidBook(){mb={total:0,tiers:{},results:[]};midBookNow.innerHTML="";midBookStats.innerHTML="";midBookDist.innerHTML=""}
+
+
+const lowTierData=[
+ {p:89.77,label:"一般 89.77%",range:[5,10]},
+ {p:8.98,label:"進階 8.98%",range:[10,15]},
+ {p:0.9,label:"稀有 0.9%",range:[15,25]},
+ {p:0.36,label:"頂級 0.36%",range:[25,35]}
+];
+function lowTier(){
+ let total=lowTierData.reduce((a,x)=>a+x.p,0),r=Math.random()*total;
+ for(const t of lowTierData){r-=t.p;if(r<0)return t}
+ return lowTierData[0];
+}
+function lowFifth(){
+ let t=lowTier();
+ let kinds=[
+  "對種族魔物的物理攻擊增加","對種族魔物的魔法攻擊增加",
+  "對屬性魔物的物理攻擊增加","對屬性魔物的魔法攻擊增加",
+  "對全體型魔物的物理攻擊增加","對全體型魔物的魔法攻擊增加"
+ ];
+ let name=pick(kinds),v=randint(t.range[0],t.range[1]);
+ return {tier:t.label,name,value:v,text:`${name} ${v}%`};
+}
+function lowLine1(){return `${pick(["ATK","MATK"])} +${randint(10,150)}`}
+function lowLine2(){
+ let k=pick(["技能後延遲","變動施法時間","ASPD","固定詠唱"]);
+ if(k==="ASPD")return "ASPD +1";
+ if(k==="固定詠唱")return `固定詠唱 -${randint(10,200)} 毫秒`;
+ return `${k} -${randint(1,20)}%`;
+}
+function lowLine3(){
+ let k=pick(["ATK","MATK","DEF","MDEF","完全迴避","CRI"]);
+ let rg=(k==="ATK"||k==="MATK")?[5,15]:(k==="DEF"?[10,100]:(k==="MDEF"?[5,25]:(k==="完全迴避"?[5,25]:[10,50])));
+ return `${k} +${randint(rg[0],rg[1])}`;
+}
+function lowLine4(){return `${pick(["P.ATK","S.MATK","C.RATE"])} +${randint(1,10)}`}
+
+let lw={total:0,five:[]};
+function lowWandTrial(show=true){
+ lw.total++;let r=Math.random(),n=1;
+ if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
+ if(n===5){
+  let f=lowFifth(),lines=[lowLine1(),lowLine2(),lowLine3(),lowLine4(),f.text];
+  lw.five.push({lines,value:f.value});
+  if(show)lowWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
+ }else if(show)lowWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
+ renderLowWand();
+}
+function lowWandOnce(){lowWandTrial(true)}
+function lowWandBatch(n){for(let i=0;i<n;i++)lowWandTrial(false);lowWandNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderLowWand()}
+function renderLowWand(){
+ let c=Math.max(0,+lowWandCost.value||0);
+ lowWandStats.innerHTML=card("累計鑑定",lw.total.toLocaleString())+card("5詞次數",lw.five.length.toLocaleString(),"ok")+card("累計花費",(lw.total*c).toLocaleString()+" 紅利");
+ let a=lw.five.slice().sort((x,y)=>y.value-x.value).slice(0,20);
+ lowWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 20</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+}
+function resetLowWand(){lw={total:0,five:[]};lowWandNow.innerHTML="";lowWandStats.innerHTML="";lowWandFive.innerHTML=""}
+
+let lb={total:0,tiers:{},results:[]};
+function lowBookTrial(show=true){
+ let f=lowFifth();lb.total++;lb.tiers[f.tier]=(lb.tiers[f.tier]||0)+1;lb.results.push(f);
+ if(show)lowBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${f.text}</b></div>`;
+}
+function lowBookOnce(){lowBookTrial(true);renderLowBook()}
+function lowBookBatch(n){for(let i=0;i<n;i++)lowBookTrial(false);lowBookNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderLowBook()}
+function renderLowBook(){
+ let c=Math.max(0,+lowBookCost.value||0),t=lb.total||1;
+ lowBookStats.innerHTML=card("累計指定",lb.total.toLocaleString())+card("固定詞數","5 詞")+card("累計花費",(lb.total*c).toLocaleString()+" 紅利");
+ let tiers=Object.entries(lb.tiers).map(([k,v])=>`${k}：${v}次（${(v/t*100).toFixed(2)}%）`).join("　");
+ let top=lb.results.slice().sort((a,b)=>b.value-a.value).slice(0,20);
+ lowBookDist.innerHTML=(tiers?`<div class="stat"><span class="label">階級分布</span><div>${tiers}</div></div>`:"")+
+ (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="line-height:1.9">${top.map(x=>`${x.text}｜${x.tier}`).join("<br>")}</div></div>`:"");
+}
+function resetLowBook(){lb={total:0,tiers:{},results:[]};lowBookNow.innerHTML="";lowBookStats.innerHTML="";lowBookDist.innerHTML=""}
+
+renderSteps();
 </script></body></html>
