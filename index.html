@@ -1118,7 +1118,8 @@ function xrDraw(n){
  let before=xrG.hitLog.length;
  for(let i=0;i<n;i++) xrOne();
  let fresh=xrG.hitLog.slice(before);
- fresh.forEach(x=>starroAnnounce("XR轉蛋",x.prize,`${x.type==="保底"?"1001抽保底":"自然抽中"}｜第 ${x.draw} 抽`));
+ fresh.filter(x=>x.prize==="XR大獎" && x.type!=="保底" && x.draw<=1000)
+      .forEach(x=>starroAnnounce("XR轉蛋","XR大獎",`1000抽內中獎｜第 ${x.draw} 抽`));
  let rows=fresh.length
    ? fresh.map(x=>`${x.type==="保底"?"🎁":"🎉"} 第 ${x.draw} 抽｜${x.prize}${x.type==="保底"?"（1001抽保底）":""}`).join("<br>")
    : "本次未出 XR / UR";
@@ -1165,8 +1166,7 @@ function urDraw(n){
    if(x==="華金自選箱")h++;
    else if(x==="UR服飾隨機書")b++;
  }
- if(h>0) starroAnnounce("UR轉蛋","華金自選箱",`本次 ${n.toLocaleString()} 抽中 ${h.toLocaleString()} 個`);
- if(b>0) starroAnnounce("UR轉蛋","UR服飾隨機書",`本次 ${n.toLocaleString()} 抽中 ${b.toLocaleString()} 個`);
+ if(n===1000 && h>0) starroAnnounce("UR轉蛋","華金自選箱",`1000抽中獎｜華金自選箱 × ${h.toLocaleString()}`);
  urNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${b?`UR服飾隨機書 × ${b}　`:""}${h?`華金自選箱 × ${h}`:""}${!b&&!h?"未出 UR":""}</b></div>`;
  renderUR();
 }
@@ -1366,7 +1366,7 @@ function sssBatch(count){
  for(let i=0;i<count;i++) if(sssOne()) hits++;
  const spent=count*SSS_COST;
  sssRender(`本次評級 ${count.toLocaleString()} 次｜SSS ${hits.toLocaleString()} 次｜花費 ${spent.toLocaleString()} 台幣`);
- if(hits>0) starroAnnounce("SSS評級","通過 SSS",`本次 ${count.toLocaleString()} 次評級中成功 ${hits.toLocaleString()} 次｜花費 ${spent.toLocaleString()} 台幣`);
+ if(hits>0 && count<=3) starroAnnounce("SSS評級","3次內通過 SSS",`本次 ${count.toLocaleString()} 次評級中成功 ${hits.toLocaleString()} 次｜花費 ${spent.toLocaleString()} 台幣`);
 }
 
 function sssUntilSuccess(){
@@ -1376,7 +1376,7 @@ function sssUntilSuccess(){
  }while(!sssOne());
  const spent=tries*SSS_COST;
  sssRender(`本次第 ${tries.toLocaleString()} 次成功 SSS｜花費 ${spent.toLocaleString()} 台幣`);
- starroAnnounce("SSS評級","通過 SSS",`第 ${tries.toLocaleString()} 次成功｜花費 ${spent.toLocaleString()} 台幣`);
+ if(tries<=3) starroAnnounce("SSS評級","3次內通過 SSS",`第 ${tries.toLocaleString()} 次成功｜花費 ${spent.toLocaleString()} 台幣`);
 }
 
 function sssReset(){
