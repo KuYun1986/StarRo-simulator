@@ -43,6 +43,52 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <label>模擬次數</label><input id="flowTrials" type="number" min="1" max="1000000" value="100000">
 <div class="actions"><button class="primary" onclick="runFlow()">模擬完整流程</button><button onclick="clearSteps()">清空</button></div>
 <div id="theory" style="margin-top:14px"></div><div id="flowResult" class="statgrid"></div>
+<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+<h3>🎯 終傷隨機數值</h3>
+<p class="tiny">華金流程全過後，再隨機抽出 +1%～+15%。官方未公布各數值權重，目前採「數值越高、機率越低」的推定權重模式。</p>
+<div class="row">
+<input id="randomMin" type="number" value="1" min="0" step="1">
+<input id="randomMax" type="number" value="15" min="0" step="1">
+<span>%</span>
+</div>
+<div class="actions">
+<button class="primary" onclick="drawRandomValue()">🎲 抽本次終傷</button>
+<button onclick="resetRandomStats()">清除紀錄</button>
+</div>
+<div id="randomNow" style="margin-top:14px"></div>
+<div id="randomStats" class="statgrid"></div><p class="tiny" style="line-height:1.9;margin-top:12px"><b>目前推定權重：</b><br>+1%：12.50%　+2%：11.67%　+3%：10.83%　+4%：10.00%　+5%：9.17%　+6%：8.33%　+7%：7.50%　+8%：6.67%　+9%：5.83%　+10%：5.00%　+11%：4.17%　+12%：3.33%　+13%：2.50%　+14%：1.67%　+15%：0.83%<br>※ 僅為模擬器自訂分布，不代表官方實際機率。</p>
+</div>
+</section>
+
+<section class="card">
+<h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依遞減權重抽終傷 +1%～+15%。</p>
+<div class="row"><span>每次洗詞花費</span><input id="huajinCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="runHuajinOnce()">🎲 洗一次華金</button>
+<button onclick="runHuajinBatch(10)">連洗 10 次</button>
+<button onclick="runHuajinBatch(100)">連洗 100 次</button>
+<button onclick="resetHuajin()">清除紀錄</button>
+</div>
+<div id="huajinNow" style="margin-top:14px"></div>
+<div id="huajinStats" class="statgrid"></div>
+<div id="huajinDist" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>💎 華金一條龍(耳環/飾品)</h2>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依遞減權重抽「全技能傷害 +1%～+20%」。</p>
+<div class="row"><span>每次洗詞花費</span><input id="accessoryCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="runAccessoryOnce()">🎲 洗一次華金</button>
+<button onclick="runAccessoryBatch(10)">連洗 10 次</button>
+<button onclick="runAccessoryBatch(100)">連洗 100 次</button>
+<button onclick="resetAccessory()">清除紀錄</button>
+</div>
+<div id="accessoryNow" style="margin-top:14px"></div>
+<div id="accessoryStats" class="statgrid"></div>
+<div id="accessoryDist" style="margin-top:10px"></div>
+<p class="tiny" style="line-height:1.8;margin-top:12px">※ +1%～+20% 採「數值越高、機率越低」的遞減權重推定模式，並非官方公布機率。</p>
 </section>
 
 <section class="card">
@@ -71,5 +117,136 @@ function updateTheory(){let p=theoryRate();theory.innerHTML=steps.length?`<span 
 function runFlow(){if(!steps.length)return alert("請先新增階段");let n=Math.max(1,Math.min(1000000,+flowTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){let ok=true;for(const x of steps){if(Math.random()>=Math.max(0,Math.min(100,+x.rate))/100){ok=false;break}}if(ok){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}let p=theoryRate();flowResult.innerHTML=card("全過成品",s.toLocaleString(),"ok")+card("失敗流程",(n-s).toLocaleString(),"bad")+card("實際全過率",pct(s/n*100))+card("理論全過率",pct(p*100))+card("第一次全過",first?`第 ${first.toLocaleString()} 次`:"未出現")+card("最長連敗",max+" 次")}
 function saveCustom(){let n=newName.value.trim(),r=+newRate.value;if(!n||isNaN(r)||r<0||r>100)return alert("請輸入名稱與 0～100% 機率");let a=custom();a.push({name:n,rate:r});localStorage.setItem("starChanceCustom",JSON.stringify(a));newName.value="";newRate.value="";refreshSelect();alert("已儲存")}
 function resetCustom(){if(confirm("確定清除自訂項目？")){localStorage.removeItem("starChanceCustom");refreshSelect()}}
+
+let randomCounts={};
+let randomDraws=0;
+function drawRandomValue(){
+ let mn=Math.floor(+randomMin.value), mx=Math.floor(+randomMax.value);
+ if(!Number.isFinite(mn)||!Number.isFinite(mx)||mn>mx)return alert("請確認最小值與最大值");
+ // 推定權重：1~15 數值越高，機率逐級降低；權重為 15,14,...,1
+ let values=[],weights=[],total=0;
+ for(let v=mn;v<=mx;v++){let w=(mx-v+1);values.push(v);weights.push(w);total+=w}
+ let r=Math.random()*total,value=values[0];
+ for(let i=0;i<values.length;i++){r-=weights[i];if(r<0){value=values[i];break}}
+ randomDraws++;
+ randomCounts[value]=(randomCounts[value]||0)+1;
+ randomNow.innerHTML=`<div class="stat"><span class="label">本次抽到</span><b class="ok" style="font-size:32px">全技能終傷 +${value}%</b><span class="tiny">遞減權重推定模式｜非官方公布機率</span></div>`;
+ renderRandomStats(mn,mx);
+}
+function renderRandomStats(mn,mx){
+ let entries=[];
+ for(let i=mn;i<=mx;i++) if(randomCounts[i]) entries.push([i,randomCounts[i]]);
+ entries.sort((a,b)=>b[1]-a[1]||a[0]-b[0]);
+ let most=entries.length?`+${entries[0][0]}%（${entries[0][1]}次）`:"—";
+ randomStats.innerHTML=card("已抽次數",randomDraws.toLocaleString())+
+ card("目前最常出現",most)+
+ card("可抽範圍",`+${mn}% ～ +${mx}%`);
+ if(entries.length){
+   randomStats.innerHTML += `<div class="stat" style="grid-column:1/-1"><span class="label">抽取分布</span><div style="margin-top:8px;line-height:1.9">${entries.sort((a,b)=>a[0]-b[0]).map(x=>`+${x[0]}%：${x[1]} 次（${(x[1]/randomDraws*100).toFixed(2)}%）`).join("　")}</div></div>`;
+ }
+}
+function resetRandomStats(){randomCounts={};randomDraws=0;randomNow.innerHTML="";randomStats.innerHTML=""}
+
+
+let hj={tries:0,pass50:0,pass10:0,values:{}};
+function weightedFinalDamage(){
+ const mn=1,mx=15; let total=0;
+ for(let v=mn;v<=mx;v++) total+=(mx-v+1);
+ let r=Math.random()*total;
+ for(let v=mn;v<=mx;v++){r-=(mx-v+1);if(r<0)return v}
+ return 15;
+}
+function huajinTrial(show=true){
+ hj.tries++;
+ if(Math.random()>=0.50){
+   if(show) huajinNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">❌ 50% 失敗</b></div>`;
+   return;
+ }
+ hj.pass50++;
+ if(Math.random()>=0.10){
+   if(show) huajinNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">✅ 50% → ❌ 10% 失敗</b></div>`;
+   return;
+ }
+ hj.pass10++;
+ const v=weightedFinalDamage();
+ hj.values[v]=(hj.values[v]||0)+1;
+ if(show) huajinNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok" style="font-size:28px">✅ 50% → ✅ 10% → 終傷 +${v}%</b><span class="tiny">終傷採遞減權重推定，非官方公布機率</span></div>`;
+}
+function runHuajinOnce(){huajinTrial(true);renderHuajin()}
+function runHuajinBatch(n){
+ let lastSuccess=null;
+ for(let i=0;i<n;i++){let before=hj.pass10;huajinTrial(false);if(hj.pass10>before){let keys=Object.keys(hj.values);lastSuccess=keys.length?keys[keys.length-1]:null}}
+ huajinNow.innerHTML=`<div class="stat"><span class="label">批次完成</span><b>已連洗 ${n} 次</b></div>`;
+ renderHuajin();
+}
+function renderHuajin(){
+ let t=hj.tries||1;
+ huajinStats.innerHTML=
+ card("總洗詞次數",hj.tries.toLocaleString())+
+ card("累計花費",(hj.tries*Math.max(0,+huajinCost.value||0)).toLocaleString()+" 紅利")+
+ card("通過 50%",hj.pass50.toLocaleString(),"ok")+
+ card("通過 10%",hj.pass10.toLocaleString(),"ok")+
+ card("50% 實際通過率",pct(hj.pass50/t*100))+
+ card("最終進入抽值率",pct(hj.pass10/t*100))+
+ card("理論進入抽值率","5%")+
+ card("每次洗詞",Math.max(0,+huajinCost.value||0).toLocaleString()+" 紅利")+
+ card("每次成功平均花費",hj.pass10?Math.round(hj.tries*Math.max(0,+huajinCost.value||0)/hj.pass10).toLocaleString()+" 紅利":"—")+
+ card("理論平均成功成本",(Math.max(0,+huajinCost.value||0)/0.05).toLocaleString()+" 紅利");
+ let parts=[];
+ for(let v=1;v<=15;v++) if(hj.values[v]) parts.push(`+${v}%：${hj.values[v]} 次`);
+ huajinDist.innerHTML=parts.length?`<div class="stat"><span class="label">成功後終傷分布</span><div style="margin-top:8px;line-height:1.9">${parts.join("　")}</div></div>`:"";
+}
+function resetHuajin(){hj={tries:0,pass50:0,pass10:0,values:{}};huajinNow.innerHTML="";huajinStats.innerHTML="";huajinDist.innerHTML=""}
+
+
+let acc={tries:0,pass50:0,pass10:0,values:{}};
+function weightedSkillDamage(){
+ const mn=1,mx=20; let total=0;
+ for(let v=mn;v<=mx;v++) total+=(mx-v+1);
+ let r=Math.random()*total;
+ for(let v=mn;v<=mx;v++){r-=(mx-v+1);if(r<0)return v}
+ return 20;
+}
+function accessoryTrial(show=true){
+ acc.tries++;
+ if(Math.random()>=0.50){
+   if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">❌ 50% 失敗</b></div>`;
+   return;
+ }
+ acc.pass50++;
+ if(Math.random()>=0.10){
+   if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">✅ 50% → ❌ 10% 失敗</b></div>`;
+   return;
+ }
+ acc.pass10++;
+ const v=weightedSkillDamage();
+ acc.values[v]=(acc.values[v]||0)+1;
+ if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok" style="font-size:28px">✅ 50% → ✅ 10% → 全技能傷害 +${v}%</b><span class="tiny">遞減權重推定模式｜非官方公布機率</span></div>`;
+}
+function runAccessoryOnce(){accessoryTrial(true);renderAccessory()}
+function runAccessoryBatch(n){
+ for(let i=0;i<n;i++) accessoryTrial(false);
+ accessoryNow.innerHTML=`<div class="stat"><span class="label">批次完成</span><b>已連洗 ${n} 次</b></div>`;
+ renderAccessory();
+}
+function renderAccessory(){
+ let t=acc.tries||1,c=Math.max(0,+accessoryCost.value||0);
+ accessoryStats.innerHTML=
+ card("總洗詞次數",acc.tries.toLocaleString())+
+ card("累計花費",(acc.tries*c).toLocaleString()+" 紅利")+
+ card("通過 50%",acc.pass50.toLocaleString(),"ok")+
+ card("通過 10%",acc.pass10.toLocaleString(),"ok")+
+ card("50% 實際通過率",pct(acc.pass50/t*100))+
+ card("最終進入抽值率",pct(acc.pass10/t*100))+
+ card("理論進入抽值率","5%")+
+ card("每次洗詞",c.toLocaleString()+" 紅利")+
+ card("每次成功平均花費",acc.pass10?Math.round(acc.tries*c/acc.pass10).toLocaleString()+" 紅利":"—")+
+ card("理論平均成功成本",(c/0.05).toLocaleString()+" 紅利");
+ let parts=[];
+ for(let v=1;v<=20;v++) if(acc.values[v]) parts.push(`+${v}%：${acc.values[v]} 次`);
+ accessoryDist.innerHTML=parts.length?`<div class="stat"><span class="label">成功後全技能傷害分布</span><div style="margin-top:8px;line-height:1.9">${parts.join("　")}</div></div>`:"";
+}
+function resetAccessory(){acc={tries:0,pass50:0,pass10:0,values:{}};accessoryNow.innerHTML="";accessoryStats.innerHTML="";accessoryDist.innerHTML=""}
+
 refreshSelect();renderSteps();
 </script></body></html>
