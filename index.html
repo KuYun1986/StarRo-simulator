@@ -443,9 +443,26 @@ a{color:#77a9ff}
 
 
 
+
+<section class="card">
+<h2>🏆 SSS評級系統</h2>
+<p class="tiny">每次評級成功機率 <b>15%</b>，每次成本固定 <b>500 台幣</b>。</p>
+
+<div class="actions">
+<button class="primary" onclick="sssBatch(1)">評級 1 次</button>
+<button onclick="sssBatch(10)">評級 10 次</button>
+
+<button onclick="sssUntilSuccess()">洗到 SSS</button>
+<button onclick="sssReset()">清除紀錄</button>
+</div>
+
+<div id="sssNow" style="margin-top:12px"></div>
+<div id="sssStats" style="margin-top:10px"></div>
+</section>
+
 <section class="card">
 <h2>🃏 21點</h2>
-<p class="tiny">娛樂模擬：6副牌、莊家17點停牌、Blackjack 3:2、一般勝負1:1、平手退回，可加倍。使用虛擬籌碼。</p>
+<p class="tiny">娛樂模擬：6副牌、莊家17點停牌、Blackjack 勝利 +20,000 P、一般勝利 +10,000 P、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。使用虛擬籌碼。</p>
 
 <div class="row">
 <span>每局固定下注</span>
@@ -1292,6 +1309,58 @@ function renderUrGem(){
 function resetUrGem(){urGemData={opens:0,box2:0,gems:{}};document.getElementById("urGemNow").innerHTML="";document.getElementById("urGemStats").innerHTML=""}
 
 
+
+/* ===== SSS評級系統 ===== */
+let sssState={attempts:0,successes:0,cost:0};
+const SSS_RATE=0.15;
+const SSS_COST=500;
+
+function sssOne(){
+ sssState.attempts++;
+ sssState.cost+=SSS_COST;
+ const ok=Math.random()<SSS_RATE;
+ if(ok)sssState.successes++;
+ return ok;
+}
+
+function sssRender(message=""){
+ const fail=sssState.attempts-sssState.successes;
+ const actual=sssState.attempts ? (sssState.successes/sssState.attempts*100).toFixed(2) : "0.00";
+ document.getElementById("sssStats").innerHTML=
+ `<div class="stat">
+   <span class="label">累計評級</span><b>${sssState.attempts.toLocaleString()} 次</b>
+   <div class="tiny" style="margin-top:6px">
+     SSS成功 ${sssState.successes.toLocaleString()} 次｜失敗 ${fail.toLocaleString()} 次｜實際成功率 ${actual}%<br>
+     累計成本 <b>${sssState.cost.toLocaleString()} 台幣</b>
+   </div>
+ </div>`;
+ if(message){
+   document.getElementById("sssNow").innerHTML=`<div class="stat"><b>${message}</b></div>`;
+ }
+}
+
+function sssBatch(count){
+ let hits=0;
+ for(let i=0;i<count;i++) if(sssOne()) hits++;
+ const spent=count*SSS_COST;
+ sssRender(`本次評級 ${count.toLocaleString()} 次｜SSS ${hits.toLocaleString()} 次｜花費 ${spent.toLocaleString()} 台幣`);
+}
+
+function sssUntilSuccess(){
+ let tries=0;
+ do{
+   tries++;
+ }while(!sssOne());
+ const spent=tries*SSS_COST;
+ sssRender(`本次第 ${tries.toLocaleString()} 次成功 SSS｜花費 ${spent.toLocaleString()} 台幣`);
+}
+
+function sssReset(){
+ sssState={attempts:0,successes:0,cost:0};
+ document.getElementById("sssNow").innerHTML="";
+ document.getElementById("sssStats").innerHTML="";
+}
+
 /* ===== 21點 ===== */
 let bjState={chips:500000,deck:[],player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
 
@@ -1347,7 +1416,9 @@ function bjHit(){
  if(!bjState.active)return;
  bjState.player.push(bjDraw());bjRender(true);
  let v=bjValue(bjState.player);
- if(v>21)bjFinish("玩家爆牌"); else if(v===21)bjStand(); else bjButtons(true);
+ if(v>21)bjFinish("玩家爆牌");
+ else if(v===21 || bjState.player.length>=5)bjStand();
+ else bjButtons(true);
 }
 function bjStand(){
  if(!bjState.active)return;
@@ -1369,10 +1440,10 @@ function bjFinish(force=""){
  let result="",pay=0;
  if(force==="玩家爆牌"||p>21){result="玩家爆牌｜莊家勝";bjState.l++}
  else if(d>21){result="莊家爆牌｜玩家勝";pay=bjState.bet*2;bjState.w++}
- else if(pb&&!db){result="Blackjack！玩家勝（3:2）";pay=bjState.bet*2.5;bjState.w++}
- else if(db&&!pb){result="莊家 Blackjack";bjState.l++}
+ else if(pb&&!db){result="Blackjack！玩家勝｜+20,000 P";pay=bjState.bet*3;bjState.w++}
+ else if(db&&!pb){result="莊家 Blackjack｜-10,000 P";bjState.l++}
  else if(p>d){result="玩家勝";pay=bjState.bet*2;bjState.w++}
- else if(p<d){result="莊家勝";bjState.l++}
+ else if(p<d){result=`莊家勝${d===21?"（21點）":""}｜-10,000 P`;bjState.l++}
  else{result="平手｜退回下注";pay=bjState.bet;bjState.p++}
  bjState.chips+=Math.floor(pay);bjState.active=false;bjButtons(false);bjRender(false,result);
  document.getElementById("bjLog").innerHTML=`<div class="tiny">局數 ${bjState.rounds}｜勝 ${bjState.w}｜負 ${bjState.l}｜和 ${bjState.p}</div>`;
@@ -1441,7 +1512,7 @@ function ttPlay(){
    let delta=0,result="";
    if(cmp>0){
      ttState.w++;
-     let mult=pr.type===2?(pr.label==="白板對"?3:2):1;
+     let mult=pr.type===2?2:1;
      delta=TT_BET*mult;
      result=`玩家勝｜+${delta.toLocaleString()} P`;
    }else{
