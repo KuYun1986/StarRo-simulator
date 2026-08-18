@@ -491,7 +491,7 @@ a{color:#77a9ff}
     <button class="primary" onclick="shieldEventBatch(1)">抽 1 次</button>
     <button onclick="shieldEventBatch(10)">抽 10 次</button>
     <button onclick="shieldEventBatch(100)">抽 100 次</button>
-    <button onclick="shieldEventBatch(1000)">抽 1000 次</button>
+    <button onclick="shieldEventUntilHit()">抽到出</button>
     <button onclick="shieldEventReset()">重置</button>
   </div>
   <div id="shieldEventNow" style="margin-top:8px"></div>
@@ -1724,6 +1724,37 @@ renderSteps();
       `<div class="tiny">累計 ${eventStone.attempts.toLocaleString()} 次｜` +
       `光芒 <b>${eventStone.success.toLocaleString()} 個</b>｜實際光芒率 ${actual}%<br>` +
       `累計成本 <b>${eventStone.cost.toLocaleString()} P</b></div>`;
+  };
+
+  window.shieldEventUntilHit = function() {
+    let tries = 0;
+    while (true) {
+      tries++;
+      eventStone.attempts++;
+      eventStone.cost += 999;
+
+      if (Math.random() < 0.001) {
+        eventStone.success++;
+
+        if (tries <= 100 && typeof window.starroBroadcast === "function") {
+          window.starroBroadcast("盾牌石","活動石變成光芒",`100次內中獎｜第 ${tries} 抽`);
+        }
+
+        el("shieldEventNow").innerHTML =
+          `<div class="stat"><b>第 ${tries.toLocaleString()} 抽出光芒</b>` +
+          `<div class="tiny">本次花費 ${(tries * 999).toLocaleString()} P</div></div>`;
+
+        const actual = eventStone.attempts
+          ? (eventStone.success / eventStone.attempts * 100).toFixed(3)
+          : "0.000";
+
+        el("shieldEventStats").innerHTML =
+          `<div class="tiny">累計 ${eventStone.attempts.toLocaleString()} 次｜` +
+          `光芒 <b>${eventStone.success.toLocaleString()} 個</b>｜實際光芒率 ${actual}%<br>` +
+          `累計成本 <b>${eventStone.cost.toLocaleString()} P</b></div>`;
+        break;
+      }
+    }
   };
 
   window.shieldEventReset = function() {
