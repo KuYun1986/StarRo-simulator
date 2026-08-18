@@ -122,7 +122,7 @@ a{color:#77a9ff}
     <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('善惡武器'))?.scrollIntoView({behavior:'smooth'})">⚔️ 善惡武器</button>
   </div>
 </div>
-<div class="sub">精煉・華金洗詞・附魔・自訂機率 <span class="badge">V2</span></div>
+<div class="sub">古雲防上頭用V777</div>
 
 <section class="card">
 <h2>完整流程</h2>
@@ -153,6 +153,24 @@ a{color:#77a9ff}
 
 
 <section class="card">
+<h2>💎 UR寶石箱(1)</h2>
+<div class="tiny">開啟 UR寶石箱(1)，有機會獲得 <b>UR寶石箱(2)</b>。</div>
+<div class="actions">
+<button class="primary" onclick="urGemBatch(10)">開 10 次</button>
+<button onclick="urGemBatch(100)">開 100 次</button>
+<button onclick="urGemBatch(1000)">開 1000 次</button>
+<button onclick="resetUrGem()">清除紀錄</button>
+</div>
+<div id="urGemNow" style="margin-top:12px"></div>
+<div id="urGemStats" style="margin-top:8px"></div>
+
+<hr style="margin:18px 0">
+<div class="label">UR寶石箱(2)｜16種寶石</div>
+<div class="tiny" style="line-height:1.9;margin-top:8px">
+物理素質爆發石、魔法素質爆發石、無敵石、莎拉石、魔法滲透石、物理連擊石、魔法連擊石、爆擊連擊石、近距離物理終傷石、遠距離物理終傷石、全屬性魔法終傷石、解除石、精煉石、再次追加石、再次施放石、屬性克制石
+</div>
+</section>
+<section class="card">
 <h2>🎰 XR 轉蛋</h2>
 <div class="row"><span>每抽花費</span><b>19 紅利</b></div>
 <p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜連續 1001 抽未出大獎才觸發保底：XR大獎 / UR一獎 / UR二獎，3 抽 1；自然抽到任一大獎或觸發保底後，都重新從第 1 抽計算。</p>
@@ -182,6 +200,9 @@ a{color:#77a9ff}
 <div id="urStats" class="statgrid"></div>
 <div id="urDist" style="margin-top:10px"></div>
 </section>
+
+
+
 
 <section class="card"><h2>💎 時光超越靴附魔</h2>
 <p class="tiny"><b>第四洞先抽：</b>墮落根莖×4：70%｜闇答萊屍×4：20%｜希梅爾茲×4：10%。抽到希梅爾茲後才再抽第三洞。</p>
@@ -1171,6 +1192,51 @@ function resetWeapon(){
  document.getElementById("weaponNow").innerHTML="";
  renderWeapon();
 }
+
+
+const urGemGroups=[
+ {w:50,items:["物理素質爆發石","魔法素質爆發石","無敵石","莎拉石"]},
+ {w:30,items:["魔法滲透石","物理連擊石","魔法連擊石","爆擊連擊石","近距離物理終傷石","遠距離物理終傷石","全屬性魔法終傷石"]},
+ {w:20,items:["解除石","精煉石","再次追加石","再次施放石","屬性克制石"]}
+];
+let urGemData={opens:0,box2:0,gems:{}};
+
+function rollUrGem2(){
+ let r=Math.random()*100,group=urGemGroups[2];
+ if(r<50)group=urGemGroups[0]; else if(r<80)group=urGemGroups[1];
+ return pick(group.items);
+}
+function oneUrGem1(show=true){
+ urGemData.opens++;
+ let hit=Math.random()*100<0.5,gem=null;
+ if(hit){
+   urGemData.box2++;
+   gem=rollUrGem2();
+   urGemData.gems[gem]=(urGemData.gems[gem]||0)+1;
+ }
+ if(show){
+   document.getElementById("urGemNow").innerHTML=hit
+    ?`<div class="stat"><b class="ok">抽到 UR寶石箱(2)！</b><div style="margin-top:6px">獲得：<b>${gem}</b></div></div>`
+    :`<div class="stat"><b>UR寶石箱(1)</b><div class="tiny">本次未抽到 UR寶石箱(2)</div></div>`;
+ }
+ return {hit,gem};
+}
+function urGem1Once(){oneUrGem1(true);renderUrGem()}
+function urGemBatch(count){
+ let hits=[];
+ for(let i=0;i<count;i++){let x=oneUrGem1(false);if(x.hit)hits.push(x.gem)}
+ let summary=hits.length
+   ?`UR寶石箱(2)：${hits.length} 個${hits.length<=20?`｜${hits.join("、")}`:""}`
+   :"未抽到 UR寶石箱(2)";
+ document.getElementById("urGemNow").innerHTML=`<div class="stat"><b>已開 ${count.toLocaleString()} 次</b><div class="tiny">${summary}</div></div>`;
+ renderUrGem();
+}
+function renderUrGem(){
+ let rate=urGemData.opens?urGemData.box2/urGemData.opens*100:0;
+ let gems=Object.entries(urGemData.gems).sort((a,b)=>b[1]-a[1]);
+ document.getElementById("urGemStats").innerHTML=`<div class="stat"><span class="label">累計開箱</span><b>${urGemData.opens.toLocaleString()} 次</b><br><span class="label">UR寶石箱(2)</span><b class="ok">${urGemData.box2} 個</b>${gems.length?`<div class="tiny" style="margin-top:8px;line-height:1.8">${gems.map(([k,v])=>`${k}：${v}`).join("<br>")}</div>`:""}</div>`;
+}
+function resetUrGem(){urGemData={opens:0,box2:0,gems:{}};document.getElementById("urGemNow").innerHTML="";document.getElementById("urGemStats").innerHTML=""}
 
 renderSteps();
 </script></body></html>
