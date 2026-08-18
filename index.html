@@ -139,48 +139,23 @@ a{color:#77a9ff}
   transition:transform 2.2s cubic-bezier(.12,.78,.18,1);
   background:
     conic-gradient(
-      #d63c3c 0.000000deg 13.846154deg,
-      #f1d46a 13.846154deg 27.692308deg,
-      #d63c3c 27.692308deg 41.538462deg,
-      #3fa55b 41.538462deg 55.384615deg,
-      #d63c3c 55.384615deg 69.230769deg,
-      #f1d46a 69.230769deg 83.076923deg,
-      #d63c3c 83.076923deg 96.923077deg,
-      #8b52c7 96.923077deg 110.769231deg,
-      #d63c3c 110.769231deg 124.615385deg,
-      #f1d46a 124.615385deg 138.461538deg,
-      #d63c3c 138.461538deg 152.307692deg,
-      #3fa55b 152.307692deg 166.153846deg,
-      #d63c3c 166.153846deg 180.000000deg,
-      #f1d46a 180.000000deg 193.846154deg,
-      #d63c3c 193.846154deg 207.692308deg,
-      #3e78cf 207.692308deg 221.538462deg,
-      #d63c3c 221.538462deg 235.384615deg,
-      #f1d46a 235.384615deg 249.230769deg,
-      #d63c3c 249.230769deg 263.076923deg,
-      #3fa55b 263.076923deg 276.923077deg,
-      #d63c3c 276.923077deg 290.769231deg,
-      #8b52c7 290.769231deg 304.615385deg,
-      #d63c3c 304.615385deg 318.461538deg,
-      #f1d46a 318.461538deg 332.307692deg,
-      #d63c3c 332.307692deg 346.153846deg,
-      #dd7b2d 346.153846deg 360.000000deg
+      #dd7b2d 0.000000deg 13.846154deg,
+      #d63c3c 13.846154deg 41.538461deg,
+      #8b52c7 41.538461deg 69.230769deg,
+      #d63c3c 69.230769deg 96.923077deg,
+      #f1d46a 96.923077deg 124.615385deg,
+      #d63c3c 124.615385deg 152.307692deg,
+      #3fa55b 152.307692deg 180.000000deg,
+      #3e78cf 180.000000deg 193.846154deg,
+      #d63c3c 193.846154deg 221.538461deg,
+      #f1d46a 221.538461deg 249.230769deg,
+      #d63c3c 249.230769deg 276.923077deg,
+      #3fa55b 276.923077deg 304.615385deg,
+      #d63c3c 304.615385deg 332.307692deg,
+      #f1d46a 332.307692deg 360.000000deg
     );
 }
 
-.mq-wheel::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  background:repeating-conic-gradient(
-    from 0deg,
-    transparent 0deg 13.246154deg,
-    rgba(255,255,255,.28) 13.246154deg 13.846154deg
-  );
-  pointer-events:none;
-  z-index:1;
-}
 .mq-wheel-center{ z-index:3; }
 
 .mq-wheel::after{
@@ -227,7 +202,7 @@ a{color:#77a9ff}
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
-<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('跑馬燈遊戲'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 輪盤</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('繁星大輪盤'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 繁星大輪盤</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
 </div>
@@ -668,7 +643,7 @@ a{color:#77a9ff}
 
 
 <section class="card">
-<h2>🎡 跑馬燈遊戲</h2>
+<h2>🎡 繁星大輪盤</h2>
 <p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 2 種顏色。跑 10 次／100 次時，只要任一局中獎就立即停止。</p>
 
 <div class="stat" style="margin-top:10px">
@@ -1714,13 +1689,23 @@ function marqueeHighlight(key){
   const label=document.getElementById("marqueeWheelLabel");
   if(!wheel)return;
 
-  // 26格等分：紅12、黃6、綠4、紫2、藍1、橘1。
-  const slots=[
-    "red","yellow","red","green","red","yellow",
-    "red","purple","red","yellow","red","green",
-    "red","yellow","red","blue","red","yellow",
-    "red","green","red","purple","red","yellow",
-    "red","orange"
+  // 依遊戲截圖配置：
+  // 紅6大格、黃3大格、綠2大格、紫1中格、藍1小格、橘1小格。
+  const segments=[
+{key:"orange",start:0.000000,end:13.846154},
+    {key:"red",start:13.846154,end:41.538461},
+    {key:"purple",start:41.538461,end:69.230769},
+    {key:"red",start:69.230769,end:96.923077},
+    {key:"yellow",start:96.923077,end:124.615385},
+    {key:"red",start:124.615385,end:152.307692},
+    {key:"green",start:152.307692,end:180.000000},
+    {key:"blue",start:180.000000,end:193.846154},
+    {key:"red",start:193.846154,end:221.538461},
+    {key:"yellow",start:221.538461,end:249.230769},
+    {key:"red",start:249.230769,end:276.923077},
+    {key:"green",start:276.923077,end:304.615385},
+    {key:"red",start:304.615385,end:332.307692},
+    {key:"yellow",start:332.307692,end:360.000000}
   ];
 
   if(!key){
@@ -1728,14 +1713,11 @@ function marqueeHighlight(key){
     return;
   }
 
-  const candidates=[];
-  slots.forEach((v,i)=>{if(v===key)candidates.push(i)});
+  const candidates=segments.filter(s=>s.key===key);
   if(!candidates.length)return;
 
-  // 同顏色有多格時隨機停其中一格，看起來更像遊戲中的跑馬輪盤。
-  const slotIndex=candidates[Math.floor(Math.random()*candidates.length)];
-  const slotDeg=360/slots.length;
-  const target=slotIndex*slotDeg + slotDeg/2;
+  const seg=candidates[Math.floor(Math.random()*candidates.length)];
+  const target=(seg.start+seg.end)/2;
 
   const opt=marqueeOptions.find(x=>x.key===key);
   const extraTurns=5*360;
