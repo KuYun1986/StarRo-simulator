@@ -820,7 +820,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🀙 推筒子</h2>
-<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。</p>
+<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。</p>
 
 <div class="row">
 <span>同時下注</span>
@@ -2031,6 +2031,37 @@ function ttDeck(){
  return d;
 }
 
+
+function ttDealerHand(deck){
+ // 一般兩張同牌對子機率：3/39 ≈ 7.69%
+ // 莊家設定比一般玩家高 5 個百分點 → 約 12.69%
+ const dealerPairRate=(3/39)+0.05;
+
+ const firstIndex=Math.floor(Math.random()*deck.length);
+ const first=deck.splice(firstIndex,1)[0];
+
+ let secondIndex=-1;
+ if(Math.random()<dealerPairRate){
+   const same=[];
+   for(let i=0;i<deck.length;i++){
+     if(deck[i].name===first.name)same.push(i);
+   }
+   if(same.length)secondIndex=same[Math.floor(Math.random()*same.length)];
+ }
+
+ // 若這局不觸發莊家加成，強制選不同牌，讓最終莊家對子率維持約 12.69%。
+ if(secondIndex<0){
+   const different=[];
+   for(let i=0;i<deck.length;i++){
+     if(deck[i].name!==first.name)different.push(i);
+   }
+   secondIndex=different[Math.floor(Math.random()*different.length)];
+ }
+
+ const second=deck.splice(secondIndex,1)[0];
+ return [first,second];
+}
+
 function ttHandRank(h){
  const pair=h[0].name===h[1].name;
  if(pair){
@@ -2054,7 +2085,8 @@ function ttPlay(){
  let d=ttDeck();
 
  // One shared dealer hand for all simultaneous player bets.
- let dealer=[d.pop(),d.pop()];
+ // Dealer pair chance is intentionally 5 percentage points above the normal player baseline.
+ let dealer=ttDealerHand(d);
  let dr=ttHandRank(dealer);
 
  let results=[];
