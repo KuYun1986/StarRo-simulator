@@ -481,7 +481,7 @@ a{color:#77a9ff}
 </section>
 <section class="card">
 <h2>🔨 +20 → +30 精煉模擬</h2>
-<p class="tiny">⭐ 若從 +20 開始累計 <b>100 把精煉槌內</b> 達成 +30，會送上全服即時戰報。</p>
+<p class="tiny">⭐ 若從 +20 開始累計 <b>200 把精煉槌內</b> 達成 +30，會送上全服即時戰報。</p>
 <p class="tiny">每把武器從 <b>+20</b> 開始；每次精煉都消耗 <b>1 把精煉槌</b>，每把精煉槌 <b>15,000 P</b>。失敗維持原精煉值，成功才進到下一階。每次按 10 / 100 把精煉槌都會從「目前精煉值」繼續往上敲，進度不會重置；可一路累積到 +30。</p>
 
 <div class="stat" style="margin-top:10px">
@@ -1742,7 +1742,7 @@ renderSteps();
 
       if (Math.random() < rates[lv]) {
         state.level++;
-        if (state.level >= 30 && state.totalHammers <= 100 && typeof window.starroBroadcast === "function") {
+        if (state.level >= 30 && state.totalHammers <= 200 && typeof window.starroBroadcast === "function") {
           window.starroBroadcast("精煉模擬","+30成功",`100把精煉槌內達成｜累計 ${state.totalHammers} 把｜花費 ${state.totalCost.toLocaleString()} P`);
         }
       }
@@ -1792,7 +1792,7 @@ renderSteps();
 
       if (Math.random() < rates[lv]) {
         state.level++;
-        if (state.level >= 30 && state.totalHammers <= 100 && typeof window.starroBroadcast === "function") {
+        if (state.level >= 30 && state.totalHammers <= 200 && typeof window.starroBroadcast === "function") {
           window.starroBroadcast("精煉模擬","+30成功",`100把精煉槌內達成｜累計 ${state.totalHammers} 把｜花費 ${state.totalCost.toLocaleString()} P`);
         }
       }
