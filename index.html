@@ -30,6 +30,37 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 
 
 
+
+<section class="card">
+<h2>🎰 XR 轉蛋</h2>
+<p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜1001 抽保底：XR大獎 / UR一獎 / UR二獎，3 抽 1。</p>
+<div class="actions">
+<button class="primary" onclick="xrDraw(1)">抽 1 次</button>
+<button onclick="xrDraw(10)">抽 10 次</button>
+<button onclick="xrDraw(100)">抽 100 次</button>
+<button onclick="xrDraw(1001)">抽 1001 次</button>
+<button onclick="resetXR()">清除紀錄</button>
+</div>
+<div id="xrNow" style="margin-top:14px"></div>
+<div id="xrStats" class="statgrid"></div>
+<div id="xrDist" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>🎟️ UR 轉蛋</h2>
+<p class="tiny">無保底｜UR：0.15%｜UR內容：UR服飾隨機書、華金自選箱；其中華金自選箱機率 0.05%。</p>
+<div class="actions">
+<button class="primary" onclick="urDraw(1)">抽 1 次</button>
+<button onclick="urDraw(10)">抽 10 次</button>
+<button onclick="urDraw(100)">抽 100 次</button>
+<button onclick="urDraw(1000)">抽 1000 次</button>
+<button onclick="resetUR()">清除紀錄</button>
+</div>
+<div id="urNow" style="margin-top:14px"></div>
+<div id="urStats" class="statgrid"></div>
+<div id="urDist" style="margin-top:10px"></div>
+</section>
+
 <section class="card">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
 <p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
@@ -758,6 +789,70 @@ function renderLowBook(){
  (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="line-height:1.9">${top.map(x=>`${x.text}｜${x.tier}`).join("<br>")}</div></div>`:"");
 }
 function resetLowBook(){lb={total:0,tiers:{},results:[]};lowBookNow.innerHTML="";lowBookStats.innerHTML="";lowBookDist.innerHTML=""}
+
+
+let xrG={draws:0,xr:0,ur:0,guarantee:0};
+function xrOne(){
+ xrG.draws++;
+ let r=Math.random()*100;
+ if(r<0.07){xrG.xr++;return "XR大獎"}
+ if(r<0.105){xrG.ur++;return "UR一獎"}
+ if(r<0.14){xrG.ur++;return "UR二獎"}
+ return "一般";
+}
+function xrDraw(n){
+ let gotXR=0,gotUR1=0,gotUR2=0,guaranteed="";
+ for(let i=0;i<n;i++){
+   let x=xrOne();
+   if(x==="XR大獎")gotXR++;
+   else if(x==="UR一獎")gotUR1++;
+   else if(x==="UR二獎")gotUR2++;
+ }
+ if(n===1001){
+   guaranteed=pick(["XR大獎","UR一獎","UR二獎"]);
+   xrG.guarantee++;
+ }
+ xrNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${gotXR?`XR大獎 × ${gotXR}　`:""}${gotUR1?`UR一獎 × ${gotUR1}　`:""}${gotUR2?`UR二獎 × ${gotUR2}　`:""}${guaranteed?`🎁 保底 3 抽 1：${guaranteed}`:(!gotXR&&!gotUR1&&!gotUR2?"未出 XR / UR":"")}</b></div>`;
+ renderXR();
+}
+function renderXR(){
+ let t=xrG.draws||1;
+ xrStats.innerHTML=card("累計抽數",xrG.draws.toLocaleString())+
+ card("XR",xrG.xr.toLocaleString(),"ok")+
+ card("UR",xrG.ur.toLocaleString(),"ok")+
+ card("1001抽保底",xrG.guarantee.toLocaleString());
+ xrDist.innerHTML=`<div class="stat"><span class="label">實際出現率</span><div style="line-height:1.9">XR：${(xrG.xr/t*100).toFixed(4)}%（理論 0.07%）<br>UR：${(xrG.ur/t*100).toFixed(4)}%（理論 0.07%）</div></div>`;
+}
+function resetXR(){xrG={draws:0,xr:0,ur:0,guarantee:0};xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML=""}
+
+let urG={draws:0,book:0,huajin:0};
+function urOne(){
+ urG.draws++;
+ let r=Math.random()*100;
+ // 總UR 0.15%，其中華金自選箱 0.05%，剩餘0.10%視為UR服飾隨機書
+ if(r<0.05){urG.huajin++;return "華金自選箱"}
+ if(r<0.15){urG.book++;return "UR服飾隨機書"}
+ return "一般";
+}
+function urDraw(n){
+ let b=0,h=0;
+ for(let i=0;i<n;i++){
+   let x=urOne();
+   if(x==="華金自選箱")h++;
+   else if(x==="UR服飾隨機書")b++;
+ }
+ urNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${b?`UR服飾隨機書 × ${b}　`:""}${h?`華金自選箱 × ${h}`:""}${!b&&!h?"未出 UR":""}</b></div>`;
+ renderUR();
+}
+function renderUR(){
+ let t=urG.draws||1,total=urG.book+urG.huajin;
+ urStats.innerHTML=card("累計抽數",urG.draws.toLocaleString())+
+ card("UR總數",total.toLocaleString(),"ok")+
+ card("UR服飾隨機書",urG.book.toLocaleString())+
+ card("華金自選箱",urG.huajin.toLocaleString(),"ok");
+ urDist.innerHTML=`<div class="stat"><span class="label">實際出現率</span><div style="line-height:1.9">UR總計：${(total/t*100).toFixed(4)}%（理論 0.15%）<br>UR服飾隨機書：${(urG.book/t*100).toFixed(4)}%（推定 0.10%）<br>華金自選箱：${(urG.huajin/t*100).toFixed(4)}%（理論 0.05%）</div></div>`;
+}
+function resetUR(){urG={draws:0,book:0,huajin:0};urNow.innerHTML="";urStats.innerHTML="";urDist.innerHTML=""}
 
 renderSteps();
 </script></body></html>
