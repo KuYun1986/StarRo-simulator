@@ -122,11 +122,12 @@ a{color:#77a9ff}
 <link rel="icon" type="image/png" href="preview.png">
 <link rel="apple-touch-icon" href="preview.png">
 </head>
-<body><div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
+<body><div class="wrap">
+<h1>🌟 繁星仙境模擬器</h1>
+<div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
-</div>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -459,6 +460,56 @@ a{color:#77a9ff}
 
 
 
+
+
+<section class="card">
+<h2>🛡️ 盾牌石</h2>
+<p class="tiny">每次使用都會計算成本；若變成「腐朽」，該次模擬會立即停止，必須重置後才能繼續洗。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">💧 清澈石</span>
+  <b>成功率 0.033%｜每次 500 P</b>
+  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成腐朽，腐朽後不能繼續洗。</div>
+  <div class="actions" style="margin-top:8px">
+    <button class="primary" onclick="shieldClearBatch(1)">抽 1 次</button>
+    <button onclick="shieldClearBatch(10)">抽 10 次</button>
+    <button onclick="shieldClearBatch(100)">抽 100 次</button>
+    <button onclick="shieldClearReset()">重置</button>
+  </div>
+  <div id="shieldClearNow" style="margin-top:8px"></div>
+  <div id="shieldClearStats" style="margin-top:8px"></div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+  <span class="label">🎉 活動石</span>
+  <b>成功率 0.1%｜每次 999 P</b>
+  <div class="actions" style="margin-top:8px">
+    <button class="primary" onclick="shieldEventBatch(1)">抽 1 次</button>
+    <button onclick="shieldEventBatch(10)">抽 10 次</button>
+    <button onclick="shieldEventBatch(100)">抽 100 次</button>
+    <button onclick="shieldEventReset()">重置</button>
+  </div>
+  <div id="shieldEventNow" style="margin-top:8px"></div>
+  <div id="shieldEventStats" style="margin-top:8px"></div>
+</div>
+</section>
+
+<section class="card">
+<h2>🧤 手套石</h2>
+<div class="stat">
+  <span class="label">✨ 純潔石</span>
+  <b>成功率 0.33%｜每次 500 P</b>
+  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成雜念，雜念後不能繼續洗。</div>
+  <div class="actions" style="margin-top:8px">
+    <button class="primary" onclick="glovePureBatch(1)">抽 1 次</button>
+    <button onclick="glovePureBatch(10)">抽 10 次</button>
+    <button onclick="glovePureBatch(100)">抽 100 次</button>
+    <button onclick="glovePureReset()">重置</button>
+  </div>
+  <div id="glovePureNow" style="margin-top:8px"></div>
+  <div id="glovePureStats" style="margin-top:8px"></div>
+</div>
+</section>
 
 <section class="card">
 <h2>🏆 SSS評級系統</h2>
@@ -1338,6 +1389,7 @@ function resetUrGem(){urGemData={opens:0,box2:0,gems:{}};document.getElementById
 
 
 
+
 /* ===== SSS評級系統 ===== */
 let sssState={attempts:0,successes:0,cost:0};
 const SSS_RATE=0.15;
@@ -1583,6 +1635,126 @@ function ttReset(){
 
 renderSteps();
 </script>
+
+<script>
+(() => {
+  const clear = {attempts:0, success:0, cost:0, locked:false, bad:0};
+  const eventStone = {attempts:0, success:0, cost:0};
+  const pure = {attempts:0, success:0, cost:0, locked:false, bad:0};
+
+  const el = id => document.getElementById(id);
+
+  function stats(id, s, badWord="") {
+    const box = el(id);
+    if (!box) return;
+    const actual = s.attempts ? (s.success / s.attempts * 100).toFixed(3) : "0.000";
+    const lock = ("locked" in s)
+      ? `｜${badWord} ${s.bad} 次${s.locked ? `｜<b class="bad">目前已${badWord}，不能繼續洗</b>` : ""}`
+      : "";
+    box.innerHTML =
+      `<div class="tiny">累計 ${s.attempts.toLocaleString()} 次｜成功 ${s.success.toLocaleString()} 次｜實際成功率 ${actual}%${lock}<br>` +
+      `累計成本 <b>${s.cost.toLocaleString()} P</b></div>`;
+  }
+
+  window.shieldClearBatch = function(n) {
+    if (clear.locked) {
+      el("shieldClearNow").innerHTML = '<div class="stat"><b class="bad">目前已腐朽，請先重置。</b></div>';
+      return;
+    }
+
+    let done = 0, hits = 0, decayed = false;
+    for (let i = 0; i < n; i++) {
+      clear.attempts++;
+      clear.cost += 500;
+      done++;
+
+      // 先判定本次是否成功，再判定裝備是否腐朽。
+      if (Math.random() < 0.00033) {
+        clear.success++;
+        hits++;
+      }
+
+      if (Math.random() < 0.10) {
+        clear.locked = true;
+        clear.bad++;
+        decayed = true;
+        break;
+      }
+    }
+
+    el("shieldClearNow").innerHTML =
+      `<div class="stat"><b>本次實際洗 ${done} 次｜成功 ${hits} 次${decayed ? "｜變成腐朽，已停止" : ""}</b>` +
+      `<div class="tiny">本次花費 ${(done * 500).toLocaleString()} P</div></div>`;
+    stats("shieldClearStats", clear, "腐朽");
+  };
+
+  window.shieldClearReset = function() {
+    Object.assign(clear, {attempts:0, success:0, cost:0, locked:false, bad:0});
+    el("shieldClearNow").innerHTML = "";
+    stats("shieldClearStats", clear, "腐朽");
+  };
+
+  window.shieldEventBatch = function(n) {
+    let hits = 0;
+    for (let i = 0; i < n; i++) {
+      eventStone.attempts++;
+      eventStone.cost += 999;
+      if (Math.random() < 0.001) {
+        eventStone.success++;
+        hits++;
+      }
+    }
+    el("shieldEventNow").innerHTML =
+      `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜成功 ${hits.toLocaleString()} 次</b>` +
+      `<div class="tiny">本次花費 ${(n * 999).toLocaleString()} P</div></div>`;
+    stats("shieldEventStats", eventStone);
+  };
+
+  window.shieldEventReset = function() {
+    Object.assign(eventStone, {attempts:0, success:0, cost:0});
+    el("shieldEventNow").innerHTML = "";
+    stats("shieldEventStats", eventStone);
+  };
+
+  window.glovePureBatch = function(n) {
+    if (pure.locked) {
+      el("glovePureNow").innerHTML = '<div class="stat"><b class="bad">目前已雜念，請先重置。</b></div>';
+      return;
+    }
+
+    let done = 0, hits = 0, tainted = false;
+    for (let i = 0; i < n; i++) {
+      pure.attempts++;
+      pure.cost += 500;
+      done++;
+
+      if (Math.random() < 0.0033) {
+        pure.success++;
+        hits++;
+      }
+
+      if (Math.random() < 0.10) {
+        pure.locked = true;
+        pure.bad++;
+        tainted = true;
+        break;
+      }
+    }
+
+    el("glovePureNow").innerHTML =
+      `<div class="stat"><b>本次實際洗 ${done} 次｜成功 ${hits} 次${tainted ? "｜變成雜念，已停止" : ""}</b>` +
+      `<div class="tiny">本次花費 ${(done * 500).toLocaleString()} P</div></div>`;
+    stats("glovePureStats", pure, "雜念");
+  };
+
+  window.glovePureReset = function() {
+    Object.assign(pure, {attempts:0, success:0, cost:0, locked:false, bad:0});
+    el("glovePureNow").innerHTML = "";
+    stats("glovePureStats", pure, "雜念");
+  };
+})();
+</script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
