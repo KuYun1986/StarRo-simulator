@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="繁星機率">
-<title>繁星仙境機率模擬器</title>
+<title>繁星仙境模擬器</title>
 <style>
 :root{--bg:#0d1020;--card:#171b31;--card2:#202641;--text:#f5f7ff;--muted:#aab2d5;--accent:#ffd76a;--ok:#7ee0a1;--bad:#ff8b91;--line:#323a61}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b0e1b,#11162a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
@@ -110,13 +110,13 @@ a{color:#77a9ff}
 }
 
 </style>
-<meta property="og:title" content="繁星仙境機率模擬器">
+<meta property="og:title" content="繁星仙境模擬器">
 <meta property="og:description" content="古雲防上頭用V777（機率僅供參考，實際依遊戲為主）">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://kuyun1986.github.io/StarRo-simulator/">
 <meta property="og:image" content="https://kuyun1986.github.io/StarRo-simulator/preview.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="繁星仙境機率模擬器">
+<meta name="twitter:title" content="繁星仙境模擬器">
 <meta name="twitter:description" content="古雲防上頭用V777（機率僅供參考，實際依遊戲為主）">
 <meta name="twitter:image" content="https://kuyun1986.github.io/StarRo-simulator/preview.png">
 <link rel="icon" type="image/png" href="preview.png">
@@ -131,7 +131,7 @@ a{color:#77a9ff}
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-    <span class="label">🌐 全服即時戰報</span>
+    <span class="label">🌐 全服即時戰報（最近24小時）</span>
     <span id="fbStatus" class="tiny">連線中…</span>
     <button onclick="changeStarroName()" style="margin-left:auto">👤 <span id="fbNameLabel">設定暱稱</span></button>
   </div>
@@ -1689,9 +1689,15 @@ onAuthStateChanged(auth,user=>{
   if(user && !displayName) setTimeout(()=>askName(),250);
 });
 
-const q=query(collection(db,"jackpots"),orderBy("createdAt","desc"),limit(20));
+const q=query(collection(db,"jackpots"),orderBy("createdAt","desc"),limit(200));
 onSnapshot(q,snap=>{
-  const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const oneDayAgo = Date.now() - 24*60*60*1000;
+  const rows=snap.docs
+    .map(d=>({id:d.id,...d.data()}))
+    .filter(x=>{
+      if(!x.createdAt?.toDate) return true;
+      return x.createdAt.toDate().getTime() >= oneDayAgo;
+    });
   renderFeed(rows);
 },err=>{
   console.error("戰報讀取失敗",err);
