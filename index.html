@@ -660,7 +660,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🎡 繁星大輪盤</h2>
-<p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
+<p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
 
 <div class="stat" style="margin-top:10px">
   <span class="label">顏色 / 賠率 / 機率</span>
@@ -763,7 +763,7 @@ a{color:#77a9ff}
   <h2>🎴 百家樂</h2>
   <div class="tiny" style="line-height:1.8">
     每局所有下注合計最高 <b>30,000 紅利</b>。A=1，10/J/Q/K=0，其餘照牌面點數；總點數只看個位數。
-    自動依標準百家樂規則補第三張牌。和局時「閒贏／莊贏」退回本金。
+    自動依標準百家樂規則補第三張牌。和局時「閒贏／莊贏」退回本金。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。
   </div>
 
   <div class="stat" style="margin-top:10px">
@@ -820,7 +820,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🀙 推筒子</h2>
-<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。</p>
+<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。</p>
 
 <div class="row">
 <span>同時下注</span>
@@ -1753,6 +1753,16 @@ const marqueeOptions=[
   {key:"blue",name:"藍色",icon:"🔵",p:3.85,pay:23},
   {key:"orange",name:"橘色",icon:"🟠",p:3.85,pay:23}
 ];
+
+function starroFormatPlayTime(rounds){
+  const totalMinutes=Math.max(0,Math.floor(rounds))*2;
+  const hours=Math.floor(totalMinutes/60);
+  const minutes=totalMinutes%60;
+  if(hours>0 && minutes>0) return `${hours} 小時 ${minutes} 分鐘`;
+  if(hours>0) return `${hours} 小時`;
+  return `${minutes} 分鐘`;
+}
+
 let marqueeState={plays:0,wins:0,totalBet:0,net:0,counts:{red:0,yellow:0,green:0,purple:0,blue:0,orange:0}};
 
 function marqueeRoll(){
@@ -1822,6 +1832,7 @@ function marqueeRender(){
     `<div class="stat"><span class="label">累計 ${marqueeState.plays.toLocaleString()} 局</span>`+
     `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
     `累計下注 ${marqueeState.totalBet.toLocaleString()} 紅｜累計淨輸贏 <b class="${marqueeState.net>=0?"ok":"bad"}">${marqueeState.net>=0?"+":""}${marqueeState.net.toLocaleString()} 紅</b><br>`+
+    `累計花費時間：${starroFormatPlayTime(marqueeState.plays)}<br>`+
     `${rows}</div></div>`;
 }
 
@@ -1903,6 +1914,7 @@ function marqueePlay(n){
     `每局下注：${betText}<br>`+
     `${stoppedByWin?'<b class="ok">✅ 中獎即停</b><br>':""}`+
     `本次總下注：${totalStake.toLocaleString()} 紅｜本次淨輸贏：<b class="${roundNet>=0?"ok":"bad"}">${roundNet>=0?"+":""}${roundNet.toLocaleString()} 紅</b><br>`+
+    `本次花費時間：${starroFormatPlayTime(actualRuns)}<br>`+
     `${hitText}`+
     `</div></div>`;
   marqueeRender();
@@ -2121,7 +2133,7 @@ function ttPlay(){
  `<div class="stat">
    <span class="label">本局共用莊家｜${dr.label}</span>
    <div style="font-size:24px;margin:6px 0">${dealer.map(x=>x.name).join("　")}</div>
-   <div class="tiny">本局 ${handCount} 手｜每手 100,000 P｜本局合計 ${roundNet>=0?"+":""}${roundNet.toLocaleString()} P</div>
+   <div class="tiny">本局 ${handCount} 手｜每手 100,000 P｜本局合計 ${roundNet>=0?"+":""}${roundNet.toLocaleString()} P｜本局花費時間 ${starroFormatPlayTime(handCount)}</div>
  </div>`+
  results.map(x=>`<div class="stat" style="margin-top:8px">
    <span class="label">下注 ${x.i}｜${x.pr.label}</span>
@@ -2130,7 +2142,7 @@ function ttPlay(){
  </div>`).join("");
 
  document.getElementById("ttStats").innerHTML=
- `<div class="tiny">累計下注手數 ${ttState.rounds}｜玩家勝 ${ttState.w}｜莊家勝 ${ttState.l}｜每手固定 100,000 P</div>`;
+ `<div class="tiny">累計下注手數 ${ttState.rounds}｜玩家勝 ${ttState.w}｜莊家勝 ${ttState.l}｜每手固定 100,000 P｜累計花費時間 ${starroFormatPlayTime(ttState.rounds)}</div>`;
 }
 
 function ttReset(){
@@ -2586,7 +2598,8 @@ function baccaratPlay(n){
     `莊：${cardsText(last.b)} → <b>${last.bp}點</b><br>`+
     `${specials}<br>`+
     `本次 ${n.toLocaleString()} 局｜下注 ${batchBet.toLocaleString()} 紅利｜淨輸贏 `+
-    `<b class="${batchNet>=0?"ok":"bad"}">${batchNet>=0?"+":""}${Math.round(batchNet).toLocaleString()} 紅利</b>`+
+    `<b class="${batchNet>=0?"ok":"bad"}">${batchNet>=0?"+":""}${Math.round(batchNet).toLocaleString()} 紅利</b><br>`+
+    `本次花費時間：${starroFormatPlayTime(n)}`+
     `</div></div>`;
 
   baccaratRender();
@@ -2598,7 +2611,8 @@ function baccaratRender(){
     `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
     `閒贏 ${s.player.toLocaleString()}｜莊贏 ${s.banker.toLocaleString()}｜和局 ${s.tie.toLocaleString()}<br>`+
     `累計下注 ${s.totalBet.toLocaleString()} 紅利｜累計淨輸贏 `+
-    `<b class="${s.net>=0?"ok":"bad"}">${s.net>=0?"+":""}${Math.round(s.net).toLocaleString()} 紅利</b>`+
+    `<b class="${s.net>=0?"ok":"bad"}">${s.net>=0?"+":""}${Math.round(s.net).toLocaleString()} 紅利</b><br>`+
+    `累計花費時間：${starroFormatPlayTime(s.rounds)}`+
     `</div></div>`;
 }
 function baccaratReset(){
