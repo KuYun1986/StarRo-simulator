@@ -38,7 +38,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <div id="theory" style="margin-top:14px"></div><div id="flowResult" class="statgrid"></div>
 <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
 <h3>🎯 終傷隨機數值</h3>
-<p class="tiny">華金流程全過後，再隨機抽出 +1%～+15%。官方未公布各數值權重，目前採「數值越高、機率越低」的推定權重模式。</p>
+<p class="tiny">華金流程全過後，再隨機抽出 +1%～+15%。目前採四區間推定：+1～5% = 89.77%、+6～10% = 8.98%、+11～14% = 0.90%、+15% = 0.36%。</p>
 <div class="row">
 <input id="randomMin" type="number" value="1" min="0" step="1">
 <input id="randomMax" type="number" value="15" min="0" step="1">
@@ -49,13 +49,13 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <button onclick="resetRandomStats()">清除紀錄</button>
 </div>
 <div id="randomNow" style="margin-top:14px"></div>
-<div id="randomStats" class="statgrid"></div><p class="tiny" style="line-height:1.9;margin-top:12px"><b>目前推定權重：</b><br>+1%：12.50%　+2%：11.67%　+3%：10.83%　+4%：10.00%　+5%：9.17%　+6%：8.33%　+7%：7.50%　+8%：6.67%　+9%：5.83%　+10%：5.00%　+11%：4.17%　+12%：3.33%　+13%：2.50%　+14%：1.67%　+15%：0.83%<br>※ 僅為模擬器自訂分布，不代表官方實際機率。</p>
+<div id="randomStats" class="statgrid"></div><p class="tiny" style="line-height:1.9;margin-top:12px"><b>目前推定區間：</b><br>+1～5%：89.77%　+6～10%：8.98%　+11～14%：0.90%　+15%：0.36%<br>※ 抽中區間後，區間內數值等機率；此為模擬器設定。</p>
 </div>
 </section>
 
 <section class="card">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
-<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依遞減權重抽終傷 +1%～+15%。</p>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
 <div class="row"><span>每次洗詞花費</span><input id="huajinCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
 <div class="actions">
 <button class="primary" onclick="runHuajinOnce()">🎲 洗一次華金</button>
@@ -70,7 +70,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 
 <section class="card">
 <h2>💎 華金一條龍(耳環/飾品)</h2>
-<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依遞減權重抽「全技能傷害 +1%～+20%」。</p>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽「全技能傷害 +1%～+20%」。</p>
 <div class="row"><span>每次洗詞花費</span><input id="accessoryCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
 <div class="actions">
 <button class="primary" onclick="runAccessoryOnce()">🎲 洗一次華金</button>
@@ -81,7 +81,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <div id="accessoryNow" style="margin-top:14px"></div>
 <div id="accessoryStats" class="statgrid"></div>
 <div id="accessoryDist" style="margin-top:10px"></div>
-<p class="tiny" style="line-height:1.8;margin-top:12px">※ +1%～+20% 採「數值越高、機率越低」的遞減權重推定模式，並非官方公布機率。</p>
+<p class="tiny" style="line-height:1.8;margin-top:12px">※ 華金數值區間：+1～5% = 89.77%、+6～10% = 8.98%、+11～14% = 0.90%、+15% = 0.36%；抽中區間後，區間內數值等機率。</p>
 </section>
 
 <section class="card">
@@ -259,14 +259,15 @@ let randomDraws=0;
 function drawRandomValue(){
  let mn=Math.floor(+randomMin.value), mx=Math.floor(+randomMax.value);
  if(!Number.isFinite(mn)||!Number.isFinite(mx)||mn>mx)return alert("請確認最小值與最大值");
- // 推定權重：1~15 數值越高，機率逐級降低；權重為 15,14,...,1
- let values=[],weights=[],total=0;
- for(let v=mn;v<=mx;v++){let w=(mx-v+1);values.push(v);weights.push(w);total+=w}
- let r=Math.random()*total,value=values[0];
- for(let i=0;i<values.length;i++){r-=weights[i];if(r<0){value=values[i];break}}
+ let value;
+ if(mn===1 && mx===15){
+   value=weightedFinalDamage();
+ }else{
+   value=Math.floor(Math.random()*(mx-mn+1))+mn;
+ }
  randomDraws++;
  randomCounts[value]=(randomCounts[value]||0)+1;
- randomNow.innerHTML=`<div class="stat"><span class="label">本次抽到</span><b class="ok" style="font-size:32px">全技能終傷 +${value}%</b><span class="tiny">遞減權重推定模式｜非官方公布機率</span></div>`;
+ randomNow.innerHTML=`<div class="stat"><span class="label">本次抽到</span><b class="ok" style="font-size:32px">全技能終傷 +${value}%</b><span class="tiny">四區間推定模式｜+1～5：89.77%｜+6～10：8.98%｜+11～14：0.90%｜+15：0.36%</span></div>`;
  renderRandomStats(mn,mx);
 }
 function renderRandomStats(mn,mx){
@@ -286,11 +287,16 @@ function resetRandomStats(){randomCounts={};randomDraws=0;randomNow.innerHTML=""
 
 let hj={tries:0,pass50:0,pass10:0,values:{}};
 function weightedFinalDamage(){
- const mn=1,mx=15; let total=0;
- for(let v=mn;v<=mx;v++) total+=(mx-v+1);
- let r=Math.random()*total;
- for(let v=mn;v<=mx;v++){r-=(mx-v+1);if(r<0)return v}
- return 15;
+ const groups=[
+   {min:1,max:5,w:89.77},
+   {min:6,max:10,w:8.98},
+   {min:11,max:14,w:0.90},
+   {min:15,max:15,w:0.36}
+ ];
+ let total=groups.reduce((s,g)=>s+g.w,0);
+ let r=Math.random()*total,chosen=groups[0];
+ for(const g of groups){r-=g.w;if(r<0){chosen=g;break}}
+ return Math.floor(Math.random()*(chosen.max-chosen.min+1))+chosen.min;
 }
 function huajinTrial(show=true){
  hj.tries++;
@@ -337,11 +343,16 @@ function resetHuajin(){hj={tries:0,pass50:0,pass10:0,values:{}};huajinNow.innerH
 
 let acc={tries:0,pass50:0,pass10:0,values:{}};
 function weightedSkillDamage(){
- const mn=1,mx=20; let total=0;
- for(let v=mn;v<=mx;v++) total+=(mx-v+1);
- let r=Math.random()*total;
- for(let v=mn;v<=mx;v++){r-=(mx-v+1);if(r<0)return v}
- return 20;
+ const groups=[
+   {min:1,max:5,w:89.77},
+   {min:6,max:10,w:8.98},
+   {min:11,max:19,w:0.90},
+   {min:20,max:20,w:0.36}
+ ];
+ let total=groups.reduce((s,g)=>s+g.w,0);
+ let r=Math.random()*total,chosen=groups[0];
+ for(const g of groups){r-=g.w;if(r<0){chosen=g;break}}
+ return Math.floor(Math.random()*(chosen.max-chosen.min+1))+chosen.min;
 }
 function accessoryTrial(show=true){
  acc.tries++;
@@ -357,7 +368,7 @@ function accessoryTrial(show=true){
  acc.pass10++;
  const v=weightedSkillDamage();
  acc.values[v]=(acc.values[v]||0)+1;
- if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok" style="font-size:28px">✅ 50% → ✅ 10% → 全技能傷害 +${v}%</b><span class="tiny">遞減權重推定模式｜非官方公布機率</span></div>`;
+ if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok" style="font-size:28px">✅ 50% → ✅ 10% → 全技能傷害 +${v}%</b><span class="tiny">四區間推定模式｜+1～5：89.77%｜+6～10：8.98%｜+11～14：0.90%｜+15：0.36%</span></div>`;
 }
 function runAccessoryOnce(){accessoryTrial(true);renderAccessory()}
 function runAccessoryBatch(n){
