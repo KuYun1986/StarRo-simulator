@@ -464,12 +464,14 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🛡️ 盾牌石</h2>
-<p class="tiny">每次使用都會計算成本；若變成「腐朽」，該次模擬會立即停止，必須重置後才能繼續洗。</p>
+<p class="tiny">⭐ 100 次內抽中成功結果會送上「全服即時戰報」。</p>
+<p class="tiny">每次使用都會計算成本；抽到「腐朽」仍可繼續洗，並累計腐朽數量。</p>
 
 <div class="stat" style="margin-top:10px">
   <span class="label">💧 清澈石</span>
   <b>成功率 0.033%｜每次 500 P</b>
-  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成腐朽，腐朽後不能繼續洗。</div>
+  <div class="tiny">期望：約 3,031 次｜約 1,515,500 P</div>
+  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成腐朽；抽到腐朽後仍可繼續洗。</div>
   <div class="actions" style="margin-top:8px">
     <button class="primary" onclick="shieldClearBatch(1)">抽 1 次</button>
     <button onclick="shieldClearBatch(10)">抽 10 次</button>
@@ -482,7 +484,8 @@ a{color:#77a9ff}
 
 <div class="stat" style="margin-top:12px">
   <span class="label">🎉 活動石</span>
-  <b>成功率 0.1%｜每次 999 P</b>
+  <b>0.1% 直接變成「光芒」｜每次 999 P</b>
+  <div class="tiny">期望：約 1,000 次｜約 999,000 P</div>
   <div class="actions" style="margin-top:8px">
     <button class="primary" onclick="shieldEventBatch(1)">抽 1 次</button>
     <button onclick="shieldEventBatch(10)">抽 10 次</button>
@@ -496,10 +499,12 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🧤 手套石</h2>
+<p class="tiny">⭐ 100 次內抽中純潔石成功會送上「全服即時戰報」。</p>
 <div class="stat">
   <span class="label">✨ 純潔石</span>
   <b>成功率 0.33%｜每次 500 P</b>
-  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成雜念，雜念後不能繼續洗。</div>
+  <div class="tiny">期望：約 304 次｜約 152,000 P</div>
+  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成雜念；抽到雜念後仍可繼續洗。</div>
   <div class="actions" style="margin-top:8px">
     <button class="primary" onclick="glovePureBatch(1)">抽 1 次</button>
     <button onclick="glovePureBatch(10)">抽 10 次</button>
@@ -1638,9 +1643,9 @@ renderSteps();
 
 <script>
 (() => {
-  const clear = {attempts:0, success:0, cost:0, locked:false, bad:0};
+  const clear = {attempts:0, success:0, cost:0, bad:0};
   const eventStone = {attempts:0, success:0, cost:0};
-  const pure = {attempts:0, success:0, cost:0, locked:false, bad:0};
+  const pure = {attempts:0, success:0, cost:0, bad:0};
 
   const el = id => document.getElementById(id);
 
@@ -1648,66 +1653,68 @@ renderSteps();
     const box = el(id);
     if (!box) return;
     const actual = s.attempts ? (s.success / s.attempts * 100).toFixed(3) : "0.000";
-    const lock = ("locked" in s)
-      ? `｜${badWord} ${s.bad} 次${s.locked ? `｜<b class="bad">目前已${badWord}，不能繼續洗</b>` : ""}`
-      : "";
+    const badText = ("bad" in s) ? `｜${badWord} <b>${s.bad.toLocaleString()} 個</b>` : "";
     box.innerHTML =
-      `<div class="tiny">累計 ${s.attempts.toLocaleString()} 次｜成功 ${s.success.toLocaleString()} 次｜實際成功率 ${actual}%${lock}<br>` +
+      `<div class="tiny">累計 ${s.attempts.toLocaleString()} 次｜成功 ${s.success.toLocaleString()} 次${badText}｜實際成功率 ${actual}%<br>` +
       `累計成本 <b>${s.cost.toLocaleString()} P</b></div>`;
   }
 
   window.shieldClearBatch = function(n) {
-    if (clear.locked) {
-      el("shieldClearNow").innerHTML = '<div class="stat"><b class="bad">目前已腐朽，請先重置。</b></div>';
-      return;
-    }
-
-    let done = 0, hits = 0, decayed = false;
+    let hits = 0, bads = 0;
     for (let i = 0; i < n; i++) {
       clear.attempts++;
       clear.cost += 500;
-      done++;
 
-      // 先判定本次是否成功，再判定裝備是否腐朽。
       if (Math.random() < 0.00033) {
         clear.success++;
         hits++;
+        if (clear.attempts <= 100 && typeof window.starroBroadcast === "function") {
+          window.starroBroadcast("盾牌石","清澈石成功",`100次內中獎｜第 ${clear.attempts} 次`);
+        }
       }
-
       if (Math.random() < 0.10) {
-        clear.locked = true;
         clear.bad++;
-        decayed = true;
-        break;
+        bads++;
       }
     }
 
     el("shieldClearNow").innerHTML =
-      `<div class="stat"><b>本次實際洗 ${done} 次｜成功 ${hits} 次${decayed ? "｜變成腐朽，已停止" : ""}</b>` +
-      `<div class="tiny">本次花費 ${(done * 500).toLocaleString()} P</div></div>`;
-    stats("shieldClearStats", clear, "腐朽");
+      `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜成功 ${hits.toLocaleString()} 次｜腐朽 ${bads.toLocaleString()} 個</b>` +
+      `<div class="tiny">本次花費 ${(n * 500).toLocaleString()} P</div></div>`;
+    stats("shieldClearStats", clear, "累計腐朽");
   };
 
   window.shieldClearReset = function() {
-    Object.assign(clear, {attempts:0, success:0, cost:0, locked:false, bad:0});
+    Object.assign(clear, {attempts:0, success:0, cost:0, bad:0});
     el("shieldClearNow").innerHTML = "";
-    stats("shieldClearStats", clear, "腐朽");
+    stats("shieldClearStats", clear, "累計腐朽");
   };
 
   window.shieldEventBatch = function(n) {
-    let hits = 0;
+    let glow = 0;
     for (let i = 0; i < n; i++) {
       eventStone.attempts++;
       eventStone.cost += 999;
       if (Math.random() < 0.001) {
         eventStone.success++;
-        hits++;
+        glow++;
+        if (eventStone.attempts <= 100 && typeof window.starroBroadcast === "function") {
+          window.starroBroadcast("盾牌石","活動石變成光芒",`100次內中獎｜第 ${eventStone.attempts} 次`);
+        }
       }
     }
     el("shieldEventNow").innerHTML =
-      `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜成功 ${hits.toLocaleString()} 次</b>` +
+      `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜光芒 ${glow.toLocaleString()} 個</b>` +
       `<div class="tiny">本次花費 ${(n * 999).toLocaleString()} P</div></div>`;
-    stats("shieldEventStats", eventStone);
+
+    const actual = eventStone.attempts
+      ? (eventStone.success / eventStone.attempts * 100).toFixed(3)
+      : "0.000";
+
+    el("shieldEventStats").innerHTML =
+      `<div class="tiny">累計 ${eventStone.attempts.toLocaleString()} 次｜` +
+      `光芒 <b>${eventStone.success.toLocaleString()} 個</b>｜實際光芒率 ${actual}%<br>` +
+      `累計成本 <b>${eventStone.cost.toLocaleString()} P</b></div>`;
   };
 
   window.shieldEventReset = function() {
@@ -1717,40 +1724,34 @@ renderSteps();
   };
 
   window.glovePureBatch = function(n) {
-    if (pure.locked) {
-      el("glovePureNow").innerHTML = '<div class="stat"><b class="bad">目前已雜念，請先重置。</b></div>';
-      return;
-    }
-
-    let done = 0, hits = 0, tainted = false;
+    let hits = 0, bads = 0;
     for (let i = 0; i < n; i++) {
       pure.attempts++;
       pure.cost += 500;
-      done++;
 
       if (Math.random() < 0.0033) {
         pure.success++;
         hits++;
+        if (pure.attempts <= 100 && typeof window.starroBroadcast === "function") {
+          window.starroBroadcast("手套石","純潔石成功",`100次內中獎｜第 ${pure.attempts} 次`);
+        }
       }
-
       if (Math.random() < 0.10) {
-        pure.locked = true;
         pure.bad++;
-        tainted = true;
-        break;
+        bads++;
       }
     }
 
     el("glovePureNow").innerHTML =
-      `<div class="stat"><b>本次實際洗 ${done} 次｜成功 ${hits} 次${tainted ? "｜變成雜念，已停止" : ""}</b>` +
-      `<div class="tiny">本次花費 ${(done * 500).toLocaleString()} P</div></div>`;
-    stats("glovePureStats", pure, "雜念");
+      `<div class="stat"><b>本次 ${n.toLocaleString()} 次｜成功 ${hits.toLocaleString()} 次｜雜念 ${bads.toLocaleString()} 個</b>` +
+      `<div class="tiny">本次花費 ${(n * 500).toLocaleString()} P</div></div>`;
+    stats("glovePureStats", pure, "累計雜念");
   };
 
   window.glovePureReset = function() {
-    Object.assign(pure, {attempts:0, success:0, cost:0, locked:false, bad:0});
+    Object.assign(pure, {attempts:0, success:0, cost:0, bad:0});
     el("glovePureNow").innerHTML = "";
-    stats("glovePureStats", pure, "雜念");
+    stats("glovePureStats", pure, "累計雜念");
   };
 })();
 </script>
