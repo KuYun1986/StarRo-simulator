@@ -285,7 +285,15 @@ function renderRandomStats(mn,mx){
 function resetRandomStats(){randomCounts={};randomDraws=0;randomNow.innerHTML="";randomStats.innerHTML=""}
 
 
-let hj={tries:0,pass50:0,pass10:0,values:{}};
+function huajinLine1(){
+ return `${pick(["STR","AGI","VIT","INT","DEX","LUK"])} +${randint(1,10)}`;
+}
+function huajinLine2(){
+ let k=pick(["P.ATK","S.MATK","C.RATE"]);
+ return `${k} +${randint(1,10)}`;
+}
+
+let hj={tries:0,pass50:0,pass10:0,values:{},top3:[]};
 function weightedFinalDamage(){
  const groups=[
    {min:1,max:5,w:89.77},
@@ -312,7 +320,11 @@ function huajinTrial(show=true){
  hj.pass10++;
  const v=weightedFinalDamage();
  hj.values[v]=(hj.values[v]||0)+1;
- if(show) huajinNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok" style="font-size:28px">✅ 50% → ✅ 10% → 終傷 +${v}%</b><span class="tiny">終傷採遞減權重推定，非官方公布機率</span></div>`;
+ const l1=huajinLine1(),l2=huajinLine2();
+ hj.top3.push({value:v,lines:[l1,l2,`全技能終傷 +${v}%`]});
+ if(show){
+   huajinNow.innerHTML=`<div class="stat"><span class="label">本次完整 3 詞</span><div style="font-size:20px;line-height:1.8"><b>${l1}</b><br><b>${l2}</b><br><b class="ok">全技能終傷 +${v}%</b></div><span class="tiny">只有成功出現第 3 詞時才顯示完整三條</span></div>`;
+ }
 }
 function runHuajinOnce(){huajinTrial(true);renderHuajin()}
 function runHuajinBatch(n){
@@ -336,12 +348,13 @@ function renderHuajin(){
  card("理論平均成功成本",(Math.max(0,+huajinCost.value||0)/0.05).toLocaleString()+" 紅利");
  let parts=[];
  for(let v=1;v<=15;v++) if(hj.values[v]) parts.push(`+${v}%：${hj.values[v]} 次`);
- huajinDist.innerHTML=parts.length?`<div class="stat"><span class="label">成功後終傷分布</span><div style="margin-top:8px;line-height:1.9">${parts.join("　")}</div></div>`:"";
+ let top10=(hj.top3||[]).slice().sort((a,b)=>b.value-a.value).slice(0,10);
+ huajinDist.innerHTML=(top10.length?`<div class="stat"><span class="label">⭐ 詞條數值最高 TOP 10</span><div style="margin-top:8px">${top10.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.join("<br>")}</div>`).join("")}</div></div>`:"")+(parts.length?`<div class="stat" style="margin-top:8px"><span class="label">成功後終傷分布</span><div style="margin-top:8px;line-height:1.9">${parts.join("　")}</div></div>`:"");
 }
-function resetHuajin(){hj={tries:0,pass50:0,pass10:0,values:{}};huajinNow.innerHTML="";huajinStats.innerHTML="";huajinDist.innerHTML=""}
+function resetHuajin(){hj={tries:0,pass50:0,pass10:0,values:{},top3:[]};huajinNow.innerHTML="";huajinStats.innerHTML="";huajinDist.innerHTML=""}
 
 
-let acc={tries:0,pass50:0,pass10:0,values:{}};
+let acc={tries:0,pass50:0,pass10:0,values:{},top3:[]};
 function weightedSkillDamage(){
  const groups=[
    {min:1,max:5,w:89.77},
@@ -368,7 +381,11 @@ function accessoryTrial(show=true){
  acc.pass10++;
  const v=weightedSkillDamage();
  acc.values[v]=(acc.values[v]||0)+1;
- if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok" style="font-size:28px">✅ 50% → ✅ 10% → 全技能傷害 +${v}%</b><span class="tiny">四區間推定模式｜+1～5：89.77%｜+6～10：8.98%｜+11～14：0.90%｜+15：0.36%</span></div>`;
+ const l1=huajinLine1(),l2=huajinLine2();
+ acc.top3.push({value:v,lines:[l1,l2,`全技能傷害 +${v}%`]});
+ if(show){
+   accessoryNow.innerHTML=`<div class="stat"><span class="label">本次完整 3 詞</span><div style="font-size:20px;line-height:1.8"><b>${l1}</b><br><b>${l2}</b><br><b class="ok">全技能傷害 +${v}%</b></div><span class="tiny">只有成功出現第 3 詞時才顯示完整三條</span></div>`;
+ }
 }
 function runAccessoryOnce(){accessoryTrial(true);renderAccessory()}
 function runAccessoryBatch(n){
@@ -391,9 +408,10 @@ function renderAccessory(){
  card("理論平均成功成本",(c/0.05).toLocaleString()+" 紅利");
  let parts=[];
  for(let v=1;v<=20;v++) if(acc.values[v]) parts.push(`+${v}%：${acc.values[v]} 次`);
- accessoryDist.innerHTML=parts.length?`<div class="stat"><span class="label">成功後全技能傷害分布</span><div style="margin-top:8px;line-height:1.9">${parts.join("　")}</div></div>`:"";
+ let top10=(acc.top3||[]).slice().sort((a,b)=>b.value-a.value).slice(0,10);
+ accessoryDist.innerHTML=(top10.length?`<div class="stat"><span class="label">⭐ 詞條數值最高 TOP 10</span><div style="margin-top:8px">${top10.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.join("<br>")}</div>`).join("")}</div></div>`:"")+(parts.length?`<div class="stat" style="margin-top:8px"><span class="label">成功後全技能傷害分布</span><div style="margin-top:8px;line-height:1.9">${parts.join("　")}</div></div>`:"");
 }
-function resetAccessory(){acc={tries:0,pass50:0,pass10:0,values:{}};accessoryNow.innerHTML="";accessoryStats.innerHTML="";accessoryDist.innerHTML=""}
+function resetAccessory(){acc={tries:0,pass50:0,pass10:0,values:{},top3:[]};accessoryNow.innerHTML="";accessoryStats.innerHTML="";accessoryDist.innerHTML=""}
 
 
 const identifyTiers=[
