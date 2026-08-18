@@ -88,6 +88,35 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <p class="tiny"><b>第四洞先抽：</b>墮落根莖×4：70%｜闇答萊屍×4：20%｜希梅爾茲×4：10%。抽到希梅爾茲後才再抽第三洞。</p>
 <p class="tiny"><b>第三洞：</b>6種變異等機率，各約16.67%。</p>
 <div class="actions"><button class="primary" onclick="rollHoles()">隨機一次</button><button onclick="rollHoles10()">隨機 10 次</button><button onclick="resetHoles()">清除</button></div><div id="holeNow" style="margin-top:14px"></div><div id="holeStats" style="margin-top:10px"></div></section>
+
+<section class="card">
+<h2>🐉 龍甲附魔</h2>
+
+<div class="stat">
+<span class="label">第四洞附魔</span>
+<div class="tiny">LV2 → LV3：50%　｜　LV3 → 特級：25%</div>
+<div class="actions">
+<button class="primary" onclick="dragon4Once()">附魔一次</button>
+<button onclick="dragon4ToSpecial()">洗到特級</button>
+<button onclick="resetDragon4()">重置</button>
+</div>
+<div id="dragon4Now" style="margin-top:10px"></div>
+<div id="dragon4Stats" style="margin-top:8px"></div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">第三洞附魔</span>
+<div class="tiny">LV3 → LV4：75%　｜　LV4 → LV5：50%　｜　LV5 → 特級：25%</div>
+<div class="actions">
+<button class="primary" onclick="dragon3Once()">附魔一次</button>
+<button onclick="dragon3ToSpecial()">洗到特級</button>
+<button onclick="resetDragon3()">重置</button>
+</div>
+<div id="dragon3Now" style="margin-top:10px"></div>
+<div id="dragon3Stats" style="margin-top:8px"></div>
+</div>
+</section>
+
 <section class="card">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
 <p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
@@ -937,6 +966,62 @@ function rollHoles(){oneHoleRoll(true);renderHoleStats()}
 function rollHoles10(){let last;for(let i=0;i<10;i++)last=oneHoleRoll(false);document.getElementById("holeNow").innerHTML=`<div class="stat"><span class="label">批次完成</span><b>已隨機 10 次</b><div class="tiny">最後一次：第四洞 ${last.h4}${last.h3?`｜第三洞 ${last.h3}`:"｜未觸發第三洞"}</div></div>`;renderHoleStats()}
 function renderHoleStats(){let n=holeData.n||1,h3=Object.entries(holeData.h3).sort((a,b)=>b[1]-a[1]),h4=Object.entries(holeData.h4).sort((a,b)=>b[1]-a[1]),ht=holeData.himei||1;document.getElementById("holeStats").innerHTML=`<div class="stat"><span class="label">累計 ${holeData.n} 次｜第四洞分布</span><div style="line-height:1.8">${h4.map(([k,v])=>`${k}：${v} 次（${(v/n*100).toFixed(2)}%）`).join("<br>")}</div></div><div class="stat" style="margin-top:8px"><span class="label">希梅爾茲觸發第三洞：${holeData.himei} 次</span><div style="line-height:1.8">${h3.length?h3.map(([k,v])=>`${k}：${v} 次（${(v/ht*100).toFixed(2)}%）`).join("<br>"):"尚未觸發第三洞"}</div></div>`}
 function resetHoles(){holeData={n:0,h3:{},h4:{},himei:0};document.getElementById("holeNow").innerHTML="";document.getElementById("holeStats").innerHTML=""}
+
+
+let dragon4={lv:2,tries:0,success:0,stage23:0,stage3S:0};
+let dragon3={lv:3,tries:0,success:0,stage34:0,stage45:0,stage5S:0};
+
+function dragon4Rate(){return dragon4.lv===2?50:dragon4.lv===3?25:0}
+function dragon4Name(){return dragon4.lv>=4?"特級":`LV${dragon4.lv}`}
+function dragon4Once(){
+ if(dragon4.lv>=4){document.getElementById("dragon4Now").innerHTML=`<b class="ok">已達特級</b>`;return}
+ let from=dragon4Name(),rate=dragon4Rate();
+ if(dragon4.lv===2)dragon4.stage23++;else if(dragon4.lv===3)dragon4.stage3S++;
+ let ok=Math.random()*100<rate;
+ dragon4.tries++;
+ if(ok){dragon4.success++;dragon4.lv=dragon4.lv===2?3:4}
+ document.getElementById("dragon4Now").innerHTML=`<div class="tiny">${from} → ${dragon4Name()}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
+ renderDragon4();
+}
+function dragon4ToSpecial(){
+ let batch=0,guard=0;
+ while(dragon4.lv<4 && guard++<100000){
+   let rate=dragon4Rate();if(dragon4.lv===2)dragon4.stage23++;else if(dragon4.lv===3)dragon4.stage3S++;dragon4.tries++;batch++;
+   if(Math.random()*100<rate){dragon4.success++;dragon4.lv=dragon4.lv===2?3:4}
+ }
+ document.getElementById("dragon4Now").innerHTML=`<b class="ok">特級完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
+ renderDragon4();
+}
+function renderDragon4(){
+ document.getElementById("dragon4Stats").innerHTML=`<div class="tiny">目前：<b>${dragon4Name()}</b>　累計附魔：${dragon4.tries} 次</div><div style="line-height:1.9;margin-top:6px"><b>LV2 → LV3：</b>${dragon4.stage23} 次<br><b>LV3 → 特級：</b>${dragon4.stage3S} 次</div>`;
+}
+function resetDragon4(){dragon4={lv:2,tries:0,success:0,stage23:0,stage3S:0};document.getElementById("dragon4Now").innerHTML="";renderDragon4()}
+
+function dragon3Rate(){return dragon3.lv===3?75:dragon3.lv===4?50:dragon3.lv===5?25:0}
+function dragon3Name(){return dragon3.lv>=6?"特級":`LV${dragon3.lv}`}
+function dragon3Once(){
+ if(dragon3.lv>=6){document.getElementById("dragon3Now").innerHTML=`<b class="ok">已達特級</b>`;return}
+ let from=dragon3Name(),rate=dragon3Rate();
+ if(dragon3.lv===3)dragon3.stage34++;else if(dragon3.lv===4)dragon3.stage45++;else if(dragon3.lv===5)dragon3.stage5S++;
+ let ok=Math.random()*100<rate;
+ dragon3.tries++;
+ if(ok){dragon3.success++;dragon3.lv++}
+ document.getElementById("dragon3Now").innerHTML=`<div class="tiny">${from} → ${dragon3Name()}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
+ renderDragon3();
+}
+function dragon3ToSpecial(){
+ let batch=0,guard=0;
+ while(dragon3.lv<6 && guard++<100000){
+   let rate=dragon3Rate();if(dragon3.lv===3)dragon3.stage34++;else if(dragon3.lv===4)dragon3.stage45++;else if(dragon3.lv===5)dragon3.stage5S++;dragon3.tries++;batch++;
+   if(Math.random()*100<rate){dragon3.success++;dragon3.lv++}
+ }
+ document.getElementById("dragon3Now").innerHTML=`<b class="ok">特級完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
+ renderDragon3();
+}
+function renderDragon3(){
+ document.getElementById("dragon3Stats").innerHTML=`<div class="tiny">目前：<b>${dragon3Name()}</b>　累計附魔：${dragon3.tries} 次</div><div style="line-height:1.9;margin-top:6px"><b>LV3 → LV4：</b>${dragon3.stage34} 次<br><b>LV4 → LV5：</b>${dragon3.stage45} 次<br><b>LV5 → 特級：</b>${dragon3.stage5S} 次</div>`;
+}
+function resetDragon3(){dragon3={lv:3,tries:0,success:0,stage34:0,stage45:0,stage5S:0};document.getElementById("dragon3Now").innerHTML="";renderDragon3()}
 
 renderSteps();
 </script></body></html>
