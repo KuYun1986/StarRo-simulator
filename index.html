@@ -118,6 +118,19 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 </section>
 
 <section class="card">
+<h2>⚔️ 善惡武器附魔</h2>
+<div class="tiny">LV1 → LV2：60%　｜　LV2 → LV3：45%　｜　LV3 → LV4：30%　｜　LV4 → LV5：15%</div>
+<div class="actions">
+<button class="primary" onclick="weaponOnce()">附魔一次</button>
+<button onclick="weaponTo5()">洗到 LV5</button>
+<button onclick="resetWeapon()">重置</button>
+</div>
+<div id="weaponNow" style="margin-top:10px"></div>
+<div id="weaponStats" style="margin-top:8px"></div>
+</section>
+
+
+<section class="card">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
 <p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
 <div class="row"><span>每次洗詞花費</span><input id="huajinCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
@@ -1022,6 +1035,42 @@ function renderDragon3(){
  document.getElementById("dragon3Stats").innerHTML=`<div class="tiny">目前：<b>${dragon3Name()}</b>　累計附魔：${dragon3.tries} 次</div><div style="line-height:1.9;margin-top:6px"><b>LV3 → LV4：</b>${dragon3.stage34} 次<br><b>LV4 → LV5：</b>${dragon3.stage45} 次<br><b>LV5 → 特級：</b>${dragon3.stage5S} 次</div>`;
 }
 function resetDragon3(){dragon3={lv:3,tries:0,success:0,stage34:0,stage45:0,stage5S:0};document.getElementById("dragon3Now").innerHTML="";renderDragon3()}
+
+
+let weaponEnchant={lv:1,tries:0,stage12:0,stage23:0,stage34:0,stage45:0};
+function weaponRate(){return weaponEnchant.lv===1?60:weaponEnchant.lv===2?45:weaponEnchant.lv===3?30:weaponEnchant.lv===4?15:0}
+function weaponStageCount(){
+ if(weaponEnchant.lv===1)weaponEnchant.stage12++;
+ else if(weaponEnchant.lv===2)weaponEnchant.stage23++;
+ else if(weaponEnchant.lv===3)weaponEnchant.stage34++;
+ else if(weaponEnchant.lv===4)weaponEnchant.stage45++;
+}
+function weaponOnce(){
+ if(weaponEnchant.lv>=5){document.getElementById("weaponNow").innerHTML=`<b class="ok">已達 LV5</b>`;return}
+ let from=weaponEnchant.lv,rate=weaponRate();weaponStageCount();weaponEnchant.tries++;
+ let ok=Math.random()*100<rate;
+ if(ok)weaponEnchant.lv++;
+ document.getElementById("weaponNow").innerHTML=`<div class="tiny">LV${from} → LV${from+1}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
+ renderWeapon();
+}
+function weaponTo5(){
+ let batch=0,guard=0;
+ while(weaponEnchant.lv<5&&guard++<100000){
+   let rate=weaponRate();weaponStageCount();weaponEnchant.tries++;batch++;
+   if(Math.random()*100<rate)weaponEnchant.lv++;
+ }
+ document.getElementById("weaponNow").innerHTML=`<b class="ok">LV5 完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
+ renderWeapon();
+}
+function renderWeapon(){
+ document.getElementById("weaponStats").innerHTML=`<div class="tiny">目前：<b>LV${weaponEnchant.lv}</b>　累計附魔：${weaponEnchant.tries} 次</div>
+ <div style="line-height:1.9;margin-top:6px"><b>LV1 → LV2：</b>${weaponEnchant.stage12} 次<br><b>LV2 → LV3：</b>${weaponEnchant.stage23} 次<br><b>LV3 → LV4：</b>${weaponEnchant.stage34} 次<br><b>LV4 → LV5：</b>${weaponEnchant.stage45} 次</div>`;
+}
+function resetWeapon(){
+ weaponEnchant={lv:1,tries:0,stage12:0,stage23:0,stage34:0,stage45:0};
+ document.getElementById("weaponNow").innerHTML="";
+ renderWeapon();
+}
 
 renderSteps();
 </script></body></html>
