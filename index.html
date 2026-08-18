@@ -122,7 +122,7 @@ a{color:#77a9ff}
     <button onclick="[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('善惡武器'))?.scrollIntoView({behavior:'smooth'})">⚔️ 善惡武器</button>
   </div>
 </div>
-<div class="sub">古雲防上頭用V777</div>
+<div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 
 <section class="card">
 <h2>完整流程</h2>
@@ -441,6 +441,59 @@ a{color:#77a9ff}
 
 
 
+
+
+<section class="card">
+<h2>🃏 21點</h2>
+<p class="tiny">娛樂模擬：6副牌、莊家17點停牌、Blackjack 3:2、一般勝負1:1、平手退回，可加倍。使用虛擬籌碼。</p>
+
+<div class="row">
+<span>每局固定下注</span>
+<b>10,000 P</b>
+</div>
+
+<div class="actions">
+<button class="primary" onclick="bjNewRound()">新一局</button>
+<button id="bjHitBtn" onclick="bjHit()" disabled>要牌</button>
+<button id="bjStandBtn" onclick="bjStand()" disabled>停牌</button>
+<button id="bjDoubleBtn" onclick="bjDouble()" disabled>加倍</button>
+<button onclick="bjReset()">重置</button>
+</div>
+
+<div id="bjBank" class="stat" style="margin-top:12px">
+<span class="label">虛擬籌碼</span><b id="bjChips">500,000 P</b>
+</div>
+<div id="bjTable" style="margin-top:10px"></div>
+<div id="bjLog" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>🀙 推筒子</h2>
+<p class="tiny">最多同時下注 5 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。</p>
+
+<div class="row">
+<span>同時下注</span>
+<select id="ttHands">
+<option value="1">1 手</option>
+<option value="2">2 手</option>
+<option value="3">3 手</option>
+<option value="4">4 手</option>
+<option value="5">5 手</option>
+</select>
+<span>每手 10萬P</span>
+</div>
+
+<div class="actions">
+<button class="primary" onclick="ttPlay()">開牌</button>
+<button onclick="ttReset()">重置</button>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">累計輸贏</span><b id="ttNet">0 P</b>
+</div>
+<div id="ttTable" style="margin-top:10px"></div>
+<div id="ttStats" style="margin-top:10px"></div>
+</section>
 
 </div>
 <script>
@@ -1237,6 +1290,160 @@ function renderUrGem(){
  document.getElementById("urGemStats").innerHTML=`<div class="stat"><span class="label">累計開箱</span><b>${urGemData.opens.toLocaleString()} 次</b><br><span class="label">UR寶石箱(2)</span><b class="ok">${urGemData.box2} 個</b>${gems.length?`<div class="tiny" style="margin-top:8px;line-height:1.8">${gems.map(([k,v])=>`${k}：${v}`).join("<br>")}</div>`:""}</div>`;
 }
 function resetUrGem(){urGemData={opens:0,box2:0,gems:{}};document.getElementById("urGemNow").innerHTML="";document.getElementById("urGemStats").innerHTML=""}
+
+
+/* ===== 21點 ===== */
+let bjState={chips:500000,deck:[],player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
+
+function bjBuildDeck(){
+ const ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+ let d=[];
+ for(let k=0;k<6;k++)for(let s=0;s<4;s++)for(const r of ranks)d.push(r);
+ for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}
+ return d;
+}
+function bjDraw(){
+ if(bjState.deck.length<52)bjState.deck=bjBuildDeck();
+ return bjState.deck.pop();
+}
+function bjValue(hand){
+ let total=0,aces=0;
+ for(const c of hand){
+   if(c==="A"){total+=11;aces++}
+   else if(["J","Q","K"].includes(c))total+=10;
+   else total+=+c;
+ }
+ while(total>21&&aces>0){total-=10;aces--}
+ return total;
+}
+function bjBlackjack(hand){return hand.length===2&&bjValue(hand)===21}
+function bjButtons(on){
+ for(const id of ["bjHitBtn","bjStandBtn","bjDoubleBtn"]){
+   const e=document.getElementById(id);if(e)e.disabled=!on;
+ }
+ if(on&&bjState.player.length!==2){let d=document.getElementById("bjDoubleBtn");if(d)d.disabled=true}
+}
+function bjRender(hideDealer=true,msg=""){
+ const pv=bjValue(bjState.player);
+ const shown=hideDealer&&bjState.active?[bjState.dealer[0],"🂠"]:bjState.dealer;
+ const dv=hideDealer&&bjState.active?"?":bjValue(bjState.dealer);
+ document.getElementById("bjChips").textContent=bjState.chips.toLocaleString()+" P";
+ document.getElementById("bjTable").innerHTML=`<div class="stat">
+ <span class="label">莊家｜${dv}</span><div style="font-size:28px;margin:6px 0">${shown.join("　")}</div>
+ <hr><span class="label">玩家｜${pv}</span><div style="font-size:28px;margin:6px 0">${bjState.player.join("　")}</div>
+ ${msg?`<div style="margin-top:8px"><b>${msg}</b></div>`:""}
+ </div>`;
+}
+function bjNewRound(){
+ if(bjState.active)return;
+ let bet=10000;
+ if(bet>bjState.chips)return alert("籌碼不足");
+ if(!bjState.deck.length)bjState.deck=bjBuildDeck();
+ bjState.bet=bet;bjState.chips-=bet;bjState.player=[bjDraw(),bjDraw()];bjState.dealer=[bjDraw(),bjDraw()];bjState.active=true;bjState.rounds++;
+ bjButtons(true);bjRender(true);
+ if(bjBlackjack(bjState.player)||bjBlackjack(bjState.dealer))bjFinish();
+}
+function bjHit(){
+ if(!bjState.active)return;
+ bjState.player.push(bjDraw());bjRender(true);
+ let v=bjValue(bjState.player);
+ if(v>21)bjFinish("玩家爆牌"); else if(v===21)bjStand(); else bjButtons(true);
+}
+function bjStand(){
+ if(!bjState.active)return;
+ while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
+ bjFinish();
+}
+function bjDouble(){
+ if(!bjState.active||bjState.player.length!==2)return;
+ if(bjState.chips<bjState.bet)return alert("籌碼不足以加倍");
+ bjState.chips-=bjState.bet;bjState.bet*=2;
+ bjState.player.push(bjDraw());
+ if(bjValue(bjState.player)<=21)while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
+ bjFinish();
+}
+function bjFinish(force=""){
+ if(!bjState.active)return;
+ const p=bjValue(bjState.player),d=bjValue(bjState.dealer);
+ const pb=bjBlackjack(bjState.player),db=bjBlackjack(bjState.dealer);
+ let result="",pay=0;
+ if(force==="玩家爆牌"||p>21){result="玩家爆牌｜莊家勝";bjState.l++}
+ else if(d>21){result="莊家爆牌｜玩家勝";pay=bjState.bet*2;bjState.w++}
+ else if(pb&&!db){result="Blackjack！玩家勝（3:2）";pay=bjState.bet*2.5;bjState.w++}
+ else if(db&&!pb){result="莊家 Blackjack";bjState.l++}
+ else if(p>d){result="玩家勝";pay=bjState.bet*2;bjState.w++}
+ else if(p<d){result="莊家勝";bjState.l++}
+ else{result="平手｜退回下注";pay=bjState.bet;bjState.p++}
+ bjState.chips+=Math.floor(pay);bjState.active=false;bjButtons(false);bjRender(false,result);
+ document.getElementById("bjLog").innerHTML=`<div class="tiny">局數 ${bjState.rounds}｜勝 ${bjState.w}｜負 ${bjState.l}｜和 ${bjState.p}</div>`;
+}
+function bjReset(){
+ bjState={chips:500000,deck:bjBuildDeck(),player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
+ bjButtons(false);document.getElementById("bjChips").textContent="500,000 P";document.getElementById("bjTable").innerHTML="";document.getElementById("bjLog").innerHTML="";
+}
+
+/* ===== 推筒子 ===== */
+let ttState={rounds:0,w:0,l:0,net:0};
+const TT_BET=100000;
+
+function ttPlay(){
+ let handCount=Math.max(1,Math.min(5,+document.getElementById("ttHands").value||1));
+ let d=ttDeck();
+
+ // One shared dealer hand for all simultaneous player bets.
+ let dealer=[d.pop(),d.pop()];
+ let dr=ttHandRank(dealer);
+
+ let results=[];
+ let roundNet=0;
+ for(let i=1;i<=handCount;i++){
+   // Rebuild/shuffle if somehow short, while keeping the same dealer result.
+   if(d.length<2)d=ttDeck();
+   let player=[d.pop(),d.pop()];
+   let pr=ttHandRank(player),cmp=ttCompare(player,dealer);
+   ttState.rounds++;
+
+   let delta=0,result="";
+   if(cmp>0){
+     ttState.w++;
+     let mult=pr.type===2?(pr.label==="白板對"?3:2):1;
+     delta=TT_BET*mult;
+     result=`玩家勝｜+${delta.toLocaleString()} P`;
+   }else{
+     ttState.l++;
+     delta=-TT_BET;
+     result=`莊家勝｜-${TT_BET.toLocaleString()} P`;
+   }
+   ttState.net+=delta;
+   roundNet+=delta;
+   results.push({i,player,pr,cmp,delta,result});
+ }
+
+ document.getElementById("ttNet").textContent=
+   `${ttState.net>=0?"+":""}${ttState.net.toLocaleString()} P`;
+
+ document.getElementById("ttTable").innerHTML=
+ `<div class="stat">
+   <span class="label">本局共用莊家｜${dr.label}</span>
+   <div style="font-size:24px;margin:6px 0">${dealer.map(x=>x.name).join("　")}</div>
+   <div class="tiny">本局 ${handCount} 手｜每手 100,000 P｜本局合計 ${roundNet>=0?"+":""}${roundNet.toLocaleString()} P</div>
+ </div>`+
+ results.map(x=>`<div class="stat" style="margin-top:8px">
+   <span class="label">下注 ${x.i}｜${x.pr.label}</span>
+   <div style="font-size:22px;margin:6px 0">${x.player.map(v=>v.name).join("　")}</div>
+   <b class="${x.cmp>0?"ok":"bad"}">${x.result}</b>
+ </div>`).join("");
+
+ document.getElementById("ttStats").innerHTML=
+ `<div class="tiny">累計下注手數 ${ttState.rounds}｜玩家勝 ${ttState.w}｜莊家勝 ${ttState.l}｜每手固定 100,000 P</div>`;
+}
+
+function ttReset(){
+ ttState={rounds:0,w:0,l:0,net:0};
+ document.getElementById("ttNet").textContent="0 P";
+ document.getElementById("ttTable").innerHTML="";
+ document.getElementById("ttStats").innerHTML="";
+}
 
 renderSteps();
 </script></body></html>
