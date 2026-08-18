@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="繁星機率">
+<title>繁星仙境機率模擬器</title>
+<style>
+:root{--bg:#0d1020;--card:#171b31;--card2:#202641;--text:#f5f7ff;--muted:#aab2d5;--accent:#ffd76a;--ok:#7ee0a1;--bad:#ff8b91;--line:#323a61}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b0e1b,#11162a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+.wrap{max-width:920px;margin:auto;padding:20px 14px 60px}h1{font-size:26px;margin:8px 0}.sub,.tiny{color:var(--muted)}.tiny{font-size:13px}
+.card{background:#171b31;border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+.row{display:grid;grid-template-columns:1.5fr .7fr auto;gap:9px;align-items:center;margin:9px 0}
+input,select,button{font:inherit;border-radius:11px;border:1px solid var(--line);padding:11px;background:#0f1428;color:var(--text);min-width:0}
+button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{background:var(--accent);color:#28200a;border:0}.danger{color:#ffc2c5}
+.actions,.preset{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.preset button{padding:8px 11px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.stat{background:#10152a;border-radius:13px;padding:12px}.stat b{font-size:19px;display:block;margin-top:4px}.label{color:var(--muted);font-size:13px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.flow{padding:10px 0;border-bottom:1px solid var(--line)}.badge{display:inline-block;background:#292f4d;padding:4px 8px;border-radius:999px;font-size:12px;color:var(--accent)}
+@media(max-width:620px){.row{grid-template-columns:1fr 90px auto}.statgrid{grid-template-columns:repeat(2,1fr)}h1{font-size:23px}}
+</style>
+</head>
+<body><div class="wrap">
+<h1>🌟 繁星仙境機率模擬器</h1>
+<div class="sub">精煉・華金洗詞・附魔・自訂機率 <span class="badge">V2</span></div>
+
+<section class="card">
+<h2>🎲 單項機率</h2>
+<div class="row"><select id="singleItem" onchange="syncSingle()"></select><input id="singleRate" type="number" min="0" max="100" step="0.0001"><span>%</span></div>
+<label>模擬次數</label><input id="singleTrials" type="number" min="1" max="1000000" value="10000">
+<div class="preset"><button onclick="setTrials(1)">1</button><button onclick="setTrials(10)">10</button><button onclick="setTrials(100)">100</button><button onclick="setTrials(1000)">1,000</button><button onclick="setTrials(10000)">10,000</button><button onclick="setTrials(100000)">100,000</button></div>
+<div class="actions"><button class="primary" onclick="runSingle()">開始模擬</button></div>
+<div id="singleResult" class="statgrid"></div>
+</section>
+
+<section class="card">
+<h2>✨ 完整流程</h2>
+<p class="tiny">每個階段都必須成功，才算一件成品。機率與名稱都能直接修改。</p>
+<div id="steps"></div>
+<div class="actions"><button onclick="addPreset('精煉 1%',1)">＋精煉1%</button><button onclick="addPreset('精煉 2%',2)">＋精煉2%</button><button onclick="addPreset('華金洗詞 50%',50)">＋華金50%</button><button onclick="addPreset('華金洗詞 10%',10)">＋華金10%</button><button onclick="addPreset('附魔5等',15)">＋附魔15%</button><button onclick="addPreset('自訂階段',10)">＋自訂</button></div>
+<label>模擬次數</label><input id="flowTrials" type="number" min="1" max="1000000" value="100000">
+<div class="actions"><button class="primary" onclick="runFlow()">模擬完整流程</button><button onclick="clearSteps()">清空</button></div>
+<div id="theory" style="margin-top:14px"></div><div id="flowResult" class="statgrid"></div>
+</section>
+
+<section class="card">
+<h2>➕ 自訂項目庫</h2>
+<div class="row"><input id="newName" placeholder="項目名稱"><input id="newRate" type="number" min="0" max="100" step="0.0001" placeholder="機率"><span>%</span></div>
+<div class="actions"><button onclick="saveCustom()">儲存項目</button><button onclick="resetCustom()">清除自訂</button></div>
+<p class="tiny">自訂項目會保存在目前瀏覽器。</p>
+</section>
+</div>
+<script>
+const defaults=[{name:"精煉 1%",rate:1},{name:"精煉 2%",rate:2},{name:"華金洗詞第一階段",rate:50},{name:"華金洗詞第二階段",rate:10},{name:"附魔 5 等",rate:15}];
+let steps=[{name:"精煉 1%",rate:1},{name:"華金洗詞 50%",rate:50},{name:"華金洗詞 10%",rate:10},{name:"附魔5等",rate:15}];
+function custom(){try{return JSON.parse(localStorage.getItem("starChanceCustom")||"[]")}catch(e){return[]}}
+function allItems(){return defaults.concat(custom())}
+function refreshSelect(){singleItem.innerHTML="";allItems().forEach((x,i)=>singleItem.add(new Option(`${x.name}（${x.rate}%）`,i)));syncSingle()}
+function syncSingle(){let x=allItems()[+singleItem.value]||defaults[0];singleRate.value=x.rate}
+function setTrials(n){singleTrials.value=n}
+function pct(x){return x.toLocaleString(undefined,{maximumFractionDigits:6})+"%"}
+function card(l,v,c=""){return `<div class="stat"><span class="label">${l}</span><b class="${c}">${v}</b></div>`}
+function runSingle(){let p=Math.max(0,Math.min(100,+singleRate.value))/100,n=Math.max(1,Math.min(1000000,+singleTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){if(Math.random()<p){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}singleResult.innerHTML=card("成功",s.toLocaleString(),"ok")+card("失敗",(n-s).toLocaleString(),"bad")+card("實際成功率",pct(s/n*100))+card("理論成功率",pct(p*100))+card("第一次成功",first?`第 ${first.toLocaleString()} 次`:"未成功")+card("最長連敗",max+" 次")+card("理論平均",p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2})+" 次":"∞")}
+function esc(s){return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
+function renderSteps(){stepsDiv=document.getElementById("steps");stepsDiv.innerHTML="";steps.forEach((x,i)=>{let d=document.createElement("div");d.className="row flow";d.innerHTML=`<input value="${esc(x.name)}" oninput="steps[${i}].name=this.value"><input type="number" min="0" max="100" step="0.0001" value="${x.rate}" oninput="steps[${i}].rate=+this.value;updateTheory()"><button class="danger" onclick="removeStep(${i})">刪除</button>`;stepsDiv.appendChild(d)});updateTheory()}
+function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];renderSteps();flowResult.innerHTML=""}
+function theoryRate(){return steps.reduce((a,x)=>a*Math.max(0,Math.min(100,+x.rate))/100,1)}
+function updateTheory(){let p=theoryRate();theory.innerHTML=steps.length?`<span class="badge">理論全過 ${pct(p*100)}</span> <span class="tiny">平均約 ${p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2}):"∞"} 次流程 / 1件</span>`:"<span class='tiny'>請新增階段</span>"}
+function runFlow(){if(!steps.length)return alert("請先新增階段");let n=Math.max(1,Math.min(1000000,+flowTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){let ok=true;for(const x of steps){if(Math.random()>=Math.max(0,Math.min(100,+x.rate))/100){ok=false;break}}if(ok){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}let p=theoryRate();flowResult.innerHTML=card("全過成品",s.toLocaleString(),"ok")+card("失敗流程",(n-s).toLocaleString(),"bad")+card("實際全過率",pct(s/n*100))+card("理論全過率",pct(p*100))+card("第一次全過",first?`第 ${first.toLocaleString()} 次`:"未出現")+card("最長連敗",max+" 次")}
+function saveCustom(){let n=newName.value.trim(),r=+newRate.value;if(!n||isNaN(r)||r<0||r>100)return alert("請輸入名稱與 0～100% 機率");let a=custom();a.push({name:n,rate:r});localStorage.setItem("starChanceCustom",JSON.stringify(a));newName.value="";newRate.value="";refreshSelect();alert("已儲存")}
+function resetCustom(){if(confirm("確定清除自訂項目？")){localStorage.removeItem("starChanceCustom");refreshSelect()}}
+refreshSelect();renderSteps();
+</script></body></html>
