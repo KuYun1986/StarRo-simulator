@@ -38,7 +38,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <div id="theory" style="margin-top:14px"></div><div id="flowResult" class="statgrid"></div>
 <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
 <h3>🎯 終傷隨機數值</h3>
-<p class="tiny">華金流程全過後，再隨機抽出 +1%～+15%。目前採四區間推定：+1～5% = 89.77%、+6～10% = 8.98%、+11～14% = 0.90%、+15% = 0.36%。</p>
+<p class="tiny">華金流程全過後，再隨機抽出 +1%～+15%。目前採四區間推定：+1～5% = 95%、+6～10% = 4.5%、+11～14% = 0.45%、+15% = 0.05%。</p>
 <div class="row">
 <input id="randomMin" type="number" value="1" min="0" step="1">
 <input id="randomMax" type="number" value="15" min="0" step="1">
@@ -81,7 +81,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <div id="accessoryNow" style="margin-top:14px"></div>
 <div id="accessoryStats" class="statgrid"></div>
 <div id="accessoryDist" style="margin-top:10px"></div>
-<p class="tiny" style="line-height:1.8;margin-top:12px">※ 華金數值區間：+1～5% = 89.77%、+6～10% = 8.98%、+11～14% = 0.90%、+15% = 0.36%；抽中區間後，區間內數值等機率。</p>
+<p class="tiny" style="line-height:1.8;margin-top:12px">※ 華金數值區間：+1～5% = 95%、+6～10% = 4.5%、+11～14% = 0.45%、+15% = 0.05%；抽中區間後，區間內數值等機率。</p>
 </section>
 
 <section class="card">
@@ -267,7 +267,7 @@ function drawRandomValue(){
  }
  randomDraws++;
  randomCounts[value]=(randomCounts[value]||0)+1;
- randomNow.innerHTML=`<div class="stat"><span class="label">本次抽到</span><b class="ok" style="font-size:32px">全技能終傷 +${value}%</b><span class="tiny">四區間推定模式｜+1～5：89.77%｜+6～10：8.98%｜+11～14：0.90%｜+15：0.36%</span></div>`;
+ randomNow.innerHTML=`<div class="stat"><span class="label">本次抽到</span><b class="ok" style="font-size:32px">全技能終傷 +${value}%</b><span class="tiny">四區間推定模式｜+1～5：95%｜+6～10：4.5%｜+11～14：0.45%｜+15：0.05%</span></div>`;
  renderRandomStats(mn,mx);
 }
 function renderRandomStats(mn,mx){
@@ -296,10 +296,10 @@ function huajinLine2(){
 let hj={tries:0,pass50:0,pass10:0,values:{},top3:[]};
 function weightedFinalDamage(){
  const groups=[
-   {min:1,max:5,w:89.77},
-   {min:6,max:10,w:8.98},
-   {min:11,max:14,w:0.90},
-   {min:15,max:15,w:0.36}
+   {min:1,max:5,w:95},
+   {min:6,max:10,w:4.5},
+   {min:11,max:14,w:0.45},
+   {min:15,max:15,w:0.05}
  ];
  let total=groups.reduce((s,g)=>s+g.w,0);
  let r=Math.random()*total,chosen=groups[0];
@@ -357,10 +357,10 @@ function resetHuajin(){hj={tries:0,pass50:0,pass10:0,values:{},top3:[]};huajinNo
 let acc={tries:0,pass50:0,pass10:0,values:{},top3:[]};
 function weightedSkillDamage(){
  const groups=[
-   {min:1,max:5,w:89.77},
-   {min:6,max:10,w:8.98},
-   {min:11,max:19,w:0.90},
-   {min:20,max:20,w:0.36}
+   {min:1,max:5,w:95},
+   {min:6,max:10,w:4.5},
+   {min:11,max:19,w:0.5},
+   {min:20,max:20,w:0.1}
  ];
  let total=groups.reduce((s,g)=>s+g.w,0);
  let r=Math.random()*total,chosen=groups[0];
