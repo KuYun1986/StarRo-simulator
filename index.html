@@ -26,6 +26,27 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <h1>🌟 繁星仙境機率模擬器</h1>
 <div class="sub">精煉・華金洗詞・附魔・自訂機率 <span class="badge">V2</span></div>
 
+<section class="card">
+<h2>完整流程</h2>
+<p class="tiny">目前只保留精煉 1% 流程。</p>
+<div id="steps"></div>
+<div class="actions">
+<button onclick="addPreset('精煉 1%',1)">＋精煉1%</button>
+<button onclick="addPreset('自訂階段',10)">＋自訂</button>
+</div>
+<div style="margin-top:14px">
+<label>模擬次數</label>
+<input id="flowTrials" type="number" min="1" max="1000000" value="100000">
+</div>
+<div class="actions">
+<button class="primary" onclick="runFlow()">模擬完整流程</button>
+<button onclick="clearSteps()">清空</button>
+</div>
+<div id="theory" style="margin-top:14px"></div>
+<div id="flowResult" class="statgrid"></div>
+</section>
+
+
 
 
 
@@ -33,6 +54,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 
 <section class="card">
 <h2>🎰 XR 轉蛋</h2>
+<div class="row"><span>每抽花費</span><b>19 紅利</b></div>
 <p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜連續 1001 抽未出大獎才觸發保底：XR大獎 / UR一獎 / UR二獎，3 抽 1；自然抽到任一大獎或觸發保底後，都重新從第 1 抽計算。</p>
 <div class="actions">
 <button class="primary" onclick="xrDraw(1)">抽 1 次</button>
@@ -48,6 +70,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 
 <section class="card">
 <h2>🎟️ UR 轉蛋</h2>
+<div class="row"><span>每抽花費</span><b>19 紅利</b></div>
 <p class="tiny">無保底｜UR：0.15%｜UR內容：UR服飾隨機書、華金自選箱；其中華金自選箱機率 0.05%。</p>
 <div class="actions">
 <button class="primary" onclick="urDraw(1)">抽 1 次</button>
@@ -75,6 +98,12 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <div id="huajinDist" style="margin-top:10px"></div>
 <div id="huajinStats" class="statgrid"></div>
 
+
+
+
+
+
+
 </section>
 
 <section class="card">
@@ -90,6 +119,12 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 <div id="accessoryNow" style="margin-top:14px"></div>
 <div id="accessoryDist" style="margin-top:10px"></div>
 <div id="accessoryStats" class="statgrid"></div>
+
+
+
+
+
+
 
 <p class="tiny" style="line-height:1.8;margin-top:12px">※ 華金數值區間：+1～5% = 95%、+6～10% = 4.5%、+11～14% = 0.45%、+15% = 0.05%；抽中區間後，區間內數值等機率。</p>
 </section>
@@ -253,11 +288,11 @@ function pct(x){return x.toLocaleString(undefined,{maximumFractionDigits:6})+"%"
 function card(l,v,c=""){return `<div class="stat"><span class="label">${l}</span><b class="${c}">${v}</b></div>`}
 function runSingle(){let p=Math.max(0,Math.min(100,+singleRate.value))/100,n=Math.max(1,Math.min(1000000,+singleTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){if(Math.random()<p){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}singleResult.innerHTML=card("成功",s.toLocaleString(),"ok")+card("失敗",(n-s).toLocaleString(),"bad")+card("實際成功率",pct(s/n*100))+card("理論成功率",pct(p*100))+card("第一次成功",first?`第 ${first.toLocaleString()} 次`:"未成功")+card("最長連敗",max+" 次")+card("理論平均",p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2})+" 次":"∞")}
 function esc(s){return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
-function renderSteps(){stepsDiv=document.getElementById("steps");stepsDiv.innerHTML="";steps.forEach((x,i)=>{let d=document.createElement("div");d.className="row flow";d.innerHTML=`<input value="${esc(x.name)}" oninput="steps[${i}].name=this.value"><input type="number" min="0" max="100" step="0.0001" value="${x.rate}" oninput="steps[${i}].rate=+this.value;updateTheory()"><button class="danger" onclick="removeStep(${i})">刪除</button>`;stepsDiv.appendChild(d)});updateTheory()}
-function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];renderSteps();flowResult.innerHTML=""}
+function renderSteps(){stepsDiv=document.getElementById("steps");if(!stepsDiv)return;stepsDiv.innerHTML="";steps.forEach((x,i)=>{let d=document.createElement("div");d.className="row flow";d.innerHTML=`<input value="${esc(x.name)}" oninput="steps[${i}].name=this.value"><input type="number" min="0" max="100" step="0.0001" value="${x.rate}" oninput="steps[${i}].rate=+this.value;updateTheory()"><button class="danger" onclick="removeStep(${i})">刪除</button>`;stepsDiv.appendChild(d)});updateTheory()}
+function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];renderSteps();let e=document.getElementById("flowResult");if(e)e.innerHTML=""}
 function theoryRate(){return steps.reduce((a,x)=>a*Math.max(0,Math.min(100,+x.rate))/100,1)}
-function updateTheory(){let p=theoryRate();theory.innerHTML=steps.length?`<span class="badge">理論全過 ${pct(p*100)}</span> <span class="tiny">平均約 ${p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2}):"∞"} 次流程 / 1件</span>`:"<span class='tiny'>請新增階段</span>"}
-function runFlow(){if(!steps.length)return alert("請先新增階段");let n=Math.max(1,Math.min(1000000,+flowTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){let ok=true;for(const x of steps){if(Math.random()>=Math.max(0,Math.min(100,+x.rate))/100){ok=false;break}}if(ok){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}let p=theoryRate();flowResult.innerHTML=card("全過成品",s.toLocaleString(),"ok")+card("失敗流程",(n-s).toLocaleString(),"bad")+card("實際全過率",pct(s/n*100))+card("理論全過率",pct(p*100))+card("第一次全過",first?`第 ${first.toLocaleString()} 次`:"未出現")+card("最長連敗",max+" 次")}
+function updateTheory(){let p=theoryRate();let theoryEl=document.getElementById("theory");if(!theoryEl)return;theoryEl.innerHTML=steps.length?`<span class="badge">理論全過 ${pct(p*100)}</span> <span class="tiny">平均約 ${p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2}):"∞"} 次流程 / 1件</span>`:"<span class='tiny'>請新增階段</span>"}
+function runFlow(){if(!steps.length)return alert("請先新增階段");let flowTrialsEl=document.getElementById("flowTrials"),flowResultEl=document.getElementById("flowResult");if(!flowTrialsEl||!flowResultEl)return;let n=Math.max(1,Math.min(1000000,+flowTrialsEl.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){let ok=true;for(const x of steps){if(Math.random()>=Math.max(0,Math.min(100,+x.rate))/100){ok=false;break}}if(ok){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}let p=theoryRate();flowResultEl.innerHTML=card("全過成品",s.toLocaleString(),"ok")+card("失敗流程",(n-s).toLocaleString(),"bad")+card("實際全過率",pct(s/n*100))+card("理論全過率",pct(p*100))+card("第一次全過",first?`第 ${first.toLocaleString()} 次`:"未出現")+card("最長連敗",max+" 次")}
 function saveCustom(){let n=newName.value.trim(),r=+newRate.value;if(!n||isNaN(r)||r<0||r>100)return alert("請輸入名稱與 0～100% 機率");let a=custom();a.push({name:n,rate:r});localStorage.setItem("starChanceCustom",JSON.stringify(a));newName.value="";newRate.value="";refreshSelect();alert("已儲存")}
 function resetCustom(){if(confirm("確定清除自訂項目？")){localStorage.removeItem("starChanceCustom");refreshSelect()}}
 
@@ -837,6 +872,8 @@ function renderXR(){
  let t=xrG.draws||1;
  xrStats.innerHTML=
  card("累計抽數",xrG.draws.toLocaleString())+
+ card("每抽花費","19 紅利")+
+ card("累計花費",(xrG.draws*19).toLocaleString()+" 紅利")+
  card("目前保底進度",`${xrG.pity} / 1001`)+
  card("距離下次保底",(1001-xrG.pity).toLocaleString()+" 抽")+
  card("XR",xrG.xr.toLocaleString(),"ok")+
@@ -877,6 +914,8 @@ function urDraw(n){
 function renderUR(){
  let t=urG.draws||1,total=urG.book+urG.huajin;
  urStats.innerHTML=card("累計抽數",urG.draws.toLocaleString())+
+ card("每抽花費","19 紅利")+
+ card("累計花費",(urG.draws*19).toLocaleString()+" 紅利")+
  card("UR總數",total.toLocaleString(),"ok")+
  card("UR服飾隨機書",urG.book.toLocaleString())+
  card("華金自選箱",urG.huajin.toLocaleString(),"ok");
