@@ -199,6 +199,21 @@ a{color:#77a9ff}
   .baccarat-bets{grid-template-columns:1fr !important;}
 }
 
+
+.wheel-log-bets label{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  font-size:13px;
+}
+.wheel-log-bets input{
+  width:100%;
+  box-sizing:border-box;
+}
+@media(max-width:640px){
+  .wheel-log-bets{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+}
+
 </style>
 <meta property="og:title" content="繁星仙境模擬器">
 <meta property="og:description" content="古雲防上頭用V777（機率僅供參考，實際依遊戲為主）">
@@ -756,6 +771,48 @@ a{color:#77a9ff}
 
 <div id="marqueeNow" style="margin-top:10px"></div>
 <div id="marqueeStats" style="margin-top:10px"></div>
+
+<div class="stat" style="margin-top:16px">
+  <span class="label">🔎 實機紀錄／公平性分析</span>
+  <div class="tiny" style="line-height:1.8;margin-top:5px">
+    用來記錄遊戲內實際開獎。每把下注時間約 2 分鐘，每次加注 100 紅利，每局總下注最多 5,000 紅利；先填各顏色下注金額，再點本把開出的顏色。
+    資料只存在你的瀏覽器 localStorage；樣本越多越有參考價值。
+  </div>
+
+  <div class="wheel-log-bets" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px">
+    <label>🔴 紅<input id="wlRed" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟡 黃<input id="wlYellow" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟢 綠<input id="wlGreen" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟣 紫<input id="wlPurple" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🔵 藍<input id="wlBlue" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟠 橘<input id="wlOrange" type="number" min="0" max="5000" step="100" value="0"></label>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <span>重注門檻（預設 1,000）</span>
+    <input id="wlHeavyThreshold" type="number" min="0" max="5000" step="100" value="1000">
+    <span>紅利</span>
+  </div>
+
+  <div class="tiny" style="margin-top:8px">本把開獎：</div>
+  <div class="actions" style="margin-top:6px">
+    <button onclick="wheelLogAdd('red')">🔴 紅</button>
+    <button onclick="wheelLogAdd('yellow')">🟡 黃</button>
+    <button onclick="wheelLogAdd('green')">🟢 綠</button>
+    <button onclick="wheelLogAdd('purple')">🟣 紫</button>
+    <button onclick="wheelLogAdd('blue')">🔵 藍</button>
+    <button onclick="wheelLogAdd('orange')">🟠 橘</button>
+  </div>
+
+  <div class="row" style="margin-top:8px">
+    <button onclick="wheelLogUndo()">復原上一筆</button>
+    <button onclick="wheelLogExport()">匯出 CSV</button>
+    <button onclick="wheelLogClear()">清空紀錄</button>
+  </div>
+
+  <div id="wheelLogSummary" style="margin-top:10px"></div>
+  <div id="wheelLogRecent" style="margin-top:10px"></div>
+</div>
 </section>
 
 
@@ -2620,6 +2677,203 @@ function baccaratReset(){
   document.getElementById("baccaratNow").innerHTML="";
   document.getElementById("baccaratStats").innerHTML="";
 }
+
+</script>
+<script>
+
+/* ===== 繁星大輪盤：實機紀錄 / 公平性分析 ===== */
+const WHEEL_LOG_KEY="starro_wheel_real_log_v1";
+const wheelLogOdds={red:1,yellow:3,green:5,purple:11,blue:23,orange:23};
+const wheelLogNames={red:"紅",yellow:"黃",green:"綠",purple:"紫",blue:"藍",orange:"橘"};
+
+function wheelLogLoad(){
+  try{
+    const x=JSON.parse(localStorage.getItem(WHEEL_LOG_KEY)||"[]");
+    return Array.isArray(x)?x:[];
+  }catch(e){return []}
+}
+let wheelRealLog=wheelLogLoad();
+
+function wheelLogBets(){
+  const ids={red:"wlRed",yellow:"wlYellow",green:"wlGreen",purple:"wlPurple",blue:"wlBlue",orange:"wlOrange"};
+  const bets={};
+  for(const [k,id] of Object.entries(ids)){
+    const el=document.getElementById(id);
+    bets[k]=Math.max(0,Math.floor(+(el?.value||0)));
+  }
+  return bets;
+}
+function wheelLogTotalBet(bets){
+  return Object.values(bets).reduce((a,b)=>a+b,0);
+}
+function wheelLogNet(result,bets){
+  const total=wheelLogTotalBet(bets);
+  let net=-total;
+  const hit=+bets[result]||0;
+  if(hit>0) net += hit*(wheelLogOdds[result]+1);
+  return net;
+}
+function wheelLogAdd(result){
+  const bets=wheelLogBets();
+  const total=wheelLogTotalBet(bets);
+
+  for(const [k,v] of Object.entries(bets)){
+    if(v%100!==0) return alert(`${wheelLogNames[k]}下注金額必須是 100 的倍數`);
+    if(v>5000) return alert(`${wheelLogNames[k]}單色下注不能超過 5,000 紅利`);
+  }
+  if(total>5000) return alert("每局總下注最多 5,000 紅利");
+  if(total<=0 && !confirm("這把沒有填下注金額，仍要記錄開獎嗎？")) return;
+
+  const threshold=Math.max(0,Math.floor(+(document.getElementById("wlHeavyThreshold")?.value||1000)));
+  const rec={
+    t:Date.now(),
+    result,
+    bets,
+    total,
+    net:wheelLogNet(result,bets),
+    heavy:total>=threshold,
+    threshold
+  };
+  wheelRealLog.push(rec);
+  localStorage.setItem(WHEEL_LOG_KEY,JSON.stringify(wheelRealLog));
+  wheelLogRender();
+}
+function wheelLogUndo(){
+  if(!wheelRealLog.length)return;
+  wheelRealLog.pop();
+  localStorage.setItem(WHEEL_LOG_KEY,JSON.stringify(wheelRealLog));
+  wheelLogRender();
+}
+function wheelLogClear(){
+  if(!wheelRealLog.length)return;
+  if(!confirm(`確定清空 ${wheelRealLog.length} 筆實機紀錄？`))return;
+  wheelRealLog=[];
+  localStorage.removeItem(WHEEL_LOG_KEY);
+  wheelLogRender();
+}
+function wheelLogPct(n,d){
+  return d?`${(n/d*100).toFixed(2)}%`:"—";
+}
+function wheelLogLongestDrought(arr,keys){
+  let cur=0,max=0;
+  for(const r of arr){
+    if(keys.includes(r.result))cur=0;
+    else{cur++;if(cur>max)max=cur;}
+  }
+  return max;
+}
+function wheelLogCurrentDrought(arr,keys){
+  let n=0;
+  for(let i=arr.length-1;i>=0;i--){
+    if(keys.includes(arr[i].result))break;
+    n++;
+  }
+  return n;
+}
+function wheelLogGroupStats(arr,pred){
+  const rows=arr.filter(pred);
+  const bo=rows.filter(r=>r.result==="blue"||r.result==="orange").length;
+  return {n:rows.length,bo,rate:rows.length?bo/rows.length:0};
+}
+function wheelLogErf(x){
+  const sign=x<0?-1:1;
+  x=Math.abs(x);
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const t=1/(1+p*x);
+  const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return sign*y;
+}
+function wheelLogPValue(a,b){
+  if(a.n<2||b.n<2)return null;
+  const pooled=(a.bo+b.bo)/(a.n+b.n);
+  const se=Math.sqrt(pooled*(1-pooled)*(1/a.n+1/b.n));
+  if(!se)return null;
+  const z=Math.abs(a.rate-b.rate)/se;
+  const cdf=0.5*(1+wheelLogErf(z/Math.sqrt(2)));
+  return Math.max(0,Math.min(1,2*(1-cdf)));
+}
+function wheelLogRender(){
+  const el=document.getElementById("wheelLogSummary");
+  const recent=document.getElementById("wheelLogRecent");
+  if(!el||!recent)return;
+
+  const a=wheelRealLog;
+  if(!a.length){
+    el.innerHTML='<div class="tiny">尚無實機紀錄。</div>';
+    recent.innerHTML="";
+    return;
+  }
+
+  const counts={red:0,yellow:0,green:0,purple:0,blue:0,orange:0};
+  let totalBet=0,totalNet=0;
+  for(const r of a){
+    counts[r.result]=(counts[r.result]||0)+1;
+    totalBet+=r.total||0;
+    totalNet+=r.net||0;
+  }
+  const boCount=counts.blue+counts.orange;
+  const betBO=wheelLogGroupStats(a,r=>(r.bets.blue||0)>0||(r.bets.orange||0)>0);
+  const noBetBO=wheelLogGroupStats(a,r=>!((r.bets.blue||0)>0||(r.bets.orange||0)>0));
+  const heavy=wheelLogGroupStats(a,r=>!!r.heavy);
+  const light=wheelLogGroupStats(a,r=>!r.heavy);
+  const pBet=wheelLogPValue(betBO,noBetBO);
+  const pHeavy=wheelLogPValue(heavy,light);
+
+  const perColor=Object.keys(counts).map(k=>{
+    const bet=wheelLogGroupStats(a,r=>(r.bets[k]||0)>0);
+    const no=wheelLogGroupStats(a,r=>!((r.bets[k]||0)>0));
+    const hitBet=bet.n?a.filter(r=>(r.bets[k]||0)>0&&r.result===k).length:0;
+    const hitNo=no.n?a.filter(r=>!((r.bets[k]||0)>0)&&r.result===k).length:0;
+    return `${wheelLogNames[k]}：有押 ${wheelLogPct(hitBet,bet.n)} (${hitBet}/${bet.n})｜沒押 ${wheelLogPct(hitNo,no.n)} (${hitNo}/${no.n})`;
+  }).join("<br>");
+
+  const sigBet=pBet!==null && pBet<0.05 ? '<b class="bad">⚠ 差異偏大</b>' : '尚未見明顯差異';
+  const sigHeavy=pHeavy!==null && pHeavy<0.05 ? '<b class="bad">⚠ 差異偏大</b>' : '尚未見明顯差異';
+
+  el.innerHTML=
+    `<div class="stat">`+
+    `<span class="label">累計 ${a.length.toLocaleString()} 把｜總下注 ${Math.round(totalBet).toLocaleString()} 紅利｜淨輸贏 <b class="${totalNet>=0?"ok":"bad"}">${totalNet>=0?"+":""}${Math.round(totalNet).toLocaleString()}</b></span>`+
+    `<div class="tiny" style="line-height:1.85;margin-top:6px">`+
+    `🔵+🟠 總開出率：<b>${wheelLogPct(boCount,a.length)}</b>（理論約 7.69%）<br>`+
+    `最長未出藍橘：<b>${wheelLogLongestDrought(a,["blue","orange"])} 把</b>｜目前連續未出：<b>${wheelLogCurrentDrought(a,["blue","orange"])} 把</b><br>`+
+    `有押藍/橘時：${wheelLogPct(betBO.bo,betBO.n)} (${betBO.bo}/${betBO.n})｜沒押藍/橘時：${wheelLogPct(noBetBO.bo,noBetBO.n)} (${noBetBO.bo}/${noBetBO.n})｜${sigBet}${pBet!==null?`（p≈${pBet.toFixed(4)}）`:""}<br>`+
+    `重注時：${wheelLogPct(heavy.bo,heavy.n)} (${heavy.bo}/${heavy.n})｜非重注：${wheelLogPct(light.bo,light.n)} (${light.bo}/${light.n})｜${sigHeavy}${pHeavy!==null?`（p≈${pHeavy.toFixed(4)}）`:""}<br><br>`+
+    `<b>各色：有押 vs 沒押的實際開出率</b><br>${perColor}<br><br>`+
+    `※ p 值只是快速比較工具；樣本少時很容易誤判，不能單獨證明遊戲有控制結果。`+
+    `</div></div>`;
+
+  const last=a.slice(-10).reverse().map((r,i)=>{
+    const dt=new Date(r.t);
+    const t=dt.toLocaleString();
+    const betText=Object.entries(r.bets).filter(([,v])=>v>0).map(([k,v])=>`${wheelLogNames[k]}${v.toLocaleString()}`).join("、")||"未下注";
+    return `<div class="tiny" style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">`+
+      `${t}｜開 <b>${wheelLogNames[r.result]}</b>｜${betText}｜總押 ${r.total.toLocaleString()}｜`+
+      `<b class="${r.net>=0?"ok":"bad"}">${r.net>=0?"+":""}${Math.round(r.net).toLocaleString()}</b>`+
+      `</div>`;
+  }).join("");
+  recent.innerHTML=`<div class="stat"><span class="label">最近 10 把</span>${last}</div>`;
+}
+function wheelLogExport(){
+  if(!wheelRealLog.length)return alert("目前沒有紀錄");
+  const header=["time","result","red","yellow","green","purple","blue","orange","total_bet","net","heavy","heavy_threshold"];
+  const rows=wheelRealLog.map(r=>[
+    new Date(r.t).toISOString(),
+    wheelLogNames[r.result],
+    r.bets.red||0,r.bets.yellow||0,r.bets.green||0,r.bets.purple||0,r.bets.blue||0,r.bets.orange||0,
+    r.total||0,r.net||0,r.heavy?1:0,r.threshold||0
+  ]);
+  const csv=[header,...rows].map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=`starro_wheel_log_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+window.addEventListener("DOMContentLoaded",wheelLogRender);
 
 </script>
 <script type="module">
