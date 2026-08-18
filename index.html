@@ -123,6 +123,16 @@ a{color:#77a9ff}
   </div>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
+<div id="onlineBar" class="stat" style="margin-top:12px">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span class="label">🌐 全服即時戰報</span>
+    <span id="fbStatus" class="tiny">連線中…</span>
+    <button onclick="changeStarroName()" style="margin-left:auto">👤 <span id="fbNameLabel">設定暱稱</span></button>
+  </div>
+  <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
+  <div id="jackpotFeed" style="margin-top:8px;max-height:220px;overflow:auto"></div>
+</div>
+
 
 <section class="card">
 <h2>完整流程</h2>
@@ -514,6 +524,13 @@ a{color:#77a9ff}
 
 </div>
 <script>
+// ===== Firebase 即時戰報橋接 =====
+function starroAnnounce(type,result,detail=""){
+  if(typeof window.starroBroadcast==="function"){
+    window.starroBroadcast(type,result,detail);
+  }
+}
+
 const defaults=[{name:"精煉 1%",rate:1},{name:"精煉 2%",rate:2},{name:"華金洗詞第一階段",rate:50},{name:"華金洗詞第二階段",rate:10},{name:"附魔 5 等",rate:15}];
 let steps=[{name:"精煉 1%",rate:1}];
 function custom(){try{return JSON.parse(localStorage.getItem("starChanceCustom")||"[]")}catch(e){return[]}}
@@ -598,6 +615,7 @@ function huajinTrial(show=true){
  }
  hj.pass10++;
  const v=weightedFinalDamage();
+ if(v===15) starroAnnounce("華金鎧甲／戰靴","頂級詞 +15%","洗到全技能終傷 +15%");
  hj.values[v]=(hj.values[v]||0)+1;
  const l1=huajinLine1(),l2=huajinLine2();
  hj.top3.push({value:v,lines:[l1,l2,`全技能終傷 +${v}%`]});
@@ -659,6 +677,7 @@ function accessoryTrial(show=true){
  }
  acc.pass10++;
  const v=weightedSkillDamage();
+ if(v===20) starroAnnounce("華金耳環／飾品","頂級詞 +20%","洗到全技能傷害 +20%");
  acc.values[v]=(acc.values[v]||0)+1;
  const l1=huajinLine1(),l2=huajinLine2();
  acc.top3.push({value:v,lines:[l1,l2,`全技能傷害 +${v}%`]});
@@ -1099,6 +1118,7 @@ function xrDraw(n){
  let before=xrG.hitLog.length;
  for(let i=0;i<n;i++) xrOne();
  let fresh=xrG.hitLog.slice(before);
+ fresh.forEach(x=>starroAnnounce("XR轉蛋",x.prize,`${x.type==="保底"?"1001抽保底":"自然抽中"}｜第 ${x.draw} 抽`));
  let rows=fresh.length
    ? fresh.map(x=>`${x.type==="保底"?"🎁":"🎉"} 第 ${x.draw} 抽｜${x.prize}${x.type==="保底"?"（1001抽保底）":""}`).join("<br>")
    : "本次未出 XR / UR";
@@ -1145,6 +1165,8 @@ function urDraw(n){
    if(x==="華金自選箱")h++;
    else if(x==="UR服飾隨機書")b++;
  }
+ if(h>0) starroAnnounce("UR轉蛋","華金自選箱",`本次 ${n.toLocaleString()} 抽中 ${h.toLocaleString()} 個`);
+ if(b>0) starroAnnounce("UR轉蛋","UR服飾隨機書",`本次 ${n.toLocaleString()} 抽中 ${b.toLocaleString()} 個`);
  urNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${b?`UR服飾隨機書 × ${b}　`:""}${h?`華金自選箱 × ${h}`:""}${!b&&!h?"未出 UR":""}</b></div>`;
  renderUR();
 }
@@ -1344,6 +1366,7 @@ function sssBatch(count){
  for(let i=0;i<count;i++) if(sssOne()) hits++;
  const spent=count*SSS_COST;
  sssRender(`本次評級 ${count.toLocaleString()} 次｜SSS ${hits.toLocaleString()} 次｜花費 ${spent.toLocaleString()} 台幣`);
+ if(hits>0) starroAnnounce("SSS評級","通過 SSS",`本次 ${count.toLocaleString()} 次評級中成功 ${hits.toLocaleString()} 次｜花費 ${spent.toLocaleString()} 台幣`);
 }
 
 function sssUntilSuccess(){
@@ -1353,6 +1376,7 @@ function sssUntilSuccess(){
  }while(!sssOne());
  const spent=tries*SSS_COST;
  sssRender(`本次第 ${tries.toLocaleString()} 次成功 SSS｜花費 ${spent.toLocaleString()} 台幣`);
+ starroAnnounce("SSS評級","通過 SSS",`第 ${tries.toLocaleString()} 次成功｜花費 ${spent.toLocaleString()} 台幣`);
 }
 
 function sssReset(){
@@ -1552,4 +1576,122 @@ function ttReset(){
 }
 
 renderSteps();
-</script></body></html>
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, query, orderBy, limit,
+  onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDSHPDv4u7-mMhbuUzzMSDGxljAWTNLJys",
+  authDomain: "starro-16e01.firebaseapp.com",
+  projectId: "starro-16e01",
+  storageBucket: "starro-16e01.firebasestorage.app",
+  messagingSenderId: "900308579725",
+  appId: "1:900308579725:web:0df09367c95ac826b779c4",
+  measurementId: "G-ZTM1PL8L8B"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let displayName = localStorage.getItem("starro_display_name") || "";
+
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function askName(force=false){
+  if(!force && displayName) return displayName;
+  let n = prompt("請輸入你在全服戰報顯示的暱稱：", displayName || "");
+  if(n !== null){
+    n = n.trim().slice(0,20);
+    if(n){
+      displayName = n;
+      localStorage.setItem("starro_display_name", n);
+    }
+  }
+  updateNameUI();
+  return displayName;
+}
+
+function updateNameUI(){
+  const e=document.getElementById("fbNameLabel");
+  if(e)e.textContent=displayName || "設定暱稱";
+}
+
+window.changeStarroName = ()=>askName(true);
+
+window.starroBroadcast = async (type,result,detail="")=>{
+  try{
+    if(!currentUser) return;
+    if(!displayName && !askName()) return;
+    await addDoc(collection(db,"jackpots"),{
+      uid: currentUser.uid,
+      name: displayName,
+      type: String(type).slice(0,40),
+      result: String(result).slice(0,80),
+      detail: String(detail).slice(0,160),
+      createdAt: serverTimestamp()
+    });
+  }catch(err){
+    console.error("戰報送出失敗",err);
+  }
+};
+
+function renderFeed(rows){
+  const ticker=document.getElementById("jackpotTicker");
+  const feed=document.getElementById("jackpotFeed");
+  if(!ticker||!feed)return;
+  if(!rows.length){
+    ticker.textContent="尚無大獎紀錄";
+    feed.innerHTML="";
+    return;
+  }
+  const top=rows[0];
+  ticker.innerHTML=`🔥 ${esc(top.name)}｜${esc(top.type)}｜${esc(top.result)}`;
+  feed.innerHTML=rows.map(x=>{
+    let time="";
+    if(x.createdAt?.toDate){
+      time=x.createdAt.toDate().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"});
+    }
+    return `<div class="stat" style="margin-top:6px;padding:8px 10px">
+      <div><b>${esc(x.name)}</b>｜${esc(x.type)}｜<b>${esc(x.result)}</b></div>
+      <div class="tiny">${time}${x.detail?`｜${esc(x.detail)}`:""}</div>
+    </div>`;
+  }).join("");
+}
+
+signInAnonymously(auth).catch(err=>{
+  console.error(err);
+  const e=document.getElementById("fbStatus");
+  if(e)e.textContent="❌ 登入失敗";
+});
+
+onAuthStateChanged(auth,user=>{
+  currentUser=user;
+  const e=document.getElementById("fbStatus");
+  if(e)e.textContent=user?"🟢 已連線":"🔴 未連線";
+  updateNameUI();
+  if(user && !displayName) setTimeout(()=>askName(),250);
+});
+
+const q=query(collection(db,"jackpots"),orderBy("createdAt","desc"),limit(20));
+onSnapshot(q,snap=>{
+  const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderFeed(rows);
+},err=>{
+  console.error("戰報讀取失敗",err);
+  const e=document.getElementById("fbStatus");
+  if(e)e.textContent="⚠️ 戰報讀取失敗";
+});
+</script>
+
+</body></html>
