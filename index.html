@@ -1386,6 +1386,41 @@ function bjReset(){
 let ttState={rounds:0,w:0,l:0,net:0};
 const TT_BET=100000;
 
+function ttDeck(){
+ let d=[];
+ // 一筒～九筒各4張
+ for(let v=1;v<=9;v++){
+   for(let i=0;i<4;i++) d.push({name:`${v}筒`,v:v});
+ }
+ // 白板4張，按半點
+ for(let i=0;i<4;i++) d.push({name:"白板",v:0.5});
+
+ // 洗牌
+ for(let i=d.length-1;i>0;i--){
+   let j=Math.floor(Math.random()*(i+1));
+   [d[i],d[j]]=[d[j],d[i]];
+ }
+ return d;
+}
+
+function ttHandRank(h){
+ const pair=h[0].name===h[1].name;
+ if(pair){
+   if(h[0].name==="白板") return {type:2,val:10.5,label:"白板對"};
+   return {type:2,val:h[0].v,label:`${h[0].name}對`};
+ }
+ let sum=h[0].v+h[1].v;
+ let point=sum>=10 ? sum-10 : sum;
+ return {type:1,val:point,label:`${point}點`};
+}
+
+function ttCompare(player,dealer){
+ const p=ttHandRank(player),d=ttHandRank(dealer);
+ if(p.type!==d.type) return p.type>d.type ? 1 : -1;
+ if(p.val!==d.val) return p.val>d.val ? 1 : -1;
+ return -1; // 同點莊家勝
+}
+
 function ttPlay(){
  let handCount=Math.max(1,Math.min(5,+document.getElementById("ttHands").value||1));
  let d=ttDeck();
