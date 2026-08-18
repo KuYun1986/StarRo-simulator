@@ -126,6 +126,7 @@ a{color:#77a9ff}
 <h1>🌟 繁星仙境模擬器</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
 </div>
@@ -461,6 +462,31 @@ a{color:#77a9ff}
 
 
 
+
+
+<section class="card">
+<h2>🔨 +20 → +30 精煉模擬</h2>
+<p class="tiny">每把武器從 <b>+20</b> 開始；每次精煉都消耗 <b>1 把精煉槌</b>。失敗維持原精煉值，成功才進到下一階。每次按 10 / 100 把精煉槌都會從「目前精煉值」繼續往上敲，進度不會重置；可一路累積到 +30。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">各階成功率</span>
+  <div class="tiny" style="line-height:1.9;margin-top:6px">
+    +20→+21：75%　｜　+21→+22：50%　｜　+22→+23：25%　｜　+23→+24：10%　｜　+24→+25：5%<br>
+    +25→+26：3%　｜　+26→+27：2%　｜　+27→+28：1%　｜　+28→+29：1%　｜　+29→+30：1%
+  </div>
+  <div class="tiny" style="margin-top:5px">理論平均：約 <b>420.7 把精煉槌／武器</b> 才能從 +20 到 +30。</div>
+</div>
+
+<div class="actions" style="margin-top:10px">
+  <button class="primary" onclick="refine30One()">敲到 +30</button>
+  <button onclick="refine30Batch(10)">10 把精煉槌</button>
+  <button onclick="refine30Batch(100)">100 把精煉槌</button>
+  <button onclick="refine30Reset()">重置</button>
+</div>
+
+<div id="refine30Now" style="margin-top:10px"></div>
+<div id="refine30Stats" style="margin-top:10px"></div>
+</section>
 
 <section class="card">
 <h2>🛡️ 盾牌石</h2>
@@ -1642,6 +1668,150 @@ function ttReset(){
 }
 
 renderSteps();
+</script>
+
+
+<script>
+(() => {
+  const rates = {
+    20:0.75,
+    21:0.50,
+    22:0.25,
+    23:0.10,
+    24:0.05,
+    25:0.03,
+    26:0.02,
+    27:0.01,
+    28:0.01,
+    29:0.01
+  };
+
+  let state = {
+    level:20,
+    totalHammers:0,
+    stageAttempts:{20:0,21:0,22:0,23:0,24:0,25:0,26:0,27:0,28:0,29:0}
+  };
+
+  const el = id => document.getElementById(id);
+
+  function renderStats() {
+    const box = el("refine30Stats");
+    if (!box) return;
+
+    const stageRows = [];
+    for (let lv=20; lv<=29; lv++) {
+      if (state.stageAttempts[lv] > 0) {
+        stageRows.push(`+${lv}→+${lv+1}：累計 ${state.stageAttempts[lv].toLocaleString()} 把精煉槌`);
+      }
+    }
+
+    box.innerHTML =
+      `<div class="stat">
+        <span class="label">目前進度</span>
+        <b>目前 +${state.level}｜累計消耗 ${state.totalHammers.toLocaleString()} 把精煉槌</b>
+        <div class="tiny" style="line-height:1.8;margin-top:7px">
+          ${state.level >= 30 ? "<b class='ok'>🎉 已完成 +30</b><br>" : ""}
+          ${stageRows.join("<br>")}
+        </div>
+      </div>`;
+  }
+
+  function useHammers(maxCount) {
+    if (state.level >= 30) {
+      el("refine30Now").innerHTML =
+        `<div class="stat"><b class="ok">目前已經是 +30，不需要再敲。</b></div>`;
+      renderStats();
+      return;
+    }
+
+    const startLevel = state.level;
+    let used = 0;
+    const perStage = {20:0,21:0,22:0,23:0,24:0,25:0,26:0,27:0,28:0,29:0};
+
+    while (used < maxCount && state.level < 30) {
+      const lv = state.level;
+      used++;
+      state.totalHammers++;
+      state.stageAttempts[lv]++;
+      perStage[lv]++;
+
+      if (Math.random() < rates[lv]) {
+        state.level++;
+      }
+    }
+
+    const rows = [];
+    for (let lv=20; lv<=29; lv++) {
+      if (perStage[lv] > 0) {
+        rows.push(`+${lv}→+${lv+1}：本次 ${perStage[lv].toLocaleString()} 把`);
+      }
+    }
+
+    el("refine30Now").innerHTML =
+      `<div class="stat">
+        <b>本次消耗 ${used.toLocaleString()} 把精煉槌｜+${startLevel} → +${state.level}</b>
+        <div class="tiny" style="line-height:1.8;margin-top:6px">
+          ${state.level>=30 ? "🎉 本次已敲到 +30<br>" : ""}
+          ${rows.join("<br>")}
+        </div>
+      </div>`;
+    renderStats();
+  }
+
+  window.refine30Batch = function(n) {
+    useHammers(n);
+  };
+
+  window.refine30One = function() {
+    if (state.level >= 30) {
+      el("refine30Now").innerHTML =
+        `<div class="stat"><b class="ok">目前已經是 +30，不需要再敲。</b></div>`;
+      renderStats();
+      return;
+    }
+
+    const startLevel = state.level;
+    let used = 0;
+    const perStage = {20:0,21:0,22:0,23:0,24:0,25:0,26:0,27:0,28:0,29:0};
+
+    while (state.level < 30) {
+      const lv = state.level;
+      used++;
+      state.totalHammers++;
+      state.stageAttempts[lv]++;
+      perStage[lv]++;
+
+      if (Math.random() < rates[lv]) {
+        state.level++;
+      }
+    }
+
+    const rows=[];
+    for(let lv=20;lv<=29;lv++){
+      if(perStage[lv]>0) rows.push(`+${lv}→+${lv+1}：本次 ${perStage[lv].toLocaleString()} 把`);
+    }
+
+    el("refine30Now").innerHTML =
+      `<div class="stat">
+        <b>+${startLevel} → +30｜本次消耗 ${used.toLocaleString()} 把精煉槌</b>
+        <div class="tiny" style="line-height:1.8;margin-top:6px">${rows.join("<br>")}</div>
+      </div>`;
+    renderStats();
+  };
+
+  window.refine30Reset = function() {
+    state = {
+      level:20,
+      totalHammers:0,
+      stageAttempts:{20:0,21:0,22:0,23:0,24:0,25:0,26:0,27:0,28:0,29:0}
+    };
+    el("refine30Now").innerHTML="";
+    renderStats();
+  };
+
+  // 初始就顯示目前 +20 / 0把
+  setTimeout(renderStats,0);
+})();
 </script>
 
 <script>
