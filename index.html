@@ -33,7 +33,7 @@ button{cursor:pointer;background:var(--card2);font-weight:700}button.primary{bac
 
 <section class="card">
 <h2>🎰 XR 轉蛋</h2>
-<p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜1001 抽保底：XR大獎 / UR一獎 / UR二獎，3 抽 1。</p>
+<p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜連續 1001 抽未出大獎才觸發保底：XR大獎 / UR一獎 / UR二獎，3 抽 1；自然抽到任一大獎或觸發保底後，都重新從第 1 抽計算。</p>
 <div class="actions">
 <button class="primary" onclick="xrDraw(1)">抽 1 次</button>
 <button onclick="xrDraw(10)">抽 10 次</button>
@@ -793,45 +793,70 @@ function renderLowBook(){
 function resetLowBook(){lb={total:0,tiers:{},results:[]};lowBookNow.innerHTML="";lowBookStats.innerHTML="";lowBookDist.innerHTML=""}
 
 
-let xrG={draws:0,xr:0,ur:0,guarantee:0,guaranteeXR:0,guaranteeUR1:0,guaranteeUR2:0};
+let xrG={
+ draws:0,xr:0,ur:0,
+ pity:0,
+ guarantee:0,guaranteeXR:0,guaranteeUR1:0,guaranteeUR2:0,
+ hitLog:[]
+};
 function xrOne(){
  xrG.draws++;
- let r=Math.random()*100;
- if(r<0.07){xrG.xr++;return "XR大獎"}
- if(r<0.105){xrG.ur++;return "UR一獎"}
- if(r<0.14){xrG.ur++;return "UR二獎"}
- return "一般";
+ xrG.pity++;
+ let r=Math.random()*100, prize="一般";
+ if(r<0.07){xrG.xr++;prize="XR大獎"}
+ else if(r<0.105){xrG.ur++;prize="UR一獎"}
+ else if(r<0.14){xrG.ur++;prize="UR二獎"}
+
+ if(prize!=="一般"){
+   xrG.hitLog.push({draw:xrG.pity,prize:prize,type:"自然"});
+   // 只要自然抽到 XR大獎 / UR一獎 / UR二獎，保底立即重置。
+   xrG.pity=0;
+   return prize;
+ }
+
+ // 連續1001抽都沒有任何大獎時，才觸發3抽1保底；保底後重新從第1抽計算。
+ if(xrG.pity>=1001){
+   let g=pick(["XR大獎","UR一獎","UR二獎"]);
+   xrG.guarantee++;
+   if(g==="XR大獎") xrG.guaranteeXR++;
+   else if(g==="UR一獎") xrG.guaranteeUR1++;
+   else xrG.guaranteeUR2++;
+   xrG.hitLog.push({draw:1001,prize:g,type:"保底"});
+   xrG.pity=0;
+ }
+ return prize;
 }
 function xrDraw(n){
- let gotXR=0,gotUR1=0,gotUR2=0,guaranteed="";
- for(let i=0;i<n;i++){
-   let x=xrOne();
-   if(x==="XR大獎")gotXR++;
-   else if(x==="UR一獎")gotUR1++;
-   else if(x==="UR二獎")gotUR2++;
- }
- if(n===1001){
-   guaranteed=pick(["XR大獎","UR一獎","UR二獎"]);
-   xrG.guarantee++;
-   if(guaranteed==="XR大獎") xrG.guaranteeXR++;
-   else if(guaranteed==="UR一獎") xrG.guaranteeUR1++;
-   else if(guaranteed==="UR二獎") xrG.guaranteeUR2++;
- }
- xrNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${gotXR?`XR大獎 × ${gotXR}　`:""}${gotUR1?`UR一獎 × ${gotUR1}　`:""}${gotUR2?`UR二獎 × ${gotUR2}`:""}${!gotXR&&!gotUR1&&!gotUR2?"未出 XR / UR":""}</b></div>${guaranteed?`<div class="stat" style="margin-top:8px"><span class="label">🎁 1001 抽保底｜3 抽 1</span><b class="ok" style="font-size:26px">${guaranteed}</b></div>`:""}`;
+ let before=xrG.hitLog.length;
+ for(let i=0;i<n;i++) xrOne();
+ let fresh=xrG.hitLog.slice(before);
+ let rows=fresh.length
+   ? fresh.map(x=>`${x.type==="保底"?"🎁":"🎉"} 第 ${x.draw} 抽｜${x.prize}${x.type==="保底"?"（1001抽保底）":""}`).join("<br>")
+   : "本次未出 XR / UR";
+ xrNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽｜目前保底進度 ${xrG.pity}/1001</span><div style="margin-top:8px;line-height:1.9"><b>${rows}</b></div></div>`;
  renderXR();
 }
 function renderXR(){
  let t=xrG.draws||1;
- xrStats.innerHTML=card("累計抽數",xrG.draws.toLocaleString())+
+ xrStats.innerHTML=
+ card("累計抽數",xrG.draws.toLocaleString())+
+ card("目前保底進度",`${xrG.pity} / 1001`)+
+ card("距離下次保底",(1001-xrG.pity).toLocaleString()+" 抽")+
  card("XR",xrG.xr.toLocaleString(),"ok")+
  card("UR",xrG.ur.toLocaleString(),"ok")+
  card("1001抽保底",xrG.guarantee.toLocaleString())+
  card("保底 XR大獎",xrG.guaranteeXR.toLocaleString())+
  card("保底 UR一獎",xrG.guaranteeUR1.toLocaleString())+
  card("保底 UR二獎",xrG.guaranteeUR2.toLocaleString());
- xrDist.innerHTML=`<div class="stat"><span class="label">實際出現率</span><div style="line-height:1.9">XR：${(xrG.xr/t*100).toFixed(4)}%（理論 0.07%）<br>UR：${(xrG.ur/t*100).toFixed(4)}%（理論 0.07%）</div></div>`;
+
+ let recent=xrG.hitLog.slice(-30).reverse();
+ xrDist.innerHTML=`<div class="stat"><span class="label">出獎紀錄（最近 30 筆）</span><div style="margin-top:8px;line-height:1.9">${recent.length?recent.map(x=>`${x.type==="保底"?"🎁":"🎉"} 第 ${x.draw} 抽｜${x.prize}${x.type==="保底"?"（保底）":""}`).join("<br>"):"尚未出獎"}</div></div>
+ <div class="stat" style="margin-top:8px"><span class="label">實際出現率</span><div style="line-height:1.9">XR：${(xrG.xr/t*100).toFixed(4)}%（理論 0.07%）<br>UR：${(xrG.ur/t*100).toFixed(4)}%（理論 0.07%）</div></div>`;
 }
-function resetXR(){xrG={draws:0,xr:0,ur:0,guarantee:0,guaranteeXR:0,guaranteeUR1:0,guaranteeUR2:0};xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML=""}
+function resetXR(){
+ xrG={draws:0,xr:0,ur:0,pity:0,guarantee:0,guaranteeXR:0,guaranteeUR1:0,guaranteeUR2:0,hitLog:[]};
+ xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML="";
+};xrNow.innerHTML="";xrStats.innerHTML="";xrDist.innerHTML=""}
 
 let urG={draws:0,book:0,huajin:0};
 function urOne(){
