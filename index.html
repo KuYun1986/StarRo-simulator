@@ -429,6 +429,7 @@ a{color:#77a9ff}
 <div class="row"><span>每次鑑定花費</span><input id="midWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
 <div class="actions">
 <button class="primary" onclick="midWandOnce()">🎲 鑑定一次</button>
+<button onclick="midWandBatch(10)">連抽 10 次</button>
 <button onclick="midWandBatch(100)">連抽 100 次</button>
 <button onclick="resetMidWand()">清除紀錄</button>
 </div>
@@ -458,6 +459,7 @@ a{color:#77a9ff}
 <div class="row"><span>每次鑑定花費</span><input id="lowWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
 <div class="actions">
 <button class="primary" onclick="lowWandOnce()">🎲 鑑定一次</button>
+<button onclick="lowWandBatch(10)">連抽 10 次</button>
 <button onclick="lowWandBatch(100)">連抽 100 次</button>
 <button onclick="resetLowWand()">清除紀錄</button>
 </div>
@@ -1827,6 +1829,8 @@ function starroFormatPlayTime(rounds){
 }
 
 let marqueeState={plays:0,wins:0,totalBet:0,net:0,counts:{red:0,yellow:0,green:0,purple:0,blue:0,orange:0}};
+let marqueeRoad=[];
+let marqueePreviewBase=0;
 
 function marqueeRoll(){
   let r=Math.random()*100, acc=0;
@@ -1933,6 +1937,7 @@ function marqueePlay(n){
   for(let i=1;i<=n;i++){
     const x=marqueeRoll();
     last=x;
+    if(marqueeRoad.length) marqueeRoad.push(x);
     actualRuns++;
     marqueeState.plays++;
     marqueeState.counts[x.key]++;
@@ -1981,29 +1986,45 @@ function marqueePlay(n){
     `${hitText}`+
     `</div></div>`;
   marqueeRender();
+  if(marqueeRoad.length) marqueeRenderRoad();
 }
 
 
+
+function marqueeRenderRoad(){
+  const el=document.getElementById("marqueePreview");
+  if(!el)return;
+  if(!marqueeRoad.length){el.innerHTML="";return;}
+
+  const preview=marqueeRoad.slice(0,marqueePreviewBase);
+  const live=marqueeRoad.slice(marqueePreviewBase);
+  const counts={red:0,yellow:0,green:0,purple:0,blue:0,orange:0};
+  preview.forEach(x=>counts[x.key]++);
+  const rows=marqueeOptions.map(x=>
+    `${x.icon} ${x.name}：${counts[x.key]} 次`
+  ).join("｜");
+
+  el.innerHTML=
+    `<div class="stat"><span class="label">👀 牌路｜前 ${marqueePreviewBase} 次預覽 + 後續正式下注</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
+    `${marqueePreviewBase?`預覽100次分布：${rows}<br>`:""}`+
+    `<b>完整牌路：</b><span style="word-break:break-all">${marqueeRoad.map(x=>x.icon).join("")}</span>`+
+    `${live.length?`<br><b>正式下注已接續 ${live.length} 次</b>`:""}`+
+    `</div></div>`;
+}
+
 function marqueePreview100(){
   const counts={red:0,yellow:0,green:0,purple:0,blue:0,orange:0};
-  const seq=[];
+  marqueeRoad=[];
   for(let i=0;i<100;i++){
     const x=marqueeRoll();
     counts[x.key]++;
-    seq.push(x);
+    marqueeRoad.push(x);
   }
-  const last=seq[seq.length-1];
+  marqueePreviewBase=100;
+  const last=marqueeRoad[marqueeRoad.length-1];
   marqueeHighlight(last.key);
-
-  const icons=seq.map(x=>x.icon).join("");
-  const rows=marqueeOptions.map(x=>
-    `${x.icon} ${x.name}：${counts[x.key]} 次（${(counts[x.key]/100*100).toFixed(0)}%）`
-  ).join("<br>");
-
-  document.getElementById("marqueePreview").innerHTML=
-    `<div class="stat"><span class="label">👀 預先轉 100 次（不下注、不計入累計）</span>`+
-    `<div class="tiny" style="line-height:1.8;margin-top:6px">${rows}<br>`+
-    `<b>牌路：</b><span style="word-break:break-all">${icons}</span></div></div>`;
+  marqueeRenderRoad();
 }
 
 function marqueeReset(){
@@ -2015,6 +2036,7 @@ function marqueeReset(){
   const wheel=document.getElementById("marqueeWheel");
   if(wheel)wheel.style.transform="rotate(0deg)";
   marqueeHighlight("");
+  marqueeRoad=[]; marqueePreviewBase=0;
 }
 
 /* ===== 21點 ===== */
@@ -2111,6 +2133,8 @@ function bjReset(){
 
 /* ===== 推筒子 ===== */
 let ttState={rounds:0,w:0,l:0,net:0};
+let ttRoad=[];
+let ttPreviewBase=0;
 const TT_BET=100000;
 
 function ttDeck(){
@@ -2211,6 +2235,7 @@ function ttPlay(){
    ttState.net+=delta;
    roundNet+=delta;
    results.push({i,player,pr,cmp,delta,result});
+   if(ttRoad.length) ttRoad.push({cmp});
  }
 
  document.getElementById("ttNet").textContent=
@@ -2230,41 +2255,43 @@ function ttPlay(){
 
  document.getElementById("ttStats").innerHTML=
  `<div class="tiny">累計下注手數 ${ttState.rounds}｜玩家勝 ${ttState.w}｜莊家勝 ${ttState.l}｜每手固定 100,000 P｜累計花費時間 ${starroFormatPlayTime(ttState.rounds)}</div>`;
+ if(ttRoad.length) ttRenderRoad();
 }
 
 
-function ttPreview100(){
-  let dealerPair=0, dealerNormal=0;
-  let playerWin=0, dealerWin=0;
-  const road=[];
 
+function ttRenderRoad(){
+  const el=document.getElementById("ttPreview");
+  if(!el)return;
+  if(!ttRoad.length){el.innerHTML="";return;}
+
+  const preview=ttRoad.slice(0,ttPreviewBase);
+  const live=ttRoad.slice(ttPreviewBase);
+  const playerWin=preview.filter(x=>x.cmp>0).length;
+  const dealerWin=preview.filter(x=>x.cmp<=0).length;
+  const road=ttRoad.map(x=>x.cmp>0?"🔵":"🔴").join("");
+
+  el.innerHTML=
+    `<div class="stat"><span class="label">👀 牌路｜前 ${ttPreviewBase} 把預覽 + 後續正式下注</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
+    `${ttPreviewBase?`預覽100把：🔵 玩家勝 ${playerWin}｜🔴 莊家勝 ${dealerWin}<br>`:""}`+
+    `<b>完整牌路：</b><span style="word-break:break-all">${road}</span>`+
+    `${live.length?`<br><b>正式下注已接續 ${live.length} 把</b>`:""}`+
+    `</div></div>`;
+}
+
+function ttPreview100(){
+  ttRoad=[];
   for(let n=0;n<100;n++){
     let d=ttDeck();
     const dealer=ttDealerHand(d);
-    const dr=ttHandRank(dealer);
-    if(dr.type===2) dealerPair++; else dealerNormal++;
-
-    // 預覽牌路統一用 1 手玩家 vs 同一莊家，比較每把結果；
-    // 不影響籌碼、勝負累計或正式牌局。
     if(d.length<2)d=ttDeck();
     const player=[d.pop(),d.pop()];
     const cmp=ttCompare(player,dealer);
-    if(cmp>0){
-      playerWin++;
-      road.push("🔵");
-    }else{
-      dealerWin++;
-      road.push("🔴");
-    }
+    ttRoad.push({cmp});
   }
-
-  document.getElementById("ttPreview").innerHTML=
-    `<div class="stat"><span class="label">👀 預先發 100 次（不下注、不計入累計）</span>`+
-    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
-    `🔵 玩家勝 ${playerWin}｜🔴 莊家勝 ${dealerWin}<br>`+
-    `莊家對子 ${dealerPair} 次｜非對子 ${dealerNormal} 次<br>`+
-    `<b>牌路：</b><span style="word-break:break-all">${road.join("")}</span>`+
-    `</div></div>`;
+  ttPreviewBase=100;
+  ttRenderRoad();
 }
 
 function ttReset(){
@@ -2273,6 +2300,7 @@ function ttReset(){
  document.getElementById("ttTable").innerHTML="";
  document.getElementById("ttStats").innerHTML="";
  const tp=document.getElementById("ttPreview"); if(tp)tp.innerHTML="";
+ ttRoad=[]; ttPreviewBase=0;
 }
 
 renderSteps();
@@ -2605,6 +2633,8 @@ const baccaratBetDefs=[
 ];
 
 let baccaratState={rounds:0,totalBet:0,net:0,player:0,banker:0,tie:0};
+let baccaratRoad=[];
+let baccaratPreviewBase=0;
 
 function baccaratCard(){
   const ranks=[1,2,3,4,5,6,7,8,9,10,11,12,13];
@@ -2683,6 +2713,7 @@ function baccaratPlay(n){
   for(let i=0;i<n;i++){
     const r=baccaratDeal();
     last=r;
+    if(baccaratRoad.length) baccaratRoad.push(r);
     baccaratState.rounds++;
     baccaratState.totalBet+=total;
     batchBet+=total;
@@ -2726,6 +2757,7 @@ function baccaratPlay(n){
     `</div></div>`;
 
   baccaratRender();
+  if(baccaratRoad.length) baccaratRenderRoad();
 }
 function baccaratRender(){
   const s=baccaratState;
@@ -2739,24 +2771,40 @@ function baccaratRender(){
     `</div></div>`;
 }
 
+
+function baccaratRenderRoad(){
+  const el=document.getElementById("baccaratPreview");
+  if(!el)return;
+  if(!baccaratRoad.length){el.innerHTML="";return;}
+
+  const preview=baccaratRoad.slice(0,baccaratPreviewBase);
+  const live=baccaratRoad.slice(baccaratPreviewBase);
+  const p=preview.filter(r=>r.winner==="player").length;
+  const b=preview.filter(r=>r.winner==="banker").length;
+  const t=preview.filter(r=>r.winner==="tie").length;
+  const road=baccaratRoad.map(r=>r.winner==="player"?"🔵":r.winner==="banker"?"🔴":"🟢").join("");
+
+  el.innerHTML=
+    `<div class="stat"><span class="label">👀 牌路｜前 ${baccaratPreviewBase} 把預覽 + 後續正式下注</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
+    `${baccaratPreviewBase?`預覽100把：🔵 閒 ${p}｜🔴 莊 ${b}｜🟢 和 ${t}<br>`:""}`+
+    `<b>完整牌路：</b><span style="word-break:break-all">${road}</span>`+
+    `${live.length?`<br><b>正式下注已接續 ${live.length} 把</b>`:""}`+
+    `</div></div>`;
+}
+
 function baccaratPreview100(){
-  const seq=[];
+  baccaratRoad=[];
   let p=0,b=0,t=0;
   for(let i=0;i<100;i++){
     const r=baccaratDeal();
-    seq.push(r);
+    baccaratRoad.push(r);
     if(r.winner==="player")p++;
     else if(r.winner==="banker")b++;
     else t++;
   }
-
-  const road=seq.map(r=>r.winner==="player"?"🔵":r.winner==="banker"?"🔴":"🟢").join("");
-  document.getElementById("baccaratPreview").innerHTML=
-    `<div class="stat"><span class="label">👀 預先發 100 次（不下注、不計入累計）</span>`+
-    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
-    `🔵 閒 ${p}｜🔴 莊 ${b}｜🟢 和 ${t}<br>`+
-    `<b>牌路：</b><span style="word-break:break-all">${road}</span>`+
-    `</div></div>`;
+  baccaratPreviewBase=100;
+  baccaratRenderRoad();
 }
 
 function baccaratReset(){
@@ -2764,6 +2812,7 @@ function baccaratReset(){
   document.getElementById("baccaratNow").innerHTML="";
   document.getElementById("baccaratStats").innerHTML="";
   const bp=document.getElementById("baccaratPreview"); if(bp)bp.innerHTML="";
+  baccaratRoad=[]; baccaratPreviewBase=0;
 }
 
 </script>
