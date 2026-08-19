@@ -675,7 +675,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🎡 繁星大輪盤</h2>
-<p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
+<p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。可先預覽 100 次牌路，不下注也不計入正式累計。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
 
 <div class="stat" style="margin-top:10px">
   <span class="label">顏色 / 賠率 / 機率</span>
@@ -758,6 +758,7 @@ a{color:#77a9ff}
   <button class="primary" onclick="marqueePlay(1)">轉 1 次</button>
   <button onclick="marqueePlay(10)">轉 10 次</button>
   <button onclick="marqueePlay(100)">轉 100 次</button>
+<button onclick="marqueePreview100()">預先轉 100 次（不下注）</button>
   <button onclick="marqueeReset()">重置</button>
 </div>
 
@@ -771,6 +772,7 @@ a{color:#77a9ff}
 
 <div id="marqueeNow" style="margin-top:10px"></div>
 <div id="marqueeStats" style="margin-top:10px"></div>
+<div id="marqueePreview" style="margin-top:10px"></div>
 
 <div class="stat" style="margin-top:16px">
   <span class="label">🔎 實機紀錄／公平性分析</span>
@@ -820,7 +822,7 @@ a{color:#77a9ff}
   <h2>🎴 百家樂</h2>
   <div class="tiny" style="line-height:1.8">
     每局所有下注合計最高 <b>30,000 紅利</b>。A=1，10/J/Q/K=0，其餘照牌面點數；總點數只看個位數。
-    自動依標準百家樂規則補第三張牌。和局時「閒贏／莊贏」退回本金。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。
+    自動依標準百家樂規則補第三張牌。和局時「閒贏／莊贏」退回本金。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。
   </div>
 
   <div class="stat" style="margin-top:10px">
@@ -844,11 +846,13 @@ a{color:#77a9ff}
     <button class="primary" onclick="baccaratPlay(1)">發牌 1 次</button>
     <button onclick="baccaratPlay(10)">發牌 10 次</button>
     <button onclick="baccaratPlay(100)">發牌 100 次</button>
+    <button onclick="baccaratPreview100()">預先發 100 次（不下注）</button>
     <button onclick="baccaratReset()">重置</button>
   </div>
 
   <div id="baccaratNow" style="margin-top:10px"></div>
   <div id="baccaratStats" style="margin-top:10px"></div>
+  <div id="baccaratPreview" style="margin-top:10px"></div>
 </section>
 
 <section class="card">
@@ -877,7 +881,7 @@ a{color:#77a9ff}
 
 <section class="card">
 <h2>🀙 推筒子</h2>
-<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。</p>
+<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。</p>
 
 <div class="row">
 <span>同時下注</span>
@@ -898,6 +902,7 @@ a{color:#77a9ff}
 
 <div class="actions">
 <button class="primary" onclick="ttPlay()">開牌</button>
+<button onclick="ttPreview100()">預先發 100 次（不下注）</button>
 <button onclick="ttReset()">重置</button>
 </div>
 
@@ -906,6 +911,7 @@ a{color:#77a9ff}
 </div>
 <div id="ttTable" style="margin-top:10px"></div>
 <div id="ttStats" style="margin-top:10px"></div>
+<div id="ttPreview" style="margin-top:10px"></div>
 </section>
 
 </div>
@@ -1977,10 +1983,34 @@ function marqueePlay(n){
   marqueeRender();
 }
 
+
+function marqueePreview100(){
+  const counts={red:0,yellow:0,green:0,purple:0,blue:0,orange:0};
+  const seq=[];
+  for(let i=0;i<100;i++){
+    const x=marqueeRoll();
+    counts[x.key]++;
+    seq.push(x);
+  }
+  const last=seq[seq.length-1];
+  marqueeHighlight(last.key);
+
+  const icons=seq.map(x=>x.icon).join("");
+  const rows=marqueeOptions.map(x=>
+    `${x.icon} ${x.name}：${counts[x.key]} 次（${(counts[x.key]/100*100).toFixed(0)}%）`
+  ).join("<br>");
+
+  document.getElementById("marqueePreview").innerHTML=
+    `<div class="stat"><span class="label">👀 預先轉 100 次（不下注、不計入累計）</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">${rows}<br>`+
+    `<b>牌路：</b><span style="word-break:break-all">${icons}</span></div></div>`;
+}
+
 function marqueeReset(){
   marqueeState={plays:0,wins:0,totalBet:0,net:0,counts:{red:0,yellow:0,green:0,purple:0,blue:0,orange:0}};
   document.getElementById("marqueeNow").innerHTML="";
   document.getElementById("marqueeStats").innerHTML="";
+  const mp=document.getElementById("marqueePreview"); if(mp)mp.innerHTML="";
   marqueeWheelRotation=0;
   const wheel=document.getElementById("marqueeWheel");
   if(wheel)wheel.style.transform="rotate(0deg)";
@@ -2202,11 +2232,47 @@ function ttPlay(){
  `<div class="tiny">累計下注手數 ${ttState.rounds}｜玩家勝 ${ttState.w}｜莊家勝 ${ttState.l}｜每手固定 100,000 P｜累計花費時間 ${starroFormatPlayTime(ttState.rounds)}</div>`;
 }
 
+
+function ttPreview100(){
+  let dealerPair=0, dealerNormal=0;
+  let playerWin=0, dealerWin=0;
+  const road=[];
+
+  for(let n=0;n<100;n++){
+    let d=ttDeck();
+    const dealer=ttDealerHand(d);
+    const dr=ttHandRank(dealer);
+    if(dr.type===2) dealerPair++; else dealerNormal++;
+
+    // 預覽牌路統一用 1 手玩家 vs 同一莊家，比較每把結果；
+    // 不影響籌碼、勝負累計或正式牌局。
+    if(d.length<2)d=ttDeck();
+    const player=[d.pop(),d.pop()];
+    const cmp=ttCompare(player,dealer);
+    if(cmp>0){
+      playerWin++;
+      road.push("🔵");
+    }else{
+      dealerWin++;
+      road.push("🔴");
+    }
+  }
+
+  document.getElementById("ttPreview").innerHTML=
+    `<div class="stat"><span class="label">👀 預先發 100 次（不下注、不計入累計）</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
+    `🔵 玩家勝 ${playerWin}｜🔴 莊家勝 ${dealerWin}<br>`+
+    `莊家對子 ${dealerPair} 次｜非對子 ${dealerNormal} 次<br>`+
+    `<b>牌路：</b><span style="word-break:break-all">${road.join("")}</span>`+
+    `</div></div>`;
+}
+
 function ttReset(){
  ttState={rounds:0,w:0,l:0,net:0};
  document.getElementById("ttNet").textContent="0 P";
  document.getElementById("ttTable").innerHTML="";
  document.getElementById("ttStats").innerHTML="";
+ const tp=document.getElementById("ttPreview"); if(tp)tp.innerHTML="";
 }
 
 renderSteps();
@@ -2672,10 +2738,32 @@ function baccaratRender(){
     `累計花費時間：${starroFormatPlayTime(s.rounds)}`+
     `</div></div>`;
 }
+
+function baccaratPreview100(){
+  const seq=[];
+  let p=0,b=0,t=0;
+  for(let i=0;i<100;i++){
+    const r=baccaratDeal();
+    seq.push(r);
+    if(r.winner==="player")p++;
+    else if(r.winner==="banker")b++;
+    else t++;
+  }
+
+  const road=seq.map(r=>r.winner==="player"?"🔵":r.winner==="banker"?"🔴":"🟢").join("");
+  document.getElementById("baccaratPreview").innerHTML=
+    `<div class="stat"><span class="label">👀 預先發 100 次（不下注、不計入累計）</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:6px">`+
+    `🔵 閒 ${p}｜🔴 莊 ${b}｜🟢 和 ${t}<br>`+
+    `<b>牌路：</b><span style="word-break:break-all">${road}</span>`+
+    `</div></div>`;
+}
+
 function baccaratReset(){
   baccaratState={rounds:0,totalBet:0,net:0,player:0,banker:0,tie:0};
   document.getElementById("baccaratNow").innerHTML="";
   document.getElementById("baccaratStats").innerHTML="";
+  const bp=document.getElementById("baccaratPreview"); if(bp)bp.innerHTML="";
 }
 
 </script>
