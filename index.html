@@ -2224,8 +2224,7 @@ function ttPlay(){
    let delta=0,result="";
    if(cmp>0){
      ttState.w++;
-     let mult=pr.type===2?2:1;
-     delta=TT_BET*mult;
+     delta=TT_BET;
      result=`玩家勝｜+${delta.toLocaleString()} P`;
    }else{
      ttState.l++;
