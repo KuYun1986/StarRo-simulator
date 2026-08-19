@@ -240,8 +240,8 @@ a{color:#77a9ff}
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-    <span class="label">🌐 全服即時戰報（最近24小時）</span>
-    <span id="fbStatus" class="tiny">連線中…</span><span id="onlineCount" class="tiny">👥 在線 0 人</span>
+    <span class="label">🌐 全服即時戰報（最近7天）</span>
+    <span id="fbStatus" class="tiny">連線中…</span>
     <button onclick="changeStarroName()" style="margin-left:auto">👤 <span id="fbNameLabel">設定暱稱</span></button>
   </div>
   <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
@@ -2881,7 +2881,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/fireba
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, query, orderBy, limit,
-  onSnapshot, serverTimestamp, doc, setDoc, deleteDoc, where, Timestamp
+  onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -2900,48 +2900,6 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let displayName = localStorage.getItem("starro_display_name") || "";
-let presenceTimer = null;
-let presenceUnsub = null;
-
-async function updatePresence(){
-  if(!currentUser) return;
-  try{
-    await setDoc(doc(db,"online",currentUser.uid),{
-      uid: currentUser.uid,
-      name: displayName || "匿名玩家",
-      lastSeen: serverTimestamp()
-    },{merge:true});
-  }catch(err){
-    console.error("在線狀態更新失敗",err);
-  }
-}
-
-function startPresence(){
-  if(!currentUser) return;
-
-  updatePresence();
-  if(presenceTimer) clearInterval(presenceTimer);
-  presenceTimer=setInterval(updatePresence,30000);
-
-  if(presenceUnsub) presenceUnsub();
-  const cutoff=Timestamp.fromMillis(Date.now()-120000);
-  const oq=query(collection(db,"online"),where("lastSeen",">=",cutoff));
-
-  presenceUnsub=onSnapshot(oq,snap=>{
-    const e=document.getElementById("onlineCount");
-    if(e)e.textContent=`👥 在線 ${snap.size} 人`;
-  },err=>{
-    console.error("在線人數讀取失敗",err);
-    const e=document.getElementById("onlineCount");
-    if(e)e.textContent="👥 在線 -- 人";
-  });
-}
-
-window.addEventListener("beforeunload",()=>{
-  if(currentUser){
-    deleteDoc(doc(db,"online",currentUser.uid)).catch(()=>{});
-  }
-});
 
 function esc(s){
   return String(s ?? "").replace(/[&<>"']/g,c=>({
@@ -2960,7 +2918,6 @@ function askName(force=false){
     }
   }
   updateNameUI();
-  if(currentUser) updatePresence();
   return displayName;
 }
 
@@ -3023,19 +2980,18 @@ onAuthStateChanged(auth,user=>{
   if(e)e.textContent=user?"🟢 已連線":"🔴 未連線";
   updateNameUI();
   if(user){
-    startPresence();
     if(!displayName) setTimeout(()=>askName(),250);
   }
 });
 
 const q=query(collection(db,"jackpots"),orderBy("createdAt","desc"),limit(200));
 onSnapshot(q,snap=>{
-  const oneDayAgo = Date.now() - 24*60*60*1000;
+  const sevenDaysAgo = Date.now() - 7*24*60*60*1000;
   const rows=snap.docs
     .map(d=>({id:d.id,...d.data()}))
     .filter(x=>{
       if(!x.createdAt?.toDate) return true;
-      return x.createdAt.toDate().getTime() >= oneDayAgo;
+      return x.createdAt.toDate().getTime() >= sevenDaysAgo;
     });
   renderFeed(rows);
 },err=>{
