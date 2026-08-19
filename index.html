@@ -1512,7 +1512,7 @@ function xrDraw(n){
  let before=xrG.hitLog.length;
  for(let i=0;i<n;i++) xrOne();
  let fresh=xrG.hitLog.slice(before);
- fresh.filter(x=>x.prize==="XR大獎" && x.type!=="保底" && x.draw<=1000)
+ fresh.filter(x=>x.prize==="XR大獎" && x.type!=="保底" && x.draw<=500)
       .forEach(x=>starroAnnounce("XR轉蛋","XR大獎",`1000抽內中獎｜第 ${x.draw} 抽`));
  let rows=fresh.length
    ? fresh.map(x=>`${x.type==="保底"?"🎁":"🎉"} 第 ${x.draw} 抽｜${x.prize}${x.type==="保底"?"（1001抽保底）":""}`).join("<br>")
