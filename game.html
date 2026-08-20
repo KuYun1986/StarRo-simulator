@@ -232,25 +232,26 @@ a{color:#77a9ff}
 </style>
 
 <style>
-.game-page-link,.game-nav-link{
+.game-only-page section.card:not(.event-game){display:none!important}
+.game-only-page #onlineBar{display:none!important}
+.game-only-page .grid{display:block!important}
+.game-only-page section.event-game{margin-bottom:16px}
+.game-nav-link{
   display:inline-flex;align-items:center;justify-content:center;
   padding:10px 16px;border-radius:12px;border:1px solid var(--line);
   background:var(--card);color:var(--text);text-decoration:none;font-weight:700;
 }
-.game-page-link:hover,.game-nav-link:hover{filter:brightness(1.08)}
-</style>
-
-<style>
-.main-game-hidden{display:none!important}
+.game-nav-link:hover{filter:brightness(1.08)}
 </style>
 </head>
-<body><div class="wrap">
-<h1>🌟 繁星仙境模擬器</h1>
+<body class="game-only-page"><div class="wrap">
+<h1>🎮 繁星遊戲區</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
-<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
-<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
-
-<a href="game.html" class="game-page-link">🎮 遊戲區</a>
+<a href="index.html" class="game-nav-link">← 回模擬器</a>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('繁星大輪盤'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 繁星大輪盤</button>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('百家樂'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎴 百家樂</button>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -726,7 +727,7 @@ a{color:#77a9ff}
 
 
 
-<section class="card main-game-hidden">
+<section class="card event-game">
 <h2>🎡 繁星大輪盤</h2>
 <p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。可先預覽 100 次牌路，不下注也不計入正式累計。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
 
@@ -871,7 +872,7 @@ a{color:#77a9ff}
 </section>
 
 
-<section class="card main-game-hidden" id="baccaratCard">
+<section class="card event-game" id="baccaratCard">
   <h2>🎴 百家樂</h2>
   <div class="tiny" style="line-height:1.8">
     每局所有下注合計最高 <b>30,000 紅利</b>。A=1，10/J/Q/K=0，其餘照牌面點數；總點數只看個位數。
@@ -908,7 +909,7 @@ a{color:#77a9ff}
   <div id="baccaratPreview" style="margin-top:10px"></div>
 </section>
 
-<section class="card main-game-hidden">
+<section class="card event-game">
 <h2>🃏 21點</h2>
 <p class="tiny">娛樂模擬：6副牌、莊家17點停牌、Blackjack 勝利 +20,000 P、一般勝利 +10,000 P、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。使用虛擬籌碼。</p>
 
@@ -932,7 +933,7 @@ a{color:#77a9ff}
 <div id="bjLog" style="margin-top:10px"></div>
 </section>
 
-<section class="card main-game-hidden">
+<section class="card event-game">
 <h2>🀙 推筒子</h2>
 <p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。</p>
 
@@ -3471,6 +3472,19 @@ onSnapshot(q,snap=>{
   const e=document.getElementById("fbStatus");
   if(e)e.textContent="⚠️ 戰報讀取失敗";
 });
+</script>
+
+
+<script>
+(function(){
+  const wanted=["21點","繁星大輪盤","百家樂","推筒子"];
+  const sections=[...document.querySelectorAll("section.event-game")];
+  if(!sections.length) return;
+  const parent=sections[0].parentElement;
+  const anchor=sections[0];
+  const ordered=wanted.map(name=>sections.find(s=>s.innerText.includes(name))).filter(Boolean);
+  ordered.forEach(s=>parent.appendChild(s));
+})();
 </script>
 
 </body></html>
