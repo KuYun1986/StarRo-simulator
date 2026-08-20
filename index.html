@@ -318,7 +318,7 @@ a{color:#77a9ff}
 <button class="primary" onclick="urDraw(1)">抽 1 次</button>
 <button onclick="urDraw(10)">抽 10 次</button>
 <button onclick="urDraw(100)">抽 100 次</button>
-<button onclick="urDraw(1000)">抽 1000 次</button>
+<button onclick="urDraw(500)">抽 500 次</button>
 <button onclick="resetUR()">清除紀錄</button>
 </div>
 <div id="urNow" style="margin-top:14px"></div>
@@ -377,6 +377,40 @@ a{color:#77a9ff}
 <div id="weaponStats" style="margin-top:8px"></div>
 </section>
 
+
+
+<section class="card">
+<h2>🗡️ 進階武器鑑定</h2>
+<p class="tiny">
+進階武器鑑定晶片：每次 <b>19 紅利</b>。詞數機率：<b>1～4詞 = 100% / 50% / 25% / 10%</b>。只有抽到第4詞時，才顯示完整4條能力。<br>
+第4詞為 <b>全技能最終傷害 +1～30%（乘算）</b>。下方只列出有出現第4詞的 TOP 10。
+</p>
+<div class="actions">
+<button class="primary" onclick="advWeaponBatch(1)">鑑定 1 次</button>
+<button onclick="advWeaponBatch(10)">鑑定 10 次</button>
+<button onclick="advWeaponBatch(100)">鑑定 100 次</button>
+<button onclick="resetAdvWeapon()">清除紀錄</button>
+</div>
+<div id="advWeaponNow" style="margin-top:12px"></div>
+<div id="advWeaponStats" class="statgrid"></div>
+<div id="advWeaponTop" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>💠 武器指定晶片</h2>
+<p class="tiny">
+每次 <b>49 紅利</b>，直接鑑定第5詞：<b>全技能最終傷害 +1～25%</b>。
+</p>
+<div class="actions">
+<button class="primary" onclick="weaponChipBatch(1)">指定 1 次</button>
+<button onclick="weaponChipBatch(10)">指定 10 次</button>
+<button onclick="weaponChipBatch(100)">指定 100 次</button>
+<button onclick="resetWeaponChip()">清除紀錄</button>
+</div>
+<div id="weaponChipNow" style="margin-top:12px"></div>
+<div id="weaponChipStats" class="statgrid"></div>
+<div id="weaponChipTop" style="margin-top:10px"></div>
+</section>
 
 <section class="card">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
@@ -489,6 +523,7 @@ a{color:#77a9ff}
 <div class="row"><span>每次鑑定花費</span><input id="shoeWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
 <div class="actions">
 <button class="primary" onclick="shoeWandOnce()">🎲 鑑定一次</button>
+<button onclick="shoeWandBatch(10)">連抽 10 次</button>
 <button onclick="shoeWandBatch(100)">連抽 100 次</button>
 <button onclick="resetShoeWand()">清除紀錄</button>
 </div>
@@ -518,6 +553,7 @@ a{color:#77a9ff}
 <p class="tiny">鑑定魔法棒先抽 1～5 詞；只有出現第5詞才抽下方素質。指定魔法書固定為5詞，直接抽第5詞素質。數值區間內目前採整數等機率。</p>
 <div class="actions">
 <button class="primary" onclick="rollAccessoryIdentify('wand')">🪄 鑑定棒抽一次</button>
+<button onclick="rollWandBatch(10)">鑑定棒連抽10次</button>
 <button onclick="rollWandBatch(100)">鑑定棒連抽100次</button>
 <button onclick="resetIdentify()">清除紀錄</button>
 </div>
@@ -1560,7 +1596,7 @@ function urDraw(n){
    if(x==="華金自選箱")h++;
    else if(x==="UR服飾隨機書")b++;
  }
- if(n===1000 && h>0) starroAnnounce("UR轉蛋","華金自選箱",`1000抽中獎｜華金自選箱 × ${h.toLocaleString()}`);
+ if(n===500 && h>0) starroAnnounce("UR轉蛋","華金自選箱",`500抽中獎｜華金自選箱 × ${h.toLocaleString()}`);
  urNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 抽</span><b>${b?`UR服飾隨機書 × ${b}　`:""}${h?`華金自選箱 × ${h}`:""}${!b&&!h?"未出 UR":""}</b></div>`;
  renderUR();
 }
@@ -1575,6 +1611,191 @@ function renderUR(){
  urDist.innerHTML=`<div class="stat"><span class="label">實際出現率</span><div style="line-height:1.9">UR總計：${(total/t*100).toFixed(4)}%（理論 0.15%）<br>UR服飾隨機書：${(urG.book/t*100).toFixed(4)}%（推定 0.10%）<br>華金自選箱：${(urG.huajin/t*100).toFixed(4)}%（理論 0.05%）</div></div>`;
 }
 function resetUR(){urG={draws:0,book:0,huajin:0};urNow.innerHTML="";urStats.innerHTML="";urDist.innerHTML=""}
+
+
+/* ===== 進階武器鑑定 / 武器指定晶片 ===== */
+let advWeaponState={draws:0,fourth:0,top:[]};
+const ADV_WEAPON_COST=19;
+
+function advWeaponRand(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+function advWeaponPick(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+function advWeaponFirst(){
+  const pool=[
+    ()=>`SCR +${advWeaponRand(5,15)}`,
+    ()=>`ATK +${advWeaponRand(50,250)}`,
+    ()=>`MATK +${advWeaponRand(50,250)}`,
+    ()=>`CRI +${advWeaponRand(5,20)}`,
+    ()=>`ASPD +${advWeaponRand(1,3)}`,
+    ()=>`MHP +${advWeaponRand(1,20)}%`,
+    ()=>`MSP +${advWeaponRand(1,20)}%`,
+    ()=>`對所有種族攻擊的抗性 +${advWeaponRand(1,5)}%`,
+    ()=>`對所有階級攻擊的抗性 +${advWeaponRand(1,5)}%`,
+    ()=>`對所有體型攻擊的抗性 +${advWeaponRand(1,5)}%`
+  ];
+  return advWeaponPick(pool)();
+}
+function advWeaponSecond(){
+  const pool=[
+    ()=>`P.ATK +${advWeaponRand(1,15)}`,
+    ()=>`S.MATK +${advWeaponRand(1,15)}`,
+    ()=>`C.RATE +${advWeaponRand(1,10)}`,
+    ()=>`RES +${advWeaponRand(1,15)}`,
+    ()=>`MRES +${advWeaponRand(1,15)}`,
+    ()=>`H.PLUS +${advWeaponRand(1,15)}`
+  ];
+  return advWeaponPick(pool)();
+}
+function advWeaponThird(){
+  const pool=[
+    "對首領類魔物的物理攻擊增加",
+    "對首領類魔物的魔法攻擊增加",
+    "對生命體型魔物的物理攻擊增加",
+    "對生命體型魔物的魔法攻擊增加",
+    "對全體型魔物的物理攻擊增加",
+    "對全體型魔物的魔法攻擊增加",
+    "對全種族魔物的物理攻擊增加",
+    "對全種族魔物的魔法攻擊增加",
+    "必殺技傷害增加"
+  ];
+  return `${advWeaponPick(pool)} +${advWeaponRand(1,35)}%`;
+}
+
+function advFinalDamageTierRoll(maxTop){
+  // 官方四階機率：89.77% / 8.98% / 0.9% / 0.36%
+  const weights=[89.77,8.98,0.9,0.36];
+  const total=weights.reduce((a,b)=>a+b,0);
+  let r=Math.random()*total;
+  let tier=0;
+  for(let i=0;i<weights.length;i++){
+    r-=weights[i];
+    if(r<0){tier=i;break;}
+  }
+
+  // 第4詞：1~10 / 11~15 / 16~24 / 25~30
+  // 第5詞：1~10 / 11~15 / 16~19 / 20~25
+  const ranges=maxTop===30
+    ? [[1,10],[11,15],[16,24],[25,30]]
+    : [[1,10],[11,15],[16,19],[20,25]];
+
+  const [min,max]=ranges[tier];
+  return {tier,value:advWeaponRand(min,max)};
+}
+
+function advWeaponOne(){
+  advWeaponState.draws++;
+
+  const roll=Math.random();
+  let wordCount=1;
+  if(roll<0.10) wordCount=4;
+  else if(roll<0.25) wordCount=3;
+  else if(roll<0.50) wordCount=2;
+
+  const lines=[advWeaponFirst()];
+  if(wordCount>=2) lines.push(advWeaponSecond());
+  if(wordCount>=3) lines.push(advWeaponThird());
+
+  let fourth=null;
+  if(wordCount===4){
+    const rolled=advFinalDamageTierRoll(30);
+    fourth=rolled.value;
+    lines.push(`全技能最終傷害 +${fourth}%（乘算）`);
+    advWeaponState.fourth++;
+
+    advWeaponState.top.push({
+      draw:advWeaponState.draws,
+      value:fourth,
+      tier:rolled.tier,
+      lines:[...lines]
+    });
+
+    advWeaponState.top.sort((a,b)=>b.value-a.value || a.draw-b.draw);
+    advWeaponState.top=advWeaponState.top.slice(0,10);
+  }
+
+  return fourth;
+}
+function advWeaponBatch(n){
+  let hit=0,best=0;
+  for(let i=0;i<n;i++){
+    const v=advWeaponOne();
+    if(v!==null){hit++; if(v>best)best=v;}
+  }
+  document.getElementById("advWeaponNow").innerHTML=
+    `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
+    `第4詞出現 ${hit} 次${hit?`｜本批最高 <b class="ok">+${best}%</b>`:"｜未出第4詞"}<br>`+
+    `本次花費 ${(n*ADV_WEAPON_COST).toLocaleString()} 紅利</div></div>`;
+  renderAdvWeapon();
+}
+function renderAdvWeapon(){
+  const s=advWeaponState;
+  const rate=s.draws?s.fourth/s.draws*100:0;
+  document.getElementById("advWeaponStats").innerHTML=
+    card("累計鑑定",s.draws.toLocaleString())+
+    card("累計花費",(s.draws*ADV_WEAPON_COST).toLocaleString()+" 紅利")+
+    card("第4詞出現",s.fourth.toLocaleString(),"ok")+
+    card("第4詞實際率",rate.toFixed(2)+"%");
+  document.getElementById("advWeaponTop").innerHTML=
+    `<div class="label">🏆 第4詞 TOP 10</div>`+
+    (s.top.length?s.top.map((x,i)=>
+      `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
+      `<b class="ok">全技能最終傷害 +${x.value}%</b></span>`+
+      `<div class="tiny" style="line-height:1.75;margin-top:5px">${x.lines.join("<br>")}</div></div>`
+    ).join(""):`<div class="stat"><span class="tiny">尚未出現第4詞。</span></div>`);
+}
+function resetAdvWeapon(){
+  advWeaponState={draws:0,fourth:0,top:[]};
+  advWeaponNow.innerHTML="";advWeaponStats.innerHTML="";advWeaponTop.innerHTML="";
+}
+
+let weaponChipState={draws:0,top:[]};
+const WEAPON_CHIP_COST=49;
+function weaponChipOne(){
+  weaponChipState.draws++;
+
+  const rolled=advFinalDamageTierRoll(25);
+  const value=rolled.value;
+
+  weaponChipState.top.push({draw:weaponChipState.draws,value,tier:rolled.tier});
+  weaponChipState.top.sort((a,b)=>b.value-a.value || a.draw-b.draw);
+  weaponChipState.top=weaponChipState.top.slice(0,10);
+  return value;
+}
+function weaponChipBatch(n){
+  let best=0,last=0;
+  for(let i=0;i<n;i++){
+    last=weaponChipOne();
+    if(last>best)best=last;
+  }
+  document.getElementById("weaponChipNow").innerHTML=
+    `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
+    `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
+    `本批最高 <b class="ok">全技能最終傷害 +${best}%</b>｜最後一次 +${last}%<br>`+
+    `本次花費 ${(n*WEAPON_CHIP_COST).toLocaleString()} 紅利</div></div>`;
+  renderWeaponChip();
+}
+function renderWeaponChip(){
+  const s=weaponChipState;
+  document.getElementById("weaponChipStats").innerHTML=
+    card("累計指定",s.draws.toLocaleString())+
+    card("每次花費",WEAPON_CHIP_COST+" 紅利")+
+    card("累計花費",(s.draws*WEAPON_CHIP_COST).toLocaleString()+" 紅利");
+  document.getElementById("weaponChipTop").innerHTML=
+    `<div class="label">🏆 全技能最終傷害 TOP 10</div>`+
+    (s.top.length?s.top.map((x,i)=>
+      `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
+      `<b class="ok">全技能最終傷害 +${x.value}%</b></span></div>`
+    ).join(""):`<div class="stat"><span class="tiny">尚無紀錄。</span></div>`);
+}
+function resetWeaponChip(){
+  weaponChipState={draws:0,top:[]};
+  weaponChipNow.innerHTML="";weaponChipStats.innerHTML="";weaponChipTop.innerHTML="";
+}
+
 
 const hole3Pool=["變異餓熊威力","變異光速瞬移","變異無感肌肉","變異暴走魔法","變異犀利鷹眼","變異幸運之日"];
 const holeTypes=["鬥志","魔力","尖銳","名弓"];
