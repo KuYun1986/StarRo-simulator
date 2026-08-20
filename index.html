@@ -1045,7 +1045,7 @@ function huajinTrial(show=true){
  }
  hj.pass10++;
  const v=weightedFinalDamage();
- if(v===15) starroAnnounce("華金鎧甲／戰靴","頂級詞 +15%","洗到全技能終傷 +15%");
+ if(v===15) starroSaiGaoBroadcast("華金鎧甲／戰靴","全技能終傷 +15%",hj.tries,huajinCost.value);
  hj.values[v]=(hj.values[v]||0)+1;
  const l1=huajinLine1(),l2=huajinLine2();
  hj.top3.push({value:v,lines:[l1,l2,`全技能終傷 +${v}%`]});
@@ -1107,7 +1107,7 @@ function accessoryTrial(show=true){
  }
  acc.pass10++;
  const v=weightedSkillDamage();
- if(v===20) starroAnnounce("華金耳環／飾品","頂級詞 +20%","洗到全技能傷害 +20%");
+ if(v===20) starroSaiGaoBroadcast("華金耳環／飾品","全技能傷害 +20%",acc.tries,accessoryCost.value);
  acc.values[v]=(acc.values[v]||0)+1;
  const l1=huajinLine1(),l2=huajinLine2();
  acc.top3.push({value:v,lines:[l1,l2,`全技能傷害 +${v}%${starroMaxTag(v===20)}`]});
@@ -1192,6 +1192,7 @@ function rollAccessoryIdentify(mode,show=true){
    let t=weightedTier(),line=makeLine(t);
    idStats.total++;idStats.tiers[t.label]=(idStats.tiers[t.label]||0)+1;
    let key=`${line.name} +${line.value}%`;idStats.lines[key]=(idStats.lines[key]||0)+1;
+   if(line.isMax) starroSaiGaoBroadcast("飾品指定魔法書",`${line.name} +${line.value}%`,idStats.total,bookCost.value);
    if(show) identifyNow.innerHTML=`<div class="stat"><span class="label">指定魔法書結果</span><b class="ok">${t.label}｜${line.name} +${line.value}%${starroMaxTag(line.isMax)}</b></div>`;
  }else{
    // Wand: number of lines follows 100% / 75% / 50% / 25% / 10%.
@@ -1210,8 +1211,10 @@ function rollAccessoryIdentify(mode,show=true){
       idStats.fiveResults.push({
         tier:t.label,
         lines:[wandLine1(),wandLine2(),wandLine3(),wandLine4(),`${line.name} +${line.value}%｜${t.label}${starroMaxTag(line.isMax)}`],
-        value:line.value
+        value:line.value,
+        isMax:line.isMax
       });
+      if(line.isMax) starroSaiGaoBroadcast("飾品鑑定棒",`${line.name} +${line.value}%`,idStats.total,wandCost.value);
       detail+=` → 第5詞：${t.label}｜${line.name} +${line.value}%${starroMaxTag(line.isMax)}`;
    }
    if(show) identifyNow.innerHTML=`<div class="stat"><span class="label">鑑定魔法棒結果</span><b class="${lines===5?'ok':''}">${detail}</b></div>`;
@@ -1251,6 +1254,7 @@ function bookTrial(show=true){
  bookStatsData.tiers[t.label]=(bookStatsData.tiers[t.label]||0)+1;
  let key=`${line.name} +${line.value}%`;
  bookStatsData.lines[key]=(bookStatsData.lines[key]||0)+1;
+ if(line.isMax) starroSaiGaoBroadcast("飾品指定魔法書",`${line.name} +${line.value}%`,bookStatsData.total,bookCost.value);
  if(show) bookNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="ok">${t.label}｜${line.name} +${line.value}%${starroMaxTag(line.isMax)}</b></div>`;
 }
 function rollBookOnce(){bookTrial(true);renderBook()}
@@ -1326,7 +1330,8 @@ function shoeWandTrial(show=true){
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
    let f=shoeFifth(),lines=[shoeLine1(),shoeLine2(),shoeLine3(),shoeLine4(),`${f.text}｜${f.tier}${starroMaxTag(f.isMax)}`];
-   sw.five.push({lines,value:f.value});
+   sw.five.push({lines,value:f.value,isMax:f.isMax});
+   if(f.isMax) starroSaiGaoBroadcast("鞋子鑑定棒",f.text,sw.total,shoeWandCost.value);
    if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
  } else if(show) shoeWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderShoeWand();
@@ -1344,6 +1349,7 @@ function resetShoeWand(){sw={total:0,five:[]};shoeWandNow.innerHTML="";shoeWandS
 let sb={total:0,tiers:{},results:[],types:{}};
 function shoeBookTrial(show=true){
  let f=shoeFifth();sb.total++;sb.tiers[f.tier]=(sb.tiers[f.tier]||0)+1;sb.types[f.name]=(sb.types[f.name]||0)+1;sb.results.push(f);
+ if(f.isMax) starroSaiGaoBroadcast("鞋子指定魔法書",f.text,sb.total,shoeBookCost.value);
  let shown=(f.name==="P.ATK"||f.name==="S.MATK"||f.name==="C.RATE")?`${f.name} +${f.value}%`:`${f.name} +${f.value}`;
  if(show)shoeBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${shown}${starroMaxTag(f.isMax)}</b></div>`;
 }
@@ -1405,7 +1411,8 @@ function midWandTrial(show=true){
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
    let f=midFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),`${f.text}｜${f.tier}${starroMaxTag(f.isMax)}`];
-   mw.five.push({lines,value:f.value});
+   mw.five.push({lines,value:f.value,isMax:f.isMax});
+   if(f.isMax) starroSaiGaoBroadcast("頭中鑑定棒",f.text,mw.total,midWandCost.value);
    if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
  }else if(show)midWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderMidWand();
@@ -1423,7 +1430,8 @@ function resetMidWand(){mw={total:0,five:[]};midWandNow.innerHTML="";midWandStat
 let mb={total:0,tiers:{},results:[]};
 function midBookTrial(show=true){
  let f=midFifth();mb.total++;mb.tiers[f.tier]=(mb.tiers[f.tier]||0)+1;mb.results.push(f);
- if(show)midBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${f.text}${starroMaxTag(f.isMax)}${starroMaxTag(f.isMax)}</b></div>`;
+ if(f.isMax) starroSaiGaoBroadcast("頭中指定魔法書",f.text,mb.total,midBookCost.value);
+ if(show)midBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${f.text}${starroMaxTag(f.isMax)}</b></div>`;
 }
 function midBookOnce(){midBookTrial(true);renderMidBook()}
 function midBookBatch(n){for(let i=0;i<n;i++)midBookTrial(false);midBookNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderMidBook()}
@@ -1479,7 +1487,8 @@ function lowWandTrial(show=true){
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
   let f=lowFifth(),lines=[lowLine1(),lowLine2(),lowLine3(),lowLine4(),`${f.text}｜${f.tier}${starroMaxTag(f.isMax)}`];
-  lw.five.push({lines,value:f.value});
+  lw.five.push({lines,value:f.value,isMax:f.isMax});
+  if(f.isMax) starroSaiGaoBroadcast("頭下鑑定棒",f.text,lw.total,lowWandCost.value);
   if(show)lowWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
  }else if(show)lowWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderLowWand();
@@ -1497,7 +1506,8 @@ function resetLowWand(){lw={total:0,five:[]};lowWandNow.innerHTML="";lowWandStat
 let lb={total:0,tiers:{},results:[]};
 function lowBookTrial(show=true){
  let f=lowFifth();lb.total++;lb.tiers[f.tier]=(lb.tiers[f.tier]||0)+1;lb.results.push(f);
- if(show)lowBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${f.text}</b></div>`;
+ if(f.isMax) starroSaiGaoBroadcast("頭下指定魔法書",f.text,lb.total,lowBookCost.value);
+ if(show)lowBookNow.innerHTML=`<div class="stat"><b class="ok">${f.tier}｜${f.text}${starroMaxTag(f.isMax)}</b></div>`;
 }
 function lowBookOnce(){lowBookTrial(true);renderLowBook()}
 function lowBookBatch(n){for(let i=0;i<n;i++)lowBookTrial(false);lowBookNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderLowBook()}
@@ -1671,6 +1681,16 @@ function starroMaxTag(isMax){
   return isMax ? "｜賽高🎉" : "";
 }
 
+function starroSaiGaoBroadcast(type,result,tries,costPerTry){
+  if(typeof window.starroBroadcast!=="function") return;
+  const totalCost=Math.max(0,Number(tries)||0)*Math.max(0,Number(costPerTry)||0);
+  window.starroBroadcast(
+    type,
+    `賽高🎉｜${result}`,
+    `洗到 ${result}｜累計花費 ${totalCost.toLocaleString()} 紅利`
+  );
+}
+
 function starroTierNameByIndex(tier){
   return tier===3 ? "頂級" : tier===2 ? "稀有" : tier===1 ? "高級" : "一般";
 }
@@ -1724,6 +1744,10 @@ function advWeaponOne(){
       lines:[...lines]
     });
 
+    if(fourth === [10,15,24,30][rolled.tier]){
+      starroSaiGaoBroadcast("進階武器鑑定",`第4詞 全技能最終傷害 +${fourth}%`,advWeaponState.draws,ADV_WEAPON_COST);
+    }
+
     advWeaponState.top.sort((a,b)=>b.value-a.value || a.draw-b.draw);
     advWeaponState.top=advWeaponState.top.slice(0,10);
   }
@@ -1762,7 +1786,7 @@ function renderAdvWeapon(){
     `<div class="label">🏆 第4詞 TOP 10</div>`+
     (s.top.length?s.top.map((x,i)=>
       `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
-      `<b class="ok">全技能最終傷害 +${x.value}%${starroMaxTag(x.value===15)}｜${starroTierNameByIndex(x.tier)}</b></span>`+
+      `<b class="ok">全技能最終傷害 +${x.value}%｜${starroTierNameByIndex(x.tier)}${starroMaxTag(x.isMax)}</b></span>`+
       `<div class="tiny" style="line-height:1.75;margin-top:5px">${x.lines.join("<br>")}</div></div>`
     ).join(""):`<div class="stat"><span class="tiny">尚未出現第4詞。</span></div>`);
 }
@@ -1779,6 +1803,9 @@ function weaponChipOne(){
   const value=rolled.value;
   const isMax=value===[10,15,19,25][rolled.tier];
   weaponChipState.top.push({draw:weaponChipState.draws,value,tier:rolled.tier,isMax});
+  if(isMax){
+    starroSaiGaoBroadcast("武器指定晶片",`第5詞 全技能最終傷害 +${value}%`,weaponChipState.draws,WEAPON_CHIP_COST);
+  }
   weaponChipState.top.sort((a,b)=>b.value-a.value || a.draw-b.draw);
   weaponChipState.top=weaponChipState.top.slice(0,10);
   return {value,tier:rolled.tier,isMax};
@@ -1813,7 +1840,7 @@ function renderWeaponChip(){
     `<div class="label">🏆 全技能最終傷害 TOP 10</div>`+
     (s.top.length?s.top.map((x,i)=>
       `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
-      `<b class="ok">全技能最終傷害 +${x.value}%${starroMaxTag(x.value===15)}｜${starroTierNameByIndex(x.tier)}</b></span></div>`
+      `<b class="ok">全技能最終傷害 +${x.value}%｜${starroTierNameByIndex(x.tier)}${starroMaxTag(x.isMax)}</b></span></div>`
     ).join(""):`<div class="stat"><span class="tiny">尚無紀錄。</span></div>`);
 }
 function resetWeaponChip(){
