@@ -249,9 +249,9 @@ a{color:#77a9ff}
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <a href="index.html" class="game-nav-link">← 回模擬器</a>
 <button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
-<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('繁星大輪盤'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 繁星大輪盤</button>
 <button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('百家樂'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎴 百家樂</button>
 <button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('繁星大輪盤'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 繁星大輪盤</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -3477,11 +3477,10 @@ onSnapshot(q,snap=>{
 
 <script>
 (function(){
-  const wanted=["21點","繁星大輪盤","百家樂","推筒子"];
+  const wanted=["21點","百家樂","推筒子","繁星大輪盤"];
   const sections=[...document.querySelectorAll("section.event-game")];
   if(!sections.length) return;
   const parent=sections[0].parentElement;
-  const anchor=sections[0];
   const ordered=wanted.map(name=>sections.find(s=>s.innerText.includes(name))).filter(Boolean);
   ordered.forEach(s=>parent.appendChild(s));
 })();
