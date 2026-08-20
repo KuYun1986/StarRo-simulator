@@ -1701,8 +1701,13 @@ function advWeaponThird(){
 
 
 
+
+function starroDisplayText(v){
+  return String(v ?? "").replaceAll("賽高🎉","最頂").replaceAll("賽高","最頂");
+}
+
 function starroMaxTag(isMax){
-  return isMax ? "｜賽高🎉" : "";
+  return isMax ? "｜最頂" : "";
 }
 
 function starroSaiGaoBroadcast(type,result,tries,costPerTry){
@@ -1710,7 +1715,7 @@ function starroSaiGaoBroadcast(type,result,tries,costPerTry){
   const totalCost=Math.max(0,Number(tries)||0)*Math.max(0,Number(costPerTry)||0);
   window.starroBroadcast(
     type,
-    `賽高🎉｜${result}`,
+    `最頂｜${result}`,
     `洗到 ${result}｜累計花費 ${totalCost.toLocaleString()} 紅利`
   );
 }
@@ -3378,6 +3383,10 @@ window.starroBroadcast = async (type,result,detail="")=>{
   }
 };
 
+function starroFeedText(v){
+  return String(v ?? "").replaceAll("賽高🎉","最頂").replaceAll("賽高","最頂");
+}
+
 function renderFeed(rows){
   const ticker=document.getElementById("jackpotTicker");
   const feed=document.getElementById("jackpotFeed");
@@ -3388,15 +3397,15 @@ function renderFeed(rows){
     return;
   }
   const top=rows[0];
-  ticker.innerHTML=`🔥 ${esc(top.name)}｜${esc(top.type)}｜${esc(top.result)}`;
+  ticker.innerHTML=`🔥 ${esc(top.name)}｜${esc(starroFeedText(top.type))}｜${esc(starroFeedText(top.result))}`;
   feed.innerHTML=rows.map(x=>{
     let time="";
     if(x.createdAt?.toDate){
       time=x.createdAt.toDate().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"});
     }
     return `<div class="stat" style="margin-top:6px;padding:8px 10px">
-      <div><b>${esc(x.name)}</b>｜${esc(x.type)}｜<b>${esc(x.result)}</b></div>
-      <div class="tiny">${time}${x.detail?`｜${esc(x.detail)}`:""}</div>
+      <div><b>${esc(x.name)}</b>｜${esc(starroFeedText(x.type))}｜<b>${esc(starroFeedText(x.result))}</b></div>
+      <div class="tiny">${time}${x.detail?`｜${esc(starroFeedText(x.detail))}`:""}</div>
     </div>`;
   }).join("");
 }
