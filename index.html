@@ -383,7 +383,7 @@ a{color:#77a9ff}
 <h2>🗡️ 進階武器鑑定</h2>
 <p class="tiny">
 進階武器鑑定晶片：每次 <b>19 紅利</b>。詞數機率：<b>1～4詞 = 100% / 50% / 25% / 10%</b>。只有抽到第4詞時，才顯示完整4條能力。<br>
-第4詞為 <b>全技能最終傷害 +1～30%（乘算）</b>。下方只列出有出現第4詞的 TOP 10。
+第4詞為 <b>全技能最終傷害 +1～30%（乘算）</b>。下方只列出有出現第4詞的 TOP 10；階級標示：一般／高級／稀有／頂級。
 </p>
 <div class="actions">
 <button class="primary" onclick="advWeaponBatch(1)">鑑定 1 次</button>
@@ -399,7 +399,7 @@ a{color:#77a9ff}
 <section class="card">
 <h2>💠 武器指定晶片</h2>
 <p class="tiny">
-每次 <b>49 紅利</b>，直接鑑定第5詞：<b>全技能最終傷害 +1～25%</b>。
+每次 <b>49 紅利</b>，直接鑑定第5詞：<b>全技能最終傷害 +1～25%</b>。階級標示：一般／高級／稀有／頂級。
 </p>
 <div class="actions">
 <button class="primary" onclick="weaponChipBatch(1)">指定 1 次</button>
@@ -1148,7 +1148,7 @@ const identifyTiers=[
    ["對屬性物理攻擊",5,10],["對屬性魔法攻擊",5,10],
    ["全屬性物理攻擊",5,10],["全屬性魔法攻擊",5,10]
  ]},
- {p:8.98, label:"第5詞進階（8.98%）", pool:[
+ {p:8.98, label:"第5詞高級（8.98%）", pool:[
    ["對種族物理攻擊",10,15],["對種族魔法攻擊",10,15],
    ["對屬性物理攻擊",10,15],["對屬性魔法攻擊",10,15],
    ["全屬性物理攻擊",10,15],["全屬性魔法攻擊",10,15]
@@ -1208,7 +1208,7 @@ function rollAccessoryIdentify(mode,show=true){
       let key=`${line.name} +${line.value}%`;idStats.lines[key]=(idStats.lines[key]||0)+1;
       idStats.fiveResults.push({
         tier:t.label,
-        lines:[wandLine1(),wandLine2(),wandLine3(),wandLine4(),`${line.name} +${line.value}%`],
+        lines:[wandLine1(),wandLine2(),wandLine3(),wandLine4(),`${line.name} +${line.value}%｜${t.label}`],
         value:line.value
       });
       detail+=` → 第5詞：${t.label}｜${line.name} +${line.value}%`;
@@ -1280,7 +1280,7 @@ function resetBook(){bookStatsData={total:0,tiers:{},lines:{}};bookNow.innerHTML
 
 const shoeTierData=[
  {p:89.77,label:"一般 89.77%",pow:[5,15],spl:[5,15],con:[5,15],patk:[1,10],smatk:[1,10],crate:[1,10]},
- {p:8.98,label:"進階 8.98%",pow:[15,25],spl:[15,25],con:[15,25],patk:[10,15],smatk:[10,15],crate:[10,15]},
+ {p:8.98,label:"高級 8.98%",pow:[15,25],spl:[15,25],con:[15,25],patk:[10,15],smatk:[10,15],crate:[10,15]},
  {p:0.9,label:"稀有 0.9%",pow:[25,35],spl:[25,35],con:[25,35],patk:[15,20],smatk:[15,20],crate:[15,20]},
  {p:0.36,label:"頂級 0.36%",pow:[35,50],spl:[35,50],con:[35,50],patk:[20,30],smatk:[20,30],crate:[20,30]}
 ];
@@ -1324,7 +1324,7 @@ function shoeWandTrial(show=true){
  sw.total++; let r=Math.random(),n=1;
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
-   let f=shoeFifth(),lines=[shoeLine1(),shoeLine2(),shoeLine3(),shoeLine4(),f.text];
+   let f=shoeFifth(),lines=[shoeLine1(),shoeLine2(),shoeLine3(),shoeLine4(),`${f.text}｜${f.tier}`];
    sw.five.push({lines,value:f.value});
    if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
  } else if(show) shoeWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
@@ -1366,7 +1366,7 @@ function resetShoeBook(){sb={total:0,tiers:{},results:[],types:{}};shoeBookNow.i
 
 const midTierData=[
  {p:89.77,label:"一般 89.77%",race:[5,10],head:[5,10]},
- {p:8.98,label:"進階 8.98%",race:[10,15],head:[10,15]},
+ {p:8.98,label:"高級 8.98%",race:[10,15],head:[10,15]},
  {p:0.9,label:"稀有 0.9%",race:[15,25],head:[15,25]},
  {p:0.36,label:"頂級 0.36%",race:[25,35],head:[25,35]}
 ];
@@ -1403,7 +1403,7 @@ function midWandTrial(show=true){
  mw.total++;let r=Math.random(),n=1;
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
-   let f=midFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),f.text];
+   let f=midFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),`${f.text}｜${f.tier}`];
    mw.five.push({lines,value:f.value});
    if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
  }else if(show)midWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
@@ -1439,7 +1439,7 @@ function resetMidBook(){mb={total:0,tiers:{},results:[]};midBookNow.innerHTML=""
 
 const lowTierData=[
  {p:89.77,label:"一般 89.77%",range:[5,10]},
- {p:8.98,label:"進階 8.98%",range:[10,15]},
+ {p:8.98,label:"高級 8.98%",range:[10,15]},
  {p:0.9,label:"稀有 0.9%",range:[15,25]},
  {p:0.36,label:"頂級 0.36%",range:[25,35]}
 ];
@@ -1477,7 +1477,7 @@ function lowWandTrial(show=true){
  lw.total++;let r=Math.random(),n=1;
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
-  let f=lowFifth(),lines=[lowLine1(),lowLine2(),lowLine3(),lowLine4(),f.text];
+  let f=lowFifth(),lines=[lowLine1(),lowLine2(),lowLine3(),lowLine4(),`${f.text}｜${f.tier}`];
   lw.five.push({lines,value:f.value});
   if(show)lowWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
  }else if(show)lowWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
@@ -1664,6 +1664,11 @@ function advWeaponThird(){
   return `${advWeaponPick(pool)} +${advWeaponRand(1,35)}%`;
 }
 
+
+function starroTierNameByIndex(tier){
+  return tier===3 ? "頂級" : tier===2 ? "稀有" : tier===1 ? "高級" : "一般";
+}
+
 function advFinalDamageTierRoll(maxTop){
   // 官方四階機率：89.77% / 8.98% / 0.9% / 0.36%
   const weights=[89.77,8.98,0.9,0.36];
@@ -1719,15 +1724,21 @@ function advWeaponOne(){
   return fourth;
 }
 function advWeaponBatch(n){
-  let hit=0,best=0;
+  let hit=0,best=0,bestTier=0;
   for(let i=0;i<n;i++){
+    const before=advWeaponState.top.slice();
     const v=advWeaponOne();
-    if(v!==null){hit++; if(v>best)best=v;}
+    if(v!==null){
+      hit++;
+      const newest=advWeaponState.top.find(x=>x.draw===advWeaponState.draws);
+      const tier=newest?newest.tier:0;
+      if(v>best){best=v;bestTier=tier;}
+    }
   }
   document.getElementById("advWeaponNow").innerHTML=
     `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
     `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
-    `第4詞出現 ${hit} 次${hit?`｜本批最高 <b class="ok">+${best}%</b>`:"｜未出第4詞"}<br>`+
+    `第4詞出現 ${hit} 次${hit?`｜本批最高 <b class="ok">+${best}%｜${starroTierNameByIndex(bestTier)}</b>`:"｜未出第4詞"}<br>`+
     `本次花費 ${(n*ADV_WEAPON_COST).toLocaleString()} 紅利</div></div>`;
   renderAdvWeapon();
 }
@@ -1743,7 +1754,7 @@ function renderAdvWeapon(){
     `<div class="label">🏆 第4詞 TOP 10</div>`+
     (s.top.length?s.top.map((x,i)=>
       `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
-      `<b class="ok">全技能最終傷害 +${x.value}%</b></span>`+
+      `<b class="ok">全技能最終傷害 +${x.value}%｜${starroTierNameByIndex(x.tier)}</b></span>`+
       `<div class="tiny" style="line-height:1.75;margin-top:5px">${x.lines.join("<br>")}</div></div>`
     ).join(""):`<div class="stat"><span class="tiny">尚未出現第4詞。</span></div>`);
 }
@@ -1763,18 +1774,20 @@ function weaponChipOne(){
   weaponChipState.top.push({draw:weaponChipState.draws,value,tier:rolled.tier});
   weaponChipState.top.sort((a,b)=>b.value-a.value || a.draw-b.draw);
   weaponChipState.top=weaponChipState.top.slice(0,10);
-  return value;
+  return {value,tier:rolled.tier};
 }
 function weaponChipBatch(n){
-  let best=0,last=0;
+  let best=0,bestTier=0,last=0,lastTier=0;
   for(let i=0;i<n;i++){
-    last=weaponChipOne();
-    if(last>best)best=last;
+    const rolled=weaponChipOne();
+    last=rolled.value;
+    lastTier=rolled.tier;
+    if(last>best){best=last;bestTier=lastTier;}
   }
   document.getElementById("weaponChipNow").innerHTML=
     `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
     `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
-    `本批最高 <b class="ok">全技能最終傷害 +${best}%</b>｜最後一次 +${last}%<br>`+
+    `本批最高 <b class="ok">全技能最終傷害 +${best}%｜${starroTierNameByIndex(bestTier)}</b>｜最後一次 +${last}%｜${starroTierNameByIndex(lastTier)}<br>`+
     `本次花費 ${(n*WEAPON_CHIP_COST).toLocaleString()} 紅利</div></div>`;
   renderWeaponChip();
 }
@@ -1788,7 +1801,7 @@ function renderWeaponChip(){
     `<div class="label">🏆 全技能最終傷害 TOP 10</div>`+
     (s.top.length?s.top.map((x,i)=>
       `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
-      `<b class="ok">全技能最終傷害 +${x.value}%</b></span></div>`
+      `<b class="ok">全技能最終傷害 +${x.value}%｜${starroTierNameByIndex(x.tier)}</b></span></div>`
     ).join(""):`<div class="stat"><span class="tiny">尚無紀錄。</span></div>`);
 }
 function resetWeaponChip(){
