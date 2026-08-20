@@ -1185,7 +1185,7 @@ function randint(a,b){return Math.floor(Math.random()*(b-a+1))+a}
 function makeLine(t){
  let x=t.pool[Math.floor(Math.random()*t.pool.length)];
  let value=randint(x[1],x[2]);
- return {name:x[0],value,isMax:value===x[2]}
+ return {name:x[0],value,isMax:value===35}
 }
 function rollAccessoryIdentify(mode,show=true){
  if(mode==="book"){
@@ -1236,15 +1236,18 @@ function renderIdentify(){
  card("已記錄階級",Object.keys(idStats.tiers).length+" 種");
  identifyDist.innerHTML=(tierTxt?`<div class="stat"><span class="label">階級分布</span><div style="margin-top:8px">${tierTxt}</div></div>`:"")+
  (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="margin-top:8px;line-height:1.9">${top.map(x=>`${x[0]}：${x[1]} 次`).join("　")}</div></div>`:"");
- let five=(idStats.fiveResults||[]).slice().sort((a,b)=>b.value-a.value).slice(0,20);
- wandFiveOnly.innerHTML=five.length?`<div class="stat"><span class="label">⭐ 抽到 5 詞的完整結果（依第5詞數值排序 TOP 20）</span><div style="margin-top:10px">${five.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((v,j)=>`${j+1}. ${v}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+ let five=(idStats.fiveResults||[]).slice().sort((a,b)=>b.value-a.value).slice(0,10);
+ wandFiveOnly.innerHTML=five.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:10px">${five.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
 }
 function resetIdentify(){idStats={total:0,tiers:{},lines:{},fiveResults:[]};identifyNow.innerHTML="";identifyStats.innerHTML="";identifyDist.innerHTML="";wandFiveOnly.innerHTML=""}
 
 
 function rollWandBatch(n){
+ const before=idStats.fiveResults.length;
  for(let i=0;i<n;i++) rollAccessoryIdentify("wand",false);
- identifyNow.innerHTML=`<div class="stat"><span class="label">批次完成</span><b>鑑定棒已連抽 ${n} 次</b></div>`;
+ const added=idStats.fiveResults.slice(before);
+ const best=added.slice().sort((a,b)=>b.value-a.value)[0];
+ identifyNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
  renderIdentify();
 }
 let bookStatsData={total:0,tiers:{},lines:{}};
@@ -1307,7 +1310,7 @@ function shoeFifth(){
  ];
  let item=pool[Math.floor(Math.random()*pool.length)];
  let rg=t[item.key],v=randint(rg[0],rg[1]);
- return {tier:t.label,name:item.name,value:v,pct:item.pct,isMax:v===rg[1],text:`${item.name} +${v}${item.pct?"%":""}`};
+ return {tier:t.label,name:item.name,value:v,pct:item.pct,isMax:v===(item.pct?30:50),text:`${item.name} +${v}${item.pct?"%":""}`};
 }function shoeLine1(){return `${pick(["ATK","MATK"])} +${randint(10,150)}`}
 function shoeLine2(){
  let k=pick(["技能後延遲","變動施法時間","ASPD","固定詠唱"]);
@@ -1332,17 +1335,24 @@ function shoeWandTrial(show=true){
    let f=shoeFifth(),lines=[shoeLine1(),shoeLine2(),shoeLine3(),shoeLine4(),`${f.text}｜${f.tier}${starroMaxTag(f.isMax)}`];
    sw.five.push({lines,value:f.value,isMax:f.isMax});
    if(f.isMax) starroSaiGaoBroadcast("鞋子鑑定棒",f.text,sw.total,shoeWandCost.value);
-   if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
+   if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
  } else if(show) shoeWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderShoeWand();
 }
 function shoeWandOnce(){shoeWandTrial(true)}
-function shoeWandBatch(n){for(let i=0;i<n;i++)shoeWandTrial(false);shoeWandNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderShoeWand()}
+function shoeWandBatch(n){
+ const before=sw.five.length;
+ for(let i=0;i<n;i++)shoeWandTrial(false);
+ const added=sw.five.slice(before);
+ const best=added.slice().sort((a,b)=>b.value-a.value)[0];
+ shoeWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
+ renderShoeWand();
+}
 function renderShoeWand(){
  let c=Math.max(0,+shoeWandCost.value||0);
  shoeWandStats.innerHTML=card("累計鑑定",sw.total.toLocaleString())+card("5詞次數",sw.five.length.toLocaleString(),"ok")+card("累計花費",(sw.total*c).toLocaleString()+" 紅利");
- let a=sw.five.slice().sort((x,y)=>y.value-x.value).slice(0,20);
- shoeWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 20</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+ let a=sw.five.slice().sort((x,y)=>y.value-x.value).slice(0,10);
+ shoeWandFive.innerHTML=a.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
 }
 function resetShoeWand(){sw={total:0,five:[]};shoeWandNow.innerHTML="";shoeWandStats.innerHTML="";shoeWandFive.innerHTML=""}
 
@@ -1393,7 +1403,7 @@ function midFifth(){
    ["對首領類魔物的魔法攻擊增加","head"]
  ];
  let x=pick(kinds),rg=t[x[1]],v=randint(rg[0],rg[1]);
- return {tier:t.label,name:x[0],value:v,isMax:v===rg[1],text:`${x[0]} ${v}%`};
+ return {tier:t.label,name:x[0],value:v,isMax:v===35,text:`${x[0]} ${v}%`};
 }
 function midLine1(){return `${pick(["ATK","MATK"])} +${randint(10,150)}`}
 function midLine2(){
@@ -1413,17 +1423,24 @@ function midWandTrial(show=true){
    let f=midFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),`${f.text}｜${f.tier}${starroMaxTag(f.isMax)}`];
    mw.five.push({lines,value:f.value,isMax:f.isMax});
    if(f.isMax) starroSaiGaoBroadcast("頭中鑑定棒",f.text,mw.total,midWandCost.value);
-   if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
+   if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
  }else if(show)midWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderMidWand();
 }
 function midWandOnce(){midWandTrial(true)}
-function midWandBatch(n){for(let i=0;i<n;i++)midWandTrial(false);midWandNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderMidWand()}
+function midWandBatch(n){
+ const before=mw.five.length;
+ for(let i=0;i<n;i++)midWandTrial(false);
+ const added=mw.five.slice(before);
+ const best=added.slice().sort((a,b)=>b.value-a.value)[0];
+ midWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
+ renderMidWand();
+}
 function renderMidWand(){
  let c=Math.max(0,+midWandCost.value||0);
  midWandStats.innerHTML=card("累計鑑定",mw.total.toLocaleString())+card("5詞次數",mw.five.length.toLocaleString(),"ok")+card("累計花費",(mw.total*c).toLocaleString()+" 紅利");
- let a=mw.five.slice().sort((x,y)=>y.value-x.value).slice(0,20);
- midWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 20</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+ let a=mw.five.slice().sort((x,y)=>y.value-x.value).slice(0,10);
+ midWandFive.innerHTML=a.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
 }
 function resetMidWand(){mw={total:0,five:[]};midWandNow.innerHTML="";midWandStats.innerHTML="";midWandFive.innerHTML=""}
 
@@ -1465,7 +1482,7 @@ function lowFifth(){
   "對全體型魔物的物理攻擊增加","對全體型魔物的魔法攻擊增加"
  ];
  let name=pick(kinds),v=randint(t.range[0],t.range[1]);
- return {tier:t.label,name,value:v,isMax:v===t.range[1],text:`${name} ${v}%`};
+ return {tier:t.label,name,value:v,isMax:v===35,text:`${name} ${v}%`};
 }
 function lowLine1(){return `${pick(["ATK","MATK"])} +${randint(10,150)}`}
 function lowLine2(){
@@ -1489,17 +1506,24 @@ function lowWandTrial(show=true){
   let f=lowFifth(),lines=[lowLine1(),lowLine2(),lowLine3(),lowLine4(),`${f.text}｜${f.tier}${starroMaxTag(f.isMax)}`];
   lw.five.push({lines,value:f.value,isMax:f.isMax});
   if(f.isMax) starroSaiGaoBroadcast("頭下鑑定棒",f.text,lw.total,lowWandCost.value);
-  if(show)lowWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><br>${lines.join("<br>")}</div>`;
+  if(show)lowWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
  }else if(show)lowWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderLowWand();
 }
 function lowWandOnce(){lowWandTrial(true)}
-function lowWandBatch(n){for(let i=0;i<n;i++)lowWandTrial(false);lowWandNow.innerHTML=`<div class="stat"><b>已連抽 ${n} 次</b></div>`;renderLowWand()}
+function lowWandBatch(n){
+ const before=lw.five.length;
+ for(let i=0;i<n;i++)lowWandTrial(false);
+ const added=lw.five.slice(before);
+ const best=added.slice().sort((a,b)=>b.value-a.value)[0];
+ lowWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
+ renderLowWand();
+}
 function renderLowWand(){
  let c=Math.max(0,+lowWandCost.value||0);
  lowWandStats.innerHTML=card("累計鑑定",lw.total.toLocaleString())+card("5詞次數",lw.five.length.toLocaleString(),"ok")+card("累計花費",(lw.total*c).toLocaleString()+" 紅利");
- let a=lw.five.slice().sort((x,y)=>y.value-x.value).slice(0,20);
- lowWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 20</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+ let a=lw.five.slice().sort((x,y)=>y.value-x.value).slice(0,10);
+ lowWandFive.innerHTML=a.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
 }
 function resetLowWand(){lw={total:0,five:[]};lowWandNow.innerHTML="";lowWandStats.innerHTML="";lowWandFive.innerHTML=""}
 
@@ -1740,11 +1764,11 @@ function advWeaponOne(){
       draw:advWeaponState.draws,
       value:fourth,
       tier:rolled.tier,
-      isMax: fourth === [10,15,24,30][rolled.tier],
+      isMax: fourth === 30,
       lines:[...lines]
     });
 
-    if(fourth === [10,15,24,30][rolled.tier]){
+    if(fourth === 30){
       starroSaiGaoBroadcast("進階武器鑑定",`第4詞 全技能最終傷害 +${fourth}%`,advWeaponState.draws,ADV_WEAPON_COST);
     }
 
@@ -1766,7 +1790,7 @@ function advWeaponBatch(n){
       if(v>best){best=v;bestTier=tier;}
     }
   }
-  const bestIsMax=hit && best===[10,15,24,30][bestTier];
+  const bestIsMax=hit && best===30;
   document.getElementById("advWeaponNow").innerHTML=
     `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
     `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
@@ -1801,7 +1825,7 @@ function weaponChipOne(){
   weaponChipState.draws++;
   const rolled=advFinalDamageTierRoll(25);
   const value=rolled.value;
-  const isMax=value===[10,15,19,25][rolled.tier];
+  const isMax=value===25;
   weaponChipState.top.push({draw:weaponChipState.draws,value,tier:rolled.tier,isMax});
   if(isMax){
     starroSaiGaoBroadcast("武器指定晶片",`第5詞 全技能最終傷害 +${value}%`,weaponChipState.draws,WEAPON_CHIP_COST);
