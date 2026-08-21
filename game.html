@@ -972,18 +972,11 @@ a{color:#77a9ff}
 <section class="card event-game" id="dragonGateCard">
 <h2>🐉 射龍門</h2>
 <div class="tiny" style="line-height:1.9">
-  使用 A～K 共 13 種點數（A=1、J=11、Q=12、K=13）。先發兩張「龍門牌」，再依牌型處理。<br>
-  <b>龍門緊閉：</b>兩張牌點數相鄰，視為和局並自動重新發牌。<br>
-  <b>有龍門：</b>第3張落在兩張龍門牌之間 → 贏 <b>1.5 倍</b>；落在龍門外 → 輸 <b>50%</b>；與任一龍門牌同點 →「撞柱」輸 <b>100%</b>。<br>
-  <b>龍門對：</b>兩張牌同點，可選「壓大／壓小／射龍柱／棄牌」。壓大或壓小猜中贏 1.5 倍、猜錯輸 50%、同點撞柱輸 100%；射龍柱猜中同點贏 12 倍，否則輸 100%；棄牌損失 50%。
-</div>
-
-<div class="stat" style="margin-top:10px">
-  <span class="label">本局下注</span>
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
-    <input id="dragonBet" type="number" min="100" step="100" value="100000" style="max-width:180px">
-    <span class="tiny">P</span>
-  </div>
+  每把固定 <b>100 紅</b>。先發兩張龍門牌，看到牌後再自行決定是否射門。<br>
+  <b>放棄：</b>退回 50 紅，本局實際損失 50 紅。<br>
+  <b>龍門緊閉：</b>兩張牌點數相鄰，視為和局，不扣紅並自動重新發牌。<br>
+  <b>一般龍門：</b>射門後，第3張落在兩張龍門牌之間 → 贏 1.5 倍；落在龍門外 → 輸 50%；撞柱 → 輸 100%。<br>
+  <b>龍門對：</b>兩張牌同點，可選壓大／壓小／射龍柱／放棄。
 </div>
 
 <div class="actions" style="margin-top:10px">
@@ -991,11 +984,16 @@ a{color:#77a9ff}
   <button onclick="dragonReset()">清除紀錄</button>
 </div>
 
+<div id="dragonNormalChoices" class="actions" style="margin-top:10px;display:none">
+  <button class="primary" onclick="dragonShoot()">射門</button>
+  <button onclick="dragonFold()">放棄（退50紅）</button>
+</div>
+
 <div id="dragonPairChoices" class="actions" style="margin-top:10px;display:none">
   <button class="primary" onclick="dragonPairChoose('high')">壓大</button>
   <button onclick="dragonPairChoose('low')">壓小</button>
   <button onclick="dragonPairChoose('pillar')">射龍柱（賭11）</button>
-  <button onclick="dragonPairChoose('fold')">棄牌</button>
+  <button onclick="dragonPairChoose('fold')">放棄（退50紅）</button>
 </div>
 
 <div id="dragonNow" style="margin-top:12px"></div>
@@ -3513,6 +3511,8 @@ onSnapshot(q,snap=>{
 
 <script>
 /* ===== 射龍門 ===== */
+const DRAGON_BET=100;
+
 let dragonState={
   rounds:0,
   totalBet:0,
@@ -3531,31 +3531,31 @@ function dragonRank(){
 function dragonRankText(v){
   return v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v);
 }
-function dragonBetValue(){
-  const el=document.getElementById("dragonBet");
-  const v=Math.floor(Number(el.value)||0);
-  if(v<100){
-    alert("下注至少 100 P");
-    return null;
-  }
-  return v;
-}
 function dragonRenderStats(){
   const s=dragonState;
   const box=document.getElementById("dragonStats");
   if(!box)return;
   box.innerHTML=
+    card("每把下注",DRAGON_BET+" 紅")+
     card("正式局數",s.rounds.toLocaleString())+
-    card("累計下注",s.totalBet.toLocaleString()+" P")+
-    card("累計淨利",(s.net>=0?"+":"")+s.net.toLocaleString()+" P",s.net>=0?"ok":"bad")+
+    card("累計下注",s.totalBet.toLocaleString()+" 紅")+
+    card("累計淨利",(s.net>=0?"+":"")+s.net.toLocaleString()+" 紅",s.net>=0?"ok":"bad")+
     card("勝 / 負",`${s.wins} / ${s.losses}`)+
     card("撞柱",s.pillars.toLocaleString())+
     card("龍門對",s.pairs.toLocaleString())+
     card("龍門緊閉重發",s.closed.toLocaleString())+
     card("遊戲時間",typeof starroFormatPlayTime==="function"?starroFormatPlayTime(s.rounds):`${s.rounds*2} 分鐘`);
 }
+function dragonShowCards(a,b,extra=""){
+  document.getElementById("dragonNow").innerHTML=
+    `<div class="stat">`+
+    `<span class="label">龍門牌</span>`+
+    `<div style="font-size:32px;font-weight:800;margin:10px 0">${dragonRankText(a)}　／　${dragonRankText(b)}</div>`+
+    `<div class="tiny" style="line-height:1.8">${extra}</div>`+
+    `</div>`;
+}
 function dragonShowResult(a,b,c,title,detail,delta){
-  const netText=(delta>0?"+":"")+delta.toLocaleString()+" P";
+  const netText=(delta>0?"+":"")+delta.toLocaleString()+" 紅";
   document.getElementById("dragonNow").innerHTML=
     `<div class="stat">`+
     `<span class="label">龍門牌：${dragonRankText(a)}　／　${dragonRankText(b)}</span>`+
@@ -3564,21 +3564,27 @@ function dragonShowResult(a,b,c,title,detail,delta){
     `<div class="tiny" style="margin-top:6px;line-height:1.8">${detail}</div>`+
     `</div>`;
 }
-function dragonApply(delta,bet){
+function dragonApply(delta){
   dragonState.rounds++;
-  dragonState.totalBet+=bet;
+  dragonState.totalBet+=DRAGON_BET;
   dragonState.net+=delta;
   if(delta>0)dragonState.wins++;
   else if(delta<0)dragonState.losses++;
   dragonRenderStats();
 }
+function dragonClearChoices(){
+  const n=document.getElementById("dragonNormalChoices");
+  const p=document.getElementById("dragonPairChoices");
+  if(n)n.style.display="none";
+  if(p)p.style.display="none";
+}
 function dragonDeal(){
   if(dragonState.pending){
-    alert("目前是龍門對，請先選擇壓大／壓小／射龍柱／棄牌。");
+    alert("請先完成目前這一把。");
     return;
   }
-  const bet=dragonBetValue();
-  if(bet==null)return;
+
+  dragonClearChoices();
 
   let a,b;
   do{
@@ -3589,51 +3595,64 @@ function dragonDeal(){
 
   if(a>b)[a,b]=[b,a];
 
-  // 龍門對：先讓玩家選擇
+  dragonState.pending={a,b};
+
   if(a===b){
     dragonState.pairs++;
-    dragonState.pending={a,b,bet};
     document.getElementById("dragonPairChoices").style.display="flex";
-    document.getElementById("dragonNow").innerHTML=
-      `<div class="stat">`+
-      `<span class="label">🐉 龍門對</span>`+
-      `<div style="font-size:28px;font-weight:800;margin-top:8px">${dragonRankText(a)}　／　${dragonRankText(b)}</div>`+
-      `<div class="tiny" style="margin-top:8px">請選擇：壓大、壓小、射龍柱或棄牌。</div>`+
-      `</div>`;
-    dragonRenderStats();
-    return;
+    dragonShowCards(a,b,"🐉 龍門對：請選擇壓大、壓小、射龍柱或放棄。");
+  }else{
+    document.getElementById("dragonNormalChoices").style.display="flex";
+    dragonShowCards(a,b,"看完兩張牌後，請選擇「射門」或「放棄」。");
   }
+  dragonRenderStats();
+}
+function dragonFold(){
+  const p=dragonState.pending;
+  if(!p)return;
+  dragonApply(-50);
+  dragonShowResult(p.a,p.b,null,"放棄","退回 50 紅，本局實際損失 50 紅。",-50);
+  dragonState.pending=null;
+  dragonClearChoices();
+}
+function dragonShoot(){
+  const p=dragonState.pending;
+  if(!p || p.a===p.b)return;
 
+  const {a,b}=p;
   const c=dragonRank();
   let delta=0,title="",detail="";
+
   if(c>a && c<b){
-    delta=Math.round(bet*1.5);
+    delta=150;
     title="🎯 射中龍門";
-    detail="第3張落在兩張龍門牌之間，贏得 1.5 倍下注額。";
+    detail="第3張落在兩張龍門牌之間，贏得 1.5 倍：+150 紅。";
   }else if(c===a || c===b){
-    delta=-bet;
+    delta=-100;
     dragonState.pillars++;
     title="💥 撞柱";
-    detail="第3張與其中一張龍門牌同點，輸掉 100% 下注額。";
+    detail="第3張與其中一張龍門牌同點，輸掉 100 紅。";
   }else{
-    delta=-Math.round(bet*0.5);
+    delta=-50;
     title="龍門外";
-    detail="第3張落在龍門外，輸掉 50% 下注額。";
+    detail="第3張落在龍門外，輸掉 50 紅。";
   }
-  dragonApply(delta,bet);
+
+  dragonApply(delta);
   dragonShowResult(a,b,c,title,detail,delta);
+  dragonState.pending=null;
+  dragonClearChoices();
 }
 function dragonPairChoose(choice){
   const p=dragonState.pending;
-  if(!p)return;
-  const {a,b,bet}=p;
+  if(!p || p.a!==p.b)return;
+  const {a,b}=p;
 
   if(choice==="fold"){
-    const delta=-Math.round(bet*0.5);
-    dragonApply(delta,bet);
-    dragonShowResult(a,b,null,"棄牌","取回 50% 下注額，本局損失 50%。",delta);
+    dragonApply(-50);
+    dragonShowResult(a,b,null,"放棄","退回 50 紅，本局實際損失 50 紅。",-50);
     dragonState.pending=null;
-    document.getElementById("dragonPairChoices").style.display="none";
+    dragonClearChoices();
     return;
   }
 
@@ -3642,44 +3661,44 @@ function dragonPairChoose(choice){
 
   if(choice==="pillar"){
     if(c===a){
-      delta=bet*12;
+      delta=1200;
       title="🐉 射中龍柱";
-      detail="第3張與龍門對同點，贏得 12 倍下注額。";
+      detail="第3張與龍門對同點，贏得 12 倍：+1,200 紅。";
     }else{
-      delta=-bet;
+      delta=-100;
       title="射龍柱失敗";
-      detail="第3張沒有與龍門對同點，輸掉 100% 下注額。";
+      detail="第3張沒有與龍門對同點，輸掉 100 紅。";
     }
   }else{
     const isHigh=choice==="high";
     if(c===a){
-      delta=-bet;
+      delta=-100;
       dragonState.pillars++;
       title="💥 撞柱";
-      detail="第3張與龍門牌同點，輸掉 100% 下注額。";
+      detail="第3張與龍門牌同點，輸掉 100 紅。";
     }else{
       const correct=isHigh ? c>a : c<a;
       if(correct){
-        delta=Math.round(bet*1.5);
+        delta=150;
         title=isHigh?"壓大成功":"壓小成功";
-        detail="方向判斷正確，贏得 1.5 倍下注額。";
+        detail="方向判斷正確，贏得 1.5 倍：+150 紅。";
       }else{
-        delta=-Math.round(bet*0.5);
+        delta=-50;
         title=isHigh?"壓大失敗":"壓小失敗";
-        detail="方向判斷錯誤，輸掉 50% 下注額。";
+        detail="方向判斷錯誤，輸掉 50 紅。";
       }
     }
   }
 
-  dragonApply(delta,bet);
+  dragonApply(delta);
   dragonShowResult(a,b,c,title,detail,delta);
   dragonState.pending=null;
-  document.getElementById("dragonPairChoices").style.display="none";
+  dragonClearChoices();
 }
 function dragonReset(){
   dragonState={rounds:0,totalBet:0,net:0,wins:0,losses:0,closed:0,pillars:0,pairs:0,pending:null};
   document.getElementById("dragonNow").innerHTML="";
-  document.getElementById("dragonPairChoices").style.display="none";
+  dragonClearChoices();
   dragonRenderStats();
 }
 setTimeout(dragonRenderStats,0);
