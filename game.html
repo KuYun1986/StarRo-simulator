@@ -809,6 +809,16 @@ a{color:#77a9ff}
   <div class="tiny" style="margin-top:6px">最多同時下注 <b>4 種不同顏色</b>；四色合計每局不可超過 <b>5,000 紅</b>。</div>
 </div>
 
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">下注方式</span>
+  <div class="actions" style="margin-top:8px">
+    <button id="bjBetPBtn" class="primary" onclick="bjSetBetMode('p')">10,000 P</button>
+    <button id="bjBetRedBtn" onclick="bjSetBetMode('red')">1,000 紅</button>
+  </div>
+  <div class="tiny" style="margin-top:6px">目前下注：<b id="bjBetModeText">10,000 P</b></div>
+</div>
+
 <div class="actions" style="margin-top:10px">
   <button class="primary" onclick="marqueePlay(1)">轉 1 次</button>
   <button onclick="marqueePlay(10)">轉 10 次</button>
@@ -2399,8 +2409,29 @@ function marqueeReset(){
 }
 
 /* ===== 21點 ===== */
-let bjState={chips:2000000,deck:[],player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
+let bjState={chips:500000,w:0,l:0,p:0,rounds:0,netP:0,netRed:0};
+let bjBetMode="p";
 
+
+function bjBetAmount(){
+  return bjBetMode==="red" ? 1000 : 10000;
+}
+function bjBetUnit(){
+  return bjBetMode==="red" ? "紅" : "P";
+}
+function bjSetBetMode(mode){
+  bjBetMode=mode==="red"?"red":"p";
+  const pBtn=document.getElementById("bjBetPBtn");
+  const rBtn=document.getElementById("bjBetRedBtn");
+  const txt=document.getElementById("bjBetModeText");
+  if(pBtn)pBtn.classList.toggle("primary",bjBetMode==="p");
+  if(rBtn)rBtn.classList.toggle("primary",bjBetMode==="red");
+  if(txt)txt.textContent=bjBetMode==="red"?"1,000 紅":"10,000 P";
+}
+function bjApplyNet(delta){
+  if(bjBetMode==="red") bjState.netRed=(bjState.netRed||0)+delta;
+  else bjState.netP=(bjState.netP||0)+delta;
+}
 function bjBuildDeck(){
  const ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
  let d=[];
@@ -2442,7 +2473,7 @@ function bjRender(hideDealer=true,msg=""){
 }
 function bjNewRound(){
  if(bjState.active)return;
- let bet=10000;
+ let bet=bjBetAmount();
  if(bet>bjState.chips)return alert("籌碼不足");
  if(!bjState.deck.length)bjState.deck=bjBuildDeck();
  bjState.bet=bet;bjState.chips-=bet;bjState.player=[bjDraw(),bjDraw()];bjState.dealer=[bjDraw(),bjDraw()];bjState.active=true;bjState.rounds++;
@@ -2584,7 +2615,7 @@ function ttPlay(){
    if(cmp>0){
      ttState.w++;
      delta=TT_BET;
-     result=`玩家勝｜+${delta.toLocaleString()} P`;
+     result=`玩家勝｜+${delta.toLocaleString()} ${bjBetUnit()}`;
    }else{
      ttState.l++;
      delta=-TT_BET;
