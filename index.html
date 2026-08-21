@@ -1407,6 +1407,26 @@ function midTier(){
  for(const t of midTierData){r-=t.p;if(r<0)return t}
  return midTierData[0];
 }
+
+function midWandFifth(){
+  const kinds=[
+    ["對種族魔物的物理攻擊增加",5,35],
+    ["對種族魔物的魔法攻擊增加",5,35],
+    ["對屬性魔物的物理攻擊增加",5,35],
+    ["對屬性魔物的魔法攻擊增加",5,35],
+    ["對首領類魔物的物理攻擊增加",5,35],
+    ["對首領類魔物的魔法攻擊增加",5,35]
+  ];
+  const x=pick(kinds);
+  const v=randint(x[1],x[2]);
+  return {
+    name:x[0],
+    value:v,
+    isMax:v===35,
+    text:`${x[0]} ${v}%${starroMaxTag(v===35)}`
+  };
+}
+
 function midFifth(){
  let t=midTier();
  let kinds=[
@@ -1435,7 +1455,7 @@ function midWandTrial(show=true){
  mw.total++;let r=Math.random(),n=1;
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
-   let f=midFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),`${f.text}｜${starroTierDisplayLabel(f.tier)}${starroMaxTag(f.isMax)}`];
+   let f=midWandFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),f.text];
    mw.five.push({lines,value:f.value,isMax:f.isMax});
    if(f.isMax) starroSaiGaoBroadcast("頭中鑑定棒",f.text,mw.total,midWandCost.value);
    if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
