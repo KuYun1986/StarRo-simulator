@@ -262,6 +262,7 @@ a{color:#77a9ff}
 <a href="index.html" class="game-page-link">← 回主頁</a>
 <button onclick="jumpWash('華金一條龍(鎧甲/戰靴)')">🔥 鎧甲 / 戰靴</button>
 <button onclick="jumpWash('華金一條龍(耳環/飾品)')">💎 耳環 / 飾品</button>
+<button onclick="jumpWash('競標針')">🪡 競標針</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div class="grid">
@@ -309,6 +310,63 @@ a{color:#77a9ff}
 
 
 </section>
+
+<section class="card" id="auctionNeedleCard">
+<h2>🪡 競標針</h2>
+<p class="tiny">
+每次 <b>19 紅利</b>。固定取得第1詞；第2詞出現率 50%；只有出現第2詞後才判定第3詞 10%。<br>
+同一詞池內所有能力皆為等機率，數值於該能力範圍內等機率隨機。
+</p>
+
+<div class="actions">
+  <button class="primary" onclick="auctionNeedleBatch(1)">洗 1 次</button>
+  <button onclick="auctionNeedleBatch(10)">連洗 10 次</button>
+  <button onclick="auctionNeedleBatch(100)">連洗 100 次</button>
+  <button class="primary" onclick="auctionNeedleUntilSpecial()">洗到特殊詞</button>
+  <button onclick="auctionNeedleReset()">清除紀錄</button>
+</div>
+
+<div id="auctionNeedleNow" style="margin-top:12px"></div>
+<div id="auctionNeedleStats" class="statgrid" style="margin-top:10px"></div>
+<div id="auctionNeedleTop3" style="margin-top:10px"></div>
+<div id="auctionNeedleRecent" style="margin-top:10px"></div>
+
+<details style="margin-top:12px">
+  <summary style="cursor:pointer;font-weight:700">查看目前詞池</summary>
+  <div class="tiny" style="line-height:1.85;margin-top:10px">
+    <b>第1詞（固定出現）</b><br>
+    STR / AGI / VIT / INT / DEX / LUK +1～10<br>
+    MHP / MSP +5～25%<br>
+    ATK / MATK +5～15%<br>
+    DEF / MDEF +5～50、CRI +1～30、完全迴避 +1～10<br>
+    遠距離攻擊增加 +5～25%、近距離物理傷害 +5～25%、全屬性魔法傷害 +5～25%<br>
+    武器不可破壞、鎧甲不可破壞、刪除對武器大小的懲罰、不會被擊退<br>
+    首領類怪物物理防禦忽視 35～65%、首領類怪物魔法防禦忽視 35～65%<br><br>
+
+    <b>第2詞（50%）</b><br>
+    POW / SPL / STA / WIS / CON / CRT +1～10<br>
+    P.ATK / S.MATK / H.PLUS / C.RATE +1～10<br>
+    受到遠距離攻擊傷害減少 +1～5%、受到近距離物理傷害減少 +1～5%<br>
+    對所有屬性攻擊的抗性 +1～5%、變動施法時間減少 +5～25%、技能後延遲減少 +5～25%<br>
+    對首領 / 全體型 / 屬性 / 種族魔物的物理或魔法攻擊增加 +1～15%<br>
+    對所有種族 / 階級 / 體型攻擊的抗性 +1～5%<br>
+    減少物理 / 魔法反射傷害 +15～65%（15～49%=80%、50～59%=15%、60～65%=5%）<br>
+    無視所有種族 15～65% 物理抗性 / 魔法抗性（15～49%=80%、50～59%=15%、60～65%=5%；50%以上特殊）<br><br>
+
+    <b>第3詞（10%）</b><br><span class="ok">⭐ 下列藍字/指定效果皆列為特殊詞</span><br>
+    對首領 / 全體型 / 屬性 / 種族魔物的物理或魔法攻擊增加 +1～15%<br>
+    全屬性增加 +1～10、全特殊屬性增加 +1～5<br>
+    移動速度 +5～65%、誘導攻擊 +0～30%<br>
+    減少物理 / 魔法反射傷害 +15～65%（15～49%=80%、50～59%=15%、60～65%=5%；第2詞＋第3詞同類合計50%以上，或單條50%以上特殊）、掉落率 +1～10%（+5%以上特殊）<br>
+    技能冷卻時間減少 100MS～300MS（150MS以上特殊）、雜物掉落量增加 +1～2（+2特殊）<br>
+    精煉成功率增加 +1～3%（+3%特殊）、升階成功率增加 +1～5%（+5%特殊）、ASPD上限增加 +1～2<br>
+    抗性上限 +1～9%（不可疊加）<br>
+    無視魔法效果解除、死亡時身上的技能BUFF效果不會被清除<br>
+    10～50% 機率反射單體魔法
+  </div>
+</details>
+</section>
+
 </div>
 
 <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
@@ -3146,4 +3204,343 @@ function jumpWash(keyword){
   if(t)t.scrollIntoView({behavior:"smooth",block:"start"});
 }
 </script>
+
+<script>
+/* ===== 競標針 ===== */
+const AUCTION_NEEDLE_COST=19;
+
+const auctionNeedlePool1=[
+  ["STR",1,10,""],["AGI",1,10,""],["VIT",1,10,""],["INT",1,10,""],["DEX",1,10,""],["LUK",1,10,""],
+  ["MHP",5,25,"%"],["MSP",5,25,"%"],["ATK",5,15,"%"],["MATK",5,15,"%"],
+  ["DEF",5,50,""],["MDEF",5,50,""],["CRI",1,30,""],["完全迴避",1,10,""],
+  ["遠距離攻擊增加",5,25,"%"],["近距離物理傷害增加",5,25,"%"],["全屬性魔法傷害增加",5,25,"%"],
+  ["武器不可破壞",null,null,""],["鎧甲不可破壞",null,null,""],["刪除對武器大小的懲罰",null,null,""],["不會被擊退",null,null,""],
+  ["首領類怪物的物理防禦忽視",35,65,"%"],["首領類怪物的魔法防禦忽視",35,65,"%"]
+];
+
+const auctionNeedlePool2=[
+  ["POW",1,10,""],["SPL",1,10,""],["STA",1,10,""],["WIS",1,10,""],["CON",1,10,""],["CRT",1,10,""],
+  ["P.ATK",1,10,""],["S.MATK",1,10,""],["H.PLUS",1,10,""],["C.RATE",1,10,""],
+  ["受到遠距離攻擊傷害減少",1,5,"%"],["受到近距離物理傷害減少",1,5,"%"],["對所有屬性攻擊的抗性",1,5,"%"],
+  ["變動施法時間減少",5,25,"%"],["技能的後延遲減少",5,25,"%"],
+  ["對首領類魔物的物理攻擊增加",1,15,"%"],["對首領類魔物的魔法攻擊增加",1,15,"%"],
+  ["對全體型魔物的物理攻擊增加",1,15,"%"],["對全體型魔物的魔法攻擊增加",1,15,"%"],
+  ["對屬性魔物的物理攻擊增加",1,15,"%"],["對屬性魔物的魔法攻擊增加",1,15,"%"],
+  ["對種族魔物的物理攻擊增加",1,15,"%"],["對種族魔物的魔法攻擊增加",1,15,"%"],
+  ["對所有種族攻擊的抗性",1,5,"%"],["對所有階級攻擊的抗性",1,5,"%"],["對所有體型攻擊的抗性",1,5,"%"],
+  ["減少物理反射傷害",15,65,"%"],["減少魔法反射傷害",15,65,"%"],
+  ["無視所有種族物理抗性",15,65,"%"],["無視所有種族魔法抗性",15,65,"%"]
+];
+
+// 第3詞普通池：特殊兩詞不放在等機率池內。
+// 規則：先判定第3詞是否出現（10%），若出現，再各自以0.01%判定兩個特殊詞。
+// 若兩個特殊詞都沒中，再從普通第3詞池等機率抽一條。
+const auctionNeedlePool3Normal=[
+  ["對首領類魔物的物理攻擊增加",1,15,"%"],
+  ["對首領類魔物的魔法攻擊增加",1,15,"%"],
+  ["對全體型魔物的物理攻擊增加",1,15,"%"],
+  ["對全體型魔物的魔法攻擊增加",1,15,"%"],
+  ["對屬性魔物的物理攻擊增加",1,15,"%"],
+  ["對屬性魔物的魔法攻擊增加",1,15,"%"],
+  ["對種族魔物的物理攻擊增加",1,15,"%"],
+  ["對種族魔物的魔法攻擊增加",1,15,"%"],
+  ["全屬性增加",1,10,""],
+  ["全特殊屬性增加",1,5,""],
+  ["移動速度",5,65,"%"],
+  ["誘導攻擊",0,30,"%"],
+  ["減少物理反射傷害",15,65,"%"],
+  ["減少魔法反射傷害",15,65,"%"],
+  ["掉落率",1,10,"%"],
+  ["技能冷卻時間減少",100,300,"MS"],
+  ["雜物掉落量增加",1,2,""],
+  ["精煉成功率增加",1,3,"%"],
+  ["升階成功率增加",1,5,"%"],
+  ["ASPD上限增加",1,2,""],
+  ["抗性上限",1,9,"%（不可疊加）"],
+  ["反射單體魔法機率",10,50,"%"]
+];
+
+const AUCTION_SPECIAL_MAGIC="無視魔法效果解除";
+const AUCTION_SPECIAL_BUFF="死亡時身上的技能BUFF效果不會被清除";
+
+const AUCTION_SPECIAL_KEYWORDS=[
+  "ASPD上限增加",
+  AUCTION_SPECIAL_MAGIC,
+  AUCTION_SPECIAL_BUFF
+];
+
+function auctionNeedleReflectTotal(lines,type){
+  const prefix=type==="physical" ? "減少物理反射傷害 +" : "減少魔法反射傷害 +";
+  let total=0;
+  for(const text of lines){
+    if(text.startsWith(prefix)){
+      const m=text.match(/\+(\d+)%/);
+      if(m) total+=Number(m[1]);
+    }
+  }
+  return total;
+}
+
+function auctionNeedleReflectSpecial(lines){
+  const physical=auctionNeedleReflectTotal(lines,"physical");
+  const magical=auctionNeedleReflectTotal(lines,"magical");
+  return {
+    special: physical>=50 || magical>=50,
+    physical,
+    magical,
+    label: physical>=50
+      ? `減少物理反射傷害合計 ${physical}%`
+      : magical>=50
+        ? `減少魔法反射傷害合計 ${magical}%`
+        : ""
+  };
+}
+
+function auctionNeedleIsSpecialText(text){
+  if(text.startsWith("抗性上限 +")){
+    const m=text.match(/抗性上限 \+(\d+)%/);
+    if(m){
+      const v=Number(m[1]);
+      return v===8 || v===9;
+    }
+  }
+
+  // 無視所有種族物理/魔法抗性：50%以上才列入特殊詞
+  if(text.startsWith("無視所有種族物理抗性 +") || text.startsWith("無視所有種族魔法抗性 +")){
+    const m=text.match(/\+(\d+)%/);
+    if(m){
+      return Number(m[1]) >= 50;
+    }
+  }
+
+  // 精煉成功率：只有 +3% 列入特殊詞
+  if(text.startsWith("精煉成功率增加 +")){
+    const m=text.match(/\+(\d+)%/);
+    return !!m && Number(m[1]) === 3;
+  }
+
+  // 升階成功率：只有 +5% 列入特殊詞
+  if(text.startsWith("升階成功率增加 +")){
+    const m=text.match(/\+(\d+)%/);
+    return !!m && Number(m[1]) === 5;
+  }
+
+  // 雜物掉落量：只有 +2 列入特殊詞
+  if(text.startsWith("雜物掉落量增加 +")){
+    const m=text.match(/\+(\d+)/);
+    return !!m && Number(m[1]) === 2;
+  }
+
+  // 技能冷卻：150MS以上列入特殊詞
+  if(text.startsWith("技能冷卻時間減少 ")){
+    const m=text.match(/(\d+)MS/);
+    return !!m && Number(m[1]) >= 150;
+  }
+
+  // 掉落率：+5%以上列入特殊詞
+  if(text.startsWith("掉落率 +")){
+    const m=text.match(/\+(\d+)%/);
+    return !!m && Number(m[1]) >= 5;
+  }
+
+
+  return AUCTION_SPECIAL_KEYWORDS.some(k=>text.includes(k));
+}
+
+let auctionNeedleState={
+  draws:0,
+  second:0,
+  third:0,
+  specialMagic:0,
+  specialBuff:0,
+  recent:[],
+  threeResults:[]
+};
+
+function auctionNeedleInt(min,max){
+  return min+Math.floor(Math.random()*(max-min+1));
+}
+function auctionNeedlePick(pool){
+  const x=pool[Math.floor(Math.random()*pool.length)];
+  if(x[1]===null)return x[0];
+
+  let value;
+
+  const weightedResistanceNames=new Set([
+    "減少物理反射傷害",
+    "減少魔法反射傷害",
+    "無視所有種族物理抗性",
+    "無視所有種族魔法抗性"
+  ]);
+
+  // 指定四種詞條的數值分布：
+  // 15～49 = 80%
+  // 50～59 = 15%
+  // 60～65 = 5%
+  if(weightedResistanceNames.has(x[0])){
+    const r=Math.random();
+    if(r<0.80){
+      value=auctionNeedleInt(15,49);
+    }else if(r<0.95){
+      value=auctionNeedleInt(50,59);
+    }else{
+      value=auctionNeedleInt(60,65);
+    }
+  }else{
+    value=auctionNeedleInt(x[1],x[2]);
+  }
+
+  if(x[3]==="MS") return `${x[0]} ${value}MS`;
+  return `${x[0]} +${value}${x[3]}`;
+}
+function auctionNeedleThird(){
+  // 第3詞已經通過10%出現判定後：
+  // 特殊詞各自0.5%，以獨立判定處理；若同時中，隨機取其中一條，確保第3詞仍只有一條。
+  const magic=Math.random()<0.005;
+  const buff=Math.random()<0.005;
+
+  if(magic && buff){
+    if(Math.random()<0.5){
+      auctionNeedleState.specialMagic++;
+      return {text:AUCTION_SPECIAL_MAGIC,special:true,rank:3};
+    }else{
+      auctionNeedleState.specialBuff++;
+      return {text:AUCTION_SPECIAL_BUFF,special:true,rank:3};
+    }
+  }
+  if(magic){
+    auctionNeedleState.specialMagic++;
+    return {text:AUCTION_SPECIAL_MAGIC,special:true,rank:3};
+  }
+  if(buff){
+    auctionNeedleState.specialBuff++;
+    return {text:AUCTION_SPECIAL_BUFF,special:true,rank:3};
+  }
+
+  const normalText=auctionNeedlePick(auctionNeedlePool3Normal);
+  return {text:normalText,special:auctionNeedleIsSpecialText(normalText),rank:1};
+}
+function auctionNeedleOnce(){
+  const lines=[auctionNeedlePick(auctionNeedlePool1)];
+  let special=false;
+
+  if(Math.random()<0.50){
+    const secondText=auctionNeedlePick(auctionNeedlePool2);
+    lines.push(secondText);
+    auctionNeedleState.second++;
+    if(auctionNeedleIsSpecialText(secondText)) special=true;
+
+    if(Math.random()<0.10){
+      const third=auctionNeedleThird();
+      lines.push(third.text);
+      auctionNeedleState.third++;
+      special=special || third.special;
+    }
+  }
+
+  const reflectSpecial=auctionNeedleReflectSpecial(lines);
+  special = special || reflectSpecial.special;
+
+  auctionNeedleState.draws++;
+  const rec={
+    draw:auctionNeedleState.draws,
+    lines,
+    special,
+    specialLabel: reflectSpecial.special ? reflectSpecial.label : "",
+    score:(special?1000000:0) + lines.length*1000
+  };
+
+  auctionNeedleState.recent.unshift(rec);
+  auctionNeedleState.recent=auctionNeedleState.recent.slice(0,10);
+
+  if(lines.length===3){
+    auctionNeedleState.threeResults.push(rec);
+    auctionNeedleState.threeResults.sort((a,b)=>b.score-a.score || a.draw-b.draw);
+    auctionNeedleState.threeResults=auctionNeedleState.threeResults.slice(0,10);
+  }
+
+  return rec;
+}
+function auctionNeedleBatch(n){
+  let last=null,three=[];
+  for(let i=0;i<n;i++){
+    last=auctionNeedleOnce();
+    if(last.lines.length===3)three.push(last);
+  }
+
+  const now=document.getElementById("auctionNeedleNow");
+  now.innerHTML=
+    `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次｜花費 ${(n*AUCTION_NEEDLE_COST).toLocaleString()} 紅利</span>`+
+    `<div style="line-height:1.9;margin-top:8px"><b>最後一次</b><br>`+
+    last.lines.map((x,i)=>`${i+1}. ${x}`).join("<br>")+
+    `${three.length?`<br><br><b class="ok">本批出現 3 詞：${three.length} 次</b>`:""}`+
+    `</div></div>`;
+
+  auctionNeedleRender();
+}
+function auctionNeedleUntilSpecial(){
+  let tries=0;
+  let rec=null;
+
+  do{
+    tries++;
+    rec=auctionNeedleOnce();
+  }while(!rec.special);
+
+  const hit=rec.specialLabel || rec.lines.find(x=>auctionNeedleIsSpecialText(x)) || rec.lines[rec.lines.length-1] || "";
+
+  document.getElementById("auctionNeedleNow").innerHTML=
+    `<div class="stat"><span class="label">洗到特殊詞｜依原始機率實際模擬</span>`+
+    `<div style="line-height:1.9;margin-top:8px">`+
+    `<b class="ok">第 ${tries.toLocaleString()} 抽洗到：${hit}</b><br>`+
+    rec.lines.map((x,i)=>`${i+1}. ${x}`).join("<br>")+
+    `<br><br>本次花費 ${(tries*AUCTION_NEEDLE_COST).toLocaleString()} 紅利`+
+
+    `</div></div>`;
+
+  auctionNeedleRender();
+}
+function auctionNeedleRender(){
+  const s=auctionNeedleState;
+
+  document.getElementById("auctionNeedleStats").innerHTML=
+    card("累計洗詞",s.draws.toLocaleString())+
+    card("累計花費",(s.draws*AUCTION_NEEDLE_COST).toLocaleString()+" 紅利")+
+    card("第2詞出現",s.second.toLocaleString())+
+    card("第3詞出現",s.third.toLocaleString(),"ok")+
+    card("魔法效果解除",s.specialMagic.toLocaleString())+
+    card("死亡不掉BUFF",s.specialBuff.toLocaleString());
+
+  const top=s.threeResults.slice(0,10);
+  document.getElementById("auctionNeedleTop3").innerHTML=
+    top.length
+      ? `<div class="stat"><span class="label">🏆 3詞結果 TOP 10</span>`+
+        `<div class="tiny" style="line-height:1.9;margin-top:8px">`+
+        top.map((x,i)=>
+          `<div style="padding:8px 0;border-bottom:1px solid var(--line)">`+
+          `<b>#${i+1}｜第 ${x.draw.toLocaleString()} 次${x.special?'｜⭐ 特殊詞':''}</b><br>`+
+          x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")+
+          `</div>`
+        ).join("")+
+        `</div></div>`
+      : "";
+
+  document.getElementById("auctionNeedleRecent").innerHTML=
+    s.recent.length
+      ? `<div class="stat"><span class="label">最近 10 次</span><div class="tiny" style="line-height:1.9;margin-top:8px">`+
+        s.recent.map(x=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>#${x.draw}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")+
+        `</div></div>`
+      : "";
+}
+function auctionNeedleReset(){
+  auctionNeedleState={
+    draws:0,second:0,third:0,specialMagic:0,specialBuff:0,recent:[],threeResults:[]
+  };
+  document.getElementById("auctionNeedleNow").innerHTML="";
+  document.getElementById("auctionNeedleStats").innerHTML="";
+  document.getElementById("auctionNeedleTop3").innerHTML="";
+  document.getElementById("auctionNeedleRecent").innerHTML="";
+}
+</script>
+
 </body></html>
