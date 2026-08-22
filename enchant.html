@@ -293,9 +293,9 @@ a{color:#77a9ff}
 <h1>✨ 繁星附魔區</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <a href="index.html" class="game-nav-link">← 回模擬器</a>
-<button onclick="starroEnchantJump('時光超越靴附魔')">💎 時光靴</button>
 <button onclick="starroEnchantJump('龍甲附魔')">🐉 龍甲</button>
 <button onclick="starroEnchantJump('善惡武器附魔')">⚔️ 善惡武器</button>
+<button onclick="starroEnchantJump('時光超越靴附魔')">💎 時光超越靴</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -3690,7 +3690,7 @@ function starroEnchantJump(keyword){
   if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
 }
 (function(){
-  const wanted=["時光超越靴附魔","龍甲附魔","善惡武器附魔"];
+  const wanted=["龍甲附魔","善惡武器附魔","時光超越靴附魔"];
   const sections=[...document.querySelectorAll("section.enchant-card")];
   if(!sections.length)return;
   const parent=sections[0].parentElement;
