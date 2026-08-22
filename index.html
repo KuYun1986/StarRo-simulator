@@ -259,6 +259,7 @@ a{color:#77a9ff}
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
 
 <a href="game.html" class="game-page-link">🎮 遊戲區</a>
+<a href="wash.html" class="game-page-link">🧪 洗詞區</a>
 <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
 <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
 </div>
@@ -397,50 +398,9 @@ a{color:#77a9ff}
 
 
 
-<section class="card">
-<h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
-<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
-<div class="row"><span>每次洗詞花費</span><input id="huajinCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="runHuajinOnce()">🎲 洗一次華金</button>
-<button onclick="runHuajinBatch(10)">連洗 10 次</button>
-<button onclick="runHuajinBatch(100)">連洗 100 次</button>
-<button onclick="resetHuajin()">清除紀錄</button>
-</div>
-<div id="huajinNow" style="margin-top:14px"></div>
-<div id="huajinDist" style="margin-top:10px"></div>
-<div id="huajinStats" class="statgrid"></div>
 
 
 
-
-
-
-
-</section>
-
-<section class="card">
-<h2>💎 華金一條龍(耳環/飾品)</h2>
-<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽「全技能傷害 +1%～+20%」。</p>
-<div class="row"><span>每次洗詞花費</span><input id="accessoryCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="runAccessoryOnce()">🎲 洗一次華金</button>
-<button onclick="runAccessoryBatch(10)">連洗 10 次</button>
-<button onclick="runAccessoryBatch(100)">連洗 100 次</button>
-<button onclick="resetAccessory()">清除紀錄</button>
-</div>
-<div id="accessoryNow" style="margin-top:14px"></div>
-<div id="accessoryDist" style="margin-top:10px"></div>
-<div id="accessoryStats" class="statgrid"></div>
-
-
-
-
-
-
-
-
-</section>
 
 
 
