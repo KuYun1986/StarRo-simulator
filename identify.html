@@ -865,7 +865,7 @@ function rollWandBatch(n){
    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
    `5詞出現 ${added.length} 次`+
    `${best
-      ? `<br><b class="ok">本批最頂</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
+      ? `<br><b class="ok">本批最高</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
       : `｜未出5詞`}`+
    `</div></div>`;
 
@@ -973,7 +973,7 @@ function shoeWandBatch(n){
    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
    `5詞出現 ${added.length} 次`+
    `${best
-      ? `<br><b class="ok">本批最頂</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
+      ? `<br><b class="ok">本批最高</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
       : `｜未出5詞`}`+
    `</div></div>`;
 
@@ -1569,7 +1569,7 @@ function advWeaponBatch(n){
     `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
     `第4詞出現 ${hit} 次`+
     `${bestRec
-      ? `<br><b class="ok">本批最頂｜全技能最終傷害 +${bestRec.value}%｜${starroTierDisplayByIndex(bestRec.tier)}${starroMaxTag(bestRec.isMax)}</b>`+
+      ? `<br><b class="ok">本批最高｜全技能最終傷害 +${bestRec.value}%｜${starroTierDisplayByIndex(bestRec.tier)}${starroMaxTag(bestRec.isMax)}</b>`+
         `<br>${bestRec.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
       : `｜未出第4詞`}`+
     `<br>本次花費 ${(n*ADV_WEAPON_COST).toLocaleString()} 紅利`+
