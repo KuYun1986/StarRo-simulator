@@ -276,22 +276,14 @@ a{color:#77a9ff}
   .top-group-menu{position:fixed;left:12px;right:12px;top:auto;min-width:0}
 }
 </style>
+<style>.main-enchant-hidden{display:none!important}</style>
 </head>
 <body><div class="wrap">
 <h1>🌟 繁星仙境模擬器</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
-
-
-<details class="top-group">
-  <summary>✨ 附魔</summary>
-  <div class="top-group-menu">
-    <button onclick="starroJumpTo('龍甲附魔')">🐉 龍甲</button>
-    <button onclick="starroJumpTo('善惡武器附魔')">⚔️ 善惡武器</button>
-    <button onclick="starroJumpTo('時光超越靴附魔')">💎 時光靴</button>
-  </div>
-</details>
+<a href="enchant.html" class="game-page-link">✨ 附魔區</a>
 
 <details class="top-group">
   <summary>🔍 鑑定</summary>
@@ -318,7 +310,7 @@ a{color:#77a9ff}
 </div>
 
 
-<section class="card">
+<section class="card main-enchant-hidden">
 <h2>完整流程</h2>
 <p class="tiny">目前只保留精煉 1% 流程。</p>
 <div id="steps"></div>
