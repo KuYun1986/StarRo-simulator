@@ -394,8 +394,8 @@ a{color:#77a9ff}
 <p class="tiny">鑑定魔法棒先抽 1～5 詞；只有出現第5詞才抽下方素質。指定魔法書固定為5詞，直接抽第5詞素質。數值區間內目前採整數等機率。</p>
 <div class="actions">
 <button class="primary" onclick="rollAccessoryIdentify('wand')">🪄 鑑定棒抽一次</button>
-<button onclick="rollWandBatch(10)">鑑定棒連抽10次</button>
-<button onclick="rollWandBatch(100)">鑑定棒連抽100次</button>
+<button onclick="rollWandBatch(10)">連抽10次</button>
+<button onclick="rollWandBatch(100)">連抽100次</button>
 <button onclick="resetIdentify()">清除紀錄</button>
 </div>
 <div id="identifyNow" style="margin-top:14px"></div>
@@ -848,7 +848,7 @@ function renderIdentify(){
  identifyDist.innerHTML=(tierTxt?`<div class="stat"><span class="label">階級分布</span><div style="margin-top:8px">${tierTxt}</div></div>`:"")+
  (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="margin-top:8px;line-height:1.9">${top.map(x=>`${x[0]}：${x[1]} 次`).join("　")}</div></div>`:"");
  let five=(idStats.fiveResults||[]).slice().sort((a,b)=>b.value-a.value).slice(0,10);
- wandFiveOnly.innerHTML=five.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:10px">${five.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
+ wandFiveOnly.innerHTML=five.length?`<div class="stat"><span class="label">⭐ 5詞完整結果 TOP 10</span><div style="margin-top:10px">${five.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
 }
 function resetIdentify(){idStats={total:0,tiers:{},lines:{},fiveResults:[]};identifyNow.innerHTML="";identifyStats.innerHTML="";identifyDist.innerHTML="";wandFiveOnly.innerHTML=""}
 
@@ -856,9 +856,19 @@ function resetIdentify(){idStats={total:0,tiers:{},lines:{},fiveResults:[]};iden
 function rollWandBatch(n){
  const before=idStats.fiveResults.length;
  for(let i=0;i<n;i++) rollAccessoryIdentify("wand",false);
+
  const added=idStats.fiveResults.slice(before);
  const best=added.slice().sort((a,b)=>b.value-a.value)[0];
- identifyNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
+
+ identifyNow.innerHTML=
+   `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
+   `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
+   `5詞出現 ${added.length} 次`+
+   `${best
+      ? `<br><b class="ok">本批最頂</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
+      : `｜未出5詞`}`+
+   `</div></div>`;
+
  renderIdentify();
 }
 let bookStatsData={total:0,tiers:{},lines:{}};
@@ -946,7 +956,7 @@ function shoeWandTrial(show=true){
    let f=shoeFifth(),lines=[shoeLine1(),shoeLine2(),shoeLine3(),shoeLine4(),`${f.text}｜${starroTierDisplayLabel(f.tier)}${starroMaxTag(f.isMax)}`];
    sw.five.push({lines,value:f.value,isMax:f.isMax});
    if(f.isMax) starroSaiGaoBroadcast("鞋子鑑定棒",f.text,sw.total,shoeWandCost.value);
-   if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
+   if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><div class="tiny" style="line-height:1.9;margin-top:8px">${lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div></div>`;
  } else if(show) shoeWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderShoeWand();
 }
@@ -954,16 +964,26 @@ function shoeWandOnce(){shoeWandTrial(true)}
 function shoeWandBatch(n){
  const before=sw.five.length;
  for(let i=0;i<n;i++)shoeWandTrial(false);
+
  const added=sw.five.slice(before);
  const best=added.slice().sort((a,b)=>b.value-a.value)[0];
- shoeWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
+
+ shoeWandNow.innerHTML=
+   `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
+   `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
+   `5詞出現 ${added.length} 次`+
+   `${best
+      ? `<br><b class="ok">本批最頂</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
+      : `｜未出5詞`}`+
+   `</div></div>`;
+
  renderShoeWand();
 }
 function renderShoeWand(){
  let c=Math.max(0,+shoeWandCost.value||0);
  shoeWandStats.innerHTML=card("累計鑑定",sw.total.toLocaleString())+card("5詞次數",sw.five.length.toLocaleString(),"ok")+card("累計花費",(sw.total*c).toLocaleString()+" 紅利");
  let a=sw.five.slice().sort((x,y)=>y.value-x.value).slice(0,10);
- shoeWandFive.innerHTML=a.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
+ shoeWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 5詞完整結果 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
 }
 function resetShoeWand(){sw={total:0,five:[]};shoeWandNow.innerHTML="";shoeWandStats.innerHTML="";shoeWandFive.innerHTML=""}
 
@@ -1528,23 +1548,33 @@ function advWeaponOne(){
   return fourth;
 }
 function advWeaponBatch(n){
-  let hit=0,best=0,bestTier=0;
+  let hit=0;
+  let bestRec=null;
+
   for(let i=0;i<n;i++){
     const beforeDraw=advWeaponState.draws;
     const v=advWeaponOne();
+
     if(v!==null){
       hit++;
       const rec=advWeaponState.top.find(x=>x.draw===beforeDraw+1);
-      const tier=rec?rec.tier:0;
-      if(v>best){best=v;bestTier=tier;}
+      if(rec && (!bestRec || rec.value>bestRec.value)){
+        bestRec=rec;
+      }
     }
   }
-  const bestIsMax=hit && best===30;
+
   document.getElementById("advWeaponNow").innerHTML=
     `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
-    `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
-    `第4詞出現 ${hit} 次${hit?`｜本批最高 <b class="ok">+${best}%｜${starroTierDisplayByIndex(bestTier)}${starroMaxTag(bestIsMax)}</b>`:"｜未出第4詞"}<br>`+
-    `本次花費 ${(n*ADV_WEAPON_COST).toLocaleString()} 紅利</div></div>`;
+    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
+    `第4詞出現 ${hit} 次`+
+    `${bestRec
+      ? `<br><b class="ok">本批最頂｜全技能最終傷害 +${bestRec.value}%｜${starroTierDisplayByIndex(bestRec.tier)}${starroMaxTag(bestRec.isMax)}</b>`+
+        `<br>${bestRec.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
+      : `｜未出第4詞`}`+
+    `<br>本次花費 ${(n*ADV_WEAPON_COST).toLocaleString()} 紅利`+
+    `</div></div>`;
+
   renderAdvWeapon();
 }
 function renderAdvWeapon(){
@@ -1556,7 +1586,7 @@ function renderAdvWeapon(){
     card("第4詞出現",s.fourth.toLocaleString(),"ok")+
     card("第4詞實際率",rate.toFixed(2)+"%");
   document.getElementById("advWeaponTop").innerHTML=
-    `<div class="label">🏆 第4詞 TOP 10</div>`+
+    `<div class="label">🏆 第4詞 TOP 10（完整詞條）</div>`+
     (s.top.length?s.top.map((x,i)=>
       `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
       `<b class="ok">全技能最終傷害 +${x.value}%｜${starroTierDisplayByIndex(x.tier)}${starroMaxTag(x.isMax)}</b></span>`+
