@@ -251,7 +251,6 @@ a{color:#77a9ff}
 .refine-green{color:#52d273;font-weight:700}
 .refine-legendary-gold{color:#ffd84d;font-weight:900;text-shadow:0 0 8px rgba(255,216,77,.22)}
 </style>
-<style>.main-moved-hidden{display:none!important}</style>
 </head>
 <body><div class="wrap">
 <h1>🌟 繁星仙境模擬器</h1>
@@ -386,88 +385,17 @@ a{color:#77a9ff}
 
 
 
-<section class="card main-moved-hidden"><h2>💎 時光超越靴附魔</h2>
-<p class="tiny"><b>第四洞先抽：</b>墮落根莖×4：70%｜闇答萊屍×4：20%｜希梅爾茲×4：10%。抽到希梅爾茲後才再抽第三洞。</p>
-<p class="tiny"><b>第三洞：</b>6種變異等機率，各約16.67%。</p>
-<div class="actions"><button class="primary" onclick="rollHoles()">隨機一次</button><button onclick="rollHoles10()">隨機 10 次</button><button onclick="resetHoles()">清除</button></div><div id="holeNow" style="margin-top:14px"></div><div id="holeStats" style="margin-top:10px"></div></section>
-
-<section class="card main-moved-hidden">
-<h2>🐉 龍甲附魔</h2>
-<p class="tiny">⭐ 使用「洗到特級」時，若全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
-
-<div class="stat">
-<span class="label">第四洞附魔｜期望值：約 6 次</span>
-<div class="tiny">LV2 → LV3：50%（期望 2 次）　｜　LV3 → 特級：25%（期望 4 次）　｜　<b>全程期望：約 6 次</b></div>
-<div class="actions">
-<button class="primary" onclick="dragon4Once()">附魔一次</button>
-<button onclick="dragon4ToSpecial()">洗到特級</button>
-<button onclick="resetDragon4()">重置</button>
-</div>
-<div id="dragon4Now" style="margin-top:10px"></div>
-<div id="dragon4Stats" style="margin-top:8px"></div>
-</div>
-
-<div class="stat" style="margin-top:12px">
-<span class="label">第三洞附魔｜期望值：約 8 次</span>
-<div class="tiny">LV3 → LV4：75%（期望 2 次）　｜　LV4 → LV5：50%（期望 2 次）　｜　LV5 → 特級：25%（期望 4 次）　｜　<b>全程期望：約 8 次</b></div>
-<div class="actions">
-<button class="primary" onclick="dragon3Once()">附魔一次</button>
-<button onclick="dragon3ToSpecial()">洗到特級</button>
-<button onclick="resetDragon3()">重置</button>
-</div>
-<div id="dragon3Now" style="margin-top:10px"></div>
-<div id="dragon3Stats" style="margin-top:8px"></div>
-</div>
-</section>
-
-<section class="card main-moved-hidden">
-<h2>⚔️ 善惡武器附魔</h2>
-<p class="tiny">⭐ 使用「洗到 LV5」時，若 LV1→LV5 全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
-<div class="tiny"><b>洗到 LV5 期望值：約 14 次</b></div>
-<div class="tiny">LV1 → LV2：60%（期望 2 次）　｜　LV2 → LV3：45%（期望 3 次）　｜　LV3 → LV4：30%（期望 4 次）　｜　LV4 → LV5：15%（期望 7 次）　｜　<b>全程期望：約 14 次</b></div>
-<div class="actions">
-<button class="primary" onclick="weaponOnce()">附魔一次</button>
-<button onclick="weaponTo5()">洗到 LV5</button>
-<button onclick="resetWeapon()">重置</button>
-</div>
-<div id="weaponNow" style="margin-top:10px"></div>
-<div id="weaponStats" style="margin-top:8px"></div>
-</section>
 
 
 
-<section class="card main-moved-hidden">
-<h2>🗡️ 進階武器鑑定</h2>
-<p class="tiny">
-進階武器鑑定晶片：每次 <b>19 紅利</b>。詞數機率：<b>1～4詞 = 100% / 50% / 25% / 10%</b>。只有抽到第4詞時，才顯示完整4條能力。<br>
-第4詞為 <b>全技能最終傷害 +1～30%（乘算）</b>。下方只列出有出現第4詞的 TOP 10；階級標示：一般／高級／稀有／頂級。
-</p>
-<div class="actions">
-<button class="primary" onclick="advWeaponBatch(1)">鑑定 1 次</button>
-<button onclick="advWeaponBatch(10)">鑑定 10 次</button>
-<button onclick="advWeaponBatch(100)">鑑定 100 次</button>
-<button onclick="resetAdvWeapon()">清除紀錄</button>
-</div>
-<div id="advWeaponNow" style="margin-top:12px"></div>
-<div id="advWeaponStats" class="statgrid"></div>
-<div id="advWeaponTop" style="margin-top:10px"></div>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>💠 武器指定晶片</h2>
-<p class="tiny">
-每次 <b>49 紅利</b>，直接鑑定第5詞：<b>全技能最終傷害 +1～25%</b>。階級標示：一般／高級／稀有／頂級。
-</p>
-<div class="actions">
-<button class="primary" onclick="weaponChipBatch(1)">指定 1 次</button>
-<button onclick="weaponChipBatch(10)">指定 10 次</button>
-<button onclick="weaponChipBatch(100)">指定 100 次</button>
-<button onclick="resetWeaponChip()">清除紀錄</button>
-</div>
-<div id="weaponChipNow" style="margin-top:12px"></div>
-<div id="weaponChipStats" class="statgrid"></div>
-<div id="weaponChipTop" style="margin-top:10px"></div>
-</section>
+
+
+
+
+
+
+
 
 <section class="card">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
@@ -514,132 +442,21 @@ a{color:#77a9ff}
 
 </section>
 
-<section class="card main-moved-hidden">
-<h2>🎀 頭中鑑定棒</h2>
-<p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
-<div class="row"><span>每次鑑定花費</span><input id="midWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="midWandOnce()">🎲 鑑定一次</button>
-<button onclick="midWandBatch(10)">連抽 10 次</button>
-<button onclick="midWandBatch(100)">連抽 100 次</button>
-<button onclick="resetMidWand()">清除紀錄</button>
-</div>
-<div id="midWandNow" style="margin-top:14px"></div>
-<div id="midWandStats" class="statgrid"></div>
-<div id="midWandFive" style="margin-top:10px"></div>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>📕 頭中指定書</h2>
-<p class="tiny">固定純5詞。第5詞官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。</p>
-<div class="row"><span>每次指定花費</span><input id="midBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="midBookOnce()">📕 指定一次</button>
-<button onclick="midBookBatch(10)">連抽 10 次</button>
-<button onclick="midBookBatch(100)">連抽 100 次</button>
-<button onclick="resetMidBook()">清除紀錄</button>
-</div>
-<div id="midBookNow" style="margin-top:14px"></div>
-<div id="midBookStats" class="statgrid"></div>
-<div id="midBookDist" style="margin-top:10px"></div>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>🎗️ 頭下鑑定棒</h2>
-<p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
-<div class="row"><span>每次鑑定花費</span><input id="lowWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="lowWandOnce()">🎲 鑑定一次</button>
-<button onclick="lowWandBatch(10)">連抽 10 次</button>
-<button onclick="lowWandBatch(100)">連抽 100 次</button>
-<button onclick="resetLowWand()">清除紀錄</button>
-</div>
-<div id="lowWandNow" style="margin-top:14px"></div>
-<div id="lowWandStats" class="statgrid"></div>
-<div id="lowWandFive" style="margin-top:10px"></div>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>📙 頭下指定書</h2>
-<p class="tiny">固定純5詞。第5詞官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。</p>
-<div class="row"><span>每次指定花費</span><input id="lowBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="lowBookOnce()">📙 指定一次</button>
-<button onclick="lowBookBatch(10)">連抽 10 次</button>
-<button onclick="lowBookBatch(100)">連抽 100 次</button>
-<button onclick="resetLowBook()">清除紀錄</button>
-</div>
-<div id="lowBookNow" style="margin-top:14px"></div>
-<div id="lowBookStats" class="statgrid"></div>
-<div id="lowBookDist" style="margin-top:10px"></div>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>👟 鞋子鑑定棒</h2>
-<p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
-<div class="row"><span>每次鑑定花費</span><input id="shoeWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="shoeWandOnce()">🎲 鑑定一次</button>
-<button onclick="shoeWandBatch(10)">連抽 10 次</button>
-<button onclick="shoeWandBatch(100)">連抽 100 次</button>
-<button onclick="resetShoeWand()">清除紀錄</button>
-</div>
-<div id="shoeWandNow" style="margin-top:14px"></div>
-<div id="shoeWandStats" class="statgrid"></div>
-<div id="shoeWandFive" style="margin-top:10px"></div>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>📘 鞋子指定書</h2>
-<p class="tiny">固定純5詞，直接抽第5詞能力。官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。第5詞包含 POW、SPL、CON、P.ATK%、S.MATK%、C.RATE%。</p>
-<div class="row"><span>每次指定花費</span><input id="shoeBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
-<div class="actions">
-<button class="primary" onclick="shoeBookOnce()">📘 指定一次</button>
-<button onclick="shoeBookBatch(10)">連抽 10 次</button>
-<button onclick="shoeBookBatch(100)">連抽 100 次</button>
-<button onclick="resetShoeBook()">清除紀錄</button>
-</div>
-<div id="shoeBookNow" style="margin-top:14px"></div>
-<div id="shoeBookStats" class="statgrid"></div>
-<div id="shoeBookDist" style="margin-top:10px"></div>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>🪄 飾品鑑定棒</h2>
-<div class="row"><span>每次鑑定花費</span><input id="wandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
-<p class="tiny">鑑定魔法棒先抽 1～5 詞；只有出現第5詞才抽下方素質。指定魔法書固定為5詞，直接抽第5詞素質。數值區間內目前採整數等機率。</p>
-<div class="actions">
-<button class="primary" onclick="rollAccessoryIdentify('wand')">🪄 鑑定棒抽一次</button>
-<button onclick="rollWandBatch(10)">鑑定棒連抽10次</button>
-<button onclick="rollWandBatch(100)">鑑定棒連抽100次</button>
-<button onclick="resetIdentify()">清除紀錄</button>
-</div>
-<div id="identifyNow" style="margin-top:14px"></div>
-<div id="identifyStats" class="statgrid"></div>
-<div id="identifyDist" style="margin-top:10px"></div>
-<div id="wandFiveOnly" style="margin-top:10px"></div>
-<p class="tiny" style="line-height:1.8;margin-top:12px">
-<b>指定魔法書（純5詞）：</b>89.77% / 8.98% / 0.9% / 0.36%，四種素質階級依官方機率抽取。<br>
-<b>鑑定魔法棒（1～5詞）：</b>第1～5詞出現率依序 100% / 75% / 50% / 25% / 10%；只有成功取得第5詞後，才會進一步抽第5詞的素質階級。<br>
-※ 圖片未公布同階級內各詞條與區間內各數值的細部權重，因此目前以等機率處理。
-</p>
-</section>
 
-<section class="card main-moved-hidden">
-<h2>📖 飾品指定魔法書</h2>
-<div class="row"><span>每次指定花費</span><input id="bookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
-<p class="tiny">固定純 5 詞，直接抽第 5 詞素質階級：89.77% / 8.98% / 0.9% / 0.36%。</p>
-<div class="actions">
-<button class="primary" onclick="rollBookOnce()">📖 指定書抽一次</button>
-<button onclick="rollBookBatch(10)">連抽 10 次</button>
-<button onclick="rollBookBatch(100)">連抽 100 次</button>
-<button onclick="resetBook()">清除紀錄</button>
-</div>
-<div id="bookNow" style="margin-top:14px"></div>
-<div id="bookStats" class="statgrid"></div>
-<div id="bookDist" style="margin-top:10px"></div>
-<p class="tiny">※ 同階級內各詞條及數值區間的細部權重官方未公布，目前採等機率。TOP 20 混合排序換算：POW / SPL / CON +35 = P.ATK / S.MATK / C.RATE +20%。</p>
-</section>
+
+
+
+
+
+
+
+
 
 
 
