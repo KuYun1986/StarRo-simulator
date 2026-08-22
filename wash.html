@@ -3467,19 +3467,32 @@ function auctionNeedleOnce(){
 
   return rec;
 }
+function auctionNeedleBestOfBatch(records,last){
+  if(!records.length) return last;
+  const sorted=[...records].sort((a,b)=>{
+    if((b.special?1:0)!==(a.special?1:0)) return (b.special?1:0)-(a.special?1:0);
+    if(b.lines.length!==a.lines.length) return b.lines.length-a.lines.length;
+    return a.draw-b.draw;
+  });
+  return sorted[0] || last;
+}
 function auctionNeedleBatch(n){
-  let last=null,three=[];
+  let last=null,three=[],batch=[];
   for(let i=0;i<n;i++){
     last=auctionNeedleOnce();
+    batch.push(last);
     if(last.lines.length===3)three.push(last);
   }
 
+  const best=auctionNeedleBestOfBatch(batch,last);
+  const specialCount=batch.filter(x=>x.special).length;
   const now=document.getElementById("auctionNeedleNow");
   now.innerHTML=
     `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次｜花費 ${(n*AUCTION_NEEDLE_COST).toLocaleString()} 紅利</span>`+
-    `<div style="line-height:1.9;margin-top:8px"><b>最後一次</b><br>`+
-    last.lines.map((x,i)=>`${i+1}. ${x}`).join("<br>")+
+    `<div style="line-height:1.9;margin-top:8px"><b>本批最好${best.special?'｜⭐ 特殊詞':''}</b><br>`+
+    best.lines.map((x,i)=>`${i+1}. ${x}`).join("<br>")+
     `${three.length?`<br><br><b class="ok">本批出現 3 詞：${three.length} 次</b>`:""}`+
+    `${specialCount?`<br><b class="ok">本批特殊詞：${specialCount} 次</b>`:""}`+
     `</div></div>`;
 
   auctionNeedleRender();
