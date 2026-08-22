@@ -323,6 +323,7 @@ a{color:#77a9ff}
   <button onclick="auctionNeedleBatch(10)">連洗 10 次</button>
   <button onclick="auctionNeedleBatch(100)">連洗 100 次</button>
   <button class="primary" onclick="auctionNeedleUntilSpecial()">洗到特殊詞</button>
+  <button class="primary" onclick="auctionNeedleUntilRareSpecial()">洗到死亡 / 魔解</button>
   <button onclick="auctionNeedleReset()">清除紀錄</button>
 </div>
 
@@ -350,16 +351,16 @@ a{color:#77a9ff}
     對所有屬性攻擊的抗性 +1～5%、變動施法時間減少 +5～25%、技能後延遲減少 +5～25%<br>
     對首領 / 全體型 / 屬性 / 種族魔物的物理或魔法攻擊增加 +1～15%<br>
     對所有種族 / 階級 / 體型攻擊的抗性 +1～5%<br>
-    減少物理 / 魔法反射傷害 +15～65%（15～49%=80%、50～59%=15%、60～65%=5%）<br>
-    無視所有種族 15～65% 物理抗性 / 魔法抗性（15～49%=80%、50～59%=15%、60～65%=5%；50%以上特殊）<br><br>
+    減少物理 / 魔法反射傷害 +15～65%<br>
+    無視所有種族 15～65% 物理抗性 / 魔法抗性<br><br>
 
     <b>第3詞（10%）</b><br><span class="ok">⭐ 下列藍字/指定效果皆列為特殊詞</span><br>
     對首領 / 全體型 / 屬性 / 種族魔物的物理或魔法攻擊增加 +1～15%<br>
     全屬性增加 +1～10、全特殊屬性增加 +1～5<br>
     移動速度 +5～65%、誘導攻擊 +0～30%<br>
-    減少物理 / 魔法反射傷害 +15～65%（15～49%=80%、50～59%=15%、60～65%=5%；第2詞＋第3詞同類合計50%以上，或單條50%以上特殊）、掉落率 +1～10%（+5%以上特殊）<br>
+    減少物理 / 魔法反射傷害 +15～65%、掉落率 +1～10%（+5%以上特殊）<br>
     技能冷卻時間減少 100MS～300MS（150MS以上特殊）、雜物掉落量增加 +1～2（+2特殊）<br>
-    精煉成功率增加 +1～3%（+3%特殊）、升階成功率增加 +1～5%（+5%特殊）、ASPD上限增加 +1～2<br>
+    精煉成功率增加 +1～3%（+3%特殊）、升階成功率增加 +1～5%（+5%特殊）、ASPD上限增加 +1～2（+2特殊）<br>
     抗性上限 +1～9%（不可疊加）<br>
     無視魔法效果解除、死亡時身上的技能BUFF效果不會被清除<br>
     10～50% 機率反射單體魔法
@@ -3264,7 +3265,6 @@ const AUCTION_SPECIAL_MAGIC="無視魔法效果解除";
 const AUCTION_SPECIAL_BUFF="死亡時身上的技能BUFF效果不會被清除";
 
 const AUCTION_SPECIAL_KEYWORDS=[
-  "ASPD上限增加",
   AUCTION_SPECIAL_MAGIC,
   AUCTION_SPECIAL_BUFF
 ];
@@ -3343,6 +3343,12 @@ function auctionNeedleIsSpecialText(text){
     return !!m && Number(m[1]) >= 5;
   }
 
+
+  // ASPD上限增加：只有 +2 才列入特殊詞
+  if(text.startsWith("ASPD上限增加 +")){
+    const m=text.match(/\+(\d+)/);
+    return !!m && Number(m[1]) === 2;
+  }
 
   return AUCTION_SPECIAL_KEYWORDS.some(k=>text.includes(k));
 }
@@ -3500,6 +3506,28 @@ function auctionNeedleUntilSpecial(){
 
   auctionNeedleRender();
 }
+function auctionNeedleUntilRareSpecial(){
+  let tries=0;
+  let rec=null;
+  let hit="";
+
+  do{
+    tries++;
+    rec=auctionNeedleOnce();
+    hit=rec.lines.find(x=>x===AUCTION_SPECIAL_MAGIC || x===AUCTION_SPECIAL_BUFF) || "";
+  }while(!hit);
+
+  document.getElementById("auctionNeedleNow").innerHTML=
+    `<div class="stat"><span class="label">洗到死亡 / 魔解｜依原始機率實際模擬</span>`+
+    `<div style="line-height:1.9;margin-top:8px">`+
+    `<b class="ok">第 ${tries.toLocaleString()} 抽洗到：${hit}</b><br>`+
+    rec.lines.map((x,i)=>`${i+1}. ${x}`).join("<br>")+
+    `<br><br>本次花費 ${(tries*AUCTION_NEEDLE_COST).toLocaleString()} 紅利`+
+    `</div></div>`;
+
+  auctionNeedleRender();
+}
+
 function auctionNeedleRender(){
   const s=auctionNeedleState;
 
