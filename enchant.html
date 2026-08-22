@@ -251,51 +251,20 @@ a{color:#77a9ff}
 .refine-green{color:#52d273;font-weight:700}
 .refine-legendary-gold{color:#ffd84d;font-weight:900;text-shadow:0 0 8px rgba(255,216,77,.22)}
 </style>
-
-<style>
-.top-group{position:relative}
-.top-group>summary{
-  list-style:none;cursor:pointer;user-select:none;
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:10px 16px;border-radius:12px;border:1px solid var(--line);
-  background:var(--card);color:var(--text);font-weight:700;
-}
-.top-group>summary::-webkit-details-marker{display:none}
-.top-group[open]>summary{filter:brightness(1.08)}
-.top-group-menu{
-  position:absolute;z-index:50;top:calc(100% + 6px);left:0;
-  min-width:190px;padding:8px;border:1px solid var(--line);
-  border-radius:12px;background:var(--card);
-  box-shadow:0 10px 30px rgba(0,0,0,.28);
-  display:grid;gap:6px;
-}
-.top-group-menu button{
-  width:100%;text-align:left;white-space:nowrap;
-}
-@media(max-width:700px){
-  .top-group-menu{position:fixed;left:12px;right:12px;top:auto;min-width:0}
-}
-</style>
-
 <style>
 .enchant-only-page section.card:not(.enchant-card){display:none!important}
 .enchant-only-page #onlineBar{display:none!important}
 .enchant-only-page .grid{display:block!important}
-.enchant-only-page section.enchant-card{margin-bottom:16px}
-.game-nav-link{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:10px 16px;border-radius:12px;border:1px solid var(--line);
-  background:var(--card);color:var(--text);text-decoration:none;font-weight:700;
-}
+.enchant-only-page .enchant-card{margin-bottom:16px}
 </style>
 </head>
 <body class="enchant-only-page"><div class="wrap">
 <h1>✨ 繁星附魔區</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
-<a href="index.html" class="game-nav-link">← 回模擬器</a>
-<button onclick="starroEnchantJump('龍甲附魔')">🐉 龍甲</button>
-<button onclick="starroEnchantJump('善惡武器附魔')">⚔️ 善惡武器</button>
-<button onclick="starroEnchantJump('時光超越靴附魔')">💎 時光超越靴</button>
+<a href="index.html" class="game-page-link">← 回主頁</a>
+<button onclick="jumpEnchant('龍甲附魔')">🐉 龍甲附魔</button>
+<button onclick="jumpEnchant('善惡武器附魔')">⚔️ 善惡武器附魔</button>
+<button onclick="jumpEnchant('時光超越靴附魔')">💎 時光超越靴附魔</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -309,7 +278,7 @@ a{color:#77a9ff}
 </div>
 
 
-<section class="card enchant-card">
+<section class="card">
 <h2>完整流程</h2>
 <p class="tiny">目前只保留精煉 1% 流程。</p>
 <div id="steps"></div>
@@ -420,12 +389,12 @@ a{color:#77a9ff}
 
 
 
-<section class="card"><h2>💎 時光超越靴附魔</h2>
+<section class="card enchant-card"><h2>💎 時光超越靴附魔</h2>
 <p class="tiny"><b>第四洞先抽：</b>墮落根莖×4：70%｜闇答萊屍×4：20%｜希梅爾茲×4：10%。抽到希梅爾茲後才再抽第三洞。</p>
 <p class="tiny"><b>第三洞：</b>6種變異等機率，各約16.67%。</p>
 <div class="actions"><button class="primary" onclick="rollHoles()">隨機一次</button><button onclick="rollHoles10()">隨機 10 次</button><button onclick="resetHoles()">清除</button></div><div id="holeNow" style="margin-top:14px"></div><div id="holeStats" style="margin-top:10px"></div></section>
 
-<section class="card">
+<section class="card enchant-card">
 <h2>🐉 龍甲附魔</h2>
 <p class="tiny">⭐ 使用「洗到特級」時，若全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 
@@ -454,7 +423,7 @@ a{color:#77a9ff}
 </div>
 </section>
 
-<section class="card">
+<section class="card enchant-card">
 <h2>⚔️ 善惡武器附魔</h2>
 <p class="tiny">⭐ 使用「洗到 LV5」時，若 LV1→LV5 全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 <div class="tiny"><b>洗到 LV5 期望值：約 14 次</b></div>
@@ -3674,28 +3643,17 @@ onSnapshot(q,snap=>{
 });
 </script>
 
-
 <script>
-function starroJumpTo(keyword){
-  const target=[...document.querySelectorAll("section.card")].find(x=>x.innerText.includes(keyword));
-  if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
-  document.querySelectorAll(".top-group[open]").forEach(x=>x.removeAttribute("open"));
-}
-</script>
-
-
-<script>
-function starroEnchantJump(keyword){
-  const target=[...document.querySelectorAll("section.enchant-card")].find(x=>x.innerText.includes(keyword));
-  if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+function jumpEnchant(keyword){
+  const t=[...document.querySelectorAll("section.enchant-card")].find(x=>x.innerText.includes(keyword));
+  if(t)t.scrollIntoView({behavior:"smooth",block:"start"});
 }
 (function(){
   const wanted=["龍甲附魔","善惡武器附魔","時光超越靴附魔"];
   const sections=[...document.querySelectorAll("section.enchant-card")];
   if(!sections.length)return;
   const parent=sections[0].parentElement;
-  wanted.map(name=>sections.find(s=>s.innerText.includes(name))).filter(Boolean).forEach(s=>parent.appendChild(s));
+  wanted.map(n=>sections.find(s=>s.innerText.includes(n))).filter(Boolean).forEach(s=>parent.appendChild(s));
 })();
 </script>
-
 </body></html>
