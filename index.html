@@ -251,42 +251,17 @@ a{color:#77a9ff}
 .refine-green{color:#52d273;font-weight:700}
 .refine-legendary-gold{color:#ffd84d;font-weight:900;text-shadow:0 0 8px rgba(255,216,77,.22)}
 </style>
-
-<style>
-.top-group{position:relative}
-.top-group>summary{
-  list-style:none;cursor:pointer;user-select:none;
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:10px 16px;border-radius:12px;border:1px solid var(--line);
-  background:var(--card);color:var(--text);font-weight:700;
-}
-.top-group>summary::-webkit-details-marker{display:none}
-.top-group[open]>summary{filter:brightness(1.08)}
-.top-group-menu{
-  position:absolute;z-index:50;top:calc(100% + 6px);left:0;
-  min-width:190px;padding:8px;border:1px solid var(--line);
-  border-radius:12px;background:var(--card);
-  box-shadow:0 10px 30px rgba(0,0,0,.28);
-  display:grid;gap:6px;
-}
-.top-group-menu button{
-  width:100%;text-align:left;white-space:nowrap;
-}
-@media(max-width:700px){
-  .top-group-menu{position:fixed;left:12px;right:12px;top:auto;min-width:0}
-}
-</style>
-<style>.main-enchant-hidden{display:none!important}</style>
-<style>.main-identify-hidden{display:none!important}</style>
+<style>.main-moved-hidden{display:none!important}</style>
 </head>
 <body><div class="wrap">
 <h1>🌟 繁星仙境模擬器</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
+
+<a href="game.html" class="game-page-link">🎮 遊戲區</a>
 <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
 <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
-<a href="game.html" class="game-page-link">🎮 遊戲區</a>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -300,7 +275,7 @@ a{color:#77a9ff}
 </div>
 
 
-<section class="card main-enchant-hidden">
+<section class="card">
 <h2>完整流程</h2>
 <p class="tiny">目前只保留精煉 1% 流程。</p>
 <div id="steps"></div>
@@ -411,12 +386,12 @@ a{color:#77a9ff}
 
 
 
-<section class="card"><h2>💎 時光超越靴附魔</h2>
+<section class="card main-moved-hidden"><h2>💎 時光超越靴附魔</h2>
 <p class="tiny"><b>第四洞先抽：</b>墮落根莖×4：70%｜闇答萊屍×4：20%｜希梅爾茲×4：10%。抽到希梅爾茲後才再抽第三洞。</p>
 <p class="tiny"><b>第三洞：</b>6種變異等機率，各約16.67%。</p>
 <div class="actions"><button class="primary" onclick="rollHoles()">隨機一次</button><button onclick="rollHoles10()">隨機 10 次</button><button onclick="resetHoles()">清除</button></div><div id="holeNow" style="margin-top:14px"></div><div id="holeStats" style="margin-top:10px"></div></section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>🐉 龍甲附魔</h2>
 <p class="tiny">⭐ 使用「洗到特級」時，若全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 
@@ -445,7 +420,7 @@ a{color:#77a9ff}
 </div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>⚔️ 善惡武器附魔</h2>
 <p class="tiny">⭐ 使用「洗到 LV5」時，若 LV1→LV5 全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 <div class="tiny"><b>洗到 LV5 期望值：約 14 次</b></div>
@@ -461,7 +436,7 @@ a{color:#77a9ff}
 
 
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>🗡️ 進階武器鑑定</h2>
 <p class="tiny">
 進階武器鑑定晶片：每次 <b>19 紅利</b>。詞數機率：<b>1～4詞 = 100% / 50% / 25% / 10%</b>。只有抽到第4詞時，才顯示完整4條能力。<br>
@@ -478,7 +453,7 @@ a{color:#77a9ff}
 <div id="advWeaponTop" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>💠 武器指定晶片</h2>
 <p class="tiny">
 每次 <b>49 紅利</b>，直接鑑定第5詞：<b>全技能最終傷害 +1～25%</b>。階級標示：一般／高級／稀有／頂級。
@@ -539,7 +514,7 @@ a{color:#77a9ff}
 
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>🎀 頭中鑑定棒</h2>
 <p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
 <div class="row"><span>每次鑑定花費</span><input id="midWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
@@ -554,7 +529,7 @@ a{color:#77a9ff}
 <div id="midWandFive" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>📕 頭中指定書</h2>
 <p class="tiny">固定純5詞。第5詞官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。</p>
 <div class="row"><span>每次指定花費</span><input id="midBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
@@ -569,7 +544,7 @@ a{color:#77a9ff}
 <div id="midBookDist" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>🎗️ 頭下鑑定棒</h2>
 <p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
 <div class="row"><span>每次鑑定花費</span><input id="lowWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
@@ -584,7 +559,7 @@ a{color:#77a9ff}
 <div id="lowWandFive" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>📙 頭下指定書</h2>
 <p class="tiny">固定純5詞。第5詞官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。</p>
 <div class="row"><span>每次指定花費</span><input id="lowBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
@@ -599,7 +574,7 @@ a{color:#77a9ff}
 <div id="lowBookDist" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>👟 鞋子鑑定棒</h2>
 <p class="tiny">詞數機率：1～5詞 = 100% / 75% / 50% / 25% / 10%。只有抽到第5詞時，才顯示完整5條能力。</p>
 <div class="row"><span>每次鑑定花費</span><input id="shoeWandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
@@ -614,7 +589,7 @@ a{color:#77a9ff}
 <div id="shoeWandFive" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>📘 鞋子指定書</h2>
 <p class="tiny">固定純5詞，直接抽第5詞能力。官方階級機率：89.77% / 8.98% / 0.9% / 0.36%。第5詞包含 POW、SPL、CON、P.ATK%、S.MATK%、C.RATE%。</p>
 <div class="row"><span>每次指定花費</span><input id="shoeBookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
@@ -629,7 +604,7 @@ a{color:#77a9ff}
 <div id="shoeBookDist" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>🪄 飾品鑑定棒</h2>
 <div class="row"><span>每次鑑定花費</span><input id="wandCost" type="number" min="0" step="1" value="29"><span>紅利</span></div>
 <p class="tiny">鑑定魔法棒先抽 1～5 詞；只有出現第5詞才抽下方素質。指定魔法書固定為5詞，直接抽第5詞素質。數值區間內目前採整數等機率。</p>
@@ -650,7 +625,7 @@ a{color:#77a9ff}
 </p>
 </section>
 
-<section class="card">
+<section class="card main-moved-hidden">
 <h2>📖 飾品指定魔法書</h2>
 <div class="row"><span>每次指定花費</span><input id="bookCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
 <p class="tiny">固定純 5 詞，直接抽第 5 詞素質階級：89.77% / 8.98% / 0.9% / 0.36%。</p>
@@ -3663,15 +3638,6 @@ onSnapshot(q,snap=>{
   const e=document.getElementById("fbStatus");
   if(e)e.textContent="⚠️ 戰報讀取失敗";
 });
-</script>
-
-
-<script>
-function starroJumpTo(keyword){
-  const target=[...document.querySelectorAll("section.card")].find(x=>x.innerText.includes(keyword));
-  if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
-  document.querySelectorAll(".top-group[open]").forEach(x=>x.removeAttribute("open"));
-}
 </script>
 
 </body></html>
