@@ -243,6 +243,39 @@ a{color:#77a9ff}
 <style>
 .main-game-hidden{display:none!important}
 </style>
+
+<style>
+.refine-gray{color:#b8c0cc;font-weight:700}
+.refine-silver{color:#d8dee8;font-weight:700}
+.refine-gold{color:#f0b94b;font-weight:700}
+.refine-green{color:#52d273;font-weight:700}
+.refine-legendary-gold{color:#ffd84d;font-weight:900;text-shadow:0 0 8px rgba(255,216,77,.22)}
+</style>
+
+<style>
+.top-group{position:relative}
+.top-group>summary{
+  list-style:none;cursor:pointer;user-select:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:10px 16px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--text);font-weight:700;
+}
+.top-group>summary::-webkit-details-marker{display:none}
+.top-group[open]>summary{filter:brightness(1.08)}
+.top-group-menu{
+  position:absolute;z-index:50;top:calc(100% + 6px);left:0;
+  min-width:190px;padding:8px;border:1px solid var(--line);
+  border-radius:12px;background:var(--card);
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
+  display:grid;gap:6px;
+}
+.top-group-menu button{
+  width:100%;text-align:left;white-space:nowrap;
+}
+@media(max-width:700px){
+  .top-group-menu{position:fixed;left:12px;right:12px;top:auto;min-width:0}
+}
+</style>
 </head>
 <body><div class="wrap">
 <h1>🌟 繁星仙境模擬器</h1>
@@ -250,6 +283,27 @@ a{color:#77a9ff}
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
 
+
+<details class="top-group">
+  <summary>✨ 附魔</summary>
+  <div class="top-group-menu">
+    <button onclick="starroJumpTo('龍甲附魔')">🐉 龍甲</button>
+    <button onclick="starroJumpTo('善惡武器附魔')">⚔️ 善惡武器</button>
+    <button onclick="starroJumpTo('時光超越靴附魔')">💎 時光靴</button>
+  </div>
+</details>
+
+<details class="top-group">
+  <summary>🔍 鑑定</summary>
+  <div class="top-group-menu">
+    <button onclick="starroJumpTo('進階武器鑑定')">🗡️ 進階武器</button>
+    <button onclick="starroJumpTo('武器指定晶片')">💠 武器指定</button>
+    <button onclick="starroJumpTo('頭中鑑定棒')">🎀 頭中</button>
+    <button onclick="starroJumpTo('頭下鑑定棒')">🎗️ 頭下</button>
+    <button onclick="starroJumpTo('鞋子鑑定棒')">👟 鞋子</button>
+    <button onclick="starroJumpTo('飾品鑑定棒')">🪄 飾品</button>
+  </div>
+</details>
 <a href="game.html" class="game-page-link">🎮 遊戲區</a>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
@@ -310,6 +364,37 @@ a{color:#77a9ff}
 物理素質爆發石、魔法素質爆發石、無敵石、莎拉石、魔法滲透石、物理連擊石、魔法連擊石、爆擊連擊石、近距離物理終傷石、遠距離物理終傷石、全屬性魔法終傷石、解除石、精煉石、再次追加石、再次施放石、屬性克制石
 </div>
 </section>
+
+<section class="card">
+<h2>🧰 精煉箱</h2>
+<p class="tiny">每抽消耗 <b>750 P</b>。隨機獲得一個精煉鎚，可一次開啟 10 / 100 / 1000 箱。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">內容物 / 機率</span>
+  <div class="tiny" style="line-height:1.9;margin-top:6px">
+    (小灰) 神工匠的鐵鎚：16.67%｜1 P<br>
+    (大灰) 極限神工匠的鐵鎚：16.67%｜110 P<br>
+    (-1灰槌) 乙太神工匠的鐵鎚：16.67%｜9 P<br>
+    (小金) 高密度乙太神工匠的鐵鎚：13.33%｜90 P<br>
+    (-1金槌) 極限乙太神工匠的鐵鎚：13.33%｜80 P<br>
+    <span class="refine-gold">(大金) 高密度極限乙太神工匠的鐵鎚</span>：10.00%｜800 P<br>
+    <span class="refine-green">(傳說-1綠) 傳說乙太神工匠的鐵鎚</span>：10.00%｜1,000 P<br>
+    <span class="refine-legendary-gold">(傳說大金) 高密度傳說乙太神工匠的鐵鎚</span>：3.33%｜20,000 P
+  </div>
+</div>
+
+<div class="actions" style="margin-top:10px">
+  <button class="primary" onclick="refineBoxOpen(10)">開 10 箱</button>
+  <button onclick="refineBoxOpen(100)">開 100 箱</button>
+  <button onclick="refineBoxOpen(1000)">開 1000 箱</button>
+  <button onclick="refineBoxReset()">清除紀錄</button>
+</div>
+
+<div id="refineBoxNow" style="margin-top:12px"></div>
+<div id="refineBoxStats" class="statgrid" style="margin-top:10px"></div>
+<div id="refineBoxDist" style="margin-top:10px"></div>
+</section>
+
 <section class="card">
 <h2>🎰 XR 轉蛋</h2>
 <div class="row"><span>每抽花費</span><b>19 紅利</b></div>
@@ -1458,7 +1543,7 @@ function midWandTrial(show=true){
    let f=midWandFifth(),lines=[midLine1(),midLine2(),midLine3(),midLine4(),f.text];
    mw.five.push({lines,value:f.value,isMax:f.isMax});
    if(f.isMax) starroSaiGaoBroadcast("頭中鑑定棒",f.text,mw.total,midWandCost.value);
-   if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
+   if(show)midWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><div class="tiny" style="line-height:1.9;margin-top:8px">${lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div></div>`;
  }else if(show)midWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderMidWand();
 }
@@ -1468,14 +1553,14 @@ function midWandBatch(n){
  for(let i=0;i<n;i++)midWandTrial(false);
  const added=mw.five.slice(before);
  const best=added.slice().sort((a,b)=>b.value-a.value)[0];
- midWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
+ midWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`<br><b class="ok">本批最高</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`:"｜未出5詞"}</div></div>`;
  renderMidWand();
 }
 function renderMidWand(){
  let c=Math.max(0,+midWandCost.value||0);
  midWandStats.innerHTML=card("累計鑑定",mw.total.toLocaleString())+card("5詞次數",mw.five.length.toLocaleString(),"ok")+card("累計花費",(mw.total*c).toLocaleString()+" 紅利");
  let a=mw.five.slice().sort((x,y)=>y.value-x.value).slice(0,10);
- midWandFive.innerHTML=a.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
+ midWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
 }
 function resetMidWand(){mw={total:0,five:[]};midWandNow.innerHTML="";midWandStats.innerHTML="";midWandFive.innerHTML=""}
 
@@ -1509,6 +1594,26 @@ function lowTier(){
  for(const t of lowTierData){r-=t.p;if(r<0)return t}
  return lowTierData[0];
 }
+
+function lowWandFifth(){
+  const kinds=[
+    "對種族魔物的物理攻擊增加",
+    "對種族魔物的魔法攻擊增加",
+    "對屬性魔物的物理攻擊增加",
+    "對屬性魔物的魔法攻擊增加",
+    "對全體型魔物的物理攻擊增加",
+    "對全體型魔物的魔法攻擊增加"
+  ];
+  const name=pick(kinds);
+  const v=randint(5,35);
+  return {
+    name,
+    value:v,
+    isMax:v===35,
+    text:`${name} ${v}%${starroMaxTag(v===35)}`
+  };
+}
+
 function lowFifth(){
  let t=lowTier();
  let kinds=[
@@ -1538,10 +1643,10 @@ function lowWandTrial(show=true){
  lw.total++;let r=Math.random(),n=1;
  if(r<.75)n=2;if(r<.50)n=3;if(r<.25)n=4;if(r<.10)n=5;
  if(n===5){
-  let f=lowFifth(),lines=[lowLine1(),lowLine2(),lowLine3(),lowLine4(),`${f.text}｜${starroTierDisplayLabel(f.tier)}${starroMaxTag(f.isMax)}`];
+  let f=lowWandFifth(),lines=[lowLine1(),lowLine2(),lowLine3(),lowLine4(),f.text];
   lw.five.push({lines,value:f.value,isMax:f.isMax});
   if(f.isMax) starroSaiGaoBroadcast("頭下鑑定棒",f.text,lw.total,lowWandCost.value);
-  if(show)lowWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
+  if(show)lowWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><div class="tiny" style="line-height:1.9;margin-top:8px">${lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div></div>`;
  }else if(show)lowWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderLowWand();
 }
@@ -1551,14 +1656,14 @@ function lowWandBatch(n){
  for(let i=0;i<n;i++)lowWandTrial(false);
  const added=lw.five.slice(before);
  const best=added.slice().sort((a,b)=>b.value-a.value)[0];
- lowWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
+ lowWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`<br><b class="ok">本批最高</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`:"｜未出5詞"}</div></div>`;
  renderLowWand();
 }
 function renderLowWand(){
  let c=Math.max(0,+lowWandCost.value||0);
  lowWandStats.innerHTML=card("累計鑑定",lw.total.toLocaleString())+card("5詞次數",lw.five.length.toLocaleString(),"ok")+card("累計花費",(lw.total*c).toLocaleString()+" 紅利");
  let a=lw.five.slice().sort((x,y)=>y.value-x.value).slice(0,10);
- lowWandFive.innerHTML=a.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
+ lowWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 只顯示5詞完整結果 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
 }
 function resetLowWand(){lw={total:0,five:[]};lowWandNow.innerHTML="";lowWandStats.innerHTML="";lowWandFive.innerHTML=""}
 
@@ -1579,6 +1684,91 @@ function renderLowBook(){
  (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="line-height:1.9">${top.map(x=>`${x.text}｜${starroTierDisplayLabel(x.tier)}${starroMaxTag(x.isMax)}`).join("<br>")}</div></div>`:"");
 }
 function resetLowBook(){lb={total:0,tiers:{},results:[]};lowBookNow.innerHTML="";lowBookStats.innerHTML="";lowBookDist.innerHTML=""}
+
+
+
+/* ===== 精煉箱 ===== */
+const REFINE_BOX_COST=750;
+const refineBoxItems=[
+  {name:"神工匠的鐵鎚",tag:"小灰",p:16.67,cls:"",value:1},
+  {name:"極限神工匠的鐵鎚",tag:"大灰",p:16.67,cls:"",value:110},
+  {name:"乙太神工匠的鐵鎚",tag:"-1灰槌",p:16.67,cls:"",value:9},
+  {name:"高密度乙太神工匠的鐵鎚",tag:"小金",p:13.33,cls:"",value:90},
+  {name:"極限乙太神工匠的鐵鎚",tag:"-1金槌",p:13.33,cls:"",value:80},
+  {name:"高密度極限乙太神工匠的鐵鎚",tag:"大金",p:10.00,cls:"refine-gold",value:800},
+  {name:"傳說乙太神工匠的鐵鎚",tag:"傳說-1綠",p:10.00,cls:"refine-green",value:1000},
+  {name:"高密度傳說乙太神工匠的鐵鎚",tag:"傳說大金",p:3.33,cls:"refine-legendary-gold",value:20000}
+];
+
+let refineBoxState={
+  total:0,
+  totalValue:0,
+  counts:Object.fromEntries(refineBoxItems.map(x=>[x.name,0]))
+};
+
+function refineBoxPick(){
+  const total=refineBoxItems.reduce((s,x)=>s+x.p,0);
+  let r=Math.random()*total;
+  for(const x of refineBoxItems){
+    r-=x.p;
+    if(r<0)return x;
+  }
+  return refineBoxItems[refineBoxItems.length-1];
+}
+
+function refineBoxOpen(n){
+  const batch=Object.fromEntries(refineBoxItems.map(x=>[x.name,0]));
+  for(let i=0;i<n;i++){
+    const item=refineBoxPick();
+    refineBoxState.total++;
+    refineBoxState.totalValue+=item.value;
+    refineBoxState.counts[item.name]++;
+    batch[item.name]++;
+  }
+
+  const batchValue=refineBoxItems.reduce((sum,x)=>sum+batch[x.name]*x.value,0);
+  const rows=refineBoxItems
+    .filter(x=>batch[x.name]>0)
+    .map(x=>x.cls?`<span class="${x.cls}">(${x.tag}) ${x.name}</span> × ${batch[x.name].toLocaleString()}｜${x.value.toLocaleString()} P/個`:`(${x.tag}) ${x.name} × ${batch[x.name].toLocaleString()}｜${x.value.toLocaleString()} P/個`)
+    .join("<br>");
+
+  document.getElementById("refineBoxNow").innerHTML=
+    `<div class="stat"><span class="label">本次開啟 ${n.toLocaleString()} 箱</span>`+
+    `<div class="tiny" style="line-height:1.9;margin-top:6px">花費 ${(n*REFINE_BOX_COST).toLocaleString()} P｜取得價值 ${batchValue.toLocaleString()} P｜淨值 ${(batchValue-n*REFINE_BOX_COST>=0?"+":"")+(batchValue-n*REFINE_BOX_COST).toLocaleString()} P<br>${rows}</div></div>`;
+
+  refineBoxRender();
+}
+
+function refineBoxRender(){
+  const s=refineBoxState;
+  document.getElementById("refineBoxStats").innerHTML=
+    card("每抽費用",REFINE_BOX_COST.toLocaleString()+" P")+
+    card("累計開箱",s.total.toLocaleString())+
+    card("累計花費",(s.total*REFINE_BOX_COST).toLocaleString()+" P")+
+    card("取得總價值",s.totalValue.toLocaleString()+" P")+
+    card("累計淨值",((s.totalValue-s.total*REFINE_BOX_COST)>=0?"+":"")+(s.totalValue-s.total*REFINE_BOX_COST).toLocaleString()+" P",(s.totalValue-s.total*REFINE_BOX_COST)>=0?"ok":"bad");
+
+  document.getElementById("refineBoxDist").innerHTML=
+    `<div class="stat"><span class="label">累計獲得</span>`+
+    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
+    refineBoxItems.map(x=>{
+      const count=s.counts[x.name]||0;
+      const rate=s.total?(count/s.total*100).toFixed(2):"0.00";
+      return x.cls?`<span class="${x.cls}">(${x.tag}) ${x.name}</span>：${count.toLocaleString()} 次（${rate}%）｜${x.value.toLocaleString()} P/個`:`(${x.tag}) ${x.name}：${count.toLocaleString()} 次（${rate}%）｜${x.value.toLocaleString()} P/個`;
+    }).join("<br>")+
+    `</div></div>`;
+}
+
+function refineBoxReset(){
+  refineBoxState={
+    total:0,
+    totalValue:0,
+    counts:Object.fromEntries(refineBoxItems.map(x=>[x.name,0]))
+  };
+  document.getElementById("refineBoxNow").innerHTML="";
+  document.getElementById("refineBoxStats").innerHTML="";
+  document.getElementById("refineBoxDist").innerHTML="";
+}
 
 
 let xrG={
@@ -3491,6 +3681,15 @@ onSnapshot(q,snap=>{
   const e=document.getElementById("fbStatus");
   if(e)e.textContent="⚠️ 戰報讀取失敗";
 });
+</script>
+
+
+<script>
+function starroJumpTo(keyword){
+  const target=[...document.querySelectorAll("section.card")].find(x=>x.innerText.includes(keyword));
+  if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+  document.querySelectorAll(".top-group[open]").forEach(x=>x.removeAttribute("open"));
+}
 </script>
 
 </body></html>
