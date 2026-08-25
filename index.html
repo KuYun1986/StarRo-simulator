@@ -288,7 +288,7 @@ a{color:#77a9ff}
 
 
 <section class="card">
-<h2>完整流程</h2>
+<h2>自訂流程</h2>
 <p class="tiny">目前只保留精煉 1% 流程。</p>
 <div id="steps"></div>
 <div class="actions">
@@ -297,10 +297,10 @@ a{color:#77a9ff}
 </div>
 <div style="margin-top:14px">
 <label>模擬次數</label>
-<input id="flowTrials" type="number" min="1" max="1000000" value="100000">
+<input id="flowTrials" type="number" min="1" max="1000000" value="1000">
 </div>
 <div class="actions">
-<button class="primary" onclick="runFlow()">模擬完整流程</button>
+<button class="primary" onclick="runFlow()">模擬自訂流程</button>
 <button onclick="clearSteps()">清空</button>
 </div>
 <div id="theory" style="margin-top:14px"></div>
@@ -312,7 +312,6 @@ a{color:#77a9ff}
 <p class="tiny">
   <span style="color:#ff5f6d;font-weight:800;display:block;margin-bottom:6px">1% 基礎掉落率道具</span>
   <span>固定條件：伺服器倍率 1、DAIDAI 1、超黏掉寶糖 2、無限幻境 2、等級懲罰 0。</span><br>
-  <span style="color:#ffd76a">備註：吃惡波卷，卡片掉落 +200%</span>
 </p>
 
 <div class="drop-checks">
@@ -349,6 +348,40 @@ a{color:#77a9ff}
 <div id="dropRateResult" class="statgrid" style="margin-top:12px"></div>
 <div id="dropRateDetail" style="margin-top:10px"></div>
 </section>
+
+<section class="card" id="cardDecomposeSimulator">
+<h2>🧩 卡片分解模擬</h2>
+<p class="tiny">
+依怪物密集設定試算。每 <b>30 張卡片</b>可分解 1 次，每次有 <b>25%</b> 機率獲得 1 個完整符文；分解結果以<b>期望值</b>顯示。
+</p>
+
+<div class="row">
+  <span>技能範圍 / 10分鐘殺怪量</span>
+  <select id="decomposeRange">
+    <option value="20000">颶風 19×19｜20,000 隻</option>
+    <option value="10000">圓桌 13×13｜10,000 隻</option>
+    <option value="5000">爆破 9×9｜5,000 隻</option>
+  </select>
+  <span></span>
+</div>
+
+<div class="row">
+  <span>掉落率</span>
+  <input id="decomposeDropRate" type="number" min="0" step="0.01" value="70.25">
+  <span>%</span>
+</div>
+
+<div class="actions">
+  <button class="primary" onclick="simulateDecomposeMinutes(10)">模擬 10 分鐘</button>
+  <button onclick="simulateDecomposeMinutes(30)">模擬 30 分鐘</button>
+  <button onclick="simulateDecomposeMinutes(60)">模擬 1 小時</button>
+  <button onclick="resetDecompose()">清除紀錄</button>
+</div>
+
+<div id="decomposeNow" class="statgrid" style="margin-top:12px"></div>
+<div id="decomposeStats" style="margin-top:10px"></div>
+</section>
+
 
 
 
@@ -3567,10 +3600,13 @@ function calcDropRate(){
   const detail = document.getElementById("dropRateDetail");
   if(!result || !detail) return;
 
+  const expectedCards10000 = 10000 * (finalRate / 100);
+
   result.innerHTML =
     `<div class="stat"><span class="label">1% 道具最終掉落率</span><b class="ok">${finalRate.toFixed(2)}%</b></div>` +
     `<div class="stat"><span class="label">實際卡片掉落率</span><b>${cardPercent.toFixed(0)}%</b></div>` +
-    `<div class="stat"><span class="label">後段倍率</span><b>${secondPart.toFixed(2)}</b></div>`;
+    `<div class="stat"><span class="label">後段倍率</span><b>${secondPart.toFixed(2)}</b></div>` +
+    `<div class="stat"><span class="label">殺 10,000 隻小怪｜預期卡片</span><b class="ok">${expectedCards10000.toFixed(0)} 張</b></div>`;
 
   detail.innerHTML =
     `<div class="stat"><span class="label">實際代入</span>` +
@@ -3583,6 +3619,7 @@ function calcDropRate(){
     `(1 × (1 + ${infiniteDream}) × ${cardRate.toFixed(2)}) × ` +
     `(${serverRate} - ${levelPenalty} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
     `<br>= <b class="ok">${finalRate.toFixed(2)}%</b>` +
+    `<br><br>殺 10,000 隻小怪期望值：10,000 × ${finalRate.toFixed(2)}% = <b class="ok">${expectedCards10000.toFixed(0)} 張</b>` +
     `</div></div>`;
 }
 
@@ -3634,4 +3671,72 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 </script>
 
+<script>
+
+const decomposeState = {runs:0,totalKills:0,totalCards:0,totalBreaks:0,totalRunes:0};
+
+function binomialSample(n,p){
+  let hit=0;
+  for(let i=0;i<n;i++) if(Math.random()<p) hit++;
+  return hit;
+}
+
+function simulateDecomposeMinutes(minutes){
+  const killsPer10Min = Math.max(0, Number(document.getElementById("decomposeRange")?.value || 0));
+  const dropRate = Math.max(0, Number(document.getElementById("decomposeDropRate")?.value || 0)) / 100;
+
+  const multiplier = minutes / 10;
+  const batchKills = Math.round(killsPer10Min * multiplier);
+  const batchCards = binomialSample(batchKills, Math.min(dropRate,1));
+  const batchBreaks = Math.floor(batchCards / 30);
+  const batchRunes = batchBreaks * 0.25;
+
+  decomposeState.runs += 1;
+  decomposeState.totalKills += batchKills;
+  decomposeState.totalCards += batchCards;
+  decomposeState.totalBreaks += batchBreaks;
+  decomposeState.totalRunes += batchRunes;
+
+  const now = document.getElementById("decomposeNow");
+  const stats = document.getElementById("decomposeStats");
+
+  const expectedCards = batchKills * dropRate;
+  const expectedBreaks = Math.floor(expectedCards / 30);
+  const expectedRunes = expectedBreaks * 0.25;
+
+  const timeLabel = minutes === 60 ? "1 小時" : `${minutes} 分鐘`;
+
+  now.innerHTML =
+    `<div class="stat"><span class="label">${timeLabel}殺怪</span><b>${batchKills.toLocaleString()} 隻</b></div>`+
+    `<div class="stat"><span class="label">${timeLabel}掉卡</span><b class="ok">${batchCards.toLocaleString()} 張</b></div>`+
+    `<div class="stat"><span class="label">可分解次數</span><b>${batchBreaks.toLocaleString()} 次</b></div>`+
+    `<div class="stat"><span class="label">完整符文期望值</span><b class="ok">${batchRunes.toFixed(2)} 個</b></div>`;
+
+  stats.innerHTML =
+    `<div class="stat"><span class="label">${timeLabel}理論期望值</span>`+
+    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
+    `掉落率：${(dropRate*100).toFixed(2)}%<br>`+
+    `預期卡片：${expectedCards.toFixed(1)} 張<br>`+
+    `預期可分解：約 ${expectedBreaks.toLocaleString()} 次<br>`+
+    `預期完整符文：約 ${expectedRunes.toFixed(2)} 個`+
+    `</div></div>`+
+    `<div class="stat" style="margin-top:10px"><span class="label">累計模擬</span>`+
+    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
+    `累計 ${decomposeState.runs.toLocaleString()} 次｜殺怪 ${decomposeState.totalKills.toLocaleString()}｜卡片 ${decomposeState.totalCards.toLocaleString()}｜分解 ${decomposeState.totalBreaks.toLocaleString()}｜完整符文期望值 ${decomposeState.totalRunes.toFixed(2)}`+
+    `</div></div>`;
+}
+
+function resetDecompose(){
+  decomposeState.runs=0;
+  decomposeState.totalKills=0;
+  decomposeState.totalCards=0;
+  decomposeState.totalBreaks=0;
+  decomposeState.totalRunes=0;
+  const now=document.getElementById("decomposeNow");
+  const stats=document.getElementById("decomposeStats");
+  if(now) now.innerHTML="";
+  if(stats) stats.innerHTML="";
+}
+
+</script>
 </body></html>
