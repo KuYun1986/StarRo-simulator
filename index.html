@@ -311,10 +311,11 @@ a{color:#77a9ff}
 <h2>🎁 掉落率計算器</h2>
 <p class="tiny">
   <span style="color:#ff5f6d;font-weight:800;display:block;margin-bottom:6px">1% 基礎掉落率道具</span>
-  <span>固定條件：伺服器倍率 1、無限幻境 +200%、卡片掉落內建 100%、等級懲罰 0。</span><br>
+  <span>固定條件：伺服器倍率 1、卡片掉落內建 100%、等級懲罰 0。</span><br>
 </p>
 
 <div class="drop-checks">
+  <label><input id="dropUseDream" type="checkbox" checked> 幻境：+200%掉落率</label>
   <label><input id="dropUseDaidai" type="checkbox"> 呆呆：掉落率 +100%</label>
   <label><input id="dropUseCandy" type="checkbox"> 超黏掉寶糖：+200%掉落率</label>
   <label><input id="dropUseEvil" type="checkbox"> 惡波卷：卡片掉落 +200%</label>
@@ -340,7 +341,7 @@ a{color:#77a9ff}
 <div class="stat" style="margin-top:12px">
   <span class="label">計算公式</span>
   <div class="tiny" style="line-height:1.9;margin-top:6px">
-    (基礎掉落率 × (100% + 幻境 200%) × 卡片掉落率)<br>
+    (基礎掉落率 × (100% + 幻境 200%※勾選) × 卡片掉落率)<br>
     × (伺服器倍率 + DAIDAI + 掉落率 + 超黏掉寶糖)
   </div>
 </div>
@@ -367,7 +368,7 @@ a{color:#77a9ff}
 </div>
 
 <div class="row">
-  <span>掉落率</span>
+  <span>掉卡率</span>
   <input id="decomposeDropRate" type="number" min="0" step="0.01" value="70.25">
   <span>%</span>
 </div>
@@ -3574,6 +3575,7 @@ function calcDropRate(){
   const cardBasePercent = Number(document.getElementById("dropCardRate")?.value || 0);
   const equipPercent = Number(document.getElementById("dropEquipRate")?.value || 0);
 
+  const useDream = !!document.getElementById("dropUseDream")?.checked;
   const useDaidai = !!document.getElementById("dropUseDaidai")?.checked;
   const useCandy = !!document.getElementById("dropUseCandy")?.checked;
   const useEvil = !!document.getElementById("dropUseEvil")?.checked;
@@ -3586,7 +3588,7 @@ function calcDropRate(){
 
   const baseDrop = 1;
   const serverRate = 1;
-  const infiniteDreamBonus = 2; // 幻境 +200%
+  const infiniteDreamBonus = useDream ? 2 : 0; // 幻境勾選時 +200%
   const levelPenalty = 0;
   const daidai = useDaidai ? 1 : 0;
   const candy = useCandy ? 2 : 0;
@@ -3613,7 +3615,7 @@ function calcDropRate(){
     `卡片掉落率：基礎 100% + ${cardBasePercent}%` +
     `${useEvil ? ` + 惡波 200%` : ""}` +
     ` = ${cardPercent}%<br>` +
-    `掉落率：${equipPercent}%｜呆呆：${useDaidai ? "掉落率 +100%" : "未使用"}｜超黏：${useCandy ? "使用 +200%掉落率" : "未使用"}<br>` +
+    `幻境：${useDream ? "使用 +200%掉落率" : "未使用"}｜掉落率：${equipPercent}%｜呆呆：${useDaidai ? "掉落率 +100%" : "未使用"}｜超黏：${useCandy ? "使用 +200%掉落率" : "未使用"}<br>` +
     `(1 × (1 + ${infiniteDreamBonus}) × ${cardRate.toFixed(2)}) × ` +
     `(${serverRate} - ${levelPenalty} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
     `<br>= <b class="ok">${finalRate.toFixed(2)}%</b>` +
@@ -3662,7 +3664,7 @@ function calcBossCardRate(){
 
 document.addEventListener("DOMContentLoaded", ()=>{
   calcDropRate();
-  ["dropUseDaidai","dropUseCandy","dropUseEvil"].forEach(id=>{
+  ["dropUseDream","dropUseDaidai","dropUseCandy","dropUseEvil"].forEach(id=>{
     document.getElementById(id)?.addEventListener("change", calcDropRate);
   });
 });
