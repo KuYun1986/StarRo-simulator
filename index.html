@@ -3602,9 +3602,11 @@ function calcDropRate(){
   if(!result || !detail) return;
 
   const expectedCards10000 = 10000 * (finalRate / 100);
+  const finalRate01 = finalRate / 10;
 
   result.innerHTML =
-    `<div class="stat"><span class="label">1% 道具最終掉落率</span><b class="ok">${finalRate.toFixed(2)}%</b></div>` +
+    `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">1%</span> 道具<span style="color:#f7c65c;font-weight:800">(普卡)</span>最終掉落率</span><b class="ok">${finalRate.toFixed(2)}%</b></div>` +
+    `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">0.1%</span>道具<span style="color:#f7c65c;font-weight:800">(王卡)</span>最終掉落率</span><b class="ok">${finalRate01.toFixed(2)}%</b></div>` +
     `<div class="stat"><span class="label">實際卡片掉落率（含基礎100%）</span><b>${cardPercent.toFixed(0)}%</b></div>` +
     `<div class="stat"><span class="label">後段倍率</span><b>${secondPart.toFixed(2)}</b></div>` +
     `<div class="stat"><span class="label">殺 10,000 隻小怪｜預期卡片</span><b class="ok">${expectedCards10000.toFixed(0)} 張</b></div>`;
