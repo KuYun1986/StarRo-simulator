@@ -330,7 +330,7 @@ a{color:#77a9ff}
 
 <div class="row">
   <span>基礎掉落率</span>
-  <input id="dropEquipRate" type="number" min="0" step="1" value="170">
+  <input id="dropEquipRate" type="number" min="0" step="1" value="183">
   <span>%</span>
 </div>
 
@@ -3614,15 +3614,13 @@ function calcDropRate(){
   const detail = document.getElementById("dropRateDetail");
   if(!result || !detail) return;
 
-  const expectedCards10000 = 10000 * (finalRate / 100);
   const finalRate01 = finalRate / 10;
 
   result.innerHTML =
     `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">1%</span> 道具<span style="color:#f7c65c;font-weight:800">(普卡)</span>最終掉落率</span><b class="ok">${finalRate.toFixed(2)}%</b></div>` +
     `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">0.1%</span>道具<span style="color:#f7c65c;font-weight:800">(王卡)</span>最終掉落率</span><b class="ok">${finalRate01.toFixed(2)}%</b></div>` +
     `<div class="stat"><span class="label">實際卡片掉落率（含基礎100%）</span><b>${cardPercent.toFixed(0)}%</b></div>` +
-    `<div class="stat"><span class="label">後段倍率</span><b>${secondPart.toFixed(2)}</b></div>` +
-    `<div class="stat"><span class="label">殺 10,000 隻小怪｜預期卡片</span><b class="ok">${expectedCards10000.toFixed(0)} 張</b></div>`;
+    `<div class="stat"><span class="label">後段倍率</span><b>${secondPart.toFixed(2)}</b></div>`;
 
   detail.innerHTML =
     `<div class="stat"><span class="label">實際代入</span>` +
@@ -3634,7 +3632,6 @@ function calcDropRate(){
     `(1 × (1 + ${infiniteDreamBonus}) × ${cardRate.toFixed(2)}) × ` +
     `(${serverRate} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
     `<br>= <b class="ok">${finalRate.toFixed(2)}%</b>` +
-    `<br><br>殺 10,000 隻小怪期望值：10,000 × ${finalRate.toFixed(2)}% = <b class="ok">${expectedCards10000.toFixed(0)} 張</b>` +
     `</div></div>`;
 }
 
