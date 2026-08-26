@@ -311,7 +311,7 @@ a{color:#77a9ff}
 <h2>🎁 掉落率計算器</h2>
 <p class="tiny">
   <span style="color:#ff5f6d;font-weight:800;display:block;margin-bottom:6px">1% 基礎掉落率道具</span>
-  <span>固定條件：伺服器倍率 1、卡片掉落內建 100%、等級懲罰 0。</span><br>
+  <span>固定條件：伺服器倍率 1、卡片掉落內建 100%。</span><br>
 </p>
 
 <div class="drop-checks">
@@ -368,9 +368,9 @@ a{color:#77a9ff}
 </div>
 
 <div class="row">
-  <span>掉卡率（等級懲罰 -50% 後）</span>
+  <span>掉卡率</span>
   <input id="decomposeDropRate" type="number" min="0" step="0.01" value="70.25">
-  <span>%｜EX：75%→25%，請填 25%</span>
+  <span>%</span>
 </div>
 
 <div class="actions">
@@ -3589,12 +3589,11 @@ function calcDropRate(){
   const baseDrop = 1;
   const serverRate = 1;
   const infiniteDreamBonus = useDream ? 2 : 0; // 幻境勾選時 +200%
-  const levelPenalty = 0;
   const daidai = useDaidai ? 1 : 0;
   const candy = useCandy ? 2 : 0;
 
   const firstPart = baseDrop * (1 + infiniteDreamBonus) * cardRate;
-  const secondPart = serverRate - levelPenalty + daidai + equipRate + candy;
+  const secondPart = serverRate + daidai + equipRate + candy;
   const finalRate = firstPart * secondPart;
 
   const result = document.getElementById("dropRateResult");
@@ -3619,7 +3618,7 @@ function calcDropRate(){
     ` = ${cardPercent}%<br>` +
     `幻境：${useDream ? "使用 +200%掉落率" : "未使用"}｜掉落率：${equipPercent}%｜呆呆：${useDaidai ? "掉落率 +100%" : "未使用"}｜超黏：${useCandy ? "使用 +200%掉落率" : "未使用"}<br>` +
     `(1 × (1 + ${infiniteDreamBonus}) × ${cardRate.toFixed(2)}) × ` +
-    `(${serverRate} - ${levelPenalty} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
+    `(${serverRate} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
     `<br>= <b class="ok">${finalRate.toFixed(2)}%</b>` +
     `<br><br>殺 10,000 隻小怪期望值：10,000 × ${finalRate.toFixed(2)}% = <b class="ok">${expectedCards10000.toFixed(0)} 張</b>` +
     `</div></div>`;
@@ -3638,10 +3637,9 @@ function calcBossCardRate(){
   const serverRate = 1;
   const daidai = 1;
   const candy = 2;
-  const levelPenalty = 0;
 
   const firstPart = baseDrop * (1 + infiniteDream) * cardRate;
-  const secondPart = serverRate - levelPenalty + daidai + equipRate + candy;
+  const secondPart = serverRate + daidai + equipRate + candy;
   const finalRate = firstPart * secondPart;
 
   const result = document.getElementById("bossCardResult");
@@ -3658,7 +3656,7 @@ function calcBossCardRate(){
     `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
     `基礎掉卡率 ${baseDrop}%｜幻境 ${infiniteDream}（內建）｜卡片掉落率 ${cardPercent}% = ${cardRate.toFixed(2)}｜掉落率 ${equipPercent}% = ${equipRate.toFixed(2)}<br>`+
     `(${baseDrop} × (1 + ${infiniteDream}) × ${cardRate.toFixed(2)}) × `+
-    `(${serverRate} - ${levelPenalty} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})`+
+    `(${serverRate} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})`+
     `<br>= ${firstPart.toFixed(6)} × ${secondPart.toFixed(4)}`+
     `<br>= <b class="ok">${finalRate.toFixed(4)}%</b>`+
     `</div></div>`;
