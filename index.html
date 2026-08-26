@@ -329,8 +329,8 @@ a{color:#77a9ff}
 </div>
 
 <div class="row">
-  <span>掉落率</span>
-  <input id="dropEquipRate" type="number" min="0" step="1" value="131">
+  <span>基礎掉落率</span>
+  <input id="dropEquipRate" type="number" min="0" step="1" value="145">
   <span>%</span>
 </div>
 
@@ -342,7 +342,7 @@ a{color:#77a9ff}
   <span class="label">計算公式</span>
   <div class="tiny" style="line-height:1.9;margin-top:6px">
     (基礎掉落率 × (100% + 幻境 200%※勾選) × 卡片掉落率)<br>
-    × (伺服器倍率 + DAIDAI + 掉落率 + 超黏掉寶糖)
+    × (伺服器倍率 + DAIDAI + 基礎掉落率 + 超黏掉寶糖)
   </div>
 </div>
 
@@ -369,7 +369,7 @@ a{color:#77a9ff}
 
 <div class="row">
   <span>掉卡率</span>
-  <input id="decomposeDropRate" type="number" min="0" step="0.01" value="70.25">
+  <input id="decomposeDropRate" type="number" min="0" step="0.01" value="72.1">
   <span>%</span>
 </div>
 
@@ -382,6 +382,20 @@ a{color:#77a9ff}
 
 <div id="decomposeNow" class="statgrid" style="margin-top:12px"></div>
 <div id="decomposeStats" style="margin-top:10px"></div>
+
+<div class="stat" style="margin-top:14px">
+  <span class="label">完整符文試算</span>
+  <div class="row" style="margin-top:10px">
+    <span>卡片張數</span>
+    <input id="manualRuneCards" type="number" min="0" step="1" value="5000">
+    <span>張</span>
+  </div>
+  <div class="actions" style="margin-top:10px">
+    <button class="primary" onclick="calcManualRunes()">試算完整符文</button>
+  </div>
+  <div id="manualRuneResult" class="statgrid" style="margin-top:12px"></div>
+  <div id="manualRuneDetail" style="margin-top:10px"></div>
+</div>
 </section>
 
 
@@ -3616,7 +3630,7 @@ function calcDropRate(){
     `卡片掉落率：基礎 100% + ${cardBasePercent}%` +
     `${useEvil ? ` + 惡波 200%` : ""}` +
     ` = ${cardPercent}%<br>` +
-    `幻境：${useDream ? "使用 +200%掉落率" : "未使用"}｜掉落率：${equipPercent}%｜呆呆：${useDaidai ? "掉落率 +100%" : "未使用"}｜超黏：${useCandy ? "使用 +200%掉落率" : "未使用"}<br>` +
+    `幻境：${useDream ? "使用 +200%掉落率" : "未使用"}｜基礎掉落率：${equipPercent}%｜呆呆：${useDaidai ? "掉落率 +100%" : "未使用"}｜超黏：${useCandy ? "使用 +200%掉落率" : "未使用"}<br>` +
     `(1 × (1 + ${infiniteDreamBonus}) × ${cardRate.toFixed(2)}) × ` +
     `(${serverRate} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
     `<br>= <b class="ok">${finalRate.toFixed(2)}%</b>` +
@@ -3689,7 +3703,7 @@ function simulateDecomposeMinutes(minutes){
   const batchKills = Math.round(killsPer10Min * multiplier);
   const batchCards = binomialSample(batchKills, Math.min(dropRate,1));
   const batchBreaks = Math.floor(batchCards / 30);
-  const batchRunes = batchBreaks * 0.25;
+  const batchRunes = Math.ceil(batchBreaks * 0.25);
 
   decomposeState.runs += 1;
   decomposeState.totalKills += batchKills;
@@ -3702,7 +3716,7 @@ function simulateDecomposeMinutes(minutes){
 
   const expectedCards = batchKills * dropRate;
   const expectedBreaks = Math.floor(expectedCards / 30);
-  const expectedRunes = expectedBreaks * 0.25;
+  const expectedRunes = Math.ceil(expectedBreaks * 0.25);
 
   const timeLabel = minutes === 60 ? "1 小時" : `${minutes} 分鐘`;
 
@@ -3710,7 +3724,7 @@ function simulateDecomposeMinutes(minutes){
     `<div class="stat"><span class="label">${timeLabel}殺怪</span><b>${batchKills.toLocaleString()} 隻</b></div>`+
     `<div class="stat"><span class="label">${timeLabel}掉卡</span><b class="ok">${batchCards.toLocaleString()} 張</b></div>`+
     `<div class="stat"><span class="label">可分解次數</span><b>${batchBreaks.toLocaleString()} 次</b></div>`+
-    `<div class="stat"><span class="label">完整符文期望值</span><b class="ok">${batchRunes.toFixed(2)} 個</b></div>`;
+    `<div class="stat"><span class="label">獲得</span><b style="color:#4da3ff">${batchRunes.toLocaleString()} 個完整符文</b></div>`;
 
   stats.innerHTML =
     `<div class="stat"><span class="label">${timeLabel}理論期望值</span>`+
@@ -3718,11 +3732,33 @@ function simulateDecomposeMinutes(minutes){
     `掉落率：${(dropRate*100).toFixed(2)}%<br>`+
     `預期卡片：${expectedCards.toFixed(1)} 張<br>`+
     `預期可分解：約 ${expectedBreaks.toLocaleString()} 次<br>`+
-    `預期完整符文：約 ${expectedRunes.toFixed(2)} 個`+
+    `預期完整符文：<span style="color:#4da3ff;font-weight:800">${expectedRunes.toLocaleString()} 個完整符文</span>`+
     `</div></div>`+
     `<div class="stat" style="margin-top:10px"><span class="label">累計模擬</span>`+
     `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
-    `累計 ${decomposeState.runs.toLocaleString()} 次｜殺怪 ${decomposeState.totalKills.toLocaleString()}｜卡片 ${decomposeState.totalCards.toLocaleString()}｜分解 ${decomposeState.totalBreaks.toLocaleString()}｜完整符文期望值 ${decomposeState.totalRunes.toFixed(2)}`+
+    `累計 ${decomposeState.runs.toLocaleString()} 次｜殺怪 ${decomposeState.totalKills.toLocaleString()}｜卡片 ${decomposeState.totalCards.toLocaleString()}｜分解 ${decomposeState.totalBreaks.toLocaleString()}｜完整符文 <span style="color:#4da3ff;font-weight:800">${Math.ceil(decomposeState.totalRunes).toLocaleString()} 個</span>`+
+    `</div></div>`;
+}
+
+function calcManualRunes(){
+  const cards = Math.max(0, Math.floor(Number(document.getElementById("manualRuneCards")?.value || 0)));
+  const breaks = Math.floor(cards / 30);
+  const runes = Math.ceil(breaks * 0.25);
+
+  const result = document.getElementById("manualRuneResult");
+  const detail = document.getElementById("manualRuneDetail");
+
+  result.innerHTML =
+    `<div class="stat"><span class="label">輸入卡片</span><b>${cards.toLocaleString()} 張</b></div>`+
+    `<div class="stat"><span class="label">可分解次數</span><b>${breaks.toLocaleString()} 次</b></div>`+
+    `<div class="stat"><span class="label">期望值</span><b style="color:#4da3ff">${runes.toLocaleString()} 個完整符文</b></div>`;
+
+  detail.innerHTML =
+    `<div class="stat"><span class="label">試算說明</span>`+
+    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
+    `每 30 張卡片可分解 1 次<br>`+
+    `分解次數：${cards.toLocaleString()} ÷ 30 = ${breaks.toLocaleString()} 次<br>`+
+    `完整符文期望值：${breaks.toLocaleString()} × 25% = <span style="color:#4da3ff;font-weight:800">${runes.toLocaleString()} 個完整符文</span>`+
     `</div></div>`;
 }
 
@@ -3737,6 +3773,8 @@ function resetDecompose(){
   if(now) now.innerHTML="";
   if(stats) stats.innerHTML="";
 }
+
+calcManualRunes();
 
 </script>
 </body></html>
