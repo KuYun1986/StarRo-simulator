@@ -269,6 +269,7 @@ a{color:#77a9ff}
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('自動詠唱機率模擬器'))x.scrollIntoView({behavior:'smooth',block:'start'})})">⚡ 自詠機率</button>
 
 <a href="game.html" class="game-page-link">🎮 遊戲區</a>
 <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
@@ -280,6 +281,7 @@ a{color:#77a9ff}
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <span class="label">🌐 全服即時戰報（最近7天）</span>
     <span id="fbStatus" class="tiny">連線中…</span>
+    <span id="dailyPageViewCount" class="tiny" style="color:#67a0ff;font-weight:800">👁 今日瀏覽：讀取中…</span>
     <button onclick="changeStarroName()" style="margin-left:auto">👤 <span id="fbNameLabel">設定暱稱</span></button>
   </div>
   <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
@@ -324,7 +326,7 @@ a{color:#77a9ff}
 
 <div class="row">
   <span>卡片掉落率</span>
-  <input id="dropCardRate" type="number" min="0" step="1" value="141">
+  <input id="dropCardRate" type="number" min="0" step="0.01" value="77.13">
   <span>%</span>
 </div>
 
@@ -550,6 +552,54 @@ a{color:#77a9ff}
 
 
 
+
+
+<section class="card" id="autocastSimulator">
+<h2>⚡ 自動詠唱機率模擬器</h2>
+<p class="tiny">前段填技能／道具的基礎自詠機率；後段填「詞＋石＋收藏」的乘算加成。</p>
+
+<div class="row" style="grid-template-columns:1fr 150px">
+  <label for="autoBase">前段：基礎自詠機率（技能/道具）</label>
+  <input id="autoBase" type="number" min="0" step="0.01" value="25">
+</div>
+
+<div class="row" style="grid-template-columns:1fr 150px">
+  <label for="autoBonus">後段：詞＋石＋收藏</label>
+  <input id="autoBonus" type="number" min="0" step="0.01" value="280">
+</div>
+
+<div class="row" style="grid-template-columns:1fr 150px">
+  <label for="autoAspd">ASPD</label>
+  <select id="autoAspd">
+    <option value="193">193</option>
+    <option value="194">194</option>
+    <option value="195">195</option>
+    <option value="196">196</option>
+    <option value="197" selected>197</option>
+  </select>
+</div>
+
+<div class="stat" style="margin-top:12px">
+  <span class="label">計算公式</span>
+  <div id="autoFormula" style="font-size:17px;line-height:1.8;margin-top:5px"></div>
+</div>
+
+<div class="statgrid">
+  <div class="stat"><span class="label">最終實際自詠率</span><b id="autoFinal" class="ok">95%</b></div>
+  <div class="stat"><span class="label">理論自詠率</span><b id="autoRaw">95%</b></div>
+  <div class="stat"><span class="label">未觸發機率</span><b id="autoMiss">5%</b></div>
+  <div class="stat"><span class="label">每秒攻擊次數</span><b id="autoAPS">16.67 下</b></div>
+  <div class="stat"><span class="label">每秒期望自詠次數</span><b id="autoCasts">15.83 次</b></div>
+</div>
+
+<div id="autoWarn" class="tiny bad" style="display:none;margin-top:10px">
+  ⚠ 理論值超過 100%，實際自詠機率以 100% 顯示。
+</div>
+
+<p class="tiny" style="margin-top:12px">
+  自詠公式：前段 ×（1 + 後段%）｜ASPD 每秒攻擊次數：50 ÷（200 − ASPD）
+</p>
+</section>
 
 <section class="card">
 <h2>🏆 SSS評級系統</h2>
@@ -3550,6 +3600,34 @@ function renderFeed(rows){
   }).join("");
 }
 
+
+function taipeiDateKey(){
+  return new Intl.DateTimeFormat("en-CA",{
+    timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"
+  }).format(new Date());
+}
+
+async function registerDailyPageView(){
+  const el=document.getElementById("dailyPageViewCount");
+  try{
+    const dateKey=taipeiDateKey();
+    const namespace="starro-simulator-v777";
+    const key=`pageviews-${dateKey}`;
+    const url=`https://abacus.jasoncameron.dev/hit/${encodeURIComponent(namespace)}/${encodeURIComponent(key)}`;
+    const response=await fetch(url,{cache:"no-store"});
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data=await response.json();
+    const value=Number(data?.value ?? 0);
+    if(!Number.isFinite(value)) throw new Error("invalid counter response");
+    if(el) el.textContent=`👁 今日瀏覽：${value.toLocaleString()} 次`;
+  }catch(err){
+    console.error("每日 Page View 統計失敗",err);
+    if(el) el.textContent="👁 今日瀏覽：讀取失敗";
+  }
+}
+
+registerDailyPageView();
+
 signInAnonymously(auth).catch(err=>{
   console.error(err);
   const e=document.getElementById("fbStatus");
@@ -3774,4 +3852,48 @@ function resetDecompose(){
 calcManualRunes();
 
 </script>
+
+<script>
+(function(){
+  function fmtAuto(n){ return Number(n.toFixed(2)).toString(); }
+
+  function calcAutocast(){
+    const baseEl=document.getElementById("autoBase");
+    const bonusEl=document.getElementById("autoBonus");
+    const aspdEl=document.getElementById("autoAspd");
+    if(!baseEl||!bonusEl||!aspdEl)return;
+
+    const base=Math.max(0,parseFloat(baseEl.value)||0);
+    const bonus=Math.max(0,parseFloat(bonusEl.value)||0);
+    const aspd=parseFloat(aspdEl.value)||197;
+
+    const multiplier=1+bonus/100;
+    const raw=base*multiplier;
+    const actual=Math.min(raw,100);
+    const miss=Math.max(0,100-actual);
+    const aps=50/(200-aspd);
+    const casts=aps*(actual/100);
+
+    document.getElementById("autoFinal").textContent=fmtAuto(actual)+"%";
+    document.getElementById("autoRaw").textContent=fmtAuto(raw)+"%";
+    document.getElementById("autoMiss").textContent=fmtAuto(miss)+"%";
+    document.getElementById("autoAPS").textContent=fmtAuto(aps)+" 下";
+    document.getElementById("autoCasts").textContent=fmtAuto(casts)+" 次";
+    document.getElementById("autoFormula").textContent=
+      `${fmtAuto(base)}% ×（1 + ${fmtAuto(bonus)}%）= ${fmtAuto(base)}% × ${fmtAuto(multiplier)} = ${fmtAuto(raw)}%`;
+
+    document.getElementById("autoWarn").style.display = raw>100 ? "block" : "none";
+  }
+
+  ["autoBase","autoBonus"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener("input",calcAutocast);
+  });
+  const aspd=document.getElementById("autoAspd");
+  if(aspd)aspd.addEventListener("change",calcAutocast);
+
+  calcAutocast();
+})();
+</script>
+
 </body></html>
