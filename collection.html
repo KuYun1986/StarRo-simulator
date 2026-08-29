@@ -180,11 +180,14 @@ const SUBCAT_ORDER=["JRO卡片","JRO裝備","MVP","其他","套卡","套裝","�
 const SPECIAL_FILTERS = {
   "爆擊傷害":"爆擊傷害",
   "遠距離攻擊":"遠距離攻擊",
+  "近距離":"近距離",
   "全屬性魔法傷害":"全屬性魔法傷害",
+  "MATK":"MATK",
+  "ATK":"ATK",
   "CRI":"CRI",
   "C.RATE":"C.RATE"
 };
-const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","全屬性魔法傷害","CRI","C.RATE"];
+const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","近距離","全屬性魔法傷害","MATK","ATK","CRI","C.RATE"];
 
 const ALIAS={
  "Int":"INT","Str":"STR","Agi":"AGI","Vit":"VIT","Dex":"DEX","Luk":"LUK",
@@ -289,8 +292,11 @@ function matchSpecial(item,specialKey){
   const has=(name)=>keys.includes(name) || effect.toLowerCase().includes(String(name).toLowerCase());
 
   if(specialKey==="爆擊傷害") return has("爆擊傷害");
-  if(specialKey==="遠距離攻擊") return has("遠距離傷害") || has("近/遠距離傷害") || /遠距離/.test(effect);
+  if(specialKey==="遠距離攻擊") return has("遠距離傷害") || /遠距離|遠程/.test(effect);
+  if(specialKey==="近距離") return has("近距離傷害") || /近距離/.test(effect);
   if(specialKey==="全屬性魔法傷害") return has("全屬性魔法傷害");
+  if(specialKey==="MATK") return has("MATK");
+  if(specialKey==="ATK") return has("ATK");
   if(specialKey==="CRI") return has("CRI");
   if(specialKey==="C.RATE") return has("C.RATE");
   return true;
