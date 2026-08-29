@@ -448,9 +448,36 @@ $("#selectSpecialVisible").addEventListener("click",()=>{
   save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
 });
 $("#clearSpecialFilter").addEventListener("click",()=>{
-  activeSpecial="all";
+  if(activeSpecial==="all"){
+    alert("請先選擇一個特定分類");
+    return;
+  }
+
+  let cleared=0;
+  for(const it of ITEMS){
+    if(!matchSpecial(it,activeSpecial)) continue;
+
+    const g=$("#groupFilter").value;
+    if(g!=="all" && it.group!==g) continue;
+    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) continue;
+
+    const q=$("#search").value.trim().toLowerCase();
+    if(q){
+      const reqText=(it.required||[]).join(" ");
+      const hay=(it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText).toLowerCase();
+      if(!hay.includes(q)) continue;
+    }
+
+    const k=keyOf(it);
+    if(selected.delete(k)) cleared++;
+  }
+
+  save();
+  updateSummary();
+  renderSubcats();
   renderSpecials();
   renderList();
+  renderTotals();
 });
 $("#clear").addEventListener("click",()=>{
   if(!confirm("確定清除全部已勾選收藏？"))return;
