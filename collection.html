@@ -98,6 +98,9 @@ section{padding:12px;min-width:0}
     </select>
     <button id="selectVisible" class="primary">勾選目前結果</button>
     <button id="onlySelected">只看已勾選：關</button>
+    <button id="exportExcel">📤 匯出 Excel</button>
+    <button id="importExcel">📥 匯入 Excel</button>
+    <input id="importExcelFile" type="file" accept=".xls,.html,.htm" style="display:none">
     <button id="clear" class="danger">全部清除</button>
     <label class="slot-input">普通格子 <input id="normalSlots" type="number" min="0" step="1" value="1000"></label>
     <label class="slot-input">JRO格子 <input id="jroSlots" type="number" min="0" step="1" value="600"></label>
@@ -146,7 +149,7 @@ section{padding:12px;min-width:0}
         <h3>⚠️ 條件式／無法直接加總效果</h3>
         <div class="cond-list" id="conditions"></div>
       </div>
-      <div class="footer-note">重新整理頁面後會恢復為全部未勾選。</div>
+      <div class="footer-note">重新整理頁面後會恢復為全部未勾選；可先匯出 Excel，下次再匯入繼續新增勾選。</div>
     </section>
   </div>
 </div>
@@ -404,6 +407,153 @@ function renderTotals(){
   ).join(""):'<div class="empty">目前沒有條件式效果</div>';
 }
 
+
+function excelEsc(s){
+  return String(s??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+function exportSelectedExcel(){
+  const picked=ITEMS.filter(it=>selected.has(keyOf(it)));
+  if(!picked.length){
+    alert("目前沒有勾選任何收藏");
+    return;
+  }
+
+  const rows=picked.map(it=>`
+    <tr>
+      <td>${excelEsc(it.group)}</td>
+      <td>${excelEsc(SUBCAT_LABELS[subcatOf(it)]||subcatOf(it))}</td>
+      <td>${excelEsc(it.name)}</td>
+      <td>${excelEsc(it.effect)}</td>
+      <td>${Number(it.slot||0)}</td>
+      <td>${excelEsc((it.required||[]).join("｜"))}</td>
+      <td>${excelEsc(keyOf(it))}</td>
+    </tr>`).join("");
+
+  const normalUsed=picked.filter(it=>it.group==="普通收藏").reduce((a,it)=>a+(Number(it.slot)||0),0);
+  const jroUsed=picked.filter(it=>it.group==="JRO收藏").reduce((a,it)=>a+(Number(it.slot)||0),0);
+
+  const book=`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="application/vnd.ms-excel; charset=UTF-8">
+<title>繁星收藏勾選資料</title>
+<style>
+table{border-collapse:collapse;font-family:"Microsoft JhengHei",sans-serif}
+th,td{border:1px solid #999;padding:6px;vertical-align:top}
+th{background:#ddebf7}
+.meta{margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="meta">
+  <b>繁星收藏勾選資料</b><br>
+  已勾選：${picked.length} 筆｜
+  普通使用格：${normalUsed}｜
+  JRO使用格：${jroUsed}
+</div>
+<table>
+<thead>
+<tr>
+<th>收藏類型</th>
+<th>子分類</th>
+<th>收藏名稱</th>
+<th>效果</th>
+<th>佔格</th>
+<th>需求道具</th>
+<th>收藏KEY</th>
+</tr>
+</thead>
+<tbody>${rows}</tbody>
+</table>
+</body>
+</html>`;
+
+  const blob=new Blob(["\ufeff",book],{type:"application/vnd.ms-excel;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,"0");
+  const stamp=`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+  a.href=url;
+  a.download=`繁星收藏_${picked.length}筆_${stamp}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function importSelectedExcel(file){
+  if(!file) return;
+  try{
+    const text=await file.text();
+    const doc=new DOMParser().parseFromString(text,"text/html");
+    const table=doc.querySelector("table");
+    if(!table) throw new Error("找不到收藏表格");
+
+    const rows=[...table.querySelectorAll("tbody tr")];
+    if(!rows.length) throw new Error("Excel 內沒有收藏資料");
+
+    const byKey=new Map(ITEMS.map(it=>[keyOf(it),it]));
+    const byName=new Map();
+    for(const it of ITEMS){
+      const n=it.name.trim();
+      if(!byName.has(n)) byName.set(n,[]);
+      byName.get(n).push(it);
+    }
+
+    let added=0, matched=0, skipped=0;
+    for(const tr of rows){
+      const cells=[...tr.querySelectorAll("td")].map(td=>td.textContent.trim());
+      if(!cells.length) continue;
+
+      const name=cells[2]||"";
+      const importedKey=cells[6]||"";
+      let item=byKey.get(importedKey);
+
+      if(!item && name){
+        const candidates=byName.get(name.trim())||[];
+        if(candidates.length===1) item=candidates[0];
+        else if(candidates.length>1){
+          const group=cells[0]||"";
+          item=candidates.find(x=>x.group===group) || candidates[0];
+        }
+      }
+
+      if(!item){
+        skipped++;
+        continue;
+      }
+
+      matched++;
+      const k=keyOf(item);
+      if(!selected.has(k)){
+        selected.add(k);
+        added++;
+      }
+    }
+
+    save();
+    updateSummary();
+    renderSubcats();
+    renderSpecials();
+    renderList();
+    renderTotals();
+
+    alert(`匯入完成：辨識 ${matched} 筆，新增勾選 ${added} 筆${skipped?`，未匹配 ${skipped} 筆`:""}。`);
+  }catch(err){
+    console.error(err);
+    alert("匯入失敗：請使用此頁面匯出的 Excel (.xls) 檔案。");
+  }finally{
+    $("#importExcelFile").value="";
+  }
+}
+
 function updateSummary(){
   $("#totalCount").textContent=ITEMS.length.toLocaleString();
   $("#selectedCount").textContent=selected.size.toLocaleString();
@@ -425,6 +575,10 @@ function updateSummary(){
   $("#normalUsed").style.color=normalUsed>normalCap?"var(--red)":"var(--green)";
   $("#jroUsed").style.color=jroUsed>jroCap?"var(--red)":"var(--green)";
 }
+
+$("#exportExcel").addEventListener("click",exportSelectedExcel);
+$("#importExcel").addEventListener("click",()=>$("#importExcelFile").click());
+$("#importExcelFile").addEventListener("change",e=>importSelectedExcel(e.target.files?.[0]));
 
 $("#normalSlots").addEventListener("input",updateSummary);
 $("#jroSlots").addEventListener("input",updateSummary);
