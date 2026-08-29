@@ -193,7 +193,7 @@ const ALIAS={
  "Int":"INT","Str":"STR","Agi":"AGI","Vit":"VIT","Dex":"DEX","Luk":"LUK",
  "Cri":"CRI","C.Rate":"C.RATE","C.rate":"C.RATE","Pow":"POW","Spl":"SPL","Con":"CON","Crt":"CRT",
  "P.Atk":"P.ATK","P.atk":"P.ATK","PATK":"P.ATK","S.Matk":"S.MATK","S.matk":"S.MATK","SMATK":"S.MATK","/S.MATK":"S.MATK",
- "MaxHP":"MHP","MaxSP":"MSP","AllState":"ALL","暴擊傷害":"爆擊傷害","爆擊傷害":"爆擊傷害","全屬性魔法攻擊傷害":"全屬性魔法傷害","全屬性魔法傷害":"全屬性魔法傷害","遠距離物理攻擊力":"遠距離傷害","遠距離物理攻擊傷害":"遠距離傷害","遠距離物理傷害":"遠距離傷害","遠程物理傷害":"遠距離傷害","遠距離攻擊傷害":"遠距離傷害","遠距離物理攻擊":"遠距離傷害","近/遠距離物理攻擊傷害":"遠距離傷害","近/遠距離物理傷害":"遠距離傷害","遠/近距離物理攻擊傷害":"遠距離傷害","遠/近距離物理傷害":"遠距離傷害","近/遠距離傷害":"遠距離傷害","近/遠距離物理攻擊力":"遠距離傷害","近距離與遠距離物理攻擊力":"遠距離傷害","近距離與遠距離的物理傷害":"遠距離傷害",
+ "MaxHP":"MHP","MaxSP":"MSP","AllState":"ALL","暴擊傷害":"爆擊傷害","爆擊傷害":"爆擊傷害","全屬性魔法攻擊傷害":"全屬性魔法傷害","全屬性魔法傷害":"全屬性魔法傷害","遠距離物理攻擊力":"遠距離傷害","遠距離物理攻擊傷害":"遠距離傷害","遠距離物理傷害":"遠距離傷害","遠程物理傷害":"遠距離傷害","遠距離攻擊傷害":"遠距離傷害","遠距離物理攻擊":"遠距離傷害","近/遠距離物理攻擊傷害":"近/遠距離傷害","近/遠距離物理傷害":"近/遠距離傷害","遠/近距離物理攻擊傷害":"近/遠距離傷害","遠/近距離物理傷害":"近/遠距離傷害","近/遠距離傷害":"近/遠距離傷害","近/遠距離物理攻擊力":"近/遠距離傷害","近距離與遠距離物理攻擊力":"近/遠距離傷害","近距離與遠距離的物理傷害":"近/遠距離傷害",
  "全技能終傷":"技能終傷","所有技能終傷":"技能終傷"
 };
 const CONDITIONAL=["每","當","時","機率","精煉","Base","base","基礎","習得","裝備一件","達到","以上","以下","依照","根據"];
@@ -245,7 +245,8 @@ function addStat(map,label,val,isPct){
     "ATK/MATK":["ATK","MATK"],
     "P.ATK/S.MATK":["P.ATK","S.MATK"],
     "P.Atk/S.M.Atk":["P.ATK","S.MATK"],
-    "RES/MRES":["RES","MRES"]
+    "RES/MRES":["RES","MRES"],
+    "近/遠距離傷害":["近距離傷害","遠距離傷害"]
   };
   const labels=combo[label]||[label];
   for(const l0 of labels){
@@ -295,8 +296,8 @@ function matchSpecial(item,specialKey){
   if(specialKey==="遠距離攻擊") return has("遠距離傷害") || /遠距離|遠程/.test(effect);
   if(specialKey==="近距離") return has("近距離傷害") || /近距離/.test(effect);
   if(specialKey==="全屬性魔法傷害") return has("全屬性魔法傷害");
-  if(specialKey==="MATK") return has("MATK");
-  if(specialKey==="ATK") return has("ATK");
+  if(specialKey==="MATK") return keys.includes("MATK");
+  if(specialKey==="ATK") return keys.includes("ATK");
   if(specialKey==="CRI") return has("CRI");
   if(specialKey==="C.RATE") return has("C.RATE");
   return true;
