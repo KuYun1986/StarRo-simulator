@@ -44,6 +44,14 @@ section{padding:12px;min-width:0}
 .cond-row{padding:7px 2px;border-bottom:1px solid #202c40}.cond-row b{color:var(--gold)}
 .empty{padding:30px 10px;text-align:center;color:var(--muted)}
 .footer-note{margin-top:8px;color:#7f91ad;font-size:11px;line-height:1.6}
+.subcats{margin-top:12px;padding:12px;background:rgba(16,24,39,.95);border:1px solid var(--line);border-radius:14px}
+.subcat-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;color:var(--muted);font-size:14px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid #33445f;background:#edf2fb;color:#1b2a43;font-weight:800;cursor:pointer;transition:.15s}
+.chip:hover{transform:translateY(-1px);border-color:#5b7aa7}
+.chip.active{background:#2f7ef7;color:#fff;border-color:#2f7ef7;box-shadow:0 8px 18px rgba(47,126,247,.25)}
+.chip small{display:inline-block;min-width:22px;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.12);color:inherit;font-size:12px;line-height:1.2}
+.chip.active small{background:rgba(255,255,255,.2)}
 @media(max-width:950px){
  .toolbar{grid-template-columns:1fr 1fr}.toolbar input{grid-column:1/-1}
  .summary{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.list{max-height:55vh}
@@ -86,6 +94,12 @@ section{padding:12px;min-width:0}
     <label class="slot-input">JRO格子 <input id="jroSlots" type="number" min="0" step="1" value="600"></label>
   </div>
 
+
+  <div class="subcats">
+    <div class="subcat-title">子分類 <span id="subcatMeta"></span></div>
+    <div class="chips" id="subcatChips"></div>
+  </div>
+
   <div class="summary">
     <div class="kpi"><small>資料庫收藏</small><b id="totalCount">0</b></div>
     <div class="kpi"><small>已勾選收藏</small><b id="selectedCount">0</b></div>
@@ -122,6 +136,20 @@ const ITEMS=[{"group":"普通收藏","row":3,"dc":"860.0","game":"[A]裝備-001"
 const $=s=>document.querySelector(s);
 const selected=new Set(JSON.parse(localStorage.getItem("starro_collection_selected")||"[]"));
 let onlySelected=false;
+let activeSubcat="all";
+
+const SUBCAT_LABELS={
+  "裝備":"裝備組合",
+  "JRO裝備":"JRO裝備組合",
+  "MVP":"MVP卡片組合",
+  "其他":"其他組合",
+  "套卡":"套卡組合",
+  "套裝":"套裝組合",
+  "影子":"影子組合",
+  "系列":"系列組合",
+  "JRO卡片":"JRO卡片組合"
+};
+const SUBCAT_ORDER=["JRO卡片","JRO裝備","MVP","其他","套卡","套裝","影子","系列","裝備"];
 
 const ALIAS={
  "Int":"INT","Str":"STR","Agi":"AGI","Vit":"VIT","Dex":"DEX","Luk":"LUK",
@@ -133,6 +161,36 @@ const ALIAS={
 const CONDITIONAL=["每","當","時","機率","精煉","Base","base","基礎","習得","裝備一件","達到","以上","以下","依照","根據"];
 
 function keyOf(item){return item.group+"|"+item.row+"|"+item.name}
+function subcatOf(item){
+  const m=String(item.game||"").match(/^\[[^\]]+\]([^\-\d]+)/);
+  return m?m[1]:"其他";
+}
+function getSubcatOptions(){
+  const g=$("#groupFilter").value;
+  const q=$("#search").value.trim().toLowerCase();
+  const counter=new Map();
+  for(const it of ITEMS){
+    if(g!=="all"&&it.group!==g) continue;
+    if(q && !(it.name+" "+it.effect+" "+it.dc+" "+it.game).toLowerCase().includes(q)) continue;
+    const s=subcatOf(it);
+    counter.set(s,(counter.get(s)||0)+1);
+  }
+  return SUBCAT_ORDER.filter(k=>counter.get(k)).map(k=>({key:k,label:SUBCAT_LABELS[k]||k,count:counter.get(k)||0}));
+}
+function renderSubcats(){
+  const opts=getSubcatOptions();
+  if(activeSubcat!=="all" && !opts.some(x=>x.key===activeSubcat)) activeSubcat="all";
+  $("#subcatMeta").textContent=`(${opts.length})`;
+  const total=opts.reduce((a,b)=>a+b.count,0);
+  $("#subcatChips").innerHTML=[`<button class="chip ${activeSubcat==="all"?"active":""}" data-subcat="all">全部 <small>${total}</small></button>`].concat(
+    opts.map(x=>`<button class="chip ${activeSubcat===x.key?"active":""}" data-subcat="${esc(x.key)}">${esc(x.label)} <small>${x.count}</small></button>`)
+  ).join("");
+  $("#subcatChips").querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{
+    activeSubcat=btn.dataset.subcat;
+    renderSubcats();
+    renderList();
+  }));
+}
 function save(){localStorage.setItem("starro_collection_selected",JSON.stringify([...selected]))}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function fmt(v){return Number.isInteger(v)?String(v):String(Math.round(v*10000)/10000)}
@@ -194,6 +252,7 @@ function getVisible(){
     if(g!=="all"&&it.group!==g)return false;
     const k=keyOf(it);
     if(onlySelected&&!selected.has(k))return false;
+    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) return false;
     if(!q)return true;
     return (it.name+" "+it.effect+" "+it.dc+" "+it.game).toLowerCase().includes(q);
   });
@@ -216,6 +275,7 @@ function renderList(){
           <span class="badge ${it.group==="JRO收藏"?"jro":""}">${esc(it.group)}</span>
           <span class="badge">佔格 ${Number(it.slot||0)}</span>
           ${it.game?`<span class="idtxt">${esc(it.game)}</span>`:""}
+          <span class="badge">${esc(SUBCAT_LABELS[subcatOf(it)]||subcatOf(it))}</span>
         </div>
         <div class="effect">${esc(it.effect)}</div>
       </div>
@@ -282,23 +342,24 @@ function updateSummary(){
 
 $("#normalSlots").addEventListener("input",updateSummary);
 $("#jroSlots").addEventListener("input",updateSummary);
-$("#search").addEventListener("input",renderList);
-$("#groupFilter").addEventListener("change",renderList);
+$("#search").addEventListener("input",()=>{renderSubcats();renderList();});
+$("#groupFilter").addEventListener("change",()=>{renderSubcats();renderList();});
 $("#onlySelected").addEventListener("click",()=>{
   onlySelected=!onlySelected;
   $("#onlySelected").textContent=`只看已勾選：${onlySelected?"開":"關"}`;
+  renderSubcats();
   renderList();
 });
 $("#selectVisible").addEventListener("click",()=>{
   for(const it of getVisible())selected.add(keyOf(it));
-  save();updateSummary();renderList();renderTotals();
+  save();updateSummary();renderSubcats();renderList();renderTotals();
 });
 $("#clear").addEventListener("click",()=>{
   if(!confirm("確定清除全部已勾選收藏？"))return;
-  selected.clear();save();updateSummary();renderList();renderTotals();
+  selected.clear();save();updateSummary();renderSubcats();renderList();renderTotals();
 });
 
-updateSummary();renderList();renderTotals();
+updateSummary();renderSubcats();renderList();renderTotals();
 </script>
 </body>
 </html>
