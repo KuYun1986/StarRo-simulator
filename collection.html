@@ -57,6 +57,10 @@ section{padding:12px;min-width:0}
 .chip.active{background:#2f7ef7;color:#fff;border-color:#2f7ef7;box-shadow:0 8px 18px rgba(47,126,247,.25)}
 .chip small{display:inline-block;min-width:22px;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.12);color:inherit;font-size:12px;line-height:1.2}
 .chip.active small{background:rgba(255,255,255,.2)}
+.special-box{margin-top:12px;padding:12px;background:rgba(16,24,39,.95);border:1px solid var(--line);border-radius:14px}
+.special-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.special-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:14px;font-weight:700}
+.special-tools{display:flex;gap:8px;flex-wrap:wrap}
 @media(max-width:950px){
  .toolbar{grid-template-columns:1fr 1fr}.toolbar input{grid-column:1/-1}
  .summary{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.list{max-height:55vh}
@@ -105,6 +109,17 @@ section{padding:12px;min-width:0}
     <div class="chips" id="subcatChips"></div>
   </div>
 
+  <div class="special-box">
+    <div class="special-head">
+      <div class="special-title">自選特定分類 <span id="specialMeta"></span></div>
+      <div class="special-tools">
+        <button id="selectSpecialVisible" class="primary">一鍵勾選此分類</button>
+        <button id="clearSpecialFilter">清除此分類</button>
+      </div>
+    </div>
+    <div class="chips" id="specialChips"></div>
+  </div>
+
   <div class="summary">
     <div class="kpi"><small>資料庫收藏</small><b id="totalCount">0</b></div>
     <div class="kpi"><small>已勾選收藏</small><b id="selectedCount">0</b></div>
@@ -143,6 +158,7 @@ const selected=new Set();
 localStorage.removeItem("starro_collection_selected");
 let onlySelected=false;
 let activeSubcat="all";
+let activeSpecial="all";
 
 const SUBCAT_LABELS={
   "裝備":"裝備組合",
@@ -155,13 +171,20 @@ const SUBCAT_LABELS={
   "系列":"系列組合",
   "JRO卡片":"JRO卡片組合"
 };
-const SUBCAT_ORDER=["JRO卡片","JRO裝備","MVP","其他","套卡","套裝","影子","系列","裝備"];
+const SPECIAL_FILTERS = {
+  "爆擊傷害":"爆擊傷害",
+  "遠距離攻擊":"遠距離攻擊",
+  "全屬性魔法傷害":"全屬性魔法傷害",
+  "CRI":"CRI",
+  "C.RATE":"C.RATE"
+};
+const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","全屬性魔法傷害","CRI","C.RATE"];
 
 const ALIAS={
  "Int":"INT","Str":"STR","Agi":"AGI","Vit":"VIT","Dex":"DEX","Luk":"LUK",
  "Cri":"CRI","C.Rate":"C.RATE","C.rate":"C.RATE","Pow":"POW","Spl":"SPL","Con":"CON","Crt":"CRT",
  "P.Atk":"P.ATK","PATK":"P.ATK","S.Matk":"S.MATK","SMATK":"S.MATK",
- "MaxHP":"MHP","MaxSP":"MSP","暴擊傷害":"爆擊傷害",
+ "MaxHP":"MHP","MaxSP":"MSP","AllState":"ALL","暴擊傷害":"爆擊傷害","爆擊傷害":"爆擊傷害","全屬性魔法攻擊傷害":"全屬性魔法傷害","全屬性魔法傷害":"全屬性魔法傷害","遠距離物理攻擊力":"遠距離傷害","遠距離物理攻擊傷害":"遠距離傷害","近/遠距離物理攻擊傷害":"近/遠距離傷害","近/遠距離物理傷害":"近/遠距離傷害","遠/近距離物理攻擊傷害":"近/遠距離傷害","遠/近距離物理傷害":"近/遠距離傷害","近/遠距離傷害":"近/遠距離傷害",
  "全技能終傷":"技能終傷","所有技能終傷":"技能終傷"
 };
 const CONDITIONAL=["每","當","時","機率","精煉","Base","base","基礎","習得","裝備一件","達到","以上","以下","依照","根據"];
@@ -251,6 +274,52 @@ function parseDirect(effect){
   return {map,conditions};
 }
 
+
+function matchSpecial(item,specialKey){
+  if(specialKey==="all") return true;
+  const effect=String(item.effect||"");
+  const p=parseDirect(effect);
+  const keys=[...p.map.keys()].map(k=>k.replace(/%$/,""));
+  const has=(name)=>keys.includes(name) || effect.toLowerCase().includes(String(name).toLowerCase());
+
+  if(specialKey==="爆擊傷害") return has("爆擊傷害");
+  if(specialKey==="遠距離攻擊") return has("遠距離傷害") || has("近/遠距離傷害") || /遠距離/.test(effect);
+  if(specialKey==="全屬性魔法傷害") return has("全屬性魔法傷害");
+  if(specialKey==="CRI") return has("CRI");
+  if(specialKey==="C.RATE") return has("C.RATE");
+  return true;
+}
+function getSpecialOptions(){
+  const g=$("#groupFilter").value;
+  const q=$("#search").value.trim().toLowerCase();
+  const counter=new Map();
+  for(const key of SPECIAL_ORDER) counter.set(key,0);
+  for(const it of ITEMS){
+    if(g!=="all"&&it.group!==g) continue;
+    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) continue;
+    const reqText=(it.required||[]).join(" ");
+    if(q && !(it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText).toLowerCase().includes(q)) continue;
+    for(const key of SPECIAL_ORDER){
+      if(matchSpecial(it,key)) counter.set(key,(counter.get(key)||0)+1);
+    }
+  }
+  return SPECIAL_ORDER.map(key=>({key,label:SPECIAL_FILTERS[key],count:counter.get(key)||0})).filter(x=>x.count>0);
+}
+function renderSpecials(){
+  const opts=getSpecialOptions();
+  if(activeSpecial!=="all" && !opts.some(x=>x.key===activeSpecial)) activeSpecial="all";
+  $("#specialMeta").textContent=`(${opts.length})`;
+  const total=opts.reduce((a,b)=>a+b.count,0);
+  $("#specialChips").innerHTML=[`<button class="chip ${activeSpecial==="all"?"active":""}" data-special="all">全部 <small>${total}</small></button>`].concat(
+    opts.map(x=>`<button class="chip ${activeSpecial===x.key?"active":""}" data-special="${esc(x.key)}">${esc(x.label)} <small>${x.count}</small></button>`)
+  ).join("");
+  $("#specialChips").querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{
+    activeSpecial=btn.dataset.special;
+    renderSpecials();
+    renderList();
+  }));
+}
+
 function getVisible(){
   const q=$("#search").value.trim().toLowerCase();
   const g=$("#groupFilter").value;
@@ -259,6 +328,7 @@ function getVisible(){
     const k=keyOf(it);
     if(onlySelected&&!selected.has(k))return false;
     if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) return false;
+    if(activeSpecial!=="all" && !matchSpecial(it,activeSpecial)) return false;
     if(!q)return true;
     const reqText=(it.required||[]).join(" ");
     return (it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText).toLowerCase().includes(q);
@@ -312,7 +382,7 @@ function renderTotals(){
     for(const [k,v] of p.map)totals.set(k,(totals.get(k)||0)+v);
     if(p.conditions.length)conditionRows.push({name:it.name,effects:p.conditions.join("；")});
   }
-  const order=["STR","AGI","VIT","INT","DEX","LUK","AllState","ALL","POW","STA","WIS","SPL","CON","CRT",
+  const order=["STR","AGI","VIT","INT","DEX","LUK","ALL","POW","STA","WIS","SPL","CON","CRT",
                "ATK","ATK%","MATK","MATK%","P.ATK","S.MATK","CRI","C.RATE",
                "MHP","MHP%","MSP","MSP%","ASPD","ASPD%","HIT","FLEE","DEF","MDEF",
                "爆擊傷害%","遠距離傷害%","遠距離物理傷害%","近距離物理傷害%","技能終傷%","技能後延遲%"];
@@ -356,24 +426,36 @@ function updateSummary(){
 
 $("#normalSlots").addEventListener("input",updateSummary);
 $("#jroSlots").addEventListener("input",updateSummary);
-$("#search").addEventListener("input",()=>{renderSubcats();renderList();});
-$("#groupFilter").addEventListener("change",()=>{renderSubcats();renderList();});
+$("#search").addEventListener("input",()=>{renderSubcats();renderSpecials();renderList();});
+$("#groupFilter").addEventListener("change",()=>{renderSubcats();renderSpecials();renderList();});
 $("#onlySelected").addEventListener("click",()=>{
   onlySelected=!onlySelected;
   $("#onlySelected").textContent=`只看已勾選：${onlySelected?"開":"關"}`;
   renderSubcats();
+  renderSpecials();
   renderList();
 });
 $("#selectVisible").addEventListener("click",()=>{
   for(const it of getVisible())selected.add(keyOf(it));
-  save();updateSummary();renderSubcats();renderList();renderTotals();
+  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
+});
+$("#selectSpecialVisible").addEventListener("click",()=>{
+  const arr=getVisible();
+  if(!arr.length){ alert("目前這個特定分類沒有可勾選的收藏"); return; }
+  for(const it of arr) selected.add(keyOf(it));
+  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
+});
+$("#clearSpecialFilter").addEventListener("click",()=>{
+  activeSpecial="all";
+  renderSpecials();
+  renderList();
 });
 $("#clear").addEventListener("click",()=>{
   if(!confirm("確定清除全部已勾選收藏？"))return;
-  selected.clear();save();updateSummary();renderSubcats();renderList();renderTotals();
+  selected.clear();save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
 });
 
-updateSummary();renderSubcats();renderList();renderTotals();
+updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
 </script>
 </body>
 </html>
