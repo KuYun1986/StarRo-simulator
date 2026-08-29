@@ -259,7 +259,12 @@ a{color:#77a9ff}
 <body><div class="wrap">
 <h1>🧪 繁星洗詞區</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
-<a href="index.html" class="game-page-link">← 回主頁</a>
+<a href="index.html" class="game-page-link">🏠 主頁</a>
+<a href="game.html" class="game-page-link">🎮 遊戲區</a>
+<a href="wash.html" class="game-page-link">🧪 洗詞區</a>
+<a href="enchant.html" class="game-page-link">✨ 附魔區</a>
+<a href="identify.html" class="game-page-link">🔍 鑑定區</a>
+<a href="collection.html" class="game-page-link">📚 收藏區</a>
 <button onclick="jumpWash('華金一條龍(鎧甲/戰靴)')">🔥 鎧甲 / 戰靴</button>
 <button onclick="jumpWash('華金一條龍(耳環/飾品)')">💎 耳環 / 飾品</button>
 <button onclick="jumpWash('競標針')">🪡 競標針</button>
@@ -315,7 +320,8 @@ a{color:#77a9ff}
 <h2>🪡 競標針</h2>
 <p class="tiny">
 每次 <b>19 紅利</b>。固定取得第1詞；第2詞出現率 50%；只有出現第2詞後才判定第3詞 10%。<br>
-同一詞池內所有能力皆為等機率，數值於該能力範圍內等機率隨機。
+同一詞池內所有能力皆為等機率，數值於該能力範圍內等機率隨機。<br>
+⭐ 500 次內洗到「死亡不掉BUFF」或「無視魔法效果解除」會送上全服即時戰報。
 </p>
 
 <div class="actions">
@@ -370,8 +376,7 @@ a{color:#77a9ff}
 
 </div>
 
-<div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
-  <div id="jackpotFeed" style="margin-top:8px;max-height:220px;overflow:auto"></div>
+
 </div>
 
 
@@ -3467,6 +3472,23 @@ function auctionNeedleOnce(){
 
   return rec;
 }
+function auctionNeedleRareHit(rec){
+  if(!rec || !Array.isArray(rec.lines)) return "";
+  return rec.lines.find(x=>x===AUCTION_SPECIAL_MAGIC || x===AUCTION_SPECIAL_BUFF) || "";
+}
+
+function auctionNeedleBroadcastRare(rec,batchDraw){
+  const hit=auctionNeedleRareHit(rec);
+  if(!hit || batchDraw>500 || typeof window.starroBroadcast!=="function") return;
+
+  const result = hit===AUCTION_SPECIAL_BUFF ? "死亡不掉BUFF" : "無視魔法效果解除";
+  window.starroBroadcast(
+    "競標針",
+    result,
+    `500次內洗到｜第 ${batchDraw} 抽｜花費 ${(batchDraw*AUCTION_NEEDLE_COST).toLocaleString()} 紅利`
+  );
+}
+
 function auctionNeedleBestOfBatch(records,last){
   if(!records.length) return last;
   const sorted=[...records].sort((a,b)=>{
@@ -3482,6 +3504,7 @@ function auctionNeedleBatch(n){
     last=auctionNeedleOnce();
     batch.push(last);
     if(last.lines.length===3)three.push(last);
+    auctionNeedleBroadcastRare(last,i+1);
   }
 
   const best=auctionNeedleBestOfBatch(batch,last);
@@ -3507,6 +3530,7 @@ function auctionNeedleUntilSpecial(){
   }while(!rec.special);
 
   const hit=rec.specialLabel || rec.lines.find(x=>auctionNeedleIsSpecialText(x)) || rec.lines[rec.lines.length-1] || "";
+  auctionNeedleBroadcastRare(rec,tries);
 
   document.getElementById("auctionNeedleNow").innerHTML=
     `<div class="stat"><span class="label">洗到特殊詞｜依原始機率實際模擬</span>`+
@@ -3529,6 +3553,8 @@ function auctionNeedleUntilRareSpecial(){
     rec=auctionNeedleOnce();
     hit=rec.lines.find(x=>x===AUCTION_SPECIAL_MAGIC || x===AUCTION_SPECIAL_BUFF) || "";
   }while(!hit);
+
+  auctionNeedleBroadcastRare(rec,tries);
 
   document.getElementById("auctionNeedleNow").innerHTML=
     `<div class="stat"><span class="label">洗到死亡 / 魔解｜依原始機率實際模擬</span>`+
