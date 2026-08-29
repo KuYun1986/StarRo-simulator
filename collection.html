@@ -296,8 +296,16 @@ function matchSpecial(item,specialKey){
   if(specialKey==="遠距離攻擊") return has("遠距離傷害") || /遠距離|遠程/.test(effect);
   if(specialKey==="近距離") return has("近距離傷害") || /近距離/.test(effect);
   if(specialKey==="全屬性魔法傷害") return has("全屬性魔法傷害");
-  if(specialKey==="MATK") return keys.includes("MATK");
-  if(specialKey==="ATK") return keys.includes("ATK");
+  if(specialKey==="MATK"){
+    // MATK 分類採文字判定，保留：
+    // Matk / MATK / S.MATK、ATK與MATK、物理攻擊/MATK，以及條件式 MATK。
+    return /(?:^|[^A-Z])(?:S\.)?MATK/i.test(effect);
+  }
+  if(specialKey==="ATK"){
+    // ATK 分類包含 ATK、ATK/MATK、P.ATK、PATK 等寫法，
+    // 但不因單獨 MATK / S.MATK 而誤列入。
+    return /P\.?ATK/i.test(effect) || /(?:^|[^A-Z.])ATK/i.test(effect);
+  }
   if(specialKey==="CRI") return has("CRI");
   if(specialKey==="C.RATE") return has("C.RATE");
   return true;
