@@ -189,9 +189,10 @@ const SPECIAL_FILTERS = {
   "CRI":"CRI",
   "C.RATE":"C.RATE",
   "ASPD":"ASPD",
+  "詠唱":"詠唱",
   "減傷":"減傷"
 };
-const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","近距離","全屬性魔法傷害","階級物理","階級魔法","MATK","ATK","CRI","C.RATE","ASPD","減傷"];
+const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","近距離","全屬性魔法傷害","階級物理","階級魔法","MATK","ATK","CRI","C.RATE","ASPD","詠唱","減傷"];
 
 const ALIAS={
  "Int":"INT","Str":"STR","Agi":"AGI","Vit":"VIT","Dex":"DEX","Luk":"LUK",
@@ -321,6 +322,7 @@ function matchSpecial(item,specialKey){
   if(specialKey==="CRI") return has("CRI");
   if(specialKey==="C.RATE") return has("C.RATE");
   if(specialKey==="ASPD") return /ASPD/i.test(offensiveEffect);
+  if(specialKey==="詠唱") return /詠唱/.test(effect);
   return true;
 }
 function getSpecialOptions(){
