@@ -22,7 +22,7 @@ h1{font-size:26px;margin:0;margin-right:auto}.back{color:var(--blue);text-decora
 input[type="search"],select,button{height:42px;border-radius:9px;border:1px solid #33445f;background:#0d1523;color:var(--text);padding:0 12px;font-size:15px}
 button{cursor:pointer;font-weight:800} button:hover{border-color:#5b7aa7}
 .primary{background:#183b61;border-color:#2e75b9}.danger{color:#ff9aa5}
-.summary{margin-top:12px;padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.summary{margin-top:12px;padding:12px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px}
 .kpi small{display:block;color:var(--muted);margin-bottom:4px}.kpi b{font-size:22px;color:var(--green)}
 .layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.75fr);gap:14px;margin-top:14px}
@@ -126,8 +126,9 @@ section{padding:12px;min-width:0}
   <div class="summary">
     <div class="kpi"><small>資料庫收藏</small><b id="totalCount">0</b></div>
     <div class="kpi"><small>已勾選收藏</small><b id="selectedCount">0</b></div>
-    <div class="kpi"><small>普通收藏使用格（依佔格）</small><b id="normalUsed">0 / 1000</b></div>
-    <div class="kpi"><small>JRO 收藏使用格（依佔格）</small><b id="jroUsed">0 / 600</b></div>
+    <div class="kpi"><small>普通收藏使用格（重複道具不重算）</small><b id="normalUsed">0 / 1000</b></div>
+    <div class="kpi"><small>JRO 收藏使用格（重複道具不重算）</small><b id="jroUsed">0 / 600</b></div>
+    <div class="kpi"><small>重複道具節省格數</small><b id="savedSlots">0</b></div>
   </div>
 
   <div class="layout">
@@ -149,7 +150,7 @@ section{padding:12px;min-width:0}
         <h3>⚠️ 條件式／無法直接加總效果</h3>
         <div class="cond-list" id="conditions"></div>
       </div>
-      <div class="footer-note">重新整理頁面後會恢復為全部未勾選；可先匯出 Excel，下次再匯入繼續新增勾選。</div>
+      <div class="footer-note">重新整理頁面後會恢復為全部未勾選；可先匯出 Excel，下次再匯入繼續新增勾選。相同需求道具出現在不同收藏時，格數只計算一次。</div>
     </section>
   </div>
 </div>
@@ -554,26 +555,62 @@ async function importSelectedExcel(file){
   }
 }
 
+function slotItemKey(name){
+  return String(name||"")
+    .normalize("NFKC")
+    .replace(/\s+/g," ")
+    .trim()
+    .toLowerCase();
+}
+
+function calcUsedSlots(group){
+  const uniqueItems=new Set();
+  let rawSlots=0;
+  let hiddenSlots=0;
+
+  for(const it of ITEMS){
+    if(!selected.has(keyOf(it)) || it.group!==group) continue;
+
+    const slots=Math.max(0,Number(it.slot)||0);
+    rawSlots+=slots;
+
+    const req=(it.required||[]).filter(x=>String(x||"").trim());
+    for(const name of req){
+      uniqueItems.add(slotItemKey(name));
+    }
+
+    // 少數 Excel 收藏的「佔格」大於目前列出的需求道具數，
+    // 差額仍保留計入，避免低估實際格數。
+    hiddenSlots+=Math.max(0,slots-req.length);
+  }
+
+  return {
+    used: uniqueItems.size + hiddenSlots,
+    raw: rawSlots
+  };
+}
+
 function updateSummary(){
   $("#totalCount").textContent=ITEMS.length.toLocaleString();
   $("#selectedCount").textContent=selected.size.toLocaleString();
 
-  let normalUsed=0, jroUsed=0;
-  for(const it of ITEMS){
-    if(!selected.has(keyOf(it))) continue;
-    const slots=Math.max(0,Number(it.slot)||0);
-    if(it.group==="普通收藏") normalUsed+=slots;
-    if(it.group==="JRO收藏") jroUsed+=slots;
-  }
+  const normal=calcUsedSlots("普通收藏");
+  const jro=calcUsedSlots("JRO收藏");
+
+  const normalUsed=normal.used;
+  const jroUsed=jro.used;
+  const saved=Math.max(0,(normal.raw+jro.raw)-(normalUsed+jroUsed));
 
   const normalCap=Math.max(0,Math.floor(Number($("#normalSlots").value)||0));
   const jroCap=Math.max(0,Math.floor(Number($("#jroSlots").value)||0));
 
   $("#normalUsed").textContent=`${normalUsed.toLocaleString()} / ${normalCap.toLocaleString()}`;
   $("#jroUsed").textContent=`${jroUsed.toLocaleString()} / ${jroCap.toLocaleString()}`;
+  $("#savedSlots").textContent=saved.toLocaleString();
 
   $("#normalUsed").style.color=normalUsed>normalCap?"var(--red)":"var(--green)";
   $("#jroUsed").style.color=jroUsed>jroCap?"var(--red)":"var(--green)";
+  $("#savedSlots").style.color=saved>0?"var(--gold)":"var(--green)";
 }
 
 $("#exportExcel").addEventListener("click",exportSelectedExcel);
