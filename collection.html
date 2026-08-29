@@ -187,9 +187,11 @@ const SPECIAL_FILTERS = {
   "MATK":"MATK",
   "ATK":"ATK",
   "CRI":"CRI",
-  "C.RATE":"C.RATE"
+  "C.RATE":"C.RATE",
+  "ASPD":"ASPD",
+  "減傷":"減傷"
 };
-const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","近距離","全屬性魔法傷害","階級物理","階級魔法","MATK","ATK","CRI","C.RATE"];
+const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","近距離","全屬性魔法傷害","階級物理","階級魔法","MATK","ATK","CRI","C.RATE","ASPD","減傷"];
 
 const ALIAS={
  "Int":"INT","Str":"STR","Agi":"AGI","Vit":"VIT","Dex":"DEX","Luk":"LUK",
@@ -290,28 +292,35 @@ function parseDirect(effect){
 function matchSpecial(item,specialKey){
   if(specialKey==="all") return true;
   const effect=String(item.effect||"");
-  const p=parseDirect(effect);
+
+  // 「受到 XXX 傷害」統一歸到減傷；其他自選分類判定時，
+  // 先排除這類減傷片段，避免像「受到全階級物理傷害」又被算進階級物理。
+  const clauses=effect.split(/[，。；;]/).map(x=>x.trim()).filter(Boolean);
+  const isReductionClause=s=>/受到[^，。；]*(?:傷害|攻擊)|(?:傷害|攻擊)[^，。；]*減少|減少[^，。；]*(?:傷害|攻擊)|抗性/.test(s);
+  const reductionClauses=clauses.filter(isReductionClause);
+  const offensiveEffect=clauses.filter(s=>!isReductionClause(s)).join("，");
+
+  if(specialKey==="減傷") return reductionClauses.length>0;
+
+  const p=parseDirect(offensiveEffect);
   const keys=[...p.map.keys()].map(k=>k.replace(/%$/,""));
-  const has=(name)=>keys.includes(name) || effect.toLowerCase().includes(String(name).toLowerCase());
+  const has=(name)=>keys.includes(name) || offensiveEffect.toLowerCase().includes(String(name).toLowerCase());
 
   if(specialKey==="爆擊傷害") return has("爆擊傷害");
-  if(specialKey==="遠距離攻擊") return has("遠距離傷害") || /遠距離|遠程/.test(effect);
-  if(specialKey==="近距離") return has("近距離傷害") || /近距離/.test(effect);
+  if(specialKey==="遠距離攻擊") return has("遠距離傷害") || /遠距離|遠程/.test(offensiveEffect);
+  if(specialKey==="近距離") return has("近距離傷害") || /近距離/.test(offensiveEffect);
   if(specialKey==="全屬性魔法傷害") return has("全屬性魔法傷害");
-  if(specialKey==="階級物理") return /階級[^，。；]*物理|物理[^，。；]*階級/.test(effect);
-  if(specialKey==="階級魔法") return /階級[^，。；]*魔法|魔法[^，。；]*階級/.test(effect);
+  if(specialKey==="階級物理") return /階級[^，。；]*物理|物理[^，。；]*階級/.test(offensiveEffect);
+  if(specialKey==="階級魔法") return /階級[^，。；]*魔法|魔法[^，。；]*階級/.test(offensiveEffect);
   if(specialKey==="MATK"){
-    // MATK 分類採文字判定，保留：
-    // Matk / MATK / S.MATK、ATK與MATK、物理攻擊/MATK，以及條件式 MATK。
-    return /(?:^|[^A-Z])(?:S\.)?MATK/i.test(effect);
+    return /(?:^|[^A-Z])(?:S\.)?MATK/i.test(offensiveEffect);
   }
   if(specialKey==="ATK"){
-    // ATK 分類包含 ATK、ATK/MATK、P.ATK、PATK 等寫法，
-    // 但不因單獨 MATK / S.MATK 而誤列入。
-    return /P\.?ATK/i.test(effect) || /(?:^|[^A-Z.])ATK/i.test(effect);
+    return /P\.?ATK/i.test(offensiveEffect) || /(?:^|[^A-Z.])ATK/i.test(offensiveEffect);
   }
   if(specialKey==="CRI") return has("CRI");
   if(specialKey==="C.RATE") return has("C.RATE");
+  if(specialKey==="ASPD") return /ASPD/i.test(offensiveEffect);
   return true;
 }
 function getSpecialOptions(){
