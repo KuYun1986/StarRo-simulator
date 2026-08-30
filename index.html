@@ -269,6 +269,7 @@ a{color:#77a9ff}
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('SSS評級系統'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🏆 SSS</button>
 <button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('+20 → +30 精煉模擬'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🔨 精煉模擬</button>
+<button onclick="document.querySelectorAll('section.card').forEach(x=>{if(x.innerText.includes('自動詠唱機率模擬器'))x.scrollIntoView({behavior:'smooth',block:'start'})})">⚡ 自詠機率</button>
 
 <a href="game.html" class="game-page-link">🎮 遊戲區</a>
 <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
@@ -312,34 +313,26 @@ a{color:#77a9ff}
 <h2>🎁 掉落率計算器</h2>
 <p class="tiny">
   <span style="color:#ff5f6d;font-weight:800;display:block;margin-bottom:6px">1% 基礎掉落率道具</span>
-  <span>最終卡率依「掉落倍率 × 卡片倍率 × 無限幻境倍率」計算。</span><br>
+  <span>固定條件：伺服器倍率 1、卡片掉落內建 100%。</span><br>
 </p>
 
 <div class="drop-checks">
+  <label><input id="dropUseDream" type="checkbox" checked> 幻境：+200%掉落率</label>
   <label><input id="dropUseDaidai" type="checkbox" checked> 呆呆：掉落率 +100%</label>
-  <label><input id="dropUseCandy" type="checkbox" checked> 超黏掉寶糖：+200%</label>
+  <label><input id="dropUseCandy" type="checkbox" checked> 超黏掉寶糖：+200%掉落率</label>
   <label><input id="dropUseEvil" type="checkbox" checked> 惡波卷：卡片掉落 +200%</label>
 </div>
 
-<div class="row">
-  <span>無限幻境</span>
-  <select id="dropDreamLevel">
-    <option value="0">未使用｜+0%</option>
-    <option value="100">普通｜+100%</option>
-    <option value="200" selected>進階｜+200%</option>
-  </select>
-  <span></span>
-</div>
 
 <div class="row">
-  <span>裝備卡片基礎掉落率</span>
-  <input id="dropCardRate" type="number" min="0" step="0.01" value="141">
+  <span>卡片掉落率</span>
+  <input id="dropCardRate" type="number" min="0" step="0.01" value="150">
   <span>%</span>
 </div>
 
 <div class="row">
-  <span>裝備掉落率</span>
-  <input id="dropEquipRate" type="number" min="0" step="1" value="183">
+  <span>基礎掉落率</span>
+  <input id="dropEquipRate" type="number" min="0" step="1" value="150">
   <span>%</span>
 </div>
 
@@ -350,10 +343,8 @@ a{color:#77a9ff}
 <div class="stat" style="margin-top:12px">
   <span class="label">計算公式</span>
   <div class="tiny" style="line-height:1.9;margin-top:6px">
-    最終卡率 ＝ 基礎掉落率<br>
-    × (100% + 裝備掉落% + 呆呆100% + 超黏200%)<br>
-    × (100% + 裝備卡片基礎掉落% + 惡波卷200%)<br>
-    × (100% + 無限幻境：普通100%／進階200%)
+    (基礎掉落率 × (100% + 幻境 200%※勾選) × 卡片掉落率)<br>
+    × (伺服器倍率 + DAIDAI + 基礎掉落率 + 超黏掉寶糖)
   </div>
 </div>
 
@@ -380,7 +371,7 @@ a{color:#77a9ff}
 
 <div class="row">
   <span>掉卡率</span>
-  <input id="decomposeDropRate" type="number" min="0" step="0.01" value="77.13">
+  <input id="decomposeDropRate" type="number" min="0" step="0.01" value="75.41">
   <span>%</span>
 </div>
 
@@ -561,6 +552,54 @@ a{color:#77a9ff}
 
 
 
+
+
+<section class="card" id="autocastSimulator">
+<h2>⚡ 自動詠唱機率模擬器</h2>
+<p class="tiny">前段填技能／道具的基礎自詠機率；後段填「詞＋石＋收藏」的乘算加成。</p>
+
+<div class="row" style="grid-template-columns:1fr 150px">
+  <label for="autoBase">前段：基礎自詠機率（技能/道具）</label>
+  <input id="autoBase" type="number" min="0" step="0.01" value="25">
+</div>
+
+<div class="row" style="grid-template-columns:1fr 150px">
+  <label for="autoBonus">後段：詞＋石＋收藏</label>
+  <input id="autoBonus" type="number" min="0" step="0.01" value="280">
+</div>
+
+<div class="row" style="grid-template-columns:1fr 150px">
+  <label for="autoAspd">ASPD</label>
+  <select id="autoAspd">
+    <option value="193">193</option>
+    <option value="194">194</option>
+    <option value="195">195</option>
+    <option value="196">196</option>
+    <option value="197" selected>197</option>
+  </select>
+</div>
+
+<div class="stat" style="margin-top:12px">
+  <span class="label">計算公式</span>
+  <div id="autoFormula" style="font-size:17px;line-height:1.8;margin-top:5px"></div>
+</div>
+
+<div class="statgrid">
+  <div class="stat"><span class="label">最終實際自詠率</span><b id="autoFinal" class="ok">95%</b></div>
+  <div class="stat"><span class="label">理論自詠率</span><b id="autoRaw">95%</b></div>
+  <div class="stat"><span class="label">未觸發機率</span><b id="autoMiss">5%</b></div>
+  <div class="stat"><span class="label">每秒攻擊次數</span><b id="autoAPS">16.67 下</b></div>
+  <div class="stat"><span class="label">每秒期望自詠次數</span><b id="autoCasts">15.83 次</b></div>
+</div>
+
+<div id="autoWarn" class="tiny bad" style="display:none;margin-top:10px">
+  ⚠ 理論值超過 100%，實際自詠機率以 100% 顯示。
+</div>
+
+<p class="tiny" style="margin-top:12px">
+  自詠公式：前段 ×（1 + 後段%）｜ASPD 每秒攻擊次數：50 ÷（200 − ASPD）
+</p>
+</section>
 
 <section class="card">
 <h2>🏆 SSS評級系統</h2>
@@ -3625,72 +3664,52 @@ onSnapshot(q,snap=>{
 
 <script>
 function calcDropRate(){
-  const cardEquipPercent = Number(document.getElementById("dropCardRate")?.value || 0);
-  const equipDropPercent = Number(document.getElementById("dropEquipRate")?.value || 0);
+  const cardBasePercent = Number(document.getElementById("dropCardRate")?.value || 0);
+  const equipPercent = Number(document.getElementById("dropEquipRate")?.value || 0);
 
+  const useDream = !!document.getElementById("dropUseDream")?.checked;
   const useDaidai = !!document.getElementById("dropUseDaidai")?.checked;
   const useCandy = !!document.getElementById("dropUseCandy")?.checked;
   const useEvil = !!document.getElementById("dropUseEvil")?.checked;
-  const dreamBonusPercent = Number(document.getElementById("dropDreamLevel")?.value || 0);
 
-  // 新公式：
-  // 基礎掉落率
-  // × (100% + 裝備掉落% + 呆呆100% + 超黏200%)
-  // × (100% + 裝備卡片基礎掉落% + 惡波卷200%)
-  // × (100% + 無限幻境：普通100%／進階200%)
-  const dropMultiplierPercent =
-    100 +
-    equipDropPercent +
-    (useDaidai ? 100 : 0) +
-    (useCandy ? 200 : 0);
+  const cardBuiltInPercent = 100;
+  const cardPercent = cardBuiltInPercent + cardBasePercent + (useEvil ? 200 : 0);
 
-  const cardMultiplierPercent =
-    100 +
-    cardEquipPercent +
-    (useEvil ? 200 : 0);
+  const cardRate = cardPercent / 100;
+  const equipRate = equipPercent / 100;
 
-  const dreamMultiplierPercent = 100 + dreamBonusPercent;
+  const baseDrop = 1;
+  const serverRate = 1;
+  const infiniteDreamBonus = useDream ? 2 : 0; // 幻境勾選時 +200%
+  const daidai = useDaidai ? 1 : 0;
+  const candy = useCandy ? 2 : 0;
 
-  const dropMultiplier = dropMultiplierPercent / 100;
-  const cardMultiplier = cardMultiplierPercent / 100;
-  const dreamMultiplier = dreamMultiplierPercent / 100;
-
-  const baseNormal = 1;
-  const baseBoss = 0.1;
-
-  const finalRate = baseNormal * dropMultiplier * cardMultiplier * dreamMultiplier;
-  const finalRate01 = baseBoss * dropMultiplier * cardMultiplier * dreamMultiplier;
+  const firstPart = baseDrop * (1 + infiniteDreamBonus) * cardRate;
+  const secondPart = serverRate + daidai + equipRate + candy;
+  const finalRate = firstPart * secondPart;
 
   const result = document.getElementById("dropRateResult");
   const detail = document.getElementById("dropRateDetail");
   if(!result || !detail) return;
 
-  const dreamName =
-    dreamBonusPercent === 200 ? "進階" :
-    dreamBonusPercent === 100 ? "普通" : "未使用";
+  const finalRate01 = finalRate / 10;
 
   result.innerHTML =
     `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">1%</span> 道具<span style="color:#f7c65c;font-weight:800">(普卡)</span>最終掉落率</span><b class="ok">${finalRate.toFixed(2)}%</b></div>` +
     `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">0.1%</span>道具<span style="color:#f7c65c;font-weight:800">(王卡)</span>最終掉落率</span><b class="ok">${finalRate01.toFixed(2)}%</b></div>` +
-    `<div class="stat"><span class="label">掉落倍率</span><b>${dropMultiplier.toFixed(2)} 倍</b></div>` +
-    `<div class="stat"><span class="label">卡片倍率</span><b>${cardMultiplier.toFixed(2)} 倍</b></div>` +
-    `<div class="stat"><span class="label">無限幻境倍率</span><b>${dreamMultiplier.toFixed(2)} 倍</b></div>`;
+    `<div class="stat"><span class="label">實際卡片掉落率（含基礎100%）</span><b>${cardPercent.toFixed(0)}%</b></div>` +
+    `<div class="stat"><span class="label">後段倍率</span><b>${secondPart.toFixed(2)}</b></div>`;
 
   detail.innerHTML =
     `<div class="stat"><span class="label">實際代入</span>` +
     `<div class="tiny" style="line-height:1.9;margin-top:6px">` +
-    `掉落倍率：100% + 裝備 ${equipDropPercent}%` +
-    `${useDaidai ? ` + 呆呆 100%` : ""}` +
-    `${useCandy ? ` + 超黏 200%` : ""}` +
-    ` = ${dropMultiplierPercent}%（${dropMultiplier.toFixed(2)}倍）<br>` +
-    `卡片倍率：100% + 裝備卡片 ${cardEquipPercent}%` +
-    `${useEvil ? ` + 惡波卷 200%` : ""}` +
-    ` = ${cardMultiplierPercent}%（${cardMultiplier.toFixed(2)}倍）<br>` +
-    `無限幻境：${dreamName} +${dreamBonusPercent}% = ${dreamMultiplierPercent}%（${dreamMultiplier.toFixed(2)}倍）<br>` +
-    `普卡：1% × ${dropMultiplier.toFixed(2)} × ${cardMultiplier.toFixed(2)} × ${dreamMultiplier.toFixed(2)}` +
-    ` = <b class="ok">${finalRate.toFixed(2)}%</b><br>` +
-    `王卡：0.1% × ${dropMultiplier.toFixed(2)} × ${cardMultiplier.toFixed(2)} × ${dreamMultiplier.toFixed(2)}` +
-    ` = <b class="ok">${finalRate01.toFixed(2)}%</b>` +
+    `卡片掉落率：基礎 100% + ${cardBasePercent}%` +
+    `${useEvil ? ` + 惡波 200%` : ""}` +
+    ` = ${cardPercent}%<br>` +
+    `幻境：${useDream ? "使用 +200%掉落率" : "未使用"}｜基礎掉落率：${equipPercent}%｜呆呆：${useDaidai ? "掉落率 +100%" : "未使用"}｜超黏：${useCandy ? "使用 +200%掉落率" : "未使用"}<br>` +
+    `(1 × (1 + ${infiniteDreamBonus}) × ${cardRate.toFixed(2)}) × ` +
+    `(${serverRate} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
+    `<br>= <b class="ok">${finalRate.toFixed(2)}%</b>` +
     `</div></div>`;
 }
 
@@ -3833,4 +3852,48 @@ function resetDecompose(){
 calcManualRunes();
 
 </script>
+
+<script>
+(function(){
+  function fmtAuto(n){ return Number(n.toFixed(2)).toString(); }
+
+  function calcAutocast(){
+    const baseEl=document.getElementById("autoBase");
+    const bonusEl=document.getElementById("autoBonus");
+    const aspdEl=document.getElementById("autoAspd");
+    if(!baseEl||!bonusEl||!aspdEl)return;
+
+    const base=Math.max(0,parseFloat(baseEl.value)||0);
+    const bonus=Math.max(0,parseFloat(bonusEl.value)||0);
+    const aspd=parseFloat(aspdEl.value)||197;
+
+    const multiplier=1+bonus/100;
+    const raw=base*multiplier;
+    const actual=Math.min(raw,100);
+    const miss=Math.max(0,100-actual);
+    const aps=50/(200-aspd);
+    const casts=aps*(actual/100);
+
+    document.getElementById("autoFinal").textContent=fmtAuto(actual)+"%";
+    document.getElementById("autoRaw").textContent=fmtAuto(raw)+"%";
+    document.getElementById("autoMiss").textContent=fmtAuto(miss)+"%";
+    document.getElementById("autoAPS").textContent=fmtAuto(aps)+" 下";
+    document.getElementById("autoCasts").textContent=fmtAuto(casts)+" 次";
+    document.getElementById("autoFormula").textContent=
+      `${fmtAuto(base)}% ×（1 + ${fmtAuto(bonus)}%）= ${fmtAuto(base)}% × ${fmtAuto(multiplier)} = ${fmtAuto(raw)}%`;
+
+    document.getElementById("autoWarn").style.display = raw>100 ? "block" : "none";
+  }
+
+  ["autoBase","autoBonus"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener("input",calcAutocast);
+  });
+  const aspd=document.getElementById("autoAspd");
+  if(aspd)aspd.addEventListener("change",calcAutocast);
+
+  calcAutocast();
+})();
+</script>
+
 </body></html>
