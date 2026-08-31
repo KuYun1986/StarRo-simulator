@@ -198,13 +198,18 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   </div>
 
   <div class="note" style="margin-top:14px">
-    <b>📊 總計增加素質</b>
+    <b>📊 升級增加素質</b>
     <div id="crystalStatTotals" style="margin-top:10px;line-height:1.9;font-size:22px;font-weight:800;color:#8fd3ff">尚未選擇升級</div>
+  </div>
+
+  <div class="note" style="margin-top:14px">
+    <b>📈 總計素質</b>
+    <div id="crystalFinalStatTotals" style="margin-top:10px;line-height:1.9;font-size:22px;font-weight:800;color:#9fe7c8">尚未選擇等級</div>
   </div>
 
   <div class="note tiny">
     每一格都可以自由選擇結晶種類，能混搭元素物理、元素魔法、特殊物理、特殊魔法、暴傷、特殊暴傷、冷卻、種族抵抗、體型抵抗、階級抵抗、屬性抵抗。<br>
-    原本等級與預計等級都可選 Lv.0～Lv.10；結晶數量與「總計增加素質」都只計算升級後新增的部分。每使用 1 顆結晶需 1 張支票。
+    原本等級與預計等級都可選 Lv.0～Lv.10；「升級增加素質」只計算原本等級到預計等級增加的部分，「總計素質」則直接加總各格預計等級的完整素質。每使用 1 顆結晶需 1 張支票。
   </div>
 </section>
 
@@ -484,6 +489,19 @@ renderTabs();renderTable();
       "階級抵抗":0,
       "屬性抵抗":0
     };
+    const finalTotals={
+      "屬性魔物物理":0,
+      "屬性魔物魔法":0,
+      "暴傷":0,
+      "CRATE":0,
+      "PATK":0,
+      "SMATK":0,
+      "冷卻":0,
+      "種族抵抗":0,
+      "體型抵抗":0,
+      "階級抵抗":0,
+      "屬性抵抗":0
+    };
     for(let i=0;i<SLOTS;i++){
       const type=document.getElementById("crystalType_"+i)?.value;
       let baseLv=Math.max(0,Math.min(10,Number(document.getElementById("crystalBaseLv_"+i)?.value||0)));
@@ -504,6 +522,7 @@ renderTabs();renderTable();
       const ability=ABILITY[type]||"";
       if(ability && Object.prototype.hasOwnProperty.call(totals,ability)){
         totals[ability]+=value;
+        finalTotals[ability]+=targetValue;
       }
       document.getElementById("crystalAbility_"+i).textContent=ABILITY[type]||"";
       const valueText=(ability==="PATK" || ability==="SMATK")
@@ -525,19 +544,25 @@ renderTabs();renderTable();
     document.getElementById("crystalTotalCost").textContent=fmt(grandTotal)+" P";
     document.getElementById("crystalPriceDisplay").textContent=fmt(unit)+" / "+fmt(checkUnit)+" P";
 
-    const lines=[];
-    if(totals["屬性魔物物理"]) lines.push("屬性魔物物理 +"+fmt(totals["屬性魔物物理"])+"%");
-    if(totals["屬性魔物魔法"]) lines.push("屬性魔物魔法 +"+fmt(totals["屬性魔物魔法"])+"%");
-    if(totals["暴傷"]) lines.push("暴擊傷害 +"+fmt(totals["暴傷"])+"%");
-    if(totals["CRATE"]) lines.push("CRATE+"+fmt(totals["CRATE"]));
-    if(totals["PATK"]) lines.push("PATK +"+fmt(totals["PATK"]));
-    if(totals["SMATK"]) lines.push("SMATK +"+fmt(totals["SMATK"]));
-    if(totals["冷卻"]) lines.push("技能冷卻 -"+fmt(totals["冷卻"])+" 秒");
-    if(totals["種族抵抗"]) lines.push("種族抵抗 +"+fmt(totals["種族抵抗"])+"%");
-    if(totals["體型抵抗"]) lines.push("體型抵抗 +"+fmt(totals["體型抵抗"])+"%");
-    if(totals["階級抵抗"]) lines.push("階級抵抗 +"+fmt(totals["階級抵抗"])+"%");
-    if(totals["屬性抵抗"]) lines.push("屬性抵抗 +"+fmt(totals["屬性抵抗"])+"%");
-    document.getElementById("crystalStatTotals").innerHTML=lines.length ? lines.join("<br>") : "尚未選擇升級";
+    function statLines(obj){
+      const lines=[];
+      if(obj["屬性魔物物理"]) lines.push("屬性魔物物理 +"+fmt(obj["屬性魔物物理"])+"%");
+      if(obj["屬性魔物魔法"]) lines.push("屬性魔物魔法 +"+fmt(obj["屬性魔物魔法"])+"%");
+      if(obj["暴傷"]) lines.push("暴擊傷害 +"+fmt(obj["暴傷"])+"%");
+      if(obj["CRATE"]) lines.push("CRATE+"+fmt(obj["CRATE"]));
+      if(obj["PATK"]) lines.push("PATK +"+fmt(obj["PATK"]));
+      if(obj["SMATK"]) lines.push("SMATK +"+fmt(obj["SMATK"]));
+      if(obj["冷卻"]) lines.push("技能冷卻 -"+fmt(obj["冷卻"])+" 秒");
+      if(obj["種族抵抗"]) lines.push("種族抵抗 +"+fmt(obj["種族抵抗"])+"%");
+      if(obj["體型抵抗"]) lines.push("體型抵抗 +"+fmt(obj["體型抵抗"])+"%");
+      if(obj["階級抵抗"]) lines.push("階級抵抗 +"+fmt(obj["階級抵抗"])+"%");
+      if(obj["屬性抵抗"]) lines.push("屬性抵抗 +"+fmt(obj["屬性抵抗"])+"%");
+      return lines;
+    }
+    const upgradeLines=statLines(totals);
+    const finalLines=statLines(finalTotals);
+    document.getElementById("crystalStatTotals").innerHTML=upgradeLines.length ? upgradeLines.join("<br>") : "尚未選擇升級";
+    document.getElementById("crystalFinalStatTotals").innerHTML=finalLines.length ? finalLines.join("<br>") : "尚未選擇等級";
   };
 
   window.saveCrystalPrice=function(){
