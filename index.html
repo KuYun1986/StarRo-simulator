@@ -291,6 +291,7 @@ a{color:#77a9ff}
 <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
 <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
 <a href="collection.html" class="game-page-link">📚 收藏區</a>
+<a href="equipment.html" class="game-page-link">💰 裝備成本區</a>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -474,6 +475,50 @@ a{color:#77a9ff}
 <div id="refineBoxNow" style="margin-top:12px"></div>
 <div id="refineBoxStats" class="statgrid" style="margin-top:10px"></div>
 <div id="refineBoxDist" style="margin-top:10px"></div>
+</section>
+
+<section class="card" id="equipmentCostSimulator">
+<h2>💰 裝備成本區</h2>
+<p class="tiny">依「繁星附魔.xlsx」目前資料整理。P 點價格可自行調整換算比例；試算結果僅供參考。</p>
+
+<div class="row">
+  <span>裝備</span>
+  <select id="equipCostSelect">
+    <option value="信念頭">信念頭</option>
+<option value="伊斯頭">伊斯頭</option>
+<option value="凱薩">凱薩</option>
+<option value="龍甲">龍甲</option>
+<option value="懺悔武器">懺悔武器</option>
+<option value="神話／英雄LT武器">神話／英雄LT武器</option>
+<option value="吉分斗">吉分斗</option>
+<option value="生命披">生命披</option>
+<option value="奧林披肩">奧林披肩</option>
+<option value="善惡">善惡</option>
+  </select>
+  <span></span>
+</div>
+
+<div class="row">
+  <span>數量</span>
+  <input id="equipCostQty" type="number" min="1" step="1" value="1">
+  <span>件</span>
+</div>
+
+<div class="row">
+  <span>台幣換算</span>
+  <input id="equipCostRate" type="number" min="1" step="1" value="300">
+  <span>P / 1T</span>
+</div>
+
+<div class="statgrid" style="margin-top:12px">
+  <div class="stat"><span class="label">材料費用</span><b id="equipMaterialCost">0 P</b></div>
+  <div class="stat"><span class="label">精煉／評級費用</span><b id="equipRefineCost">0 P</b></div>
+  <div class="stat"><span class="label">單件總成本</span><b id="equipUnitCost" class="ok">0 P</b></div>
+  <div class="stat"><span class="label">數量合計</span><b id="equipTotalCost" class="ok">0 P</b></div>
+  <div class="stat"><span class="label">換算台幣</span><b id="equipTwdCost">0 T</b></div>
+</div>
+
+<div id="equipCostNote" class="tiny" style="margin-top:10px"></div>
 </section>
 
 <section class="card">
@@ -3969,4 +4014,29 @@ $('rmSeries').addEventListener('click',e=>{const b=e.target.closest('[data-s]');
 })();
 </script>
 
+<script id="equipmentCostScript">
+(function(){
+  const EQUIP_COST_DATA = {"信念頭":{"material":88305,"refine":32024,"total":120329,"note":"試算表換算：約 401T"},"伊斯頭":{"material":785200,"refine":105504,"total":890704,"note":"試算表換算：約 2969T"},"凱薩":{"material":549112,"refine":105504,"total":654616,"note":"試算表換算：約 2182T"},"龍甲":{"material":0,"refine":0,"total":0,"note":"試算表目前未填材料單價，暫無成本"},"懺悔武器":{"material":53226,"refine":36384,"total":89610,"note":"試算表換算：約 300T"},"神話／英雄LT武器":{"material":98078,"refine":36384,"total":134462,"note":"試算表換算：約 450T"},"吉分斗":{"material":89613,"refine":47604,"total":137217,"note":"試算表換算：約 457T"},"生命披":{"material":121650,"refine":107604,"total":315585,"note":"試算表換算：約 1052T"},"奧林披肩":{"material":803200,"refine":107604,"total":910804,"note":"試算表換算：約 3036T"},"善惡":{"material":0,"refine":0,"total":0,"note":"試算表只有材料需求，尚未建立P點成本"}};
+  const fmt = n => Math.round(Number(n)||0).toLocaleString("zh-TW");
+  function renderEquipCost(){
+    const name=document.getElementById("equipCostSelect")?.value;
+    const qty=Math.max(1,Math.floor(Number(document.getElementById("equipCostQty")?.value||1)));
+    const rate=Math.max(1,Number(document.getElementById("equipCostRate")?.value||300));
+    const d=EQUIP_COST_DATA[name]||{material:0,refine:0,total:0,note:""};
+    const material=d.material||0, refine=d.refine||0, unit=d.total||0, total=unit*qty;
+    const twd=Math.round(total/rate);
+    document.getElementById("equipMaterialCost").textContent=fmt(material)+" P";
+    document.getElementById("equipRefineCost").textContent=fmt(refine)+" P";
+    document.getElementById("equipUnitCost").textContent=unit?fmt(unit)+" P":"尚未建立";
+    document.getElementById("equipTotalCost").textContent=unit?fmt(total)+" P":"尚未建立";
+    document.getElementById("equipTwdCost").textContent=unit?fmt(twd)+" T":"—";
+    document.getElementById("equipCostNote").textContent=d.note||"";
+  }
+  ["equipCostSelect","equipCostQty","equipCostRate"].forEach(id=>{
+    const el=document.getElementById(id);
+    el?.addEventListener(id==="equipCostSelect"?"change":"input",renderEquipCost);
+  });
+  renderEquipCost();
+})();
+</script>
 </body></html>
