@@ -72,8 +72,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 修改後的數量、價格單位、P 點價格會儲存在你的瀏覽器。
 </div>
 </section>
-
-
 <section class="card" id="serviceMaterialPrices">
   <h2>💲 代敲／代評材料價格</h2>
   <div class="tiny">以下為預設 P 點價格，可直接修改；修改後會保存在目前瀏覽器。</div>
@@ -152,6 +150,54 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <div class="note tiny">
       D、C 評級機率：29/30%。你提供的材料需求目前只有 S裝、SS裝，因此本試算先做這兩類。
     </div>
+  </div>
+</section>
+
+<section class="card" id="crystalSimulator">
+  <h2>💎 影子結晶區</h2>
+  <div class="tiny">影子結晶試算｜結晶單顆價格預設 1,200P，可自行修改並儲存在瀏覽器。</div>
+
+  <div class="row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0">
+    <span style="margin-left:8px">結晶單顆價格</span>
+    <input id="crystalUnitPrice" type="number" min="0" step="any" value="1200"
+      style="width:130px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
+    <span>P</span>
+    <button type="button" class="primary" onclick="saveCrystalPrice()">💾 儲存價格</button>
+    <button type="button" onclick="resetCrystalPrice()">恢復 1200P</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="cost-table" style="min-width:900px">
+      <thead>
+        <tr>
+          <th>欄位</th>
+          <th>結晶</th>
+          <th>原本等級</th>
+          <th>預計等級</th>
+          <th>能力</th>
+          <th>數值</th>
+          <th>數量</th>
+          <th>成本</th>
+        </tr>
+      </thead>
+      <tbody id="crystalRows"></tbody>
+    </table>
+  </div>
+
+  <div class="summary">
+    <div class="stat"><span class="label">結晶總數</span><b id="crystalTotalQty">0 顆</b></div>
+    <div class="stat"><span class="label">結晶總成本</span><b id="crystalTotalCost" style="color:#7ee0a1">0 P</b></div>
+    <div class="stat"><span class="label">目前單價</span><b id="crystalPriceDisplay">1,200 P</b></div>
+  </div>
+
+  <div class="note" style="margin-top:14px">
+    <b>📊 總計增加素質</b>
+    <div id="crystalStatTotals" style="margin-top:10px;line-height:1.9;font-size:22px;font-weight:800;color:#8fd3ff">尚未選擇升級</div>
+  </div>
+
+  <div class="note tiny">
+    每一格都可以自由選擇結晶種類，能混搭元素物理、元素魔法、特殊物理、特殊魔法、暴傷、特殊暴傷。<br>
+    原本等級與預計等級都可選 Lv.0～Lv.10；結晶數量與「總計增加素質」都只計算升級後新增的部分。例：暴傷原本 Lv.8=+50%，升到 Lv.10=+100%，本次增加顯示 +50%。
   </div>
 </section>
 
@@ -341,6 +387,135 @@ renderTabs();renderTable();
   loadServicePrices();
   renderRefine();
   renderGrade();
+})();
+</script>
+
+
+<script id="crystalSimulatorScript">
+(function(){
+  const CRYSTAL_VALUES={
+    "元素魔法":[1,2,3,4,5,10,15,25,35,50],
+    "元素物理":[1,2,3,4,5,10,15,25,35,50],
+    "暴傷":[1,2,3,5,10,15,25,50,75,100],
+    "特殊暴傷":[1,2,3,4,5,10,15,25,35,50],
+    "特殊魔法":[1,2,3,5,10,15,25,50,75,100],
+    "特殊物理":[1,2,3,5,10,15,25,50,75,100]
+  };
+  const ABILITY={
+    "元素物理":"屬性魔物物理",
+    "元素魔法":"屬性魔物魔法",
+    "暴傷":"暴傷",
+    "特殊暴傷":"CRATE",
+    "特殊物理":"PATK",
+    "特殊魔法":"SMATK"
+  };
+  const SLOTS=6;
+  const fmt=n=>Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});
+  const priceKey="starro_crystal_unit_price";
+
+  function crystalOptions(){
+    return ["元素物理","元素魔法","特殊物理","特殊魔法","暴傷","特殊暴傷"];
+  }
+
+  function renderCrystalRows(){
+    const opts=crystalOptions();
+    const body=document.getElementById("crystalRows");
+    let s="";
+    for(let i=0;i<SLOTS;i++){
+      const currentType=document.getElementById("crystalType_"+i)?.value;
+      const currentLv=Number(document.getElementById("crystalLv_"+i)?.value||0);
+      const type=(currentType && opts.includes(currentType)) ? currentType : opts[0];
+      s+=`<tr>
+        <td><b>結晶 ${i+1}</b></td>
+        <td><select id="crystalType_${i}" onchange="recalcCrystal()"
+          style="min-height:40px;padding:7px 9px;border-radius:8px;background:#0b1119;color:#fff;border:1px solid #34404e">
+          ${opts.map(x=>`<option value="${x}" ${x===type?'selected':''}>${x}</option>`).join("")}
+        </select></td>
+        <td><select id="crystalBaseLv_${i}" onchange="recalcCrystal()"
+          style="min-height:40px;padding:7px 9px;border-radius:8px;background:#0b1119;color:#fff;border:1px solid #34404e">
+          ${Array.from({length:11},(_,k)=>k).map(lv=>`<option value="${lv}" ${lv===0?'selected':''}>Lv.${lv}</option>`).join("")}
+        </select></td>
+        <td><select id="crystalLv_${i}" onchange="recalcCrystal()"
+          style="min-height:40px;padding:7px 9px;border-radius:8px;background:#0b1119;color:#fff;border:1px solid #34404e">
+          ${Array.from({length:11},(_,k)=>k).map(lv=>`<option value="${lv}" ${lv===currentLv?'selected':''}>Lv.${lv}</option>`).join("")}
+        </select></td>
+        <td id="crystalAbility_${i}"></td>
+        <td class="money" id="crystalValue_${i}"></td>
+        <td class="money" id="crystalQty_${i}">1 顆</td>
+        <td class="money" id="crystalCost_${i}">0 P</td>
+      </tr>`;
+    }
+    body.innerHTML=s;
+    recalcCrystal();
+  }
+
+  window.recalcCrystal=function(){
+    const unit=Math.max(0,Number(document.getElementById("crystalUnitPrice")?.value||0));
+    let totalQty=0,totalCost=0;
+    const totals={
+      "屬性魔物物理":0,
+      "屬性魔物魔法":0,
+      "暴傷":0,
+      "CRATE":0,
+      "PATK":0,
+      "SMATK":0
+    };
+    for(let i=0;i<SLOTS;i++){
+      const type=document.getElementById("crystalType_"+i)?.value;
+      let baseLv=Math.max(0,Math.min(10,Number(document.getElementById("crystalBaseLv_"+i)?.value||0)));
+      let lv=Math.max(0,Math.min(10,Number(document.getElementById("crystalLv_"+i)?.value||0)));
+      if(baseLv>lv){
+        baseLv=lv;
+        const baseEl=document.getElementById("crystalBaseLv_"+i);
+        if(baseEl) baseEl.value=String(baseLv);
+      }
+      const cumulativeTarget=Math.pow(2,lv)-1;
+      const cumulativeBase=baseLv>0 ? (Math.pow(2,baseLv)-1) : 0;
+      const qty=Math.max(0,cumulativeTarget-cumulativeBase);
+      const targetValue=lv===0 ? 0 : ((CRYSTAL_VALUES[type]||[])[lv-1]||0);
+      const baseValue=baseLv===0 ? 0 : ((CRYSTAL_VALUES[type]||[])[baseLv-1]||0);
+      const value=Math.max(0,targetValue-baseValue);
+      const cost=qty*unit;
+      totalQty+=qty; totalCost+=cost;
+      const ability=ABILITY[type]||"";
+      if(ability && Object.prototype.hasOwnProperty.call(totals,ability)){
+        totals[ability]+=value;
+      }
+      document.getElementById("crystalAbility_"+i).textContent=ABILITY[type]||"";
+      const valueText=(ability==="PATK" || ability==="SMATK") ? ("+"+value) : ("+"+value+"%");
+      document.getElementById("crystalValue_"+i).textContent=valueText;
+      document.getElementById("crystalQty_"+i).textContent=fmt(qty)+" 顆";
+      document.getElementById("crystalCost_"+i).textContent=fmt(cost)+" P";
+    }
+    document.getElementById("crystalTotalQty").textContent=fmt(totalQty)+" 顆";
+    document.getElementById("crystalTotalCost").textContent=fmt(totalCost)+" P";
+    document.getElementById("crystalPriceDisplay").textContent=fmt(unit)+" P";
+
+    const lines=[];
+    if(totals["屬性魔物物理"]) lines.push("屬性魔物物理 +"+fmt(totals["屬性魔物物理"])+"%");
+    if(totals["屬性魔物魔法"]) lines.push("屬性魔物魔法 +"+fmt(totals["屬性魔物魔法"])+"%");
+    if(totals["暴傷"]) lines.push("暴擊傷害 +"+fmt(totals["暴傷"])+"%");
+    if(totals["CRATE"]) lines.push("特殊暴傷 +"+fmt(totals["CRATE"])+"%");
+    if(totals["PATK"]) lines.push("PATK +"+fmt(totals["PATK"]));
+    if(totals["SMATK"]) lines.push("SMATK +"+fmt(totals["SMATK"]));
+    document.getElementById("crystalStatTotals").innerHTML=lines.length ? lines.join("<br>") : "尚未選擇升級";
+  };
+
+  window.saveCrystalPrice=function(){
+    localStorage.setItem(priceKey,document.getElementById("crystalUnitPrice").value||"1200");
+    recalcCrystal();
+  };
+  window.resetCrystalPrice=function(){
+    localStorage.removeItem(priceKey);
+    document.getElementById("crystalUnitPrice").value=1200;
+    recalcCrystal();
+  };
+
+  document.getElementById("crystalUnitPrice")?.addEventListener("input",recalcCrystal);
+
+  const saved=localStorage.getItem(priceKey);
+  if(saved!==null) document.getElementById("crystalUnitPrice").value=saved;
+  renderCrystalRows();
 })();
 </script>
 
