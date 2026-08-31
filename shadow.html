@@ -123,6 +123,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   <div class="note" style="margin-top:14px" id="damageMultiplierCompare">
     <b>⚔️ 傷害倍率比較</b>
+    <div class="tiny" style="margin-top:4px">升級後倍率會即時讀取上方 6 格「預計等級」的結晶方案。</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
       <button type="button" id="attackTypePhysical" class="primary" onclick="setAttackType('physical')">物理｜PATK</button>
       <button type="button" id="attackTypeMagic" onclick="setAttackType('magic')">魔法｜SMATK</button>
@@ -601,18 +602,33 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   window.applyBestCrystalBuild=function(){
-    if(!bestCrystalBuild) findBestCrystalBuild();
+    // 每次套用前，重新依目前玩家輸入與目前物理/魔法、爆傷/技爆模式計算一次。
+    findBestCrystalBuild();
     if(!bestCrystalBuild) return;
+
     for(let i=0;i<SLOTS;i++){
       const typeEl=document.getElementById("crystalType_"+i);
       const baseEl=document.getElementById("crystalBaseLv_"+i);
       const targetEl=document.getElementById("crystalLv_"+i);
-      if(typeEl) typeEl.value=bestCrystalBuild[i];
+      if(typeEl){
+        typeEl.value=bestCrystalBuild[i];
+        typeEl.dispatchEvent(new Event("change",{bubbles:true}));
+      }
       if(baseEl) baseEl.value="0";
       if(targetEl) targetEl.value="10";
     }
+
+    // 強制重新讀取目前 6 格結晶，更新上方素質與下方傷害倍率。
     recalcCrystal();
     recalcDamageCompare();
+
+    // 下一個畫面更新週期再算一次，避免瀏覽器尚未完成 select 畫面更新。
+    requestAnimationFrame(()=>{
+      recalcCrystal();
+      recalcDamageCompare();
+      const result=document.getElementById("bestCrystalBuildResult");
+      if(result) result.innerHTML += '<br><span style="color:#9fe7c8">✓ 已套用到上方 6 格，傷害倍率已同步更新</span>';
+    });
   };
 
   window.saveCrystalPrice=function(){
