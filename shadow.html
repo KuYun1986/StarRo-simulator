@@ -179,7 +179,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           <tr>
             <td><b>CRATE</b></td>
             <td><input id="dmgPanelCrate" type="number" step="any" value="450" oninput="recalcDamageCompare()"></td>
-            <td><input id="dmgPctCrate" type="number" step="any" value="0" oninput="recalcDamageCompare()"><div class="tiny">CRATE%</div></td>
+            <td><input id="dmgPctCrate" type="number" step="any" value="12" oninput="recalcDamageCompare()"><div class="tiny">CRATE%</div></td>
             <td class="money" id="dmgRawCrate">0</td>
             <td class="money" id="dmgOldCrystalCrate">0</td>
             <td class="money" id="dmgNetCrate">0</td>
@@ -189,8 +189,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           </tr>
           <tr>
             <td><b>PATK</b></td>
-            <td><input id="dmgPanelPatk" type="number" step="any" value="1500" oninput="recalcDamageCompare()"></td>
-            <td><input id="dmgPctPatk" type="number" step="any" value="140" oninput="recalcDamageCompare()"><div class="tiny">PATK%</div></td>
+            <td><input id="dmgPanelPatk" type="number" step="any" value="2250" oninput="recalcDamageCompare()"></td>
+            <td><input id="dmgPctPatk" type="number" step="any" value="152" oninput="recalcDamageCompare()"><div class="tiny">PATK%</div></td>
             <td class="money" id="dmgRawPatk">0</td>
             <td class="money" id="dmgOldCrystalPatk">0</td>
             <td class="money" id="dmgNetPatk">0</td>
@@ -231,9 +231,13 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       +20奧林批(鬥魂)=PATK+40%/60%(+30)<br>
       星印(力量/集中)收藏=PATK+50%<br>
       萬神收藏x6(A)=PATK+24%<br><br>
+
+      +20伊斯頭(盜賊)=CRATE+10%/15%(+30)<br>
       星印(創造)收藏=CRATE+50%<br>
       華金收藏x6=CRATE+6%<br>
       伊卡收藏x6(A)=CRATE+24%<br><br>
+
+      +20奧林批(靈能)=SPATK+40%/60%(+30)<br>
       星印(魔力)收藏=SMATK+50%<br>
       吸血收藏x6(A)=SMATK+24%
     </div>
@@ -435,7 +439,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       if(patk) patk.value="0";
       if(smatk) smatk.value="1500";
     }else{
-      if(patk) patk.value="1500";
+      if(patk) patk.value="2250";
       if(smatk) smatk.value="0";
     }
 
