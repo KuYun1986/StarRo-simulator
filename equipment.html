@@ -196,7 +196,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   </div>
 
   <div class="note tiny">
-    每一格都可以自由選擇結晶種類，能混搭元素物理、元素魔法、特殊物理、特殊魔法、暴傷、特殊暴傷。<br>
+    每一格都可以自由選擇結晶種類，能混搭元素物理、元素魔法、特殊物理、特殊魔法、暴傷、特殊暴傷、冷卻、種族抵抗、體型抵抗、階級抵抗、屬性抵抗。<br>
     原本等級與預計等級都可選 Lv.0～Lv.10；結晶數量與「總計增加素質」都只計算升級後新增的部分。例：暴傷原本 Lv.8=+50%，升到 Lv.10=+100%，本次增加顯示 +50%。
   </div>
 </section>
@@ -399,7 +399,12 @@ renderTabs();renderTable();
     "暴傷":[1,2,3,5,10,15,25,50,75,100],
     "特殊暴傷":[1,2,3,4,5,10,15,25,35,50],
     "特殊魔法":[1,2,3,5,10,15,25,50,75,100],
-    "特殊物理":[1,2,3,5,10,15,25,50,75,100]
+    "特殊物理":[1,2,3,5,10,15,25,50,75,100],
+    "冷卻":[0.01,0.02,0.03,0.04,0.05,0.1,0.15,0.25,0.35,0.5],
+    "種族抵抗":[1,2,3,4,5,7,10,15,20,25],
+    "體型抵抗":[1,2,3,4,5,7,10,15,20,25],
+    "階級抵抗":[1,2,3,4,5,7,10,15,20,25],
+    "屬性抵抗":[1,2,3,4,5,7,10,15,20,25]
   };
   const ABILITY={
     "元素物理":"屬性魔物物理",
@@ -407,14 +412,19 @@ renderTabs();renderTable();
     "暴傷":"暴傷",
     "特殊暴傷":"CRATE",
     "特殊物理":"PATK",
-    "特殊魔法":"SMATK"
+    "特殊魔法":"SMATK",
+    "冷卻":"冷卻",
+    "種族抵抗":"種族抵抗",
+    "體型抵抗":"體型抵抗",
+    "階級抵抗":"階級抵抗",
+    "屬性抵抗":"屬性抵抗"
   };
   const SLOTS=6;
   const fmt=n=>Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});
   const priceKey="starro_crystal_unit_price";
 
   function crystalOptions(){
-    return ["元素物理","元素魔法","特殊物理","特殊魔法","暴傷","特殊暴傷"];
+    return ["元素物理","元素魔法","特殊物理","特殊魔法","暴傷","特殊暴傷","冷卻","種族抵抗","體型抵抗","階級抵抗","屬性抵抗"];
   }
 
   function renderCrystalRows(){
@@ -458,7 +468,12 @@ renderTabs();renderTable();
       "暴傷":0,
       "CRATE":0,
       "PATK":0,
-      "SMATK":0
+      "SMATK":0,
+      "冷卻":0,
+      "種族抵抗":0,
+      "體型抵抗":0,
+      "階級抵抗":0,
+      "屬性抵抗":0
     };
     for(let i=0;i<SLOTS;i++){
       const type=document.getElementById("crystalType_"+i)?.value;
@@ -482,7 +497,9 @@ renderTabs();renderTable();
         totals[ability]+=value;
       }
       document.getElementById("crystalAbility_"+i).textContent=ABILITY[type]||"";
-      const valueText=(ability==="PATK" || ability==="SMATK") ? ("+"+value) : ("+"+value+"%");
+      const valueText=(ability==="PATK" || ability==="SMATK")
+        ? ("+"+value)
+        : (ability==="冷卻" ? ("-"+fmt(value)+" 秒") : ("+"+value+"%"));
       document.getElementById("crystalValue_"+i).textContent=valueText;
       document.getElementById("crystalQty_"+i).textContent=fmt(qty)+" 顆";
       document.getElementById("crystalCost_"+i).textContent=fmt(cost)+" P";
@@ -498,6 +515,11 @@ renderTabs();renderTable();
     if(totals["CRATE"]) lines.push("特殊暴傷 +"+fmt(totals["CRATE"])+"%");
     if(totals["PATK"]) lines.push("PATK +"+fmt(totals["PATK"]));
     if(totals["SMATK"]) lines.push("SMATK +"+fmt(totals["SMATK"]));
+    if(totals["冷卻"]) lines.push("技能冷卻 -"+fmt(totals["冷卻"])+" 秒");
+    if(totals["種族抵抗"]) lines.push("種族抵抗 +"+fmt(totals["種族抵抗"])+"%");
+    if(totals["體型抵抗"]) lines.push("體型抵抗 +"+fmt(totals["體型抵抗"])+"%");
+    if(totals["階級抵抗"]) lines.push("階級抵抗 +"+fmt(totals["階級抵抗"])+"%");
+    if(totals["屬性抵抗"]) lines.push("屬性抵抗 +"+fmt(totals["屬性抵抗"])+"%");
     document.getElementById("crystalStatTotals").innerHTML=lines.length ? lines.join("<br>") : "尚未選擇升級";
   };
 
