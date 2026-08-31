@@ -74,14 +74,16 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <div class="tiny" style="margin-top:6px">
     依照下方「傷害倍率比較」中玩家填入的自身素質，以及目前選擇的「爆傷版／技爆版」公式，
     自動比較 6 格結晶配置，找出目前總倍率最高的方案。推薦只比較會直接影響傷害倍率的結晶：
-    元素物理、暴傷、特殊暴傷、特殊物理、特殊魔法；原本等級與預計等級皆預設 Lv.10；系統會把「原本 6 格」視為目前身上配置，直接與所有 Lv.10 候選組合比較，判斷是否有更好的結晶選擇。
+    元素物理、暴傷、特殊暴傷、特殊物理、特殊魔法；系統會把「原本 6 格」視為目前身上配置，可分別計算 Lv.6、Lv.8、Lv.10 的 6 格最佳候選組合，方便比較不同等級方案是否比目前配置更適合。
   </div>
   <div class="actions">
-    <button type="button" class="primary" onclick="findBestCrystalBuild()">🧠 計算最佳結晶方案</button>
+    <button type="button" onclick="findBestCrystalBuild(6)">計算 Lv.6 結晶方案</button>
+    <button type="button" onclick="findBestCrystalBuild(8)">計算 Lv.8 結晶方案</button>
+    <button type="button" class="primary" onclick="findBestCrystalBuild(10)">計算 Lv.10 結晶方案</button>
     <button type="button" onclick="applyBestCrystalBuild()">套用推薦方案</button>
   </div>
   <div id="bestCrystalBuildResult" style="margin-top:10px;line-height:1.9;font-size:18px;font-weight:800;color:#8fd3ff">
-    請先在下方填入自身素質，再按「計算最佳結晶方案」。
+    請先在下方填入自身素質，再選擇計算 Lv.6、Lv.8 或 Lv.10 結晶方案。
   </div>
 </div>
 <div class="note" style="margin:12px 0 14px">
@@ -483,7 +485,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
 
     recalcDamageCompare();
-    if(bestCrystalBuild) findBestCrystalBuild();
+    if(bestCrystalBuild) findBestCrystalBuild(bestCrystalLevel);
   };
 
   let damageMode="crit";
@@ -495,7 +497,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(critBtn) critBtn.classList.toggle("primary",damageMode==="crit");
     if(skillBtn) skillBtn.classList.toggle("primary",damageMode==="skill");
     recalcDamageCompare();
-    if(bestCrystalBuild) findBestCrystalBuild();
+    if(bestCrystalBuild) findBestCrystalBuild(bestCrystalLevel);
   };
 
   function calcDamageRow(panel,extraPct,oldCrystal,targetCrystal,kind){
@@ -581,6 +583,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
 
   let bestCrystalBuild=null;
+  let bestCrystalLevel=10;
 
   function getDamageInputs(){
     return {
@@ -649,7 +652,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     return attrMul*critMul*crateMul*attackMul;
   }
 
-  window.findBestCrystalBuild=function(){
+  window.findBestCrystalBuild=function(level=10){
+    bestCrystalLevel=[6,8,10].includes(Number(level)) ? Number(level) : 10;
     const offensiveTypes=attackType==="magic"
       ? ["元素魔法","暴傷","特殊暴傷","特殊魔法"]
       : ["元素物理","暴傷","特殊暴傷","特殊物理"];
@@ -658,7 +662,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     function dfs(start,depth,arr){
       if(depth===6){
-        const v=calcTotalMultiplierForBuild(arr,[10,10,10,10,10,10]);
+        const v=calcTotalMultiplierForBuild(arr,Array(6).fill(bestCrystalLevel));
         if(v>bestValue){
           bestValue=v;
           best=arr.slice();
@@ -680,12 +684,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const inc=(ratio-1)*100;
     const counts={};
     best.forEach(t=>counts[t]=(counts[t]||0)+1);
-    const plan=Object.entries(counts).map(([k,v])=>`${k} Lv.10 × ${v}`).join("、");
+    const plan=Object.entries(counts).map(([k,v])=>`${k} Lv.${bestCrystalLevel} × ${v}`).join("、");
 
     const el=document.getElementById("bestCrystalBuildResult");
     if(el){
       el.innerHTML=
-        `推薦：${plan}<br>`+
+        `推薦（Lv.${bestCrystalLevel}方案）：${plan}<br>`+
         `模式：${attackType==="magic"?"魔法｜SMATK":"物理｜PATK"}・${damageMode==="skill"?"技爆版":"爆傷版"}<br>`+
         `目前倍率（依原本6格）：${fmt(currentValue)} → 推薦倍率：${fmt(bestValue)}<br>`+
         `預估提升：${inc>=0?"+":""}${fmt(inc)}%`;
@@ -694,13 +698,13 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   window.applyBestCrystalBuild=function(){
     // 套用前先依目前玩家輸入與模式重新找最佳方案。
-    findBestCrystalBuild();
+    findBestCrystalBuild(bestCrystalLevel);
     if(!bestCrystalBuild) return;
 
     // 先保存目前身上原本 6 顆結晶，因為等等會把結晶種類改成推薦方案。
     const equipped=getEquippedCrystalBuild();
     const oldS=buildStatSums(equipped.types,equipped.levels);
-    const newS=buildStatSums(bestCrystalBuild,[10,10,10,10,10,10]);
+    const newS=buildStatSums(bestCrystalBuild,Array(6).fill(bestCrystalLevel));
 
     // 玩家填入的自身面板已包含原本結晶。
     // 套用新方案時，面板也要同步：
@@ -745,7 +749,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
 
     // 套用推薦方案後，推薦方案成為新的「目前身上配置」。
-    // 所以原本等級、預計等級都維持 Lv.10。
+    // 所以原本等級、預計等級都會改成目前套用的推薦等級。
     for(let i=0;i<SLOTS;i++){
       const typeEl=document.getElementById("crystalType_"+i);
       const baseEl=document.getElementById("crystalBaseLv_"+i);
@@ -755,8 +759,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         typeEl.value=bestCrystalBuild[i];
         typeEl.dispatchEvent(new Event("change",{bubbles:true}));
       }
-      if(baseEl) baseEl.value="10";
-      if(targetEl) targetEl.value="10";
+      if(baseEl) baseEl.value=String(bestCrystalLevel);
+      if(targetEl) targetEl.value=String(bestCrystalLevel);
     }
 
     recalcCrystal();
@@ -767,7 +771,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       recalcDamageCompare();
       const result=document.getElementById("bestCrystalBuildResult");
       if(result){
-        result.innerHTML += '<br><span style="color:#9fe7c8">✓ 已套用推薦方案，並同步扣除原本結晶／加入新結晶後的自身面板</span>';
+        result.innerHTML += `<br><span style="color:#9fe7c8">✓ 已套用 Lv.${bestCrystalLevel} 推薦方案，並同步扣除原本結晶／加入新結晶後的自身面板</span>`;
       }
     });
   };
