@@ -155,15 +155,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
 <section class="card" id="crystalSimulator">
   <h2>💎 影子結晶區</h2>
-  <div class="tiny">影子結晶試算｜結晶單顆價格預設 1,200P，可自行修改並儲存在瀏覽器。</div>
+  <div class="tiny">影子結晶試算｜結晶單顆價格預設 1,200P、支票預設 16P，可自行修改並儲存在瀏覽器。</div>
 
   <div class="row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0">
     <span style="margin-left:8px">結晶單顆價格</span>
     <input id="crystalUnitPrice" type="number" min="0" step="any" value="1200"
       style="width:130px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
     <span>P</span>
+    <span style="margin-left:8px">支票單價</span>
+    <input id="crystalCheckPrice" type="number" min="0" step="any" value="16"
+      style="width:110px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
+    <span>P</span>
     <button type="button" class="primary" onclick="saveCrystalPrice()">💾 儲存價格</button>
-    <button type="button" onclick="resetCrystalPrice()">恢復 1200P</button>
+    <button type="button" onclick="resetCrystalPrice()">恢復預設</button>
   </div>
 
   <div class="table-wrap">
@@ -186,8 +190,11 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   <div class="summary">
     <div class="stat"><span class="label">結晶總數</span><b id="crystalTotalQty">0 顆</b></div>
-    <div class="stat"><span class="label">結晶總成本</span><b id="crystalTotalCost" style="color:#7ee0a1">0 P</b></div>
-    <div class="stat"><span class="label">目前單價</span><b id="crystalPriceDisplay">1,200 P</b></div>
+    <div class="stat"><span class="label">支票需求</span><b id="crystalCheckQty">0 張</b></div>
+    <div class="stat"><span class="label">結晶成本</span><b id="crystalCrystalCost" style="color:#7ee0a1">0 P</b></div>
+    <div class="stat"><span class="label">支票成本</span><b id="crystalCheckCost" style="color:#7ee0a1">0 P</b></div>
+    <div class="stat"><span class="label">總成本</span><b id="crystalTotalCost" style="color:#8fd3ff">0 P</b></div>
+    <div class="stat"><span class="label">結晶／支票單價</span><b id="crystalPriceDisplay">1,200 / 16 P</b></div>
   </div>
 
   <div class="note" style="margin-top:14px">
@@ -197,7 +204,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   <div class="note tiny">
     每一格都可以自由選擇結晶種類，能混搭元素物理、元素魔法、特殊物理、特殊魔法、暴傷、特殊暴傷、冷卻、種族抵抗、體型抵抗、階級抵抗、屬性抵抗。<br>
-    原本等級與預計等級都可選 Lv.0～Lv.10；結晶數量與「總計增加素質」都只計算升級後新增的部分。例：暴傷原本 Lv.8=+50%，升到 Lv.10=+100%，本次增加顯示 +50%。
+    原本等級與預計等級都可選 Lv.0～Lv.10；結晶數量與「總計增加素質」都只計算升級後新增的部分。每使用 1 顆結晶需 1 張支票。
   </div>
 </section>
 
@@ -422,6 +429,7 @@ renderTabs();renderTable();
   const SLOTS=6;
   const fmt=n=>Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});
   const priceKey="starro_crystal_unit_price";
+  const checkPriceKey="starro_crystal_check_price";
 
   function crystalOptions(){
     return ["元素物理","元素魔法","特殊物理","特殊魔法","暴傷","特殊暴傷","冷卻","種族抵抗","體型抵抗","階級抵抗","屬性抵抗"];
@@ -461,7 +469,8 @@ renderTabs();renderTable();
 
   window.recalcCrystal=function(){
     const unit=Math.max(0,Number(document.getElementById("crystalUnitPrice")?.value||0));
-    let totalQty=0,totalCost=0;
+    const checkUnit=Math.max(0,Number(document.getElementById("crystalCheckPrice")?.value||0));
+    let totalQty=0,totalCrystalCost=0;
     const totals={
       "屬性魔物物理":0,
       "屬性魔物魔法":0,
@@ -491,7 +500,7 @@ renderTabs();renderTable();
       const baseValue=baseLv===0 ? 0 : ((CRYSTAL_VALUES[type]||[])[baseLv-1]||0);
       const value=Math.max(0,targetValue-baseValue);
       const cost=qty*unit;
-      totalQty+=qty; totalCost+=cost;
+      totalQty+=qty; totalCrystalCost+=cost;
       const ability=ABILITY[type]||"";
       if(ability && Object.prototype.hasOwnProperty.call(totals,ability)){
         totals[ability]+=value;
@@ -499,20 +508,28 @@ renderTabs();renderTable();
       document.getElementById("crystalAbility_"+i).textContent=ABILITY[type]||"";
       const valueText=(ability==="PATK" || ability==="SMATK")
         ? ("+"+value)
-        : (ability==="冷卻" ? ("-"+fmt(value)+" 秒") : ("+"+value+"%"));
+        : (ability==="CRATE"
+            ? ("CRATE+"+value)
+            : (ability==="冷卻" ? ("-"+fmt(value)+" 秒") : ("+"+value+"%")));
       document.getElementById("crystalValue_"+i).textContent=valueText;
       document.getElementById("crystalQty_"+i).textContent=fmt(qty)+" 顆";
       document.getElementById("crystalCost_"+i).textContent=fmt(cost)+" P";
     }
+    const checkQty=totalQty;
+    const checkCost=checkQty*checkUnit;
+    const grandTotal=totalCrystalCost+checkCost;
     document.getElementById("crystalTotalQty").textContent=fmt(totalQty)+" 顆";
-    document.getElementById("crystalTotalCost").textContent=fmt(totalCost)+" P";
-    document.getElementById("crystalPriceDisplay").textContent=fmt(unit)+" P";
+    document.getElementById("crystalCheckQty").textContent=fmt(checkQty)+" 張";
+    document.getElementById("crystalCrystalCost").textContent=fmt(totalCrystalCost)+" P";
+    document.getElementById("crystalCheckCost").textContent=fmt(checkCost)+" P";
+    document.getElementById("crystalTotalCost").textContent=fmt(grandTotal)+" P";
+    document.getElementById("crystalPriceDisplay").textContent=fmt(unit)+" / "+fmt(checkUnit)+" P";
 
     const lines=[];
     if(totals["屬性魔物物理"]) lines.push("屬性魔物物理 +"+fmt(totals["屬性魔物物理"])+"%");
     if(totals["屬性魔物魔法"]) lines.push("屬性魔物魔法 +"+fmt(totals["屬性魔物魔法"])+"%");
     if(totals["暴傷"]) lines.push("暴擊傷害 +"+fmt(totals["暴傷"])+"%");
-    if(totals["CRATE"]) lines.push("特殊暴傷 +"+fmt(totals["CRATE"])+"%");
+    if(totals["CRATE"]) lines.push("CRATE+"+fmt(totals["CRATE"]));
     if(totals["PATK"]) lines.push("PATK +"+fmt(totals["PATK"]));
     if(totals["SMATK"]) lines.push("SMATK +"+fmt(totals["SMATK"]));
     if(totals["冷卻"]) lines.push("技能冷卻 -"+fmt(totals["冷卻"])+" 秒");
@@ -525,18 +542,24 @@ renderTabs();renderTable();
 
   window.saveCrystalPrice=function(){
     localStorage.setItem(priceKey,document.getElementById("crystalUnitPrice").value||"1200");
+    localStorage.setItem(checkPriceKey,document.getElementById("crystalCheckPrice").value||"16");
     recalcCrystal();
   };
   window.resetCrystalPrice=function(){
     localStorage.removeItem(priceKey);
+    localStorage.removeItem(checkPriceKey);
     document.getElementById("crystalUnitPrice").value=1200;
+    document.getElementById("crystalCheckPrice").value=16;
     recalcCrystal();
   };
 
   document.getElementById("crystalUnitPrice")?.addEventListener("input",recalcCrystal);
+  document.getElementById("crystalCheckPrice")?.addEventListener("input",recalcCrystal);
 
   const saved=localStorage.getItem(priceKey);
   if(saved!==null) document.getElementById("crystalUnitPrice").value=saved;
+  const savedCheck=localStorage.getItem(checkPriceKey);
+  if(savedCheck!==null) document.getElementById("crystalCheckPrice").value=savedCheck;
   renderCrystalRows();
 })();
 </script>
