@@ -74,7 +74,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <div class="tiny" style="margin-top:6px">
     依照下方「傷害倍率比較」中玩家填入的自身素質，以及目前選擇的「爆傷版／技爆版」公式，
     自動比較 6 格結晶配置，找出目前總倍率最高的方案。推薦只比較會直接影響傷害倍率的結晶：
-    元素物理、暴傷、特殊暴傷、特殊物理、特殊魔法；推薦等級統一以 Lv.10 計算。
+    元素物理、暴傷、特殊暴傷、特殊物理、特殊魔法；推薦計算仍以 Lv.10 作為候選方案，但畫面上的「預計等級」預設為 Lv.0，方便玩家先填自身素質再套用推薦。
   </div>
   <div class="actions">
     <button type="button" class="primary" onclick="findBestCrystalBuild()">🧠 計算最佳結晶方案</button>
@@ -271,7 +271,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     for(let i=0;i<SLOTS;i++){
       const currentType=document.getElementById("crystalType_"+i)?.value;
       const currentLvEl=document.getElementById("crystalLv_"+i);
-      const currentLv=currentLvEl ? Number(currentLvEl.value||0) : 10;
+      const currentLv=currentLvEl ? Number(currentLvEl.value||0) : 0;
       const defaultType=i<5 ? "暴傷" : "特殊暴傷";
       const type=(currentType && opts.includes(currentType)) ? currentType : defaultType;
       s+=`<tr>
@@ -414,6 +414,17 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const m=document.getElementById("attackTypeMagic");
     if(p) p.classList.toggle("primary",attackType==="physical");
     if(m) m.classList.toggle("primary",attackType==="magic");
+
+    const patk=document.getElementById("dmgPanelPatk");
+    const smatk=document.getElementById("dmgPanelSmatk");
+    if(attackType==="magic"){
+      if(patk) patk.value="0";
+      if(smatk) smatk.value="1500";
+    }else{
+      if(patk) patk.value="1500";
+      if(smatk) smatk.value="0";
+    }
+
     recalcDamageCompare();
     if(bestCrystalBuild) findBestCrystalBuild();
   };
