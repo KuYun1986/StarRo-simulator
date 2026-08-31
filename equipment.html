@@ -209,10 +209,14 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   <div class="note" style="margin-top:14px" id="damageMultiplierCompare">
     <b>⚔️ 傷害倍率比較</b>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button type="button" id="damageModeCrit" class="primary" onclick="setDamageMode('crit')">爆傷版</button>
+      <button type="button" id="damageModeSkill" onclick="setDamageMode('skill')">技爆版</button>
+    </div>
     <div class="tiny" style="margin-top:6px">
-      依你提供的公式計算：
-      ((100+對屬性)/100) × ((100+爆傷)/100) × ((140+CRATE×(1+CRATE%))/100) × ((100+PATK×(1+PATK%))/100)。
-      「原本結晶」取上方各格原本等級，「預計結晶」取各格預計等級。
+      目前可切換兩種公式：<br>
+      爆傷版：((100+對屬性)/100) × ((100+爆傷)/100) × ((140+CRATE×(1+CRATE%))/100) × ((100+PATK×(1+PATK%))/100)<br>
+      技爆版：((100+對屬性)/100) × ((100+爆傷/2)/100) × ((140+CRATE×(1+CRATE%))/100) × ((100+PATK×(1+PATK%))/100)
     </div>
 
     <div class="table-wrap" style="margin-top:10px">
@@ -672,6 +676,17 @@ renderTabs();renderTable();
     return sums;
   }
 
+  let damageMode="crit";
+
+  window.setDamageMode=function(mode){
+    damageMode=(mode==="skill") ? "skill" : "crit";
+    const critBtn=document.getElementById("damageModeCrit");
+    const skillBtn=document.getElementById("damageModeSkill");
+    if(critBtn) critBtn.classList.toggle("primary",damageMode==="crit");
+    if(skillBtn) skillBtn.classList.toggle("primary",damageMode==="skill");
+    recalcDamageCompare();
+  };
+
   function calcDamageRow(panel,extraPct,oldCrystal,targetCrystal,kind){
     // 自身面板視為「目前已包含原本結晶」的面板值。
     // 升級後：先扣掉原本結晶，再加上預計結晶。
@@ -679,9 +694,13 @@ renderTabs();renderTable();
     const targetStat=Math.max(0,panel-oldCrystal+targetCrystal);
 
     let baseMul=1, finalMul=1;
-    if(kind==="attr" || kind==="crit"){
+    if(kind==="attr"){
       baseMul=(100+currentStat)/100;
       finalMul=(100+targetStat)/100;
+    }else if(kind==="crit"){
+      const critDivisor=(damageMode==="skill") ? 2 : 1;
+      baseMul=(100+currentStat/critDivisor)/100;
+      finalMul=(100+targetStat/critDivisor)/100;
     }else if(kind==="crate"){
       baseMul=(140+currentStat*(1+extraPct/100))/100;
       finalMul=(140+targetStat*(1+extraPct/100))/100;
@@ -727,8 +746,9 @@ renderTabs();renderTable();
 
     const ratio=baseProduct!==0 ? finalProduct/baseProduct : 0;
     const increase=(ratio-1)*100;
-    document.getElementById("dmgBaseProduct").textContent=fmt(baseProduct);
-    document.getElementById("dmgFinalProduct").textContent=fmt(finalProduct);
+    const modeName=damageMode==="skill" ? "技爆版" : "爆傷版";
+    document.getElementById("dmgBaseProduct").textContent=fmt(baseProduct)+"（"+modeName+"）";
+    document.getElementById("dmgFinalProduct").textContent=fmt(finalProduct)+"（"+modeName+"）";
     document.getElementById("dmgRatio").textContent=fmt(ratio)+" 倍";
     document.getElementById("dmgIncrease").textContent=(increase>=0?"+":"")+fmt(increase)+"%";
   };
