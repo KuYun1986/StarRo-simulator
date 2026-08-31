@@ -132,7 +132,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       <button type="button" id="damageModeSkill" onclick="setDamageMode('skill')">技爆版</button>
     </div>
     <div class="tiny" style="margin-top:6px">
-      目前可切換兩種公式。玩家輸入的 CRATE / PATK / SMATK 面板值，視為已經包含 CRATE% / PATK% / SMATK% 後的最終面板；百分比只用來換算「結晶平面值」對面板造成的實際增減。物理模式只計算 PATK，魔法模式只計算 SMATK，不會同時相乘。<br>
+      目前可切換兩種公式。玩家輸入的 CRATE / PATK / SMATK 面板值，視為已經包含 CRATE% / PATK% / SMATK% 後的最終面板；百分比只用來換算「結晶平面值」對面板造成的實際增減。物理模式使用「屬性魔物物理＋PATK」，魔法模式使用「屬性魔物魔法＋SMATK」；兩者計算方式相同，不會同時相乘。<br>
       爆傷版：((100+對屬性)/100) × ((100+爆傷)/100) × ((140+CRATE面板)/100) × ((100+PATK面板)/100)<br>
       技爆版：((100+對屬性)/100) × ((100+爆傷/2)/100) × ((140+CRATE面板)/100) × ((100+PATK面板)/100)
     </div>
@@ -154,7 +154,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         </thead>
         <tbody>
           <tr>
-            <td><b>屬性魔物物理</b></td>
+            <td><b id="damageAttrLabel">屬性魔物物理</b></td>
             <td><input id="dmgPanelAttr" type="number" step="any" value="550" oninput="recalcDamageCompare()"></td>
             <td><span class="tiny">—</span><input id="dmgPctAttr" type="hidden" value="0"></td>
             <td class="money" id="dmgRawAttr">0</td>
@@ -462,11 +462,14 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   }
 
   window.recalcDamageCompare=function(){
+    const attrLabel=document.getElementById("damageAttrLabel");
+    if(attrLabel) attrLabel.textContent=attackType==="magic" ? "屬性魔物魔法" : "屬性魔物物理";
     const oldSums=crystalStatSumsByLevel("crystalBaseLv_");
     const targetSums=crystalStatSumsByLevel("crystalLv_");
 
+    const attrAbility=attackType==="magic" ? "屬性魔物魔法" : "屬性魔物物理";
     const rows=[
-      {key:"Attr", ability:"屬性魔物物理", panel:"dmgPanelAttr", pct:"dmgPctAttr", kind:"attr", include:true},
+      {key:"Attr", ability:attrAbility, panel:"dmgPanelAttr", pct:"dmgPctAttr", kind:"attr", include:true},
       {key:"Crit", ability:"暴傷", panel:"dmgPanelCrit", pct:"dmgPctCrit", kind:"crit", include:true},
       {key:"Crate", ability:"CRATE", panel:"dmgPanelCrate", pct:"dmgPctCrate", kind:"crate", include:true},
       {key:"Patk", ability:"PATK", panel:"dmgPanelPatk", pct:"dmgPctPatk", kind:"patk"},
@@ -524,7 +527,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   }
 
   function buildStatSums(types){
-    const sums={"屬性魔物物理":0,"暴傷":0,"CRATE":0,"PATK":0,"SMATK":0};
+    const sums={"屬性魔物物理":0,"屬性魔物魔法":0,"暴傷":0,"CRATE":0,"PATK":0,"SMATK":0};
     types.forEach(type=>{
       const ability=ABILITY[type]||"";
       if(!Object.prototype.hasOwnProperty.call(sums,ability)) return;
@@ -609,6 +612,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       if(targetEl) targetEl.value="10";
     }
     recalcCrystal();
+    recalcDamageCompare();
   };
 
   window.saveCrystalPrice=function(){
