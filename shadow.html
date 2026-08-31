@@ -190,7 +190,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           <tr>
             <td><b>PATK</b></td>
             <td><input id="dmgPanelPatk" type="number" step="any" value="1500" oninput="recalcDamageCompare()"></td>
-            <td><input id="dmgPctPatk" type="number" step="any" value="120" oninput="recalcDamageCompare()"><div class="tiny">PATK%</div></td>
+            <td><input id="dmgPctPatk" type="number" step="any" value="140" oninput="recalcDamageCompare()"><div class="tiny">PATK%</div></td>
             <td class="money" id="dmgRawPatk">0</td>
             <td class="money" id="dmgOldCrystalPatk">0</td>
             <td class="money" id="dmgNetPatk">0</td>
@@ -221,8 +221,22 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     </div>
   </div>
 
-  <div class="note tiny">
-    CRATE%、PATK%、SMATK%為正面裝備詞條取得
+  <div class="note tiny" style="line-height:1.75;">
+    <div style="color:#ff4d4f; font-size:16px; font-weight:800;">
+      CRATE%、PATK%、SMATK%為正面裝備詞條、收藏取得
+    </div>
+    <div style="color:#ffd54a; font-size:16px; font-weight:700; margin-top:8px;">
+      例如：<br>
+      +20伊斯頭(射手)=PATK+10%/15%(+30)<br>
+      +20奧林批(鬥魂)=PATK+40%/60%(+30)<br>
+      星印(力量/集中)收藏=PATK+50%<br>
+      萬神收藏x6(A)=PATK+24%<br><br>
+      星印(創造)收藏=CRATE+50%<br>
+      華金收藏x6=CRATE+6%<br>
+      伊卡收藏x6(A)=CRATE+24%<br><br>
+      星印(魔力)收藏=SMATK+50%<br>
+      吸血收藏x6(A)=SMATK+24%
+    </div>
   </div>
 </section>
 
