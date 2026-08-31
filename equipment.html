@@ -214,7 +214,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       <button type="button" id="damageModeSkill" onclick="setDamageMode('skill')">技爆版</button>
     </div>
     <div class="tiny" style="margin-top:6px">
-      目前可切換兩種公式。玩家輸入的 CRATE / PATK 面板值，視為已經包含 CRATE% / PATK% 後的最終面板；百分比只用來換算「結晶平面值」對面板造成的實際增減。<br>
+      目前可切換兩種公式。玩家輸入的 CRATE / PATK / SMATK 面板值，視為已經包含 CRATE% / PATK% / SMATK% 後的最終面板；百分比只用來換算「結晶平面值」對面板造成的實際增減。SMATK 的計算方式與 PATK 完全相同。<br>
       爆傷版：((100+對屬性)/100) × ((100+爆傷)/100) × ((140+CRATE面板)/100) × ((100+PATK面板)/100)<br>
       技爆版：((100+對屬性)/100) × ((100+爆傷/2)/100) × ((140+CRATE面板)/100) × ((100+PATK面板)/100)
     </div>
@@ -708,7 +708,11 @@ renderTabs();renderTable();
     }else if(kind==="crate"){
       baseMul=(140+currentStat)/100;
       finalMul=(140+targetStat)/100;
-    }else if(kind==="patk" || kind==="smatk"){
+    }else if(kind==="patk"){
+      baseMul=(100+currentStat)/100;
+      finalMul=(100+targetStat)/100;
+    }else if(kind==="smatk"){
+      // SMATK 完全套用 PATK 公式
       baseMul=(100+currentStat)/100;
       finalMul=(100+targetStat)/100;
     }
