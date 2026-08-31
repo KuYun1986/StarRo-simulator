@@ -167,7 +167,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           </tr>
           <tr>
             <td><b>暴擊傷害</b></td>
-            <td><input id="dmgPanelCrit" type="number" step="any" value="1000" oninput="recalcDamageCompare()"></td>
+            <td><input id="dmgPanelCrit" type="number" step="any" value="934" oninput="recalcDamageCompare()"></td>
             <td><span class="tiny">—</span><input id="dmgPctCrit" type="hidden" value="0"></td>
             <td class="money" id="dmgRawCrit">0</td>
             <td class="money" id="dmgOldCrystalCrit">0</td>
@@ -189,7 +189,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           </tr>
           <tr>
             <td><b>PATK</b></td>
-            <td><input id="dmgPanelPatk" type="number" step="any" value="2250" oninput="recalcDamageCompare()"></td>
+            <td><input id="dmgPanelPatk" type="number" step="any" value="3192" oninput="recalcDamageCompare()"></td>
             <td><input id="dmgPctPatk" type="number" step="any" value="152" oninput="recalcDamageCompare()"><div class="tiny">PATK%</div></td>
             <td class="money" id="dmgRawPatk">0</td>
             <td class="money" id="dmgOldCrystalPatk">0</td>
@@ -439,7 +439,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       if(patk) patk.value="0";
       if(smatk) smatk.value="1500";
     }else{
-      if(patk) patk.value="2250";
+      if(patk) patk.value="3192";
       if(smatk) smatk.value="0";
     }
 
@@ -556,26 +556,48 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     };
   }
 
-  function buildStatSums(types){
+  function buildStatSums(types,levels){
     const sums={"屬性魔物物理":0,"屬性魔物魔法":0,"暴傷":0,"CRATE":0,"PATK":0,"SMATK":0};
-    types.forEach(type=>{
+    types.forEach((type,i)=>{
       const ability=ABILITY[type]||"";
       if(!Object.prototype.hasOwnProperty.call(sums,ability)) return;
+      const lv=levels ? Math.max(0,Math.min(10,Number(levels[i]||0))) : 10;
       const arr=CRYSTAL_VALUES[type]||[];
-      sums[ability]+=arr[9]||0;
+      sums[ability]+=lv>0 ? (arr[lv-1]||0) : 0;
     });
     return sums;
   }
 
-  function calcTotalMultiplierForBuild(types){
-    const x=getDamageInputs();
-    const s=buildStatSums(types);
+  function getEquippedCrystalBuild(){
+    const types=[], levels=[];
+    for(let i=0;i<SLOTS;i++){
+      types.push(document.getElementById("crystalType_"+i)?.value || "");
+      levels.push(Number(document.getElementById("crystalBaseLv_"+i)?.value || 0));
+    }
+    return {types,levels};
+  }
 
-    const attr=x.attr+(attackType==="magic" ? s["屬性魔物魔法"] : s["屬性魔物物理"]);
-    const crit=x.crit+s["暴傷"];
-    const crate=x.crate+s["CRATE"]*(1+x.cratePct/100);
-    const patk=x.patk+s["PATK"]*(1+x.patkPct/100);
-    const smatk=x.smatk+s["SMATK"]*(1+x.smatkPct/100);
+  function calcTotalMultiplierForBuild(types,levels){
+    const x=getDamageInputs();
+    const s=buildStatSums(types,levels);
+
+    // 玩家輸入的自身面板已經包含目前身上原本結晶效果。
+    // 因此先扣掉目前裝備結晶，再加上候選方案的結晶，
+    // 避免把玩家身上 Lv.8~10 的六顆結晶重複加一次。
+    const equipped=getEquippedCrystalBuild();
+    const oldS=buildStatSums(equipped.types,equipped.levels);
+
+    const attrBase=x.attr-(attackType==="magic" ? oldS["屬性魔物魔法"] : oldS["屬性魔物物理"]);
+    const critBase=x.crit-oldS["暴傷"];
+    const crateBase=x.crate-oldS["CRATE"]*(1+x.cratePct/100);
+    const patkBase=x.patk-oldS["PATK"]*(1+x.patkPct/100);
+    const smatkBase=x.smatk-oldS["SMATK"]*(1+x.smatkPct/100);
+
+    const attr=attrBase+(attackType==="magic" ? s["屬性魔物魔法"] : s["屬性魔物物理"]);
+    const crit=critBase+s["暴傷"];
+    const crate=crateBase+s["CRATE"]*(1+x.cratePct/100);
+    const patk=patkBase+s["PATK"]*(1+x.patkPct/100);
+    const smatk=smatkBase+s["SMATK"]*(1+x.smatkPct/100);
 
     const attrMul=(100+attr)/100;
     const critDivisor=(damageMode==="skill") ? 2 : 1;
@@ -597,7 +619,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     function dfs(start,depth,arr){
       if(depth===6){
-        const v=calcTotalMultiplierForBuild(arr);
+        const v=calcTotalMultiplierForBuild(arr,[10,10,10,10,10,10]);
         if(v>bestValue){
           bestValue=v;
           best=arr.slice();
@@ -613,7 +635,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     dfs(0,0,[]);
 
     bestCrystalBuild=best;
-    const currentValue=calcTotalMultiplierForBuild([]);
+    const equipped=getEquippedCrystalBuild();
+    const currentValue=calcTotalMultiplierForBuild(equipped.types,equipped.levels);
     const ratio=currentValue!==0 ? bestValue/currentValue : 0;
     const inc=(ratio-1)*100;
     const counts={};
@@ -625,7 +648,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       el.innerHTML=
         `推薦：${plan}<br>`+
         `模式：${attackType==="magic"?"魔法｜SMATK":"物理｜PATK"}・${damageMode==="skill"?"技爆版":"爆傷版"}<br>`+
-        `目前倍率：${fmt(currentValue)} → 推薦倍率：${fmt(bestValue)}<br>`+
+        `目前倍率（依原本6格）：${fmt(currentValue)} → 推薦倍率：${fmt(bestValue)}<br>`+
         `預估提升：${inc>=0?"+":""}${fmt(inc)}%`;
     }
   };
