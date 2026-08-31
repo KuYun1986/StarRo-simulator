@@ -580,6 +580,11 @@ a{color:#77a9ff}
     <label><span>符文套（增加機率）</span><select id="rmBonus"></select></label>
   </div>
   <div class="rm-rules" id="rmRules"></div>
+  <div class="rm-summary" style="margin-top:12px">
+    <div><span>+15期望值｜0%加成</span><strong id="rmExpected0">53.50</strong> 次</div>
+    <div><span>+15期望值｜10%加成</span><strong id="rmExpected10">39.35</strong> 次</div>
+    <div><span>目前加成｜+15期望值</span><strong id="rmExpectedCurrent">53.50</strong> 次</div>
+  </div>
   <button class="rm-run" id="rmRun">模擬精煉到 +15</button>
   <div id="rmResult"></div>
   <div id="rmInfo"></div>
@@ -3934,8 +3939,29 @@ const DATA=[{"series":"樂園","fragments":[{"name":"樂園符文碎片(物理)"
 const TIERS=[{min:1,max:3,base:50,fail:5},{min:4,max:6,base:40,fail:4},{min:7,max:9,base:30,fail:3},{min:10,max:12,base:20,fail:2},{min:13,max:15,base:10,fail:1}];
 const COLORS={'樂園':'#55d48a','祝福':'#57a8ff','UR':'#a78bfa'};let series='樂園',level=15,bonus=0,result=null,chosen={};DATA.forEach(s=>chosen[s.series]=s.sets[0].name);
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function expectedTriesForLevel(base,fail,add){
+  let survive=1,total=0,f=0;
+  while(survive>1e-12 && f<500){
+    total+=survive;
+    const p=Math.min(100,base+add+f*fail)/100;
+    survive*=1-p;
+    if(p>=1) break;
+    f++;
+  }
+  return total;
+}
+function expectedTo15(add){
+  let total=0;
+  for(let lv=1;lv<=15;lv++){
+    const t=TIERS.find(v=>lv>=v.min&&lv<=v.max);
+    total+=expectedTriesForLevel(t.base,t.fail,add);
+  }
+  return total;
+}
+
 const mats=(items,m=1)=>items.length?`<ul>${items.map(x=>`<li><span>${esc(x.name)}</span><b>× ${(x.qty*m).toLocaleString()}</b></li>`).join('')}</ul>`:'<span class="tiny">PDF 未列材料</span>';
-function render(){const d=DATA.find(x=>x.series===series),x=d.sets.find(v=>v.name===chosen[series])||d.sets[0];$('runeMonumentSimulator').style.setProperty('--rm',COLORS[series]);$('rmSeries').innerHTML=DATA.map(s=>`<button class="${s.series===series?'on':''}" data-s="${s.series}">${s.series}寶石 · ${s.sets.length}</button>`).join('');$('rmSet').innerHTML=d.sets.map(v=>`<option ${v.name===x.name?'selected':''}>${esc(v.name)}</option>`).join('');$('rmBonus').innerHTML=Array.from({length:13},(_,i)=>`<option value="${i}" ${i===bonus?'selected':''}>+${i}%</option>`).join('');$('rmLevelText').textContent='+'+level;$('rmRun').textContent=`模擬精煉到 +${level}`;$('rmRules').innerHTML=TIERS.map(t=>`<div><b>+${t.min}～+${t.max}</b><span>${t.base}% 成功</span><small>失敗 +${t.fail}%</small></div>`).join('');
+function render(){const d=DATA.find(x=>x.series===series),x=d.sets.find(v=>v.name===chosen[series])||d.sets[0];$('runeMonumentSimulator').style.setProperty('--rm',COLORS[series]);$('rmSeries').innerHTML=DATA.map(s=>`<button class="${s.series===series?'on':''}" data-s="${s.series}">${s.series}寶石 · ${s.sets.length}</button>`).join('');$('rmSet').innerHTML=d.sets.map(v=>`<option ${v.name===x.name?'selected':''}>${esc(v.name)}</option>`).join('');$('rmBonus').innerHTML=Array.from({length:13},(_,i)=>`<option value="${i}" ${i===bonus?'selected':''}>+${i}%</option>`).join('');$('rmLevelText').textContent='+'+level;$('rmRun').textContent=`模擬精煉到 +${level}`;$('rmRules').innerHTML=TIERS.map(t=>`<div><b>+${t.min}～+${t.max}</b><span>${t.base}% 成功</span><small>失敗 +${t.fail}%</small></div>`).join('');$('rmExpected0').textContent=expectedTo15(0).toFixed(2);$('rmExpected10').textContent=expectedTo15(10).toFixed(2);$('rmExpectedCurrent').textContent=expectedTo15(bonus).toFixed(2);
 const mult=result?.attempts||level;const norm=n=>n.replace('屬性傷','屬性').replace('特殊屬性','特殊能力');const recipes=x.fragments.map(n=>({name:n,r:d.fragments.find(f=>norm(f.name)===norm(n))}));$('rmInfo').innerHTML=`<div class="rm-selected"><h3>${esc(x.name)}</h3><div class="rm-chips">${x.fragments.map(f=>`<span>${esc(f)}</span>`).join('')}</div><div class="rm-grid"><div class="rm-box"><h4>套組效果</h4><p>${esc(x.base||'N/A')}\n${esc(x.refine||'N/A')}\n${esc(x.permanent||'N/A')}</p></div><div class="rm-box"><h4>啟動材料</h4>${mats(x.activation)}</div><div class="rm-box"><h4>精煉材料（${result?`本次 ${result.attempts} 次`:`最低 ${level} 次`}）</h4>${mats(x.refineMaterials,mult)}</div><div class="rm-box"><h4>碎片配方</h4>${recipes.map(v=>`<p><b>${esc(v.name)}</b></p>${mats(v.r?.materials||[])}`).join('')}</div></div></div>`;
 $('rmResult').innerHTML=result?`<div class="rm-summary"><div><span>總嘗試</span><strong>${result.attempts}</strong> 次</div><div><span>失敗</span><strong>${result.failures}</strong> 次</div><div><span>結果</span><strong>+${level}</strong> 完成</div></div><div class="rm-log">${result.levels.map(v=>`<i class="${v.tries>1?'fail':'ok'}">+${v.lv}｜${v.tries}次｜${v.chance}%</i>`).join('')}</div>`:'';}
 function simulate(){let attempts=0,failures=0,levels=[];for(let lv=1;lv<=level;lv++){const t=TIERS.find(v=>lv>=v.min&&lv<=v.max);let f=0;while(true){const chance=Math.min(100,t.base+bonus+f*t.fail);attempts++;if(Math.random()*100<chance){levels.push({lv,tries:f+1,chance});break}f++;failures++;}}result={attempts,failures,levels};render()}
