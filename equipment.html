@@ -214,7 +214,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       <button type="button" id="damageModeSkill" onclick="setDamageMode('skill')">技爆版</button>
     </div>
     <div class="tiny" style="margin-top:6px">
-      目前可切換兩種公式。玩家輸入的 CRATE / PATK / SMATK 面板值，視為已經包含 CRATE% / PATK% / SMATK% 後的最終面板；百分比只用來換算「結晶平面值」對面板造成的實際增減。SMATK 的計算方式與 PATK 完全相同。<br>
+      目前可切換兩種公式。玩家輸入的 CRATE / PATK / SMATK 面板值，視為已經包含 CRATE% / PATK% / SMATK% 後的最終面板；百分比只用來換算「結晶平面值」對面板造成的實際增減。SMATK 的計算方式與 PATK 完全相同，並會一起計入總倍率。<br>
       爆傷版：((100+對屬性)/100) × ((100+爆傷)/100) × ((140+CRATE面板)/100) × ((100+PATK面板)/100)<br>
       技爆版：((100+對屬性)/100) × ((100+爆傷/2)/100) × ((140+CRATE面板)/100) × ((100+PATK面板)/100)
     </div>
@@ -728,7 +728,7 @@ renderTabs();renderTable();
       {key:"Crit", ability:"暴傷", panel:"dmgPanelCrit", pct:"dmgPctCrit", kind:"crit", include:true},
       {key:"Crate", ability:"CRATE", panel:"dmgPanelCrate", pct:"dmgPctCrate", kind:"crate", include:true},
       {key:"Patk", ability:"PATK", panel:"dmgPanelPatk", pct:"dmgPctPatk", kind:"patk", include:true},
-      {key:"Smatk", ability:"SMATK", panel:"dmgPanelSmatk", pct:"dmgPctSmatk", kind:"smatk", include:false}
+      {key:"Smatk", ability:"SMATK", panel:"dmgPanelSmatk", pct:"dmgPctSmatk", kind:"smatk", include:true}
     ];
 
     let baseProduct=1,finalProduct=1;
