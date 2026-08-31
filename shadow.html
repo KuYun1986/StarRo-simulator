@@ -74,7 +74,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <div class="tiny" style="margin-top:6px">
     依照下方「傷害倍率比較」中玩家填入的自身素質，以及目前選擇的「爆傷版／技爆版」公式，
     自動比較 6 格結晶配置，找出目前總倍率最高的方案。推薦只比較會直接影響傷害倍率的結晶：
-    元素物理、暴傷、特殊暴傷、特殊物理、特殊魔法；推薦計算仍以 Lv.10 作為候選方案，但畫面上的「預計等級」預設為 Lv.0，方便玩家先填自身素質再套用推薦。
+    元素物理、暴傷、特殊暴傷、特殊物理、特殊魔法；原本等級與預計等級皆預設 Lv.10；系統會把「原本 6 格」視為目前身上配置，直接與所有 Lv.10 候選組合比較，判斷是否有更好的結晶選擇。
   </div>
   <div class="actions">
     <button type="button" class="primary" onclick="findBestCrystalBuild()">🧠 計算最佳結晶方案</button>
@@ -123,7 +123,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   <div class="note" style="margin-top:14px" id="damageMultiplierCompare">
     <b>⚔️ 傷害倍率比較</b>
-    <div class="tiny" style="margin-top:4px">升級後倍率會即時讀取上方 6 格「預計等級」的結晶方案。</div>
+    <div class="tiny" style="margin-top:4px">升級後倍率會即時讀取上方 6 格「預計等級」的結晶方案。 套用推薦後，自身面板也會同步扣除原本結晶效果，再加入新結晶效果。</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
       <button type="button" id="attackTypePhysical" class="primary" onclick="setAttackType('physical')">物理｜PATK</button>
       <button type="button" id="attackTypeMagic" onclick="setAttackType('magic')">魔法｜SMATK</button>
@@ -178,7 +178,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           </tr>
           <tr>
             <td><b>CRATE</b></td>
-            <td><input id="dmgPanelCrate" type="number" step="any" value="450" oninput="recalcDamageCompare()"></td>
+            <td><input id="dmgPanelCrate" type="number" step="any" value="473" oninput="recalcDamageCompare()"></td>
             <td><input id="dmgPctCrate" type="number" step="any" value="12" oninput="recalcDamageCompare()"><div class="tiny">CRATE%</div></td>
             <td class="money" id="dmgRawCrate">0</td>
             <td class="money" id="dmgOldCrystalCrate">0</td>
@@ -289,7 +289,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     for(let i=0;i<SLOTS;i++){
       const currentType=document.getElementById("crystalType_"+i)?.value;
       const currentLvEl=document.getElementById("crystalLv_"+i);
-      const currentLv=currentLvEl ? Number(currentLvEl.value||0) : 0;
+      const currentLv=currentLvEl ? Number(currentLvEl.value||0) : 10;
       const defaultType=i<5 ? "暴傷" : "特殊暴傷";
       const type=(currentType && opts.includes(currentType)) ? currentType : defaultType;
       s+=`<tr>
@@ -300,7 +300,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         </select></td>
         <td><select id="crystalBaseLv_${i}" onchange="recalcCrystal()"
           style="min-height:40px;padding:7px 9px;border-radius:8px;background:#0b1119;color:#fff;border:1px solid #34404e">
-          ${Array.from({length:11},(_,k)=>k).map(lv=>`<option value="${lv}" ${lv===0?'selected':''}>Lv.${lv}</option>`).join("")}
+          ${Array.from({length:11},(_,k)=>k).map(lv=>`<option value="${lv}" ${lv===10?'selected':''}>Lv.${lv}</option>`).join("")}
         </select></td>
         <td><select id="crystalLv_${i}" onchange="recalcCrystal()"
           style="min-height:40px;padding:7px 9px;border-radius:8px;background:#0b1119;color:#fff;border:1px solid #34404e">
@@ -654,32 +654,82 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   window.applyBestCrystalBuild=function(){
-    // 每次套用前，重新依目前玩家輸入與目前物理/魔法、爆傷/技爆模式計算一次。
+    // 套用前先依目前玩家輸入與模式重新找最佳方案。
     findBestCrystalBuild();
     if(!bestCrystalBuild) return;
 
+    // 先保存目前身上原本 6 顆結晶，因為等等會把結晶種類改成推薦方案。
+    const equipped=getEquippedCrystalBuild();
+    const oldS=buildStatSums(equipped.types,equipped.levels);
+    const newS=buildStatSums(bestCrystalBuild,[10,10,10,10,10,10]);
+
+    // 玩家填入的自身面板已包含原本結晶。
+    // 套用新方案時，面板也要同步：
+    // 新面板 = 目前面板 - 原本結晶實際效果 + 新結晶實際效果
+    const cratePct=Number(document.getElementById("dmgPctCrate")?.value||0);
+    const patkPct=Number(document.getElementById("dmgPctPatk")?.value||0);
+    const smatkPct=Number(document.getElementById("dmgPctSmatk")?.value||0);
+
+    const attrEl=document.getElementById("dmgPanelAttr");
+    const critEl=document.getElementById("dmgPanelCrit");
+    const crateEl=document.getElementById("dmgPanelCrate");
+    const patkEl=document.getElementById("dmgPanelPatk");
+    const smatkEl=document.getElementById("dmgPanelSmatk");
+
+    const attrKey=attackType==="magic" ? "屬性魔物魔法" : "屬性魔物物理";
+
+    if(attrEl){
+      const current=Number(attrEl.value||0);
+      attrEl.value=current-(oldS[attrKey]||0)+(newS[attrKey]||0);
+    }
+    if(critEl){
+      const current=Number(critEl.value||0);
+      critEl.value=current-(oldS["暴傷"]||0)+(newS["暴傷"]||0);
+    }
+    if(crateEl){
+      const current=Number(crateEl.value||0);
+      const oldEffect=(oldS["CRATE"]||0)*(1+cratePct/100);
+      const newEffect=(newS["CRATE"]||0)*(1+cratePct/100);
+      crateEl.value=current-oldEffect+newEffect;
+    }
+    if(patkEl){
+      const current=Number(patkEl.value||0);
+      const oldEffect=(oldS["PATK"]||0)*(1+patkPct/100);
+      const newEffect=(newS["PATK"]||0)*(1+patkPct/100);
+      patkEl.value=current-oldEffect+newEffect;
+    }
+    if(smatkEl){
+      const current=Number(smatkEl.value||0);
+      const oldEffect=(oldS["SMATK"]||0)*(1+smatkPct/100);
+      const newEffect=(newS["SMATK"]||0)*(1+smatkPct/100);
+      smatkEl.value=current-oldEffect+newEffect;
+    }
+
+    // 套用推薦方案後，推薦方案成為新的「目前身上配置」。
+    // 所以原本等級、預計等級都維持 Lv.10。
     for(let i=0;i<SLOTS;i++){
       const typeEl=document.getElementById("crystalType_"+i);
       const baseEl=document.getElementById("crystalBaseLv_"+i);
       const targetEl=document.getElementById("crystalLv_"+i);
+
       if(typeEl){
         typeEl.value=bestCrystalBuild[i];
         typeEl.dispatchEvent(new Event("change",{bubbles:true}));
       }
-      if(baseEl) baseEl.value="0";
+      if(baseEl) baseEl.value="10";
       if(targetEl) targetEl.value="10";
     }
 
-    // 強制重新讀取目前 6 格結晶，更新上方素質與下方傷害倍率。
     recalcCrystal();
     recalcDamageCompare();
 
-    // 下一個畫面更新週期再算一次，避免瀏覽器尚未完成 select 畫面更新。
     requestAnimationFrame(()=>{
       recalcCrystal();
       recalcDamageCompare();
       const result=document.getElementById("bestCrystalBuildResult");
-      if(result) result.innerHTML += '<br><span style="color:#9fe7c8">✓ 已套用到上方 6 格，傷害倍率已同步更新</span>';
+      if(result){
+        result.innerHTML += '<br><span style="color:#9fe7c8">✓ 已套用推薦方案，並同步扣除原本結晶／加入新結晶後的自身面板</span>';
+      }
     });
   };
 
