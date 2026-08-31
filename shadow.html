@@ -84,6 +84,16 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     請先在下方填入自身素質，再按「計算最佳結晶方案」。
   </div>
 </div>
+<div class="note" style="margin:12px 0 14px">
+  <b>🎛️ 結晶預設</b>
+  <div class="actions" style="margin-top:8px">
+    <button type="button" onclick="applyCrystalPreset('none')">全無版</button>
+    <button type="button" class="primary" onclick="applyCrystalPreset('kuyun')">古雲版</button>
+  </div>
+  <div class="tiny" style="margin-top:6px">
+    全無版：6 格皆為「無」；古雲版：暴傷 Lv.10 ×5、特殊暴傷 Lv.10 ×1。
+  </div>
+</div>
 <div class="table-wrap">
     <table class="cost-table" style="min-width:900px">
       <thead>
@@ -248,6 +258,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <script id="crystalSimulatorScript">
 (function(){
   const CRYSTAL_VALUES={
+    "無":[0,0,0,0,0,0,0,0,0,0],
     "元素魔法":[1,2,3,4,5,10,15,25,35,50],
     "元素物理":[1,2,3,4,5,10,15,25,35,50],
     "暴傷":[1,2,3,5,10,15,25,50,75,100],
@@ -261,6 +272,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     "屬性抵抗":[1,2,3,4,5,7,10,15,20,25]
   };
   const ABILITY={
+    "無":"",
     "元素物理":"屬性魔物物理",
     "元素魔法":"屬性魔物魔法",
     "暴傷":"暴傷",
@@ -279,8 +291,35 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   const checkPriceKey="starro_crystal_check_price";
 
   function crystalOptions(){
-    return ["元素物理","元素魔法","特殊物理","特殊魔法","暴傷","特殊暴傷","冷卻","種族抵抗","體型抵抗","階級抵抗","屬性抵抗"];
+    return ["無","元素物理","元素魔法","特殊物理","特殊魔法","暴傷","特殊暴傷","冷卻","種族抵抗","體型抵抗","階級抵抗","屬性抵抗"];
   }
+
+  window.applyCrystalPreset=function(preset){
+    for(let i=0;i<SLOTS;i++){
+      const typeEl=document.getElementById("crystalType_"+i);
+      const baseEl=document.getElementById("crystalBaseLv_"+i);
+      const targetEl=document.getElementById("crystalLv_"+i);
+
+      if(preset==="none"){
+        if(typeEl) typeEl.value="無";
+        if(baseEl) baseEl.value="0";
+        if(targetEl) targetEl.value="0";
+      }else{
+        if(typeEl) typeEl.value=i<5 ? "暴傷" : "特殊暴傷";
+        if(baseEl) baseEl.value="10";
+        if(targetEl) targetEl.value="10";
+      }
+    }
+    bestCrystalBuild=null;
+    recalcCrystal();
+    recalcDamageCompare();
+    const result=document.getElementById("bestCrystalBuildResult");
+    if(result){
+      result.innerHTML=preset==="none"
+        ? "已套用：全無版（6 格皆無結晶）"
+        : "已套用：古雲版（暴傷 Lv.10 ×5、特殊暴傷 Lv.10 ×1）";
+    }
+  };
 
   function renderCrystalRows(){
     const opts=crystalOptions();
