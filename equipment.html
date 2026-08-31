@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1020">
+<title>裝備成本區｜繁星仙境模擬器</title>
+<style>
+:root{--bg:#080c12;--card:#10161e;--card2:#151c26;--line:#27313d;--text:#f4f7fb;--muted:#8f9bad;--accent:#55d35a;--blue:#67a0ff;--gold:#ffc42d;--danger:#ff5c42}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 15% -10%,rgba(48,90,130,.18),transparent 28%),linear-gradient(180deg,#070a0f,#0b1017 42%,#080c12);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+.wrap{max-width:1320px;margin:auto;padding:22px}
+h1{font-size:30px;margin:4px 0 10px;letter-spacing:.5px;display:flex;align-items:center;gap:10px}
+h1:before{content:"✦";display:grid;place-items:center;width:40px;height:40px;border:1px solid #d83b32;border-radius:9px}
+.sub,.tiny{color:var(--muted)} .tiny{font-size:13px}
+.topnav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.game-page-link,button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:9px;border:1px solid #3a4654;background:linear-gradient(180deg,#1b2430,#141b25);color:#f5f7fb;text-decoration:none;font-weight:700;min-height:42px;cursor:pointer}
+.game-page-link:hover,button:hover{filter:brightness(1.08)}
+.card{background:linear-gradient(145deg,rgba(20,27,36,.97),rgba(12,17,24,.98));border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 34px rgba(0,0,0,.22);padding:20px;margin:14px 0}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button.on{background:linear-gradient(180deg,#268d34,#176c26);border-color:#319842}
+.cost-table{width:100%;border-collapse:collapse;margin-top:12px}
+.cost-table th,.cost-table td{padding:11px 8px;border-bottom:1px solid #27313b;text-align:left;vertical-align:middle}
+.cost-table th{color:#aeb9c8;font-size:13px}
+.cost-table input{width:100%;min-width:100px;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit}
+.cost-table .qty{max-width:130px}
+.cost-table .price{max-width:170px}
+.money{font-variant-numeric:tabular-nums;font-weight:800;color:#7ee0a1;white-space:nowrap}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
+.stat{background:linear-gradient(180deg,rgba(17,24,34,.96),rgba(11,16,23,.96));border:1px solid #28323e;border-radius:10px;padding:14px}
+.label{color:#aab5c4;font-size:13px;font-weight:700}
+.stat b{font-size:22px;display:block;margin-top:5px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;border-color:#319842!important}
+.note{margin-top:12px;padding:12px;border:1px solid #28323e;border-radius:10px;background:#0b1119;line-height:1.8}
+@media(max-width:720px){
+  .wrap{padding:12px} h1{font-size:23px}
+  .card{padding:14px} .summary{grid-template-columns:1fr}
+  .cost-table{display:block;overflow-x:auto;white-space:nowrap}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>💰 裝備成本區</h1>
+<div class="topnav">
+  <a href="index.html" class="game-page-link">🏠 主頁</a>
+  <a href="game.html" class="game-page-link">🎮 遊戲區</a>
+  <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
+  <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
+  <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
+  <a href="collection.html" class="game-page-link">📚 收藏區</a>
+</div>
+<div class="sub">裝備製作模擬｜自行輸入目前道具價格，即時計算製作成本。</div>
+
+<section class="card">
+  <h2>🧰 裝備製作模擬</h2>
+  <div class="tabs" id="equipTabs"></div>
+  <div class="tiny">「需求數量」已依目前表格資料帶入；你也可以自行修改。價格會保存在目前瀏覽器。</div>
+  <div id="equipTableWrap"></div>
+  <div class="summary">
+    <div class="stat"><span class="label">材料種類</span><b id="costKinds">0 種</b></div>
+    <div class="stat"><span class="label">需求總數量</span><b id="costQty">0</b></div>
+    <div class="stat"><span class="label">製作總成本</span><b id="costTotal" style="color:#7ee0a1">0 P</b></div>
+  </div>
+  <div class="actions">
+    <button class="primary" onclick="savePrices()">💾 儲存目前價格</button>
+    <button onclick="resetCurrentPrices()">清除此裝備價格</button>
+    <button onclick="resetAllPrices()">全部價格清除</button>
+  </div>
+  <div class="note tiny">
+    輸入方式：例如某材料目前單價 685 P，就在「目前單價」輸入 685；小計＝需求數量 × 單價。<br>
+    本區只計算你輸入的材料成本，不會自動加入未列出的代敲、評級或其他費用。
+  </div>
+</section>
+</div>
+
+<script>
+const EQUIPMENT_DATA = {"信念頭": [{"name": "裝備附魔卷", "qty": 35}, {"name": "紫水晶碎片", "qty": 23900}, {"name": "聖域能量", "qty": 1500}, {"name": "聖域精華", "qty": 400}, {"name": "特定屬性聖域寶石碎片", "qty": 100}, {"name": "支票", "qty": 49}], "伊斯頭": [{"name": "神聖的貓鬍鬚", "qty": 18000}, {"name": "維格納上層證書", "qty": 15000}, {"name": "燦爛的夕陽的魔法石", "qty": 3000}, {"name": "明亮的綠松石魔法石", "qty": 3000}, {"name": "絢麗的星紅魔法石", "qty": 3000}, {"name": "綏藍魔法石", "qty": 3000}, {"name": "伊斯加爾特的恩典氣息", "qty": 2500}, {"name": "伊斯加爾特之心", "qty": 500}, {"name": "伊斯加爾特的祝福碎片", "qty": 500}, {"name": "晨曦之光#1001786", "qty": 10}, {"name": "魔星石#1001438", "qty": 10}, {"name": "正義女神寶石#1001797", "qty": 15}, {"name": "阿奎拉卡#300382", "qty": 1}, {"name": "仿真蓉可兒卡#300378", "qty": 1}, {"name": "究極拉斯甘德卡#300472", "qty": 1}, {"name": "幽靈船船長卡#300532", "qty": 1}, {"name": "被侵占的燒毀卡#300533", "qty": 1}]};
+let currentEquip = Object.keys(EQUIPMENT_DATA)[0];
+
+function keyFor(equip,item){ return "starro_cost_"+equip+"_"+item; }
+function qtyKeyFor(equip,item){ return "starro_qty_"+equip+"_"+item; }
+function fmt(n){ return Math.round(Number(n)||0).toLocaleString("zh-TW"); }
+
+function renderTabs(){
+  const box=document.getElementById("equipTabs");
+  box.innerHTML=Object.keys(EQUIPMENT_DATA).map(name=>
+    `<button class="${name===currentEquip?'on':''}" onclick="switchEquip(${JSON.stringify(name)})">${name}</button>`
+  ).join("");
+}
+
+function switchEquip(name){
+  currentEquip=name;
+  renderTabs();
+  renderTable();
+}
+
+function renderTable(){
+  const rows=EQUIPMENT_DATA[currentEquip];
+  let html=`<table class="cost-table">
+    <thead><tr><th>道具</th><th>需求數量</th><th>目前單價 (P)</th><th>小計 (P)</th></tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    const savedQty=localStorage.getItem(qtyKeyFor(currentEquip,r.name));
+    const qty=savedQty!==null ? Number(savedQty) : r.qty;
+    const price=Number(localStorage.getItem(keyFor(currentEquip,r.name))||0);
+    html+=`<tr>
+      <td><b>${r.name}</b></td>
+      <td><input class="qty" id="qty_${i}" type="number" min="0" step="1" value="${qty}" oninput="recalc()"></td>
+      <td><input class="price" id="price_${i}" type="number" min="0" step="0.01" value="${price||''}" placeholder="自行輸入" oninput="recalc()"></td>
+      <td class="money" id="sub_${i}">0 P</td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+  document.getElementById("equipTableWrap").innerHTML=html;
+  recalc();
+}
+
+function recalc(){
+  const rows=EQUIPMENT_DATA[currentEquip];
+  let qtyTotal=0,total=0;
+  rows.forEach((r,i)=>{
+    const qty=Math.max(0,Number(document.getElementById("qty_"+i)?.value||0));
+    const price=Math.max(0,Number(document.getElementById("price_"+i)?.value||0));
+    const subtotal=qty*price;
+    qtyTotal+=qty; total+=subtotal;
+    const el=document.getElementById("sub_"+i);
+    if(el) el.textContent=fmt(subtotal)+" P";
+  });
+  document.getElementById("costKinds").textContent=rows.length+" 種";
+  document.getElementById("costQty").textContent=fmt(qtyTotal);
+  document.getElementById("costTotal").textContent=fmt(total)+" P";
+}
+
+function savePrices(){
+  EQUIPMENT_DATA[currentEquip].forEach((r,i)=>{
+    const qty=document.getElementById("qty_"+i)?.value||"0";
+    const price=document.getElementById("price_"+i)?.value||"0";
+    localStorage.setItem(qtyKeyFor(currentEquip,r.name),qty);
+    localStorage.setItem(keyFor(currentEquip,r.name),price);
+  });
+  recalc();
+}
+
+function resetCurrentPrices(){
+  EQUIPMENT_DATA[currentEquip].forEach((r,i)=>{
+    localStorage.removeItem(keyFor(currentEquip,r.name));
+    localStorage.removeItem(qtyKeyFor(currentEquip,r.name));
+  });
+  renderTable();
+}
+
+function resetAllPrices(){
+  Object.entries(EQUIPMENT_DATA).forEach(([equip,rows])=>rows.forEach(r=>{
+    localStorage.removeItem(keyFor(equip,r.name));
+    localStorage.removeItem(qtyKeyFor(equip,r.name));
+  }));
+  renderTable();
+}
+
+renderTabs();
+renderTable();
+</script>
+</body>
+</html>
