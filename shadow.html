@@ -209,7 +209,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           </tr>
           <tr>
             <td><b>PATK</b></td>
-            <td><input id="dmgPanelPatk" type="number" step="any" value="1574" oninput="recalcDamageCompare()"></td>
+            <td><input id="dmgPanelPatk" type="number" step="any" value="3854" oninput="recalcDamageCompare()"></td>
             <td><input id="dmgPctPatk" type="number" step="any" value="152" oninput="recalcDamageCompare()"><div class="tiny">PATK%</div></td>
             <td class="money" id="dmgRawPatk">0</td>
             <td class="money" id="dmgOldCrystalPatk">0</td>
@@ -480,6 +480,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     </div>
 
     <div class="tiny" id="fullDamageFormulaText" style="margin-top:10px;line-height:1.8"></div>
+    <div class="tiny" style="margin-top:6px;color:#ffd54a"><b>V64 PATK 試算：</b>物理區的 PATK 採面板平面值，計算起點為「基礎 ATK + 面板 PATK（含神聖權能 +50）」；不再把 PATK 3854 當成 +3854% 獨立乘區。</div>
 
     <div class="note" style="margin-top:14px">
       <b>⚡ 單次傷害／DPS</b>
@@ -716,7 +717,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       if(patk) patk.value="0";
       if(smatk) smatk.value="1500";
     }else{
-      if(patk) patk.value="3192";
+      if(patk) patk.value="3854";
       if(smatk) smatk.value="0";
     }
 
@@ -1291,7 +1292,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const critDivisor=(damageMode==="skill") ? 2 : 1;
     const critMul=(100 + crit/critDivisor)/100;
     const crateMul=(140 + crate)/100;
-    const patkMul=(100 + effectivePatk)/100;
+    // V64 試算：PATK 採「面板平面值」處理，不再視為 +PATK% 獨立乘區。
+    // 物理起始值改為 (基礎ATK + 面板PATK)，再套用後續各乘區。
+    const panelPhysicalBase=val("fullAtk") + effectivePatk;
     const smatkMul=(100 + effectiveSmatk)/100;
 
     const bbqCritFinalMul=buffBbqCritFinal ? 1.15 : 1;
@@ -1346,7 +1349,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
 
     const physical =
-      val("fullAtk") *
+      panelPhysicalBase *
       pctMul(val("fullAttrPhys")) *
       pctMul(val("fullClassPhys")) *
       pctMul(val("fullRacePhys")) *
@@ -1370,7 +1373,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(checkedPctSum("advRaceFinalTier")) *
       pctMul(checkedPctSum("advAttrFinalTier")) *
       critMul *
-      patkMul *
       crateMul *
       pctMul(val("fullPotionSizePhys")) *
       pctMul(val("fullPotionRacePhys")) *
@@ -1456,7 +1458,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(f){
       f.innerHTML=
         `<b>目前模式：${damageMode==="skill"?"技爆版（爆傷÷2）":"爆傷版"}</b><br>`+
-        `物理：ATK × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 遠程物理終傷 × 物理範圍傷害 × 物理最終傷害 × 爆擊最終傷害 × 裝備技能傷害詞條 × 高級結晶(可累加) × 補品效果 × 爆傷 × PATK × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
+        `物理：(ATK + 面板PATK) × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 遠程物理終傷 × 物理範圍傷害 × 物理最終傷害 × 爆擊最終傷害 × 裝備技能傷害詞條 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
         `魔法：MATK × MATK% × 對屬性 × 對階級 × 對種族 × 對體型 × 屬法傷 × 補品效果 × 爆傷 × SMATK × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率`;
     }
   };
