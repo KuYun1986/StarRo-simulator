@@ -190,7 +190,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           </tr>
           <tr>
             <td><b>CRATE</b></td>
-            <td><input id="dmgPanelCrate" type="number" step="any" value="473" oninput="recalcDamageCompare()"></td>
+            <td><input id="dmgPanelCrate" type="number" step="any" value="470" oninput="recalcDamageCompare()"></td>
             <td><input id="dmgPctCrate" type="number" step="any" value="12" oninput="recalcDamageCompare()"><div class="tiny">CRATE%</div></td>
             <td class="money" id="dmgRawCrate">0</td>
             <td class="money" id="dmgOldCrystalCrate">0</td>
@@ -201,7 +201,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           </tr>
           <tr>
             <td><b>PATK</b></td>
-            <td><input id="dmgPanelPatk" type="number" step="any" value="3192" oninput="recalcDamageCompare()"></td>
+            <td><input id="dmgPanelPatk" type="number" step="any" value="1574" oninput="recalcDamageCompare()"></td>
             <td><input id="dmgPctPatk" type="number" step="any" value="152" oninput="recalcDamageCompare()"><div class="tiny">PATK%</div></td>
             <td class="money" id="dmgRawPatk">0</td>
             <td class="money" id="dmgOldCrystalPatk">0</td>
@@ -230,6 +230,269 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       <div class="stat"><span class="label">升級後總倍率</span><b id="dmgFinalProduct" style="color:#8fd3ff">0</b></div>
       <div class="stat"><span class="label">倍率變化</span><b id="dmgRatio">0 倍</b></div>
       <div class="stat"><span class="label">傷害提升</span><b id="dmgIncrease" style="color:#9fe7c8">0%</b></div>
+    </div>
+  </div>
+
+
+  <div class="note" style="margin-top:14px">
+    <b>🧪 完整傷害測試版（各項獨立倍率）</b>
+    <div class="tiny" style="margin-top:6px">
+      先依你提供的公式，把各項加成獨立轉成倍率後相乘。此區只做測試，不影響上方最佳結晶推薦。
+    </div>
+    
+    <div class="note" style="margin-top:10px">
+      <b>🧙 職業／技能傷害</b>
+      <div class="tiny" style="margin-top:6px">
+        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡為額外加成，例如 +80% = 原始倍率 ×1.8。
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px">
+        <label>
+          <span class="tiny">職業</span>
+          <select id="skillJobSelect" onchange="renderSkillOptions();recalcFullDamageTest()"
+            style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:42px;padding:8px 10px;font:inherit"></select>
+        </label>
+        <label>
+          <span class="tiny">技能</span>
+          <select id="skillNameSelect" onchange="syncOriginalSkillFormula();recalcFullDamageTest()"
+            style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:42px;padding:8px 10px;font:inherit"></select>
+        </label>
+        <label>
+          <span class="tiny">技能原始倍率 %</span>
+          <input id="skillOriginalPct" type="number" step="any" value="100" oninput="recalcFullDamageTest()"
+            style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:42px;padding:8px 10px;font:inherit">
+        </label>
+        <label>
+          <span class="tiny">繁星額外技能平衡 %</span>
+          <input id="skillStarBonusPct" type="number" step="any" value="0" oninput="recalcFullDamageTest()"
+            style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:42px;padding:8px 10px;font:inherit">
+        </label>
+      </div>
+
+      <div id="dragonBreathInputs" class="note" style="margin-top:10px;display:none">
+        <b>🐉 天龍氣息原始倍率參數</b>
+        <div class="tiny">一般版：UP((3550 + MHP/8 + MSP/4 + POW×7) × BaseLv /100)<br>天龍光環版：(50 + (350 + 0.0175×MHP + 0.035×MSP)×技能等級 + POW×10) × BaseLv /100</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px">
+          <label>
+            <span class="tiny">天龍氣息版本</span>
+            <select id="dragonBreathVersion" onchange="syncOriginalSkillFormula();recalcFullDamageTest()"
+              style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit">
+              <option value="normal">一般版</option>
+              <option value="aura" selected>天龍光環版</option>
+            </select>
+          </label>
+          <label><span class="tiny">最大HP</span><input id="skillMhp" type="number" value="5000000" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
+          <label><span class="tiny">最大SP</span><input id="skillMsp" type="number" value="50000" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
+          <label><span class="tiny">POW（技能公式所需，不另計 PATK、CRATE）</span><input id="skillPow" type="number" value="600" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
+          <label><span class="tiny">CON</span><input id="skillCon" type="number" value="585" oninput="recalcFullDamageTest()"></label>
+          <label><span class="tiny">CRT</span><input id="skillCrt" type="number" value="500" oninput="recalcFullDamageTest()"></label>
+          <label><span class="tiny">Base Lv.</span><input id="skillBaseLv" type="number" value="275" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
+        </div>
+        <div class="tiny" style="margin-top:6px">你的實測參考：最大HP約 500萬時，遊戲內單下約 110M；下方會顯示目前試算與 110M 的差距。</div>
+      </div>
+
+      <div class="tiny" style="margin-top:6px;color:#f6c85f">
+        註：POW／其他特殊能力值僅在技能原始公式需要時使用；若已直接填寫面板 PATK、CRATE，則不會再由 POW／CON／CRT 額外換算，避免重複計算。
+      </div>
+      <div id="skillBalanceInfo" style="margin-top:10px;font-size:16px;font-weight:800;color:#ffd54a">技能倍率：—</div>
+      <div id="skillReferenceInfo" class="tiny" style="margin-top:5px"></div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:10px">
+      <table class="cost-table" style="min-width:980px">
+        <thead><tr><th>項目</th><th>物理</th><th>魔法</th></tr></thead>
+        <tbody>
+          <tr><td><b>基礎攻擊</b></td>
+            <td><input id="fullAtk" type="number" step="any" value="10000" oninput="recalcFullDamageTest()"><div class="tiny">ATK</div></td>
+            <td><input id="fullMatk" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">MATK</div></td></tr>
+          <tr><td><b>攻擊%</b></td>
+            <td><input id="fullAtkPct" type="number" step="any" value="147" oninput="recalcFullDamageTest()"><div class="tiny">ATK%</div></td>
+            <td><input id="fullMatkPct" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">MATK%</div></td></tr>
+          <tr><td><b>對屬性</b></td>
+            <td><input id="fullAttrPhys" type="number" step="any" value="460" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td>
+            <td><input id="fullAttrMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td></tr>
+          <tr><td><b>對階級</b></td>
+            <td><input id="fullClassPhys" type="number" step="any" value="550" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td>
+            <td><input id="fullClassMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td></tr>
+          <tr><td><b>對種族</b></td>
+            <td><input id="fullRacePhys" type="number" step="any" value="410" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td>
+            <td><input id="fullRaceMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td></tr>
+          <tr><td><b>對體型</b></td>
+            <td><input id="fullSizePhys" type="number" step="any" value="755" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td>
+            <td><input id="fullSizeMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td></tr>
+          <tr><td><b>屬性攻擊／屬法傷</b></td>
+            <td><input id="fullElementAtkPct" type="number" step="any" value="200" oninput="recalcFullDamageTest()"><div class="tiny">屬性攻擊%</div></td>
+            <td><input id="fullElementMagicPct" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">屬法傷%</div></td></tr>
+          <tr><td><b>近遠傷</b></td>
+            <td><input id="fullRangePct" type="number" step="any" value="1148" oninput="recalcFullDamageTest()"><div class="tiny">%</div></td>
+            <td><span class="tiny">—</span></td></tr>
+          <tr><td><b>終傷藥水｜體型</b></td>
+            <td><input id="fullPotionSizePhys" type="number" step="any" value="11" oninput="recalcFullDamageTest()"><div class="tiny">+11%</div></td>
+            <td><input id="fullPotionSizeMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">+12%</div></td></tr>
+          <tr><td><b>終傷藥水｜種族</b></td>
+            <td><input id="fullPotionRacePhys" type="number" step="any" value="12" oninput="recalcFullDamageTest()"><div class="tiny">+12%</div></td>
+            <td><input id="fullPotionRaceMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">+10%</div></td></tr>
+          <tr><td><b>終傷藥水｜階級</b></td>
+            <td><input id="fullPotionClassPhys" type="number" step="any" value="10" oninput="recalcFullDamageTest()"><div class="tiny">+10%</div></td>
+            <td><input id="fullPotionClassMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">+10%</div></td></tr>
+          <tr><td><b>終傷藥水｜屬性</b></td>
+            <td><input id="fullPotionAttrPhys" type="number" step="any" value="5" oninput="recalcFullDamageTest()"><div class="tiny">+5%</div></td>
+            <td><input id="fullPotionAttrMagic" type="number" step="any" value="0" oninput="recalcFullDamageTest()"><div class="tiny">+5%</div></td></tr>
+
+          <tr><td><b>繁星物理傷害乘區</b></td>
+            <td colspan="2">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
+                <label><span class="tiny">遠程物理終傷 %</span><input id="panelRangedFinalPct" type="number" step="any" value="120" oninput="recalcFullDamageTest()"></label>
+                <label><span class="tiny">物理範圍傷害 %</span><input id="panelPhysicalAreaPct" type="number" step="any" value="185" oninput="recalcFullDamageTest()"></label>
+                <label><span class="tiny">物理最終傷害 %</span><input id="panelPhysicalFinalPct" type="number" step="any" value="83" oninput="recalcFullDamageTest()"></label>
+                <label><span class="tiny">爆擊最終傷害 %</span><input id="panelCritFinalPct" type="number" step="any" value="65" oninput="recalcFullDamageTest()"></label>
+              </div>
+            </td></tr>
+
+          <tr><td><b>裝備技能傷害詞條</b></td>
+            <td colspan="2">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
+                <label><span class="tiny">武器四詞｜全技能最終傷害 %</span><input id="weaponSkillFinal4Pct" type="number" step="any" value="25" oninput="recalcFullDamageTest()"></label>
+                <label><span class="tiny">武器五詞｜全技能最終傷害 %</span><input id="weaponSkillFinal5Pct" type="number" step="any" value="15" oninput="recalcFullDamageTest()"></label>
+                <label><span class="tiny">華金甲｜全技能最終傷害 %</span><input id="armorSkillFinalPct" type="number" step="any" value="11" oninput="recalcFullDamageTest()"></label>
+                <label><span class="tiny">華金靴｜全技能最終傷害 %</span><input id="shoeSkillFinalPct" type="number" step="any" value="9" oninput="recalcFullDamageTest()"></label>
+                <label><span class="tiny">華金飾品｜全技能傷害 %</span><input id="accessorySkillPct" type="number" step="any" value="25" oninput="recalcFullDamageTest()"></label>
+              </div>
+              <div class="tiny" style="margin-top:6px">武器四詞／五詞、甲、靴依你的規則各自乘算；飾品全技能傷害%獨立套用。</div>
+            </td></tr>
+
+          <tr><td><b>高級結晶(可複選)</b></td>
+            <td colspan="2">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+                <div>
+                  <b class="tiny">體型終傷</b><br>
+                  <label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" type="checkbox" value="2" onchange="recalcFullDamageTest()">D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" type="checkbox" value="3" onchange="recalcFullDamageTest()">C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" type="checkbox" value="4" onchange="recalcFullDamageTest()">B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" type="checkbox" value="5" onchange="recalcFullDamageTest()">A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" type="checkbox" value="6" onchange="recalcFullDamageTest()">S +6%</label>
+                </div>
+                <div>
+                  <b class="tiny">技能終傷</b><br>
+                  <label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" type="checkbox" value="2" onchange="recalcFullDamageTest()">D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" type="checkbox" value="3" onchange="recalcFullDamageTest()">C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" type="checkbox" value="4" onchange="recalcFullDamageTest()">B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" type="checkbox" value="5" onchange="recalcFullDamageTest()">A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" type="checkbox" value="6" onchange="recalcFullDamageTest()">S +6%</label>
+                </div>
+                <div>
+                  <b class="tiny">物理範圍終傷</b><br>
+                  <label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" type="checkbox" value="15" onchange="recalcFullDamageTest()">D +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" type="checkbox" value="15" onchange="recalcFullDamageTest()">C +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" type="checkbox" value="15" onchange="recalcFullDamageTest()">B +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" type="checkbox" value="15" onchange="recalcFullDamageTest()">A +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" type="checkbox" value="15" onchange="recalcFullDamageTest()">S +15%</label>
+                </div>
+                <div>
+                  <b class="tiny">種族終傷</b><br>
+                  <label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" type="checkbox" value="2" onchange="recalcFullDamageTest()">D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" type="checkbox" value="3" onchange="recalcFullDamageTest()">C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" type="checkbox" value="4" onchange="recalcFullDamageTest()">B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" type="checkbox" value="5" onchange="recalcFullDamageTest()">A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" type="checkbox" value="6" onchange="recalcFullDamageTest()">S +6%</label>
+                </div>
+                <div>
+                  <b class="tiny">屬性終傷</b><br>
+                  <label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" type="checkbox" value="2" onchange="recalcFullDamageTest()">D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" type="checkbox" value="3" onchange="recalcFullDamageTest()">C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" type="checkbox" value="4" onchange="recalcFullDamageTest()">B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" type="checkbox" value="5" onchange="recalcFullDamageTest()">A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" type="checkbox" value="6" onchange="recalcFullDamageTest()">S +6%</label>
+                </div>
+              </div>
+              <div class="tiny" style="margin-top:6px;color:#ffd54a">高級結晶改為可累加：勾選幾顆就把該顆效果加入計算；同種類 D／C／B／A／S 也可同時勾選。</div>
+            </td></tr>
+          <tr><td><b>減傷</b></td>
+            <td colspan="2">
+              <select id="fullDamageReduction" onchange="recalcFullDamageTest()"
+                style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit">
+                <option value="99.9999999">99.9999999%</option>
+                <option value="99.9999999999" selected>99.9999999999%</option>
+              </select>
+              <div class="tiny">預設套用最後一個：99.9999999999%</div>
+            </td></tr>
+          <tr><td><b>反逆效果</b></td>
+            <td colspan="2">
+              <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <input id="fullReversalEnabled" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:auto">
+                <span>套用反逆效果</span>
+                <span class="tiny">｜剩餘血量</span>
+                <input id="fullRemainingHpPct" type="number" min="0" max="100" step="any" value="1" oninput="recalcFullDamageTest()"
+                  style="width:110px;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit">
+                <span>%</span>
+              </label>
+              <div class="tiny">血量每少 1%，傷害增加 3%；預設剩餘血量 1%。</div>
+              <div class="tiny" id="fullReversalText">目前未套用反逆效果</div>
+            </td></tr>
+          
+          <tr><td><b>補品效果(可複選)</b></td>
+            <td colspan="2">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="buffBbqCritFinal" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>烤肉串串</b><br><span class="tiny">爆擊終傷 +15%</span></span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="buffXmasFruitSkillFinal" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>聖誕果實</b><br><span class="tiny">全技能終傷 +5%</span></span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="buffHolyAuthority" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>神聖權能</b><br><span class="tiny">PATK / SMATK +50</span></span>
+                </label>
+              </div>
+              <div class="tiny" id="buffEffectText" style="margin-top:8px">補品效果：全部啟用</div>
+            </td></tr>
+<tr><td><b>UR 石頭效果</b></td>
+            <td colspan="2">
+              <div class="ur-stone-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="stoneBackstab" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>UR(1) 背刺石 Lv3</b><br><span class="tiny">背後攻擊最終傷害 +150%｜×2.5</span></span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="stonePhysicalCombo" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>UR(2) 物理連擊石 Lv3</b><br><span class="tiny">物理攻擊堆疊 +100% 傷害｜×2</span></span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="stoneCritCombo" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>UR(2) 爆擊連擊石 Lv3</b><br><span class="tiny">爆擊傷害堆疊 +75% 傷害｜×1.75</span></span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="stoneMeleeFinal" type="checkbox" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>UR(2) 近距終傷石 Lv3</b><br><span class="tiny">近距離物理終傷 +90%｜×1.9</span></span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="stoneRangedFinal" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>UR(2) 遠距終傷石 Lv3</b><br><span class="tiny">遠距離物理終傷 +90%｜×1.9</span></span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
+                  <input id="stoneRepeatCast" type="checkbox" checked onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto">
+                  <span><b>UR(2) 再次施放石 Lv3</b><br><span class="tiny">60% 機率再次施放｜期望 ×1.6</span></span>
+                </label>
+              </div>
+              <div class="tiny" id="stoneEffectText" style="margin-top:8px">目前未套用 UR 石頭效果</div>
+            </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:12px">
+      <div class="stat"><span class="label">物理理論傷害</span><b id="fullPhysicalDamage" style="color:#8fd3ff">0</b></div>
+      <div class="stat"><span class="label">魔法理論傷害</span><b id="fullMagicDamage" style="color:#9fe7c8">0</b></div>
+      <div class="stat"><span class="label">技能最終傷害｜物理</span><b id="fullPhysicalSkillDamage" style="color:#ffd54a">0</b></div>
+      <div class="stat"><span class="label">技能最終傷害｜魔法</span><b id="fullMagicSkillDamage" style="color:#ffd54a">0</b></div>
+    </div>
+
+    <div class="tiny" id="fullDamageFormulaText" style="margin-top:10px;line-height:1.8"></div>
+
+    <div class="note" style="margin-top:14px">
+      <b>⚡ 單次傷害／DPS</b>
+      <div class="tiny" style="margin-top:5px">上方「技能最終傷害｜物理」會自動帶入單次傷害；再次施放 60% 另外顯示期望值，不會塞回「單次傷害」。</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:10px">
+        <label><span class="tiny">目前單次傷害</span><input id="actualSingleHit" type="number" value="110000000" step="1000000" oninput="recalcCombatOutput()"></label>
+        <label><span class="tiny">ASPD</span>
+          <select id="combatAspd" onchange="syncAspdCasts();recalcCombatOutput()">
+            <option value="193" selected>193</option><option value="194">194</option><option value="195">195</option><option value="196">196</option><option value="197">197</option>
+          </select>
+        </label>
+        <label><span class="tiny">每秒技能次數</span><input id="combatCastsPerSec" type="number" value="7" step="0.1" oninput="recalcCombatOutput()"></label>
+        <label><span class="tiny">再次施放機率 %</span><input id="combatRepeatChance" type="number" value="60" step="1" min="0" max="100" oninput="recalcCombatOutput()"></label>
+      </div>
+
+      <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:12px">
+        <div class="stat"><span class="label">單次傷害</span><b id="combatSingleHit">110,000,000</b></div>
+        <div class="stat"><span class="label">不含再次施放｜DPS</span><b id="combatBaseDps">770,000,000</b></div>
+        <div class="stat"><span class="label">再次施放期望倍率</span><b id="combatRepeatMul">×1.600</b></div>
+        <div class="stat"><span class="label">含再次施放｜期望 DPS</span><b id="combatExpectedDps" style="color:#ffd54a">1,232,000,000</b></div>
+      </div>
+      <div id="combatDpsText" class="tiny" style="margin-top:8px"></div>
     </div>
   </div>
 
@@ -579,6 +842,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     document.getElementById("dmgFinalProduct").textContent=fmt(finalProduct)+"（"+modeName+"）";
     document.getElementById("dmgRatio").textContent=fmt(ratio)+" 倍";
     document.getElementById("dmgIncrease").textContent=(increase>=0?"+":"")+fmt(increase)+"%";
+    if(typeof window.recalcFullDamageTest==="function") window.recalcFullDamageTest();
   };
 
 
@@ -776,6 +1040,288 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     });
   };
 
+
+  const SKILL_BALANCE_DATA={"盧恩龍爵":[{"name":"風暴衝擊","bonus":1127.0},{"name":"風暴斬擊","bonus":177.0},{"name":"天龍氣息","bonus":80.0},{"name":"狂暴粉碎","bonus":180.0},{"name":"天龍擊刺","bonus":382.0}],"帝國聖衛軍":[{"name":"聖十字雨","bonus":380.0},{"name":"瞬間斬擊","bonus":232.0},{"name":"盾牌投擲","bonus":380.0},{"name":"光芒之矛","bonus":586.0},{"name":"帝國十字","bonus":363.0}],"禁咒魔導士":[{"name":"冰刃斬","bonus":1488.0},{"name":"豔紅魔矢","bonus":400.0},{"name":"毀滅彗星","bonus":445.0},{"name":"神秘幻滅","bonus":1025.0}],"元素支配者":[{"name":"超自然波","bonus":526.0},{"name":"雷霆陣地","bonus":620.0},{"name":"灼熱岩漿","bonus":140.0},{"name":"鑽石風暴","bonus":140.0},{"name":"大地驅動","bonus":140.0},{"name":"超自然流動","bonus":508.0}],"機甲神匠":[{"name":"戰斧熔滅","bonus":1025.0},{"name":"強力粉碎","bonus":575.0},{"name":"三連雷射","bonus":274.0},{"name":"閃光衝擊波","bonus":170.0},{"name":"強力掃擊","bonus":671.0},{"name":"能量加農砲","bonus":305.0}],"生命締造者":[{"name":"爆炸炸藥","bonus":508.0},{"name":"強酸禁地","bonus":170.0},{"name":"手推車加農砲","bonus":913.0},{"name":"粉塵爆炸","bonus":440.0},{"name":"混亂的荊棘","bonus":391.0}],"十字影武":[{"name":"十字斬","bonus":200.0},{"name":"暗影刺擊","bonus":null},{"name":"野蠻衝擊","bonus":286.0},{"name":"心靈震波","bonus":1321.0},{"name":"十字斬擊","bonus":350.0}],"深淵追跡者":[{"name":"深淵墜落","bonus":170.0},{"name":"狂暴射擊","bonus":440.0},{"name":"連鎖射擊","bonus":445.0},{"name":"追跡突擊","bonus":1025.0},{"name":"追跡射擊","bonus":1977.0},{"name":"深淵火焰","bonus":100.0},{"name":"靈巧刺擊","bonus":386.0}],"樞機主教":[{"name":"聖光打擊(書)","bonus":484.0},{"name":"聖光打擊(錘)","bonus":484.0},{"name":"制裁謳歌","bonus":30.0},{"name":"神聖之花","bonus":48.0}],"聖裁者":[{"name":"虎砲","bonus":20.0},{"name":"爆破衝擊","bonus":555.0},{"name":"第三擊 癒治","bonus":1250.0},{"name":"烈火氣彈","bonus":872.0}],"風鷹狩獵者":[{"name":"漸進狙擊","bonus":170.0},{"name":"毀滅風暴","bonus":350.0},{"name":"磐石陷阱","bonus":2900.0},{"name":"深盲陷阱","bonus":2900.0},{"name":"急速陷阱","bonus":2900.0},{"name":"火焰陷阱","bonus":2900.0}],"天籟頌者":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"樂之舞靈":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"月影忍者/疾風忍者":[{"name":"火焰砲","bonus":260.0},{"name":"冷焰砲","bonus":414.0},{"name":"雷電砲","bonus":275.0},{"name":"金龍砲","bonus":440.0},{"name":"暗戰砲","bonus":600.0},{"name":"詭影閃光","bonus":135.0},{"name":"飛刀-旋轉","bonus":575.0},{"name":"風魔飛鏢-構築","bonus":350.0}],"夜行使":[{"name":"夜裡的警惕","bonus":607.0},{"name":"獨一槍彈","bonus":671.0},{"name":"螺旋射擊","bonus":800.0},{"name":"洞中急火","bonus":900.0},{"name":"落空手榴彈","bonus":1285.0},{"name":"狂野射擊","bonus":567.0},{"name":"午夜墜落","bonus":500.0}],"終極初學者":[{"name":"地面重力","bonus":218.0},{"name":"地獄毀滅","bonus":508.0},{"name":"新霜凍術","bonus":305.0},{"name":"巨型音速投擲","bonus":260.0},{"name":"連續盾擊衝撞","bonus":125.0}],"魂靈師":[{"name":"玄鹿砲","bonus":363.0},{"name":"玄鹿葉風","bonus":305.0},{"name":"鐵虎咆哮","bonus":768.0},{"name":"鐵虎空心爪","bonus":143.0},{"name":"鐵虎亂舞","bonus":363.0}],"天帝":[{"name":"天晨一陽","bonus":274.0},{"name":"天晨一月","bonus":376.0}],"契靈士":[{"name":"四方神符","bonus":33.0},{"name":"死靈淨化","bonus":260.0}]};
+
+  window.renderSkillOptions=function(){
+    const jobSel=document.getElementById("skillJobSelect");
+    const skillSel=document.getElementById("skillNameSelect");
+    if(!jobSel || !skillSel) return;
+    const list=SKILL_BALANCE_DATA[jobSel.value]||[];
+    skillSel.innerHTML=list.map((s,i)=>
+      `<option value="${i}">${s.name}${s.bonus==null?"":"｜繁星 +"+s.bonus+"%"}</option>`
+    ).join("");
+    syncOriginalSkillFormula();
+  };
+
+  function initSkillBalanceSelectors(){
+    const jobSel=document.getElementById("skillJobSelect");
+    if(!jobSel) return;
+    const jobs=Object.keys(SKILL_BALANCE_DATA);
+    jobSel.innerHTML=jobs.map(j=>`<option value="${j}">${j}</option>`).join("");
+
+    const defaultJob=jobs.includes("盧恩龍爵")
+      ? "盧恩龍爵"
+      : (jobs.includes("盧恩騎爵") ? "盧恩騎爵" : jobs[0]);
+    if(defaultJob) jobSel.value=defaultJob;
+
+    renderSkillOptions();
+
+    const skillSel=document.getElementById("skillNameSelect");
+    if(skillSel){
+      const list=SKILL_BALANCE_DATA[jobSel.value]||[];
+      const dragonIdx=list.findIndex(s=>s.name==="天龍氣息" || s.name==="天龍氣息(天龍光環)");
+      if(dragonIdx>=0) skillSel.value=String(dragonIdx);
+    }
+
+    const version=document.getElementById("dragonBreathVersion");
+    if(version) version.value="aura";
+
+    syncOriginalSkillFormula();
+  }
+
+  function getSelectedSkillBalance(){
+    const job=document.getElementById("skillJobSelect")?.value||"";
+    const idx=Number(document.getElementById("skillNameSelect")?.value||0);
+    const s=(SKILL_BALANCE_DATA[job]||[])[idx];
+    return s ? {job,name:s.name,bonus:s.bonus} : {job:"",name:"",bonus:null};
+  }
+
+  function isDragonicBreathSkill(name){
+    return name==="天龍氣息" || name==="天龍氣息(天龍光環)";
+  }
+
+  window.syncOriginalSkillFormula=function(){
+    const s=getSelectedSkillBalance();
+    const original=document.getElementById("skillOriginalPct");
+    const star=document.getElementById("skillStarBonusPct");
+    const box=document.getElementById("dragonBreathInputs");
+
+    if(star) star.value=s.bonus==null ? 0 : s.bonus;
+
+    if(isDragonicBreathSkill(s.name)){
+      if(box) box.style.display="block";
+      const mhp=Number(document.getElementById("skillMhp")?.value||5000000);
+      const msp=Number(document.getElementById("skillMsp")?.value||50000);
+      const pow=Number(document.getElementById("skillPow")?.value||651);
+      const blv=Number(document.getElementById("skillBaseLv")?.value||275);
+      const version=document.getElementById("dragonBreathVersion")?.value||"aura";
+      const slv=10;
+
+      let originalPct=0;
+      if(version==="aura"){
+        // RO Calculator: (50+(350+0.0175*Mhp+0.035*Msp)*SLV+POW*10)*BLV/100
+        originalPct=(50+(350+0.0175*mhp+0.035*msp)*slv+pow*10)*blv/100;
+      }else{
+        // RO Calculator: UP((3550+DOWN(Mhp/8)+DOWN(Msp/4)+POW*7)*BLV/100)
+        originalPct=Math.ceil((3550+Math.floor(mhp/8)+Math.floor(msp/4)+pow*7)*blv/100);
+      }
+      if(original) original.value=originalPct;
+    }else{
+      if(box) box.style.display="none";
+      // Other skills remain editable until an original formula is supplied/mapped.
+      if(original && (!Number(original.value) || original.dataset.autoDragon==="1")) original.value=100;
+    }
+    if(original) original.dataset.autoDragon=isDragonicBreathSkill(s.name) ? "1" : "0";
+  };
+
+  function checkedPctSum(className){
+    return Array.from(document.querySelectorAll("."+className+":checked"))
+      .reduce((sum,el)=>sum+Number(el.value||0),0);
+  }
+
+  function pctMul(v){
+    return 1 + Number(v||0)/100;
+  }
+
+  window.recalcFullDamageTest=function(){
+    const val=id=>Number(document.getElementById(id)?.value||0);
+
+    const crit=Number(document.getElementById("dmgPanelCrit")?.value||0);
+    const crate=Number(document.getElementById("dmgPanelCrate")?.value||0);
+    const patk=Number(document.getElementById("dmgPanelPatk")?.value||0);
+    const smatk=Number(document.getElementById("dmgPanelSmatk")?.value||0);
+
+    const buffBbqCritFinal=!!document.getElementById("buffBbqCritFinal")?.checked;
+    const buffXmasFruitSkillFinal=!!document.getElementById("buffXmasFruitSkillFinal")?.checked;
+    const buffHolyAuthority=!!document.getElementById("buffHolyAuthority")?.checked;
+
+    const effectivePatk=patk+(buffHolyAuthority?50:0);
+    const effectiveSmatk=smatk+(buffHolyAuthority?50:0);
+
+    const critDivisor=(damageMode==="skill") ? 2 : 1;
+    const critMul=(100 + crit/critDivisor)/100;
+    const crateMul=(140 + crate)/100;
+    const patkMul=(100 + effectivePatk)/100;
+    const smatkMul=(100 + effectiveSmatk)/100;
+
+    const bbqCritFinalMul=buffBbqCritFinal ? 1.15 : 1;
+    const xmasSkillFinalMul=buffXmasFruitSkillFinal ? 1.05 : 1;
+
+    const buffText=document.getElementById("buffEffectText");
+    if(buffText){
+      const active=[];
+      if(buffBbqCritFinal) active.push("烤肉串串：爆擊終傷+15%");
+      if(buffXmasFruitSkillFinal) active.push("聖誕果實：全技能終傷+5%");
+      if(buffHolyAuthority) active.push("神聖權能：PATK/SMATK+50");
+      buffText.textContent=active.length ? "已套用："+active.join("、") : "目前未套用補品效果";
+    }
+
+    const reversalEnabled=!!document.getElementById("fullReversalEnabled")?.checked;
+    const remainingHp=Math.max(0,Math.min(100,val("fullRemainingHpPct")));
+    const missingHp=100-remainingHp;
+    const reversalBonusPct=reversalEnabled ? missingHp*3 : 0;
+    const reversalMul=1+reversalBonusPct/100;
+
+    const reversalText=document.getElementById("fullReversalText");
+    if(reversalText){
+      reversalText.textContent=reversalEnabled
+        ? `已套用：剩餘 ${fmt(remainingHp)}% 血量，少 ${fmt(missingHp)}%，傷害 +${fmt(reversalBonusPct)}%（×${fmt(reversalMul)}）`
+        : "目前未套用反逆效果";
+    }
+
+    const stoneBackstab=!!document.getElementById("stoneBackstab")?.checked;
+    const stonePhysicalCombo=!!document.getElementById("stonePhysicalCombo")?.checked;
+    const stoneCritCombo=!!document.getElementById("stoneCritCombo")?.checked;
+    const stoneMeleeFinal=!!document.getElementById("stoneMeleeFinal")?.checked;
+    const stoneRangedFinal=!!document.getElementById("stoneRangedFinal")?.checked;
+    const stoneRepeatCast=!!document.getElementById("stoneRepeatCast")?.checked;
+
+    const backstabMul=stoneBackstab ? 2.5 : 1;
+    const physicalComboMul=stonePhysicalCombo ? 2 : 1;
+    const critComboMul=stoneCritCombo ? 1.75 : 1;
+    const meleeFinalMul=stoneMeleeFinal ? 1.9 : 1;
+    const rangedFinalMul=stoneRangedFinal ? 1.9 : 1;
+    const repeatCastMul=1; // 再次施放改在 DPS 區用期望值計算，不灌進單次傷害
+
+    const stoneText=document.getElementById("stoneEffectText");
+    if(stoneText){
+      const active=[];
+      if(stoneBackstab) active.push("背刺 ×2.5");
+      if(stonePhysicalCombo) active.push("物理連擊 ×2");
+      if(stoneCritCombo) active.push("爆擊連擊 ×1.75");
+      if(stoneMeleeFinal) active.push("近距終傷 ×1.9");
+      if(stoneRangedFinal) active.push("遠距終傷 ×1.9");
+      if(stoneRepeatCast) active.push("再次施放 60%（DPS區另算）");
+      stoneText.textContent=active.length ? "已套用："+active.join("、") : "目前未套用 UR 石頭效果";
+    }
+
+    const physical =
+      val("fullAtk") *
+      pctMul(val("fullAttrPhys")) *
+      pctMul(val("fullClassPhys")) *
+      pctMul(val("fullRacePhys")) *
+      pctMul(val("fullSizePhys")) *
+      pctMul(val("fullElementAtkPct")) *
+      pctMul(val("fullAtkPct")) *
+      pctMul(val("fullRangePct")) *
+      pctMul(val("panelRangedFinalPct")) *
+      pctMul(val("panelPhysicalAreaPct")) *
+      pctMul(val("panelPhysicalFinalPct")) *
+      pctMul(val("panelCritFinalPct")) *
+      bbqCritFinalMul *
+      pctMul(val("weaponSkillFinal4Pct")) *
+      pctMul(val("weaponSkillFinal5Pct")) *
+      pctMul(val("armorSkillFinalPct")) *
+      pctMul(val("shoeSkillFinalPct")) *
+      pctMul(val("accessorySkillPct")) *
+      pctMul(checkedPctSum("advSizeFinalTier")) *
+      pctMul(checkedPctSum("advSkillFinalTier")) *
+      pctMul(checkedPctSum("advPhysicalAreaFinalTier")) *
+      pctMul(checkedPctSum("advRaceFinalTier")) *
+      pctMul(checkedPctSum("advAttrFinalTier")) *
+      critMul *
+      patkMul *
+      crateMul *
+      pctMul(val("fullPotionSizePhys")) *
+      pctMul(val("fullPotionRacePhys")) *
+      pctMul(val("fullPotionClassPhys")) *
+      pctMul(val("fullPotionAttrPhys")) *
+      Math.max(0,1-val("fullDamageReduction")/100) *
+      reversalMul *
+      backstabMul *
+      physicalComboMul *
+      critComboMul *
+      meleeFinalMul *
+      rangedFinalMul *
+      repeatCastMul;
+
+    const magic =
+      val("fullMatk") *
+      pctMul(val("fullMatkPct")) *
+      pctMul(val("fullAttrMagic")) *
+      pctMul(val("fullClassMagic")) *
+      pctMul(val("fullRaceMagic")) *
+      pctMul(val("fullSizeMagic")) *
+      pctMul(val("fullElementMagicPct")) *
+      critMul *
+      smatkMul *
+      crateMul *
+      pctMul(val("fullPotionSizeMagic")) *
+      pctMul(val("fullPotionRaceMagic")) *
+      pctMul(val("fullPotionClassMagic")) *
+      pctMul(val("fullPotionAttrMagic")) *
+      Math.max(0,1-val("fullDamageReduction")/100) *
+      reversalMul *
+      repeatCastMul;
+
+    const p=document.getElementById("fullPhysicalDamage");
+    const m=document.getElementById("fullMagicDamage");
+    if(p) p.textContent=fmt(physical);
+    if(m) m.textContent=fmt(magic);
+
+    const selectedSkill=getSelectedSkillBalance();
+    const originalPct=Number(document.getElementById("skillOriginalPct")?.value||0);
+    const starBonusPct=Number(document.getElementById("skillStarBonusPct")?.value||0);
+    const balancedPct=originalPct*(1+starBonusPct/100);
+    const skillMul=balancedPct/100;
+
+    const pSkill=document.getElementById("fullPhysicalSkillDamage");
+    const mSkill=document.getElementById("fullMagicSkillDamage");
+    const skillInfo=document.getElementById("skillBalanceInfo");
+    const refInfo=document.getElementById("skillReferenceInfo");
+
+    const finalPhysicalSkillDamage=physical*skillMul*xmasSkillFinalMul;
+    const finalMagicSkillDamage=magic*skillMul*xmasSkillFinalMul;
+    const finalPhysicalRounded=Math.round(finalPhysicalSkillDamage);
+    const finalMagicRounded=Math.round(finalMagicSkillDamage);
+
+    if(pSkill) pSkill.textContent=finalPhysicalRounded.toLocaleString("en-US");
+    if(mSkill) mSkill.textContent=finalMagicRounded.toLocaleString("en-US");
+
+    const actualSingleHit=document.getElementById("actualSingleHit");
+    if(actualSingleHit){
+      actualSingleHit.value=finalPhysicalRounded;
+      if(typeof recalcCombatOutput==="function") recalcCombatOutput();
+    }
+    if(skillInfo){
+      const dragonVersionText=isDragonicBreathSkill(selectedSkill.name)
+        ? `｜${(document.getElementById("dragonBreathVersion")?.value||"aura")==="aura"?"天龍光環版":"一般版"}`
+        : "";
+      skillInfo.textContent=
+        `${selectedSkill.job}｜${selectedSkill.name}${dragonVersionText}：原始 ${fmt(originalPct)}% × 繁星 ${(1+starBonusPct/100).toFixed(3)} = ${fmt(balancedPct)}%`;
+    }
+
+    if(refInfo){
+      if(isDragonicBreathSkill(selectedSkill.name)){
+        const estimate=finalPhysicalRounded;
+        const reference=110000000;
+        const diff=reference ? (estimate/reference-1)*100 : 0;
+        refInfo.innerHTML=`天龍氣息實測參考：110,000,000 / 下｜目前試算：${fmt(estimate)}｜差異 ${(diff>=0?"+":"")}${fmt(diff)}%`;
+      }else{
+        refInfo.textContent="其他技能的原始倍率可直接修改；繁星加成會以額外倍率方式套用。";
+      }
+    }
+
+    const f=document.getElementById("fullDamageFormulaText");
+    if(f){
+      f.innerHTML=
+        `<b>目前模式：${damageMode==="skill"?"技爆版（爆傷÷2）":"爆傷版"}</b><br>`+
+        `物理：ATK × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 遠程物理終傷 × 物理範圍傷害 × 物理最終傷害 × 爆擊最終傷害 × 裝備技能傷害詞條 × 高級結晶(可累加) × 補品效果 × 爆傷 × PATK × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
+        `魔法：MATK × MATK% × 對屬性 × 對階級 × 對種族 × 對體型 × 屬法傷 × 補品效果 × 爆傷 × SMATK × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率`;
+    }
+  };
+
   window.saveCrystalPrice=function(){
     localStorage.setItem(priceKey,document.getElementById("crystalUnitPrice").value||"1200");
     localStorage.setItem(checkPriceKey,document.getElementById("crystalCheckPrice").value||"16");
@@ -796,7 +1342,38 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   if(saved!==null) document.getElementById("crystalUnitPrice").value=saved;
   const savedCheck=localStorage.getItem(checkPriceKey);
   if(savedCheck!==null) document.getElementById("crystalCheckPrice").value=savedCheck;
+
+  window.syncAspdCasts=function(){
+    const aspd=Number(document.getElementById("combatAspd")?.value||193);
+    const input=document.getElementById("combatCastsPerSec");
+    // 依目前確認：ASPD 193 約 7 次/秒。其餘先給可編輯近似值。
+    const table={193:7,194:7.5,195:8,196:9,197:10};
+    if(input && table[aspd]!=null) input.value=table[aspd];
+  };
+
+  window.recalcCombatOutput=function(){
+    const hit=Math.max(0,Number(document.getElementById("actualSingleHit")?.value||0));
+    const cps=Math.max(0,Number(document.getElementById("combatCastsPerSec")?.value||0));
+    const repeat=Math.max(0,Math.min(100,Number(document.getElementById("combatRepeatChance")?.value||0)));
+    const repeatMul=1+repeat/100;
+    const baseDps=hit*cps;
+    const expectedDps=baseDps*repeatMul;
+
+    const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
+    set("combatSingleHit",fmt(hit));
+    set("combatBaseDps",fmt(baseDps));
+    set("combatRepeatMul","×"+repeatMul.toFixed(3));
+    set("combatExpectedDps",fmt(expectedDps));
+
+    const txt=document.getElementById("combatDpsText");
+    if(txt){
+      txt.textContent=`${fmt(hit)} × ${fmt(cps)}次/秒 = ${fmt(baseDps)} DPS；再次施放 ${fmt(repeat)}% → 期望 ×${repeatMul.toFixed(3)} = ${fmt(expectedDps)} DPS`;
+    }
+  };
+
   renderCrystalRows();
+  initSkillBalanceSelectors();
+  syncOriginalSkillFormula();
   recalcDamageCompare();
 })();
 </script>
