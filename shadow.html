@@ -243,7 +243,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <div class="note" style="margin-top:10px">
       <b>🧙 職業／技能傷害</b>
       <div class="tiny" style="margin-top:6px">
-        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡為額外加成，例如 +80% = 原始倍率 ×1.8。 繁星未提供額外倍率的技能，預設顯示 +0%。 原始倍率優先採用巴哈最新 kRO 技能調整整理；該文未明列的技能才讀取 RO Calculator。
+        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡為額外加成，例如 +80% = 原始倍率 ×1.8。 繁星未提供額外倍率的技能，預設顯示 +0%。 原始倍率優先採用巴哈最新 kRO 技能調整整理；其餘使用已內建到本頁的 RO Calculator 技能資料。此版不需連外抓技能資料。
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px">
@@ -1045,44 +1045,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   const SKILL_BALANCE_DATA={"盧恩龍爵":[{"name":"風暴衝擊","bonus":1127.0},{"name":"風暴斬擊","bonus":177.0},{"name":"天龍氣息","bonus":80.0},{"name":"狂暴粉碎","bonus":180.0},{"name":"天龍擊刺","bonus":382.0}],"帝國聖衛軍":[{"name":"聖十字雨","bonus":380.0},{"name":"瞬間斬擊","bonus":232.0},{"name":"盾牌投擲","bonus":380.0},{"name":"光芒之矛","bonus":586.0},{"name":"帝國十字","bonus":363.0}],"禁咒魔導士":[{"name":"冰刃斬","bonus":1488.0},{"name":"豔紅魔矢","bonus":400.0},{"name":"毀滅彗星","bonus":445.0},{"name":"神秘幻滅","bonus":1025.0}],"元素支配者":[{"name":"超自然波","bonus":526.0},{"name":"雷霆陣地","bonus":620.0},{"name":"灼熱岩漿","bonus":140.0},{"name":"鑽石風暴","bonus":140.0},{"name":"大地驅動","bonus":140.0},{"name":"超自然流動","bonus":508.0}],"機甲神匠":[{"name":"戰斧熔滅","bonus":1025.0},{"name":"強力粉碎","bonus":575.0},{"name":"三連雷射","bonus":274.0},{"name":"閃光衝擊波","bonus":170.0},{"name":"強力掃擊","bonus":671.0},{"name":"能量加農砲","bonus":305.0}],"生命締造者":[{"name":"爆炸炸藥","bonus":508.0},{"name":"強酸禁地","bonus":170.0},{"name":"手推車加農砲","bonus":913.0},{"name":"粉塵爆炸","bonus":440.0},{"name":"混亂的荊棘","bonus":391.0}],"十字影武":[{"name":"十字斬","bonus":200.0},{"name":"暗影刺擊","bonus":0},{"name":"野蠻衝擊","bonus":286.0},{"name":"心靈震波","bonus":1321.0},{"name":"十字斬擊","bonus":350.0}],"深淵追跡者":[{"name":"深淵墜落","bonus":170.0},{"name":"狂暴射擊","bonus":440.0},{"name":"連鎖射擊","bonus":445.0},{"name":"追跡突擊","bonus":1025.0},{"name":"追跡射擊","bonus":1977.0},{"name":"深淵火焰","bonus":100.0},{"name":"靈巧刺擊","bonus":386.0}],"樞機主教":[{"name":"聖光打擊(書)","bonus":484.0},{"name":"聖光打擊(錘)","bonus":484.0},{"name":"制裁謳歌","bonus":30.0},{"name":"神聖之花","bonus":48.0}],"聖裁者":[{"name":"虎砲","bonus":20.0},{"name":"爆破衝擊","bonus":555.0},{"name":"第三擊 癒治","bonus":1250.0},{"name":"烈火氣彈","bonus":872.0},{"name":"火焰彈","bonus":0}],"風鷹狩獵者":[{"name":"漸進狙擊","bonus":170.0},{"name":"毀滅風暴","bonus":350.0},{"name":"磐石陷阱","bonus":2900.0},{"name":"深盲陷阱","bonus":2900.0},{"name":"急速陷阱","bonus":2900.0},{"name":"火焰陷阱","bonus":2900.0}],"天籟頌者":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"樂之舞靈":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"月影忍者/疾風忍者":[{"name":"火焰砲","bonus":260.0},{"name":"冷焰砲","bonus":414.0},{"name":"雷電砲","bonus":275.0},{"name":"金龍砲","bonus":440.0},{"name":"暗戰砲","bonus":600.0},{"name":"詭影閃光","bonus":135.0},{"name":"飛刀-旋轉","bonus":575.0},{"name":"風魔飛鏢-構築","bonus":350.0}],"夜行使":[{"name":"夜裡的警惕","bonus":607.0},{"name":"獨一槍彈","bonus":671.0},{"name":"螺旋射擊","bonus":800.0},{"name":"洞中急火","bonus":900.0},{"name":"落空手榴彈","bonus":1285.0},{"name":"狂野射擊","bonus":567.0},{"name":"午夜墜落","bonus":500.0}],"終極初學者":[{"name":"地面重力","bonus":218.0},{"name":"地獄毀滅","bonus":508.0},{"name":"新霜凍術","bonus":305.0},{"name":"巨型音速投擲","bonus":260.0},{"name":"連續盾擊衝撞","bonus":125.0}],"魂靈師":[{"name":"玄鹿砲","bonus":363.0},{"name":"玄鹿葉風","bonus":305.0},{"name":"鐵虎咆哮","bonus":768.0},{"name":"鐵虎空心爪","bonus":143.0},{"name":"鐵虎亂舞","bonus":363.0}],"天帝":[{"name":"天晨一陽","bonus":274.0},{"name":"天晨一月","bonus":376.0}],"契靈士":[{"name":"四方神符","bonus":33.0},{"name":"死靈淨化","bonus":260.0}]};
 
 
+  const LOCAL_RO_SKILL_DB={"風暴衝擊":{"level":1,"formula":"(10+Math.floor(STR/5.7))*100*BLV/100","source":"RO Calculator"},"風暴斬擊":{"level":5,"formula":"(300+SLV*750+POW*5)*BLV/100","source":"RO Calculator"},"狂暴粉碎":{"level":5,"formula":"(1000+SLV*3800+POW*10)*BLV/100","source":"RO Calculator"},"天龍擊刺":{"level":5,"formula":"(850+SLV*600+7*POW)*BLV/100","source":"RO Calculator"},"聖十字雨":{"level":10,"formula":"((450+10*10)*SLV+SPL*7)*BLV/100","source":"RO Calculator"},"瞬間斬擊":{"level":10,"formula":"((220+50*10)*SLV+POW*7)*BLV/100","source":"RO Calculator"},"盾牌投擲":{"level":5,"formula":"(1000+(3500+150*10)*SLV+POW*10)*BLV/100","source":"RO Calculator"},"冰刃斬":{"level":5,"formula":"(400+SLV*950+SPL*5)*BLV/100","source":"RO Calculator"},"豔紅魔矢":{"level":5,"formula":"(SLV*400+SPL*3)*BLV/100+(SLV*750+SPL*5)*BLV/100","source":"RO Calculator"},"毀滅彗星":{"level":5,"formula":"(3000+SLV*600)*BLV/100","source":"RO Calculator"},"神秘幻滅":{"level":5,"formula":"(SLV*950+SPL*5)*BLV/100","source":"RO Calculator"},"超自然波":{"level":5,"formula":null,"source":"RO Calculator｜原公式需要武器種類"},"雷霆陣地":{"level":5,"formula":"(700+SLV*1100+SPL*5)*BLV/100","source":"RO Calculator"},"灼熱岩漿":{"level":5,"formula":"(700+SLV*1100+SPL*5)*BLV/100","source":"RO Calculator"},"鑽石風暴":{"level":5,"formula":"(500+SLV*2400+SPL*5)*BLV/100","source":"RO Calculator"},"大地驅動":{"level":5,"formula":"(500+SLV*2400+SPL*5)*BLV/100","source":"RO Calculator"},"強力粉碎":{"level":10,"formula":"(80+240*SLV+POW*7)*BLV/100","source":"RO Calculator"},"三連雷射":{"level":5,"formula":"(650+1150*SLV+POW*12)*BLV/100","source":"RO Calculator"},"閃光衝擊波":{"level":10,"formula":"(600+1400*SLV+POW*7)*BLV/100","source":"RO Calculator"},"爆炸炸藥":{"level":5,"formula":"(500+650*SLV+POW*7)*BLV/100","source":"RO Calculator"},"強酸禁地":{"level":5,"formula":"(SLV*400+POW*6)*BLV/100","source":"RO Calculator"},"手推車加農砲":{"level":5,"formula":null,"source":"RO Calculator｜原公式需要 INT"},"粉塵爆炸":{"level":5,"formula":"(450+600*SLV+POW)*BLV/100","source":"RO Calculator｜對應星塵炸裂"},"混亂的荊棘":{"level":10,"formula":"(200+300*SLV+POW*7)*BLV/100","source":"RO Calculator"},"十字斬":{"level":5,"formula":"(1000+SLV*230)*BLV/100","source":"RO Calculator"},"暗影刺擊":{"level":5,"formula":"(SLV*550+POW*5)*BLV/100","source":"RO Calculator"},"野蠻衝擊":{"level":10,"formula":"(SLV*105+POW*5)*BLV/100","source":"RO Calculator"},"心靈震波":{"level":10,"formula":null,"source":"RO Calculator｜原公式需要 STR/INT"},"十字斬擊":{"level":5,"formula":"(SLV*300+POW*5)*BLV/100","source":"RO Calculator"},"狂暴射擊":{"level":10,"formula":"(250+800*SLV+CON*15)*BLV/100","source":"RO Calculator"},"連鎖射擊":{"level":5,"formula":"(800+2550*SLV+CON*15)*BLV/100","source":"RO Calculator｜第二段"},"漸進狙擊":{"level":10,"formula":"(500+1300*SLV+CON*10)*BLV/100","source":"RO Calculator｜min"},"毀滅風暴":{"level":10,"formula":"(1350*SLV+CON*10)*BLV/100","source":"RO Calculator"},"風魔飛鏢-構築":{"level":10,"formula":"(900+(1750+100*10)*SLV+POW*5)*BLV/100","source":"RO Calculator"},"詭影閃光":{"level":10,"formula":"(1500+(950+150*10)*SLV+POW*5)*BLV/100","source":"RO Calculator"},"鐵虎空心爪":{"level":7,"formula":"(1100+2200*SLV+50*10+POW*5)*BLV/100","source":"RO Calculator"}};
   const LATEST_KRO_FORUM_BASE_PCT={"風暴斬擊":4050,"狂暴粉碎":23500,"天龍擊刺":4550,"神龍貫刺":4550,"閃光衝擊波":14600,"野蠻衝擊":1300,"冰刃斬":5200,"神秘幻滅":4750,"聖光打擊(書)":13750,"聖光打擊(錘)":13750,"聖光打擊":13750,"制裁謳歌":12000,"漸進狙擊":13500,"毀滅風暴":13500,"磐石陷阱":4250,"深盲陷阱":4250,"急速陷阱":4250,"火焰陷阱":4250,"盾牌投擲":17500,"瞬間斬擊":2200,"聖十字雨":4500,"強酸禁地":2000,"爆炸炸藥":3750,"混亂的荊棘":3200,"靈巧刺擊":6200,"連鎖射擊":4250,"狂暴射擊":8250,"灼熱岩漿":6200,"鑽石風暴":12500,"雷霆陣地":6200,"大地驅動":12500,"爆破衝擊":13450};
-  const LATEST_KRO_FORUM_SOURCE="巴哈 kRO 技能調整整理｜第8版本基準";
+  const LATEST_KRO_FORUM_SOURCE="巴哈最新 kRO 技能調整整理";
+  const roSkillLoaded=true;
 
   function getLatestForumBasePct(name){
-    if(Object.prototype.hasOwnProperty.call(LATEST_KRO_FORUM_BASE_PCT,name)){
-      return Number(LATEST_KRO_FORUM_BASE_PCT[name]);
-    }
-    return null;
-  }
-
-  const RO_SKILLS_URL="https://raw.githubusercontent.com/Landgris/ROCalculator/gh-pages/skills.json";
-  let RO_SKILL_DB=[];
-  let roSkillLoaded=false;
-
-  const RO_SKILL_ALIASES={
-    "毀滅彗星":"毀滅慧星",
-    "天龍擊刺":"神龍貫刺",
-    "天龍擊刺(天龍光環)":"神龍貫刺(天龍光環)"
-  };
-
-  function normalizeSkillName(name){
-    return String(name||"")
-      .replace(/\s+/g,"")
-      .replace(/[（）]/g,m=>m==="（"?"(":")")
-      .trim();
+    return Object.prototype.hasOwnProperty.call(LATEST_KRO_FORUM_BASE_PCT,name)
+      ? Number(LATEST_KRO_FORUM_BASE_PCT[name])
+      : null;
   }
 
   function findRoSkill(name){
-    if(!RO_SKILL_DB.length) return null;
-    const alias=RO_SKILL_ALIASES[name]||name;
-    const target=normalizeSkillName(alias);
-    let hit=RO_SKILL_DB.find(x=>normalizeSkillName(x.name)===target);
-    if(hit) return hit;
-
-    // Prefer exact base-name matches before looser matching.
-    const base=target.replace(/\([^)]*\)$/,"");
-    hit=RO_SKILL_DB.find(x=>normalizeSkillName(x.name).replace(/\([^)]*\)$/,"")===base);
-    return hit||null;
+    return LOCAL_RO_SKILL_DB[name] || null;
   }
 
   function evalRoFormula(skill){
@@ -1091,57 +1066,20 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const vars={
       SLV:Number(skill.level||1),
       BLV:val("skillBaseLv")||275,
-      Mhp:val("skillMhp")||5000000,
-      MHP:val("skillMhp")||5000000,
-      Msp:val("skillMsp")||55000,
-      MSP:val("skillMsp")||55000,
-      CHP:val("skillMhp")||5000000,
-      CSP:val("skillMsp")||55000,
       POW:val("skillPow")||600,
       CON:val("skillCon")||0,
       CRT:val("skillCrt")||0,
       SPL:0,
-      STR:0,AGI:0,VIT:0,INT:0,DEX:0,LUK:0,
-      PATK:Number(document.getElementById("dmgPanelPatk")?.value||0),
-      SMATK:Number(document.getElementById("dmgPanelSmatk")?.value||0),
-      ATK:val("fullAtk"),
-      MATK:val("fullMatk"),
-      WLV:5,WGT:0
+      STR:0,
+      INT:0
     };
-
-    let expr=String(skill.formula)
-      .replace(/\bDOWN\s*\(/g,"Math.floor(")
-      .replace(/\bUP\s*\(/g,"Math.ceil(");
-
-    // Formulas requiring equipment/status helper functions are left manual rather than guessed.
-    if(/\b(WPT|BUFF|EQP|STATUS|SKILL|RACE|SIZE|ELEMENT)\s*\(/.test(expr)) return null;
-
     try{
-      const names=Object.keys(vars);
-      const values=Object.values(vars);
-      const fn=new Function(...names,`"use strict"; return (${expr});`);
+      const names=Object.keys(vars), values=Object.values(vars);
+      const fn=new Function(...names,`"use strict"; return (${skill.formula});`);
       const result=Number(fn(...values));
       return Number.isFinite(result) ? result : null;
     }catch(e){
       return null;
-    }
-  }
-
-  async function loadRoSkillDatabase(){
-    const status=document.getElementById("roSkillFormulaStatus");
-    try{
-      const res=await fetch(RO_SKILLS_URL,{cache:"no-store"});
-      if(!res.ok) throw new Error("HTTP "+res.status);
-      const raw=await res.json();
-      RO_SKILL_DB=raw.map(x=>x.skill).filter(Boolean);
-      roSkillLoaded=true;
-      if(status) status.textContent=`RO Calculator：已載入 ${RO_SKILL_DB.length} 個技能公式`;
-      syncOriginalSkillFormula();
-      recalcFullDamageTest();
-    }catch(err){
-      roSkillLoaded=false;
-      if(status) status.textContent="RO Calculator 技能資料載入失敗；原始倍率可手動輸入";
-      console.warn("RO skill DB load failed",err);
     }
   }
 
@@ -1210,15 +1148,13 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const blv=Number(document.getElementById("skillBaseLv")?.value||275);
       const version=document.getElementById("dragonBreathVersion")?.value||"aura";
       const slv=10;
-
       let originalPct=0;
       if(version==="aura"){
-        // 使用目前模擬器採用的最新天龍光環版本
         originalPct=(50+(420+0.0175*mhp+0.07*msp)*slv+pow*10)*blv/100;
-        if(status) status.textContent="天龍氣息：使用最新天龍光環公式";
+        if(status) status.textContent="本地內建｜天龍氣息最新天龍光環公式";
       }else{
         originalPct=Math.ceil((4250+Math.floor(mhp/8)+Math.floor(msp/2)+pow*7)*blv/100);
-        if(status) status.textContent="天龍氣息：使用最新一般版公式";
+        if(status) status.textContent="本地內建｜天龍氣息最新一般版公式";
       }
       if(original) original.value=originalPct;
       return;
@@ -1227,7 +1163,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(box) box.style.display="none";
 
     let forumPct=getLatestForumBasePct(s.name);
-
     if((s.name==="天龍擊刺" || s.name==="神龍貫刺") &&
        (document.getElementById("dragonBreathVersion")?.value||"aura")==="aura"){
       forumPct=5000;
@@ -1235,7 +1170,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     if(forumPct!=null){
       if(original) original.value=forumPct;
-      if(status) status.textContent=`${LATEST_KRO_FORUM_SOURCE}｜${s.name}：${forumPct}%`;
+      if(status) status.textContent=`本地內建｜${LATEST_KRO_FORUM_SOURCE}｜${s.name}：${forumPct}%`;
       return;
     }
 
@@ -1244,17 +1179,14 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const result=evalRoFormula(roSkill);
       if(result!=null){
         if(original) original.value=result;
-        if(status) status.textContent=`RO Calculator｜Lv.${roSkill.level}｜${roSkill.name}`;
+        if(status) status.textContent=`本地內建｜${roSkill.source}｜Lv.${roSkill.level}`;
       }else{
-        // Do not silently reset to 100%. Leave 0 and clearly show formula for manual entry.
         if(original) original.value=0;
-        if(status) status.textContent=`RO Calculator｜${roSkill.name}｜公式含額外條件，請手動輸入原始倍率`;
+        if(status) status.textContent=`本地內建｜${roSkill.source}｜需額外能力值，先以 0% 顯示，可手動輸入`;
       }
     }else{
       if(original) original.value=0;
-      if(status) status.textContent=roSkillLoaded
-        ? `RO Calculator 查無「${s.name}」；原始倍率預設 0，可手動輸入`
-        : "此技能若未列於最新 kRO 表，原始倍率可手動輸入";
+      if(status) status.textContent=`本地資料暫無「${s.name}」原始公式｜技能仍保留，倍率可手動輸入`;
     }
   };
 
