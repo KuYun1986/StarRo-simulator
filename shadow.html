@@ -243,7 +243,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <div class="note" style="margin-top:10px">
       <b>🧙 職業／技能傷害</b>
       <div class="tiny" style="margin-top:6px">
-        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡為額外加成，例如 +80% = 原始倍率 ×1.8。
+        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡為額外加成，例如 +80% = 原始倍率 ×1.8。 繁星未提供額外倍率的技能，預設顯示 +0%。
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px">
@@ -271,19 +271,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
       <div id="dragonBreathInputs" class="note" style="margin-top:10px;display:none">
         <b>🐉 天龍氣息原始倍率參數</b>
-        <div class="tiny">一般版：UP((3550 + MHP/8 + MSP/4 + POW×7) × BaseLv /100)<br>天龍光環版：(50 + (350 + 0.0175×MHP + 0.035×MSP)×技能等級 + POW×10) × BaseLv /100</div>
+        <div class="tiny">最新版本｜一般版：UP((4250 + MHP/8 + MSP/2 + POW×7) × BaseLv /100)<br>最新版本｜天龍光環版：(50 + (420 + 0.0175×MHP + 0.07×MSP)×技能等級 + POW×10) × BaseLv /100<br><span style="color:#ffd54a">更新：基本倍率 3550%→4250%，MSP 基礎計算比率 50%→100%；MHP 比率維持最新 25%。</span></div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px">
           <label>
             <span class="tiny">天龍氣息版本</span>
             <select id="dragonBreathVersion" onchange="syncOriginalSkillFormula();recalcFullDamageTest()"
               style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit">
-              <option value="normal">一般版</option>
-              <option value="aura" selected>天龍光環版</option>
+              <option value="normal">一般版（最新）</option>
+              <option value="aura" selected>天龍光環版（最新）</option>
             </select>
           </label>
           <label><span class="tiny">最大HP</span><input id="skillMhp" type="number" value="5000000" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
-          <label><span class="tiny">最大SP</span><input id="skillMsp" type="number" value="50000" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
-          <label><span class="tiny">POW（技能公式所需，不另計 PATK、CRATE）</span><input id="skillPow" type="number" value="600" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
+          <label><span class="tiny">最大SP</span><input id="skillMsp" type="number" value="55000" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
+          <label><span class="tiny">POW（技能公式所需，計PATK+CRATE）</span><input id="skillPow" type="number" value="600" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
           <label><span class="tiny">CON</span><input id="skillCon" type="number" value="585" oninput="recalcFullDamageTest()"></label>
           <label><span class="tiny">CRT</span><input id="skillCrt" type="number" value="500" oninput="recalcFullDamageTest()"></label>
           <label><span class="tiny">Base Lv.</span><input id="skillBaseLv" type="number" value="275" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
@@ -1041,7 +1041,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
 
-  const SKILL_BALANCE_DATA={"盧恩龍爵":[{"name":"風暴衝擊","bonus":1127.0},{"name":"風暴斬擊","bonus":177.0},{"name":"天龍氣息","bonus":80.0},{"name":"狂暴粉碎","bonus":180.0},{"name":"天龍擊刺","bonus":382.0}],"帝國聖衛軍":[{"name":"聖十字雨","bonus":380.0},{"name":"瞬間斬擊","bonus":232.0},{"name":"盾牌投擲","bonus":380.0},{"name":"光芒之矛","bonus":586.0},{"name":"帝國十字","bonus":363.0}],"禁咒魔導士":[{"name":"冰刃斬","bonus":1488.0},{"name":"豔紅魔矢","bonus":400.0},{"name":"毀滅彗星","bonus":445.0},{"name":"神秘幻滅","bonus":1025.0}],"元素支配者":[{"name":"超自然波","bonus":526.0},{"name":"雷霆陣地","bonus":620.0},{"name":"灼熱岩漿","bonus":140.0},{"name":"鑽石風暴","bonus":140.0},{"name":"大地驅動","bonus":140.0},{"name":"超自然流動","bonus":508.0}],"機甲神匠":[{"name":"戰斧熔滅","bonus":1025.0},{"name":"強力粉碎","bonus":575.0},{"name":"三連雷射","bonus":274.0},{"name":"閃光衝擊波","bonus":170.0},{"name":"強力掃擊","bonus":671.0},{"name":"能量加農砲","bonus":305.0}],"生命締造者":[{"name":"爆炸炸藥","bonus":508.0},{"name":"強酸禁地","bonus":170.0},{"name":"手推車加農砲","bonus":913.0},{"name":"粉塵爆炸","bonus":440.0},{"name":"混亂的荊棘","bonus":391.0}],"十字影武":[{"name":"十字斬","bonus":200.0},{"name":"暗影刺擊","bonus":null},{"name":"野蠻衝擊","bonus":286.0},{"name":"心靈震波","bonus":1321.0},{"name":"十字斬擊","bonus":350.0}],"深淵追跡者":[{"name":"深淵墜落","bonus":170.0},{"name":"狂暴射擊","bonus":440.0},{"name":"連鎖射擊","bonus":445.0},{"name":"追跡突擊","bonus":1025.0},{"name":"追跡射擊","bonus":1977.0},{"name":"深淵火焰","bonus":100.0},{"name":"靈巧刺擊","bonus":386.0}],"樞機主教":[{"name":"聖光打擊(書)","bonus":484.0},{"name":"聖光打擊(錘)","bonus":484.0},{"name":"制裁謳歌","bonus":30.0},{"name":"神聖之花","bonus":48.0}],"聖裁者":[{"name":"虎砲","bonus":20.0},{"name":"爆破衝擊","bonus":555.0},{"name":"第三擊 癒治","bonus":1250.0},{"name":"烈火氣彈","bonus":872.0}],"風鷹狩獵者":[{"name":"漸進狙擊","bonus":170.0},{"name":"毀滅風暴","bonus":350.0},{"name":"磐石陷阱","bonus":2900.0},{"name":"深盲陷阱","bonus":2900.0},{"name":"急速陷阱","bonus":2900.0},{"name":"火焰陷阱","bonus":2900.0}],"天籟頌者":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"樂之舞靈":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"月影忍者/疾風忍者":[{"name":"火焰砲","bonus":260.0},{"name":"冷焰砲","bonus":414.0},{"name":"雷電砲","bonus":275.0},{"name":"金龍砲","bonus":440.0},{"name":"暗戰砲","bonus":600.0},{"name":"詭影閃光","bonus":135.0},{"name":"飛刀-旋轉","bonus":575.0},{"name":"風魔飛鏢-構築","bonus":350.0}],"夜行使":[{"name":"夜裡的警惕","bonus":607.0},{"name":"獨一槍彈","bonus":671.0},{"name":"螺旋射擊","bonus":800.0},{"name":"洞中急火","bonus":900.0},{"name":"落空手榴彈","bonus":1285.0},{"name":"狂野射擊","bonus":567.0},{"name":"午夜墜落","bonus":500.0}],"終極初學者":[{"name":"地面重力","bonus":218.0},{"name":"地獄毀滅","bonus":508.0},{"name":"新霜凍術","bonus":305.0},{"name":"巨型音速投擲","bonus":260.0},{"name":"連續盾擊衝撞","bonus":125.0}],"魂靈師":[{"name":"玄鹿砲","bonus":363.0},{"name":"玄鹿葉風","bonus":305.0},{"name":"鐵虎咆哮","bonus":768.0},{"name":"鐵虎空心爪","bonus":143.0},{"name":"鐵虎亂舞","bonus":363.0}],"天帝":[{"name":"天晨一陽","bonus":274.0},{"name":"天晨一月","bonus":376.0}],"契靈士":[{"name":"四方神符","bonus":33.0},{"name":"死靈淨化","bonus":260.0}]};
+  const SKILL_BALANCE_DATA={"盧恩龍爵":[{"name":"風暴衝擊","bonus":1127.0},{"name":"風暴斬擊","bonus":177.0},{"name":"天龍氣息","bonus":80.0},{"name":"狂暴粉碎","bonus":180.0},{"name":"天龍擊刺","bonus":382.0}],"帝國聖衛軍":[{"name":"聖十字雨","bonus":380.0},{"name":"瞬間斬擊","bonus":232.0},{"name":"盾牌投擲","bonus":380.0},{"name":"光芒之矛","bonus":586.0},{"name":"帝國十字","bonus":363.0}],"禁咒魔導士":[{"name":"冰刃斬","bonus":1488.0},{"name":"豔紅魔矢","bonus":400.0},{"name":"毀滅彗星","bonus":445.0},{"name":"神秘幻滅","bonus":1025.0}],"元素支配者":[{"name":"超自然波","bonus":526.0},{"name":"雷霆陣地","bonus":620.0},{"name":"灼熱岩漿","bonus":140.0},{"name":"鑽石風暴","bonus":140.0},{"name":"大地驅動","bonus":140.0},{"name":"超自然流動","bonus":508.0}],"機甲神匠":[{"name":"戰斧熔滅","bonus":1025.0},{"name":"強力粉碎","bonus":575.0},{"name":"三連雷射","bonus":274.0},{"name":"閃光衝擊波","bonus":170.0},{"name":"強力掃擊","bonus":671.0},{"name":"能量加農砲","bonus":305.0}],"生命締造者":[{"name":"爆炸炸藥","bonus":508.0},{"name":"強酸禁地","bonus":170.0},{"name":"手推車加農砲","bonus":913.0},{"name":"粉塵爆炸","bonus":440.0},{"name":"混亂的荊棘","bonus":391.0}],"十字影武":[{"name":"十字斬","bonus":200.0},{"name":"暗影刺擊","bonus":0},{"name":"野蠻衝擊","bonus":286.0},{"name":"心靈震波","bonus":1321.0},{"name":"十字斬擊","bonus":350.0}],"深淵追跡者":[{"name":"深淵墜落","bonus":170.0},{"name":"狂暴射擊","bonus":440.0},{"name":"連鎖射擊","bonus":445.0},{"name":"追跡突擊","bonus":1025.0},{"name":"追跡射擊","bonus":1977.0},{"name":"深淵火焰","bonus":100.0},{"name":"靈巧刺擊","bonus":386.0}],"樞機主教":[{"name":"聖光打擊(書)","bonus":484.0},{"name":"聖光打擊(錘)","bonus":484.0},{"name":"制裁謳歌","bonus":30.0},{"name":"神聖之花","bonus":48.0}],"聖裁者":[{"name":"虎砲","bonus":20.0},{"name":"爆破衝擊","bonus":555.0},{"name":"第三擊 癒治","bonus":1250.0},{"name":"烈火氣彈","bonus":872.0},{"name":"火焰彈","bonus":0}],"風鷹狩獵者":[{"name":"漸進狙擊","bonus":170.0},{"name":"毀滅風暴","bonus":350.0},{"name":"磐石陷阱","bonus":2900.0},{"name":"深盲陷阱","bonus":2900.0},{"name":"急速陷阱","bonus":2900.0},{"name":"火焰陷阱","bonus":2900.0}],"天籟頌者":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"樂之舞靈":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"月影忍者/疾風忍者":[{"name":"火焰砲","bonus":260.0},{"name":"冷焰砲","bonus":414.0},{"name":"雷電砲","bonus":275.0},{"name":"金龍砲","bonus":440.0},{"name":"暗戰砲","bonus":600.0},{"name":"詭影閃光","bonus":135.0},{"name":"飛刀-旋轉","bonus":575.0},{"name":"風魔飛鏢-構築","bonus":350.0}],"夜行使":[{"name":"夜裡的警惕","bonus":607.0},{"name":"獨一槍彈","bonus":671.0},{"name":"螺旋射擊","bonus":800.0},{"name":"洞中急火","bonus":900.0},{"name":"落空手榴彈","bonus":1285.0},{"name":"狂野射擊","bonus":567.0},{"name":"午夜墜落","bonus":500.0}],"終極初學者":[{"name":"地面重力","bonus":218.0},{"name":"地獄毀滅","bonus":508.0},{"name":"新霜凍術","bonus":305.0},{"name":"巨型音速投擲","bonus":260.0},{"name":"連續盾擊衝撞","bonus":125.0}],"魂靈師":[{"name":"玄鹿砲","bonus":363.0},{"name":"玄鹿葉風","bonus":305.0},{"name":"鐵虎咆哮","bonus":768.0},{"name":"鐵虎空心爪","bonus":143.0},{"name":"鐵虎亂舞","bonus":363.0}],"天帝":[{"name":"天晨一陽","bonus":274.0},{"name":"天晨一月","bonus":376.0}],"契靈士":[{"name":"四方神符","bonus":33.0},{"name":"死靈淨化","bonus":260.0}]};
 
   window.renderSkillOptions=function(){
     const jobSel=document.getElementById("skillJobSelect");
@@ -1049,7 +1049,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(!jobSel || !skillSel) return;
     const list=SKILL_BALANCE_DATA[jobSel.value]||[];
     skillSel.innerHTML=list.map((s,i)=>
-      `<option value="${i}">${s.name}${s.bonus==null?"":"｜繁星 +"+s.bonus+"%"}</option>`
+      `<option value="${i}">${s.name}｜繁星 +${Number(s.bonus||0)}%</option>`
     ).join("");
     syncOriginalSkillFormula();
   };
@@ -1097,12 +1097,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const star=document.getElementById("skillStarBonusPct");
     const box=document.getElementById("dragonBreathInputs");
 
-    if(star) star.value=s.bonus==null ? 0 : s.bonus;
+    if(star) star.value=Number(s.bonus||0);
 
     if(isDragonicBreathSkill(s.name)){
       if(box) box.style.display="block";
       const mhp=Number(document.getElementById("skillMhp")?.value||5000000);
-      const msp=Number(document.getElementById("skillMsp")?.value||50000);
+      const msp=Number(document.getElementById("skillMsp")?.value||55000);
       const pow=Number(document.getElementById("skillPow")?.value||651);
       const blv=Number(document.getElementById("skillBaseLv")?.value||275);
       const version=document.getElementById("dragonBreathVersion")?.value||"aura";
@@ -1110,11 +1110,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
       let originalPct=0;
       if(version==="aura"){
-        // RO Calculator: (50+(350+0.0175*Mhp+0.035*Msp)*SLV+POW*10)*BLV/100
-        originalPct=(50+(350+0.0175*mhp+0.035*msp)*slv+pow*10)*blv/100;
+        // 最新技能調整：
+        // Lv10 基本倍率 3550% -> 4250%
+        // MSP 基礎計算比率 50% -> 100%
+        // 天龍光環 Lv10 傷害適用率 70%：
+        // MHP 25%*70%=17.5%，MSP 100%*70%=70%
+        // 保留既有 POW 光環係數 ×10
+        originalPct=(50+(420+0.0175*mhp+0.07*msp)*slv+pow*10)*blv/100;
       }else{
-        // RO Calculator: UP((3550+DOWN(Mhp/8)+DOWN(Msp/4)+POW*7)*BLV/100)
-        originalPct=Math.ceil((3550+Math.floor(mhp/8)+Math.floor(msp/4)+pow*7)*blv/100);
+        // 最新一般版：
+        // MHP 25%*50%=12.5% -> MHP/8
+        // MSP 100%*50%=50% -> MSP/2
+        // 基本倍率 4250%，保留既有 POW 係數 ×7
+        originalPct=Math.ceil((4250+Math.floor(mhp/8)+Math.floor(msp/2)+pow*7)*blv/100);
       }
       if(original) original.value=originalPct;
     }else{
@@ -1296,7 +1304,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
     if(skillInfo){
       const dragonVersionText=isDragonicBreathSkill(selectedSkill.name)
-        ? `｜${(document.getElementById("dragonBreathVersion")?.value||"aura")==="aura"?"天龍光環版":"一般版"}`
+        ? `｜${(document.getElementById("dragonBreathVersion")?.value||"aura")==="aura"?"天龍光環版（最新）":"一般版（最新）"}`
         : "";
       skillInfo.textContent=
         `${selectedSkill.job}｜${selectedSkill.name}${dragonVersionText}：原始 ${fmt(originalPct)}% × 繁星 ${(1+starBonusPct/100).toFixed(3)} = ${fmt(balancedPct)}%`;
