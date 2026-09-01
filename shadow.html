@@ -53,22 +53,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
 <section class="card" id="crystalSimulator">
   <h2>💎 影子區</h2>
-  <div class="tiny">影子結晶試算｜結晶單顆價格預設 1,200P、支票預設 16P，可自行修改並儲存在瀏覽器。</div>
+  <div class="tiny">影子結晶試算｜保留完整結晶選項，只計算升級所需結晶數量。</div>
 
-  <div class="row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0">
-    <span style="margin-left:8px">結晶單顆價格</span>
-    <input id="crystalUnitPrice" type="number" min="0" step="any" value="1200"
-      style="width:130px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
-    <span>P</span>
-    <span style="margin-left:8px">支票單價</span>
-    <input id="crystalCheckPrice" type="number" min="0" step="any" value="16"
-      style="width:110px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
-    <span>P</span>
-    <button type="button" class="primary" onclick="saveCrystalPrice()">💾 儲存價格</button>
-    <button type="button" onclick="resetCrystalPrice()">恢復預設</button>
-  </div>
 
-  
 <div class="note" style="margin:12px 0 16px">
   <b>🧠 最佳結晶方案推薦</b>
   <div class="tiny" style="margin-top:6px">
@@ -85,6 +72,10 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <div id="bestCrystalBuildResult" style="margin-top:10px;line-height:1.9;font-size:18px;font-weight:800;color:#8fd3ff">
     請先在下方填入自身素質，再選擇計算 Lv.6、Lv.8 或 Lv.10 結晶方案。
   </div>
+</div>
+<div class="note" id="beforeApplyStatsCard" style="margin:12px 0 14px;display:none">
+  <b>📌 套用前素質</b>
+  <div id="beforeApplyStats" style="margin-top:10px;line-height:1.9;font-size:20px;font-weight:800;color:#ffd54a">尚未套用推薦方案</div>
 </div>
 <div class="note" style="margin:12px 0 14px">
   <b>🎛️ 結晶預設</b>
@@ -107,7 +98,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           <th>能力</th>
           <th>數值</th>
           <th>數量</th>
-          <th>成本</th>
         </tr>
       </thead>
       <tbody id="crystalRows"></tbody>
@@ -116,11 +106,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   <div class="summary">
     <div class="stat"><span class="label">結晶總數</span><b id="crystalTotalQty">0 顆</b></div>
-    <div class="stat"><span class="label">支票需求</span><b id="crystalCheckQty">0 張</b></div>
-    <div class="stat"><span class="label">結晶成本</span><b id="crystalCrystalCost" style="color:#7ee0a1">0 P</b></div>
-    <div class="stat"><span class="label">支票成本</span><b id="crystalCheckCost" style="color:#7ee0a1">0 P</b></div>
-    <div class="stat"><span class="label">總成本</span><b id="crystalTotalCost" style="color:#8fd3ff">0 P</b></div>
-    <div class="stat"><span class="label">結晶／支票單價</span><b id="crystalPriceDisplay">1,200 / 16 P</b></div>
   </div>
 
   <div class="note" style="margin-top:14px">
@@ -133,7 +118,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <div id="crystalFinalStatTotals" style="margin-top:10px;line-height:1.9;font-size:22px;font-weight:800;color:#9fe7c8">尚未選擇等級</div>
   </div>
 
-
+  
   <div class="note tiny" style="line-height:1.75;">
     <div style="color:#ff4d4f; font-size:16px; font-weight:800;">
       CRATE%、PATK%、SMATK%為正面裝備詞條、收藏取得
@@ -266,7 +251,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <div class="note" style="margin-top:10px">
       <b>🧙 職業／技能傷害</b>
       <div class="tiny" style="margin-top:6px">
-        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡為額外加成，例如 +80% = 原始倍率 ×1.8。 繁星未提供額外倍率的技能，預設顯示 +0%。 原始技能倍率資料直接內建於本頁，不需連外；沒有可靠最新倍率的技能會顯示 0%，可手動輸入。
+        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡為額外加成，例如 +80% = 原始倍率 ×1.8。 繁星未提供額外倍率的技能，預設顯示 +0%。
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px">
@@ -284,7 +269,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           <span class="tiny">技能原始倍率 %</span>
           <input id="skillOriginalPct" type="number" step="any" value="0" oninput="recalcFullDamageTest()"
             style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:42px;padding:8px 10px;font:inherit">
-          <span id="skillOriginalSource" class="tiny" style="display:block;margin-top:4px;color:#9fe7c8">本地技能倍率</span>
         </label>
         <label>
           <span class="tiny">繁星額外技能平衡 %</span>
@@ -308,7 +292,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
           <label><span class="tiny">最大HP</span><input id="skillMhp" type="number" value="5000000" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
           <label><span class="tiny">最大SP</span><input id="skillMsp" type="number" value="55000" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
           <label><span class="tiny">POW（技能公式所需，計PATK+CRATE）</span><input id="skillPow" type="number" value="600" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
-          <label><span class="tiny">CON</span><input id="skillCon" type="number" value="585" oninput="recalcFullDamageTest()"></label>
+          <label><span class="tiny">CON</span><input id="skillCon" type="number" value="585" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
           <label><span class="tiny">CRT</span><input id="skillCrt" type="number" value="500" oninput="recalcFullDamageTest()"></label>
           <label><span class="tiny">Base Lv.</span><input id="skillBaseLv" type="number" value="275" oninput="syncOriginalSkillFormula();recalcFullDamageTest()"></label>
         </div>
@@ -415,6 +399,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
             <td colspan="2">
               <select id="fullDamageReduction" onchange="recalcFullDamageTest()"
                 style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit">
+                <option value="99.93">99.93%（地獄副本）</option>
+                <option value="99.999">99.999%</option>
                 <option value="99.9999999">99.9999999%</option>
                 <option value="99.9999999999" selected>99.9999999999%</option>
               </select>
@@ -519,7 +505,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       <div id="combatDpsText" class="tiny" style="margin-top:8px"></div>
     </div>
   </div>
-
 </section>
 
 </div>
@@ -555,8 +540,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
   const SLOTS=6;
   const fmt=n=>Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});
-  const priceKey="starro_crystal_unit_price";
-  const checkPriceKey="starro_crystal_check_price";
 
   function crystalOptions(){
     return ["無","元素物理","元素魔法","特殊物理","特殊魔法","暴傷","特殊暴傷","冷卻","種族抵抗","體型抵抗","階級抵抗","屬性抵抗"];
@@ -616,7 +599,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         <td id="crystalAbility_${i}"></td>
         <td class="money" id="crystalValue_${i}"></td>
         <td class="money" id="crystalQty_${i}">1 顆</td>
-        <td class="money" id="crystalCost_${i}">0 P</td>
       </tr>`;
     }
     body.innerHTML=s;
@@ -624,9 +606,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   }
 
   window.recalcCrystal=function(){
-    const unit=Math.max(0,Number(document.getElementById("crystalUnitPrice")?.value||0));
-    const checkUnit=Math.max(0,Number(document.getElementById("crystalCheckPrice")?.value||0));
-    let totalQty=0,totalCrystalCost=0;
+    let totalQty=0;
     const totals={
       "屬性魔物物理":0,
       "屬性魔物魔法":0,
@@ -668,8 +648,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const targetValue=lv===0 ? 0 : ((CRYSTAL_VALUES[type]||[])[lv-1]||0);
       const baseValue=baseLv===0 ? 0 : ((CRYSTAL_VALUES[type]||[])[baseLv-1]||0);
       const value=Math.max(0,targetValue-baseValue);
-      const cost=qty*unit;
-      totalQty+=qty; totalCrystalCost+=cost;
+      totalQty+=qty;
       const ability=ABILITY[type]||"";
       if(ability && Object.prototype.hasOwnProperty.call(totals,ability)){
         totals[ability]+=value;
@@ -683,17 +662,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
             : (ability==="冷卻" ? ("-"+fmt(value)+" 秒") : ("+"+value+"%")));
       document.getElementById("crystalValue_"+i).textContent=valueText;
       document.getElementById("crystalQty_"+i).textContent=fmt(qty)+" 顆";
-      document.getElementById("crystalCost_"+i).textContent=fmt(cost)+" P";
     }
-    const checkQty=totalQty;
-    const checkCost=checkQty*checkUnit;
-    const grandTotal=totalCrystalCost+checkCost;
     document.getElementById("crystalTotalQty").textContent=fmt(totalQty)+" 顆";
-    document.getElementById("crystalCheckQty").textContent=fmt(checkQty)+" 張";
-    document.getElementById("crystalCrystalCost").textContent=fmt(totalCrystalCost)+" P";
-    document.getElementById("crystalCheckCost").textContent=fmt(checkCost)+" P";
-    document.getElementById("crystalTotalCost").textContent=fmt(grandTotal)+" P";
-    document.getElementById("crystalPriceDisplay").textContent=fmt(unit)+" / "+fmt(checkUnit)+" P";
 
     function statLines(obj){
       const lines=[];
@@ -986,6 +956,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const patkEl=document.getElementById("dmgPanelPatk");
     const smatkEl=document.getElementById("dmgPanelSmatk");
 
+    // 套用前先保留玩家目前面板，方便套用後回看比較。
+    const beforeApplyStats={
+      attr:Number(attrEl?.value||0),
+      crit:Number(critEl?.value||0),
+      crate:Number(crateEl?.value||0),
+      patk:Number(patkEl?.value||0),
+      smatk:Number(smatkEl?.value||0)
+    };
+
     const attrKey=attackType==="magic" ? "屬性魔物魔法" : "屬性魔物物理";
 
     if(attrEl){
@@ -1033,6 +1012,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     recalcCrystal();
     recalcDamageCompare();
 
+    const beforeCard=document.getElementById("beforeApplyStatsCard");
+    const beforeEl=document.getElementById("beforeApplyStats");
+    if(beforeCard) beforeCard.style.display="block";
+    if(beforeEl){
+      const attrName=attackType==="magic" ? "屬性魔物魔法" : "屬性魔物物理";
+      beforeEl.innerHTML=
+        `${attrName}：${fmt(beforeApplyStats.attr)}<br>`+
+        `暴擊傷害：${fmt(beforeApplyStats.crit)}<br>`+
+        `CRATE：${fmt(beforeApplyStats.crate)}<br>`+
+        `PATK：${fmt(beforeApplyStats.patk)}<br>`+
+        `SMATK：${fmt(beforeApplyStats.smatk)}`;
+    }
+
     requestAnimationFrame(()=>{
       recalcCrystal();
       recalcDamageCompare();
@@ -1047,45 +1039,155 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   const SKILL_BALANCE_DATA={"盧恩龍爵":[{"name":"風暴衝擊","bonus":1127.0},{"name":"風暴斬擊","bonus":177.0},{"name":"天龍氣息","bonus":80.0},{"name":"狂暴粉碎","bonus":180.0},{"name":"天龍擊刺","bonus":382.0}],"帝國聖衛軍":[{"name":"聖十字雨","bonus":380.0},{"name":"瞬間斬擊","bonus":232.0},{"name":"盾牌投擲","bonus":380.0},{"name":"光芒之矛","bonus":586.0},{"name":"帝國十字","bonus":363.0}],"禁咒魔導士":[{"name":"冰刃斬","bonus":1488.0},{"name":"豔紅魔矢","bonus":400.0},{"name":"毀滅彗星","bonus":445.0},{"name":"神秘幻滅","bonus":1025.0}],"元素支配者":[{"name":"超自然波","bonus":526.0},{"name":"雷霆陣地","bonus":620.0},{"name":"灼熱岩漿","bonus":140.0},{"name":"鑽石風暴","bonus":140.0},{"name":"大地驅動","bonus":140.0},{"name":"超自然流動","bonus":508.0}],"機甲神匠":[{"name":"戰斧熔滅","bonus":1025.0},{"name":"強力粉碎","bonus":575.0},{"name":"三連雷射","bonus":274.0},{"name":"閃光衝擊波","bonus":170.0},{"name":"強力掃擊","bonus":671.0},{"name":"能量加農砲","bonus":305.0}],"生命締造者":[{"name":"爆炸炸藥","bonus":508.0},{"name":"強酸禁地","bonus":170.0},{"name":"手推車加農砲","bonus":913.0},{"name":"粉塵爆炸","bonus":440.0},{"name":"混亂的荊棘","bonus":391.0}],"十字影武":[{"name":"十字斬","bonus":200.0},{"name":"暗影刺擊","bonus":0},{"name":"野蠻衝擊","bonus":286.0},{"name":"心靈震波","bonus":1321.0},{"name":"十字斬擊","bonus":350.0}],"深淵追跡者":[{"name":"深淵墜落","bonus":170.0},{"name":"狂暴射擊","bonus":440.0},{"name":"連鎖射擊","bonus":445.0},{"name":"追跡突擊","bonus":1025.0},{"name":"追跡射擊","bonus":1977.0},{"name":"深淵火焰","bonus":100.0},{"name":"靈巧刺擊","bonus":386.0}],"樞機主教":[{"name":"聖光打擊(書)","bonus":484.0},{"name":"聖光打擊(錘)","bonus":484.0},{"name":"制裁謳歌","bonus":30.0},{"name":"神聖之花","bonus":48.0}],"聖裁者":[{"name":"虎砲","bonus":20.0},{"name":"爆破衝擊","bonus":555.0},{"name":"第三擊 癒治","bonus":1250.0},{"name":"烈火氣彈","bonus":872.0},{"name":"火焰彈","bonus":0}],"風鷹狩獵者":[{"name":"漸進狙擊","bonus":170.0},{"name":"毀滅風暴","bonus":350.0},{"name":"磐石陷阱","bonus":2900.0},{"name":"深盲陷阱","bonus":2900.0},{"name":"急速陷阱","bonus":2900.0},{"name":"火焰陷阱","bonus":2900.0}],"天籟頌者":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"樂之舞靈":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"月影忍者/疾風忍者":[{"name":"火焰砲","bonus":260.0},{"name":"冷焰砲","bonus":414.0},{"name":"雷電砲","bonus":275.0},{"name":"金龍砲","bonus":440.0},{"name":"暗戰砲","bonus":600.0},{"name":"詭影閃光","bonus":135.0},{"name":"飛刀-旋轉","bonus":575.0},{"name":"風魔飛鏢-構築","bonus":350.0}],"夜行使":[{"name":"夜裡的警惕","bonus":607.0},{"name":"獨一槍彈","bonus":671.0},{"name":"螺旋射擊","bonus":800.0},{"name":"洞中急火","bonus":900.0},{"name":"落空手榴彈","bonus":1285.0},{"name":"狂野射擊","bonus":567.0},{"name":"午夜墜落","bonus":500.0}],"終極初學者":[{"name":"地面重力","bonus":218.0},{"name":"地獄毀滅","bonus":508.0},{"name":"新霜凍術","bonus":305.0},{"name":"巨型音速投擲","bonus":260.0},{"name":"連續盾擊衝撞","bonus":125.0}],"魂靈師":[{"name":"玄鹿砲","bonus":363.0},{"name":"玄鹿葉風","bonus":305.0},{"name":"鐵虎咆哮","bonus":768.0},{"name":"鐵虎空心爪","bonus":143.0},{"name":"鐵虎亂舞","bonus":363.0}],"天帝":[{"name":"天晨一陽","bonus":274.0},{"name":"天晨一月","bonus":376.0}],"契靈士":[{"name":"四方神符","bonus":33.0},{"name":"死靈淨化","bonus":260.0}]};
 
 
-  // 完全內建：不連外、不 fetch。
-  // LATEST_KRO_BASE_PCT 為巴哈最新整理中有明確列出的 max-level 技能基本倍率。
-  const LATEST_KRO_BASE_PCT={"風暴斬擊":4050,"狂暴粉碎":23500,"天龍擊刺":4550,"神龍貫刺":4550,"閃光衝擊波":14600,"野蠻衝擊":1300,"冰刃斬":5200,"神秘幻滅":4750,"聖光打擊(書)":13750,"聖光打擊(錘)":13750,"制裁謳歌":12000,"漸進狙擊":13500,"毀滅風暴":13500,"磐石陷阱":4250,"深盲陷阱":4250,"急速陷阱":4250,"火焰陷阱":4250,"盾牌投擲":17500,"瞬間斬擊":2200,"聖十字雨":4500,"強酸禁地":2000,"爆炸炸藥":3750,"混亂的荊棘":3200,"靈巧刺擊":6200,"連鎖射擊":4250,"狂暴射擊":8250,"灼熱岩漿":6200,"鑽石風暴":12500,"雷霆陣地":6200,"大地驅動":12500,"爆破衝擊":13450};
-
-  function getLocalOriginalSkillPct(name){
+  // ===== 本地技能原始倍率 =====
+  // 以 RO Calculator 公開公式為基礎直接寫入本頁，不使用 fetch / 外接 JSON。
+  // 天龍氣息保留 V51 已確認最新公式；有巴哈 kRO 新倍率者直接覆蓋舊係數。
+  function calcLocalOriginalSkillPct(name){
     const val=id=>Number(document.getElementById(id)?.value||0);
     const BLV=val("skillBaseLv")||275;
     const POW=val("skillPow")||600;
-    const CON=val("skillCon")||0;
-    const SPL=0;
-    const STR=0;
+    const CON=val("skillCon")||585;
+    const MHP=val("skillMhp")||5000000;
+    const MSP=val("skillMsp")||55000;
 
-    // 最新 kRO 有明確列出倍率者優先，避免再使用舊 100%。
-    if(Object.prototype.hasOwnProperty.call(LATEST_KRO_BASE_PCT,name)){
-      return {pct:Number(LATEST_KRO_BASE_PCT[name]),source:"巴哈最新 kRO 基本倍率"};
-    }
+    // 目前頁面沒有 SPL / STR / INT 輸入欄位。
+    // 公式需要這些能力值時先以 0 計算，避免自行猜數值。
+    const SPL=0, STR=0, INT=0;
 
-    // 其餘為 RO Calculator 公式直接內建到本頁。
-    let pct=null;
     switch(name){
-      case "風暴衝擊": pct=(10+Math.floor(STR/5.7))*100*BLV/100; break;
-      case "豔紅魔矢": pct=((5*400+SPL*3)+(5*750+SPL*5))*BLV/100; break;
-      case "毀滅彗星": pct=(3000+5*600)*BLV/100; break;
-      case "強力粉碎": pct=(80+240*10+POW*7)*BLV/100; break;
-      case "三連雷射": pct=(650+1150*5+POW*12)*BLV/100; break;
-      case "粉塵爆炸": pct=(450+600*5+POW)*BLV/100; break;
-      case "十字斬": pct=(1000+5*230)*BLV/100; break;
-      case "暗影刺擊": pct=(5*550+POW*5)*BLV/100; break;
-      case "十字斬擊": pct=(5*300+POW*5)*BLV/100; break;
-      case "風魔飛鏢-構築": pct=(900+(1750+100*10)*10+POW*5)*BLV/100; break;
-      case "詭影閃光": pct=(1500+(950+150*10)*10+POW*5)*BLV/100; break;
-      case "鐵虎空心爪": pct=(1100+2200*7+50*10+POW*5)*BLV/100; break;
-      default: pct=null;
-    }
+      // 盧恩龍爵
+      case "風暴衝擊": return (10+Math.floor(STR/5.7))*100*BLV/100;
+      case "風暴斬擊": return (300+5*750+POW*5)*BLV/100;
+      case "狂暴粉碎": return (23500+POW*10)*BLV/100; // kRO v7：基本倍率 23500%
+      case "天龍擊刺":{
+        const aura=(document.getElementById("dragonBreathVersion")?.value||"aura")==="aura";
+        return (aura ? (5000+POW*10) : (4550+POW*7))*BLV/100; // kRO v7
+      }
 
-    return pct==null
-      ? {pct:0,source:"本地資料暫無最新原始倍率｜預設 0%，可手動輸入"}
-      : {pct:pct,source:"本地內建 RO Calculator 公式"};
+      // 帝國聖衛軍
+      case "聖十字雨": return ((450+10*10)*10+SPL*7)*BLV/100;
+      case "瞬間斬擊": return (2500+10*600+POW*7)*BLV/100; // kRO v7，精熟預設 Lv10
+      case "盾牌投擲": return (1000+(3500+150*10)*5+POW*10)*BLV/100;
+      case "光芒之矛": return (3500+1150*10+POW*5+10*50)*BLV/100;
+      case "帝國十字": return (1650+1350*5+POW*5+10*25)*BLV/100;
+
+      // 禁咒魔導士
+      case "冰刃斬": return (400+5*950+SPL*5)*BLV/100;
+      case "豔紅魔矢": return ((5*400+SPL*3)+(5*750+SPL*5))*BLV/100;
+      case "毀滅彗星": return (3000+5*600)*BLV/100;
+      case "神秘幻滅": return (5*950+SPL*5)*BLV/100;
+
+      // 元素支配者
+      case "超自然波": return (70*5+INT*3)*2*BLV/100; // 預設書/杖倍率×2
+      case "雷霆陣地": return (700+5*1100+SPL*5)*BLV/100;
+      case "灼熱岩漿": return (700+5*1100+SPL*5)*BLV/100;
+      case "鑽石風暴": return (500+5*2400+SPL*5)*BLV/100;
+      case "大地驅動": return (500+5*2400+SPL*5)*BLV/100;
+      case "超自然流動": return (21000+SPL*12)*BLV/100; // kRO v7：18500→21000，SPL 7→12
+
+      // 機甲神匠
+      case "戰斧熔滅": return (450+5*1150+POW*5)*BLV/100;
+      case "強力粉碎": return (80+240*10+POW*7)*BLV/100;
+      case "三連雷射": return (650+1150*5+POW*12)*BLV/100;
+      case "閃光衝擊波": return (14600+POW*7)*BLV/100;
+      case "強力掃擊": return (300+850*5+POW)*BLV/100;
+      case "能量加農砲": return (250+750*5+POW)*BLV/100;
+
+      // 生命締造者
+      case "爆炸炸藥": return (500+650*5+POW*7)*BLV/100;
+      case "強酸禁地": return (5*400+POW*6)*BLV/100;
+      case "手推車加農砲": return (5*350+2*INT)*BLV/100;
+      case "粉塵爆炸": return (450+600*5+POW)*BLV/100;
+      case "混亂的荊棘": return (200+300*10+POW*7)*BLV/100;
+
+      // 十字影武
+      case "十字斬": return (1000+5*230)*BLV/100;
+      case "暗影刺擊": return (5*550+POW*5)*BLV/100;
+      case "野蠻衝擊": return (1300+POW*5)*BLV/100;
+      case "心靈震波": return (10*150+STR+INT)*BLV/100;
+      case "十字斬擊": return (5*300+POW*5)*BLV/100;
+
+      // 深淵追跡者
+      case "深淵墜落": return (150+650*5+SPL*5)*BLV/100; // 萬丈深淵
+      case "狂暴射擊": return (250+800*10+CON*15)*BLV/100;
+      case "連鎖射擊": return (800+2550*5+CON*15)*BLV/100; // 第二段
+      case "追跡突擊": return (1750+500*5+POW*7)*BLV/100;
+      case "追跡射擊": return (1500+700*5+CON*10)*BLV/100;
+      case "深淵火焰": return ((820+10*30)*5+SPL*7)*BLV/100;
+      case "靈巧刺擊": return (700+550*10+POW*7)*BLV/100;
+
+      // 樞機主教
+      case "聖光打擊(書)":
+      case "聖光打擊(錘)": return (13750+10*500+POW*5)*BLV/100; // kRO v7，精熟預設 Lv10
+      case "制裁謳歌": return (12000+10*35+SPL*7)*BLV/100; // kRO v7，靈魂忠誠預設 Lv10
+      case "神聖之花": return (4000*5+10*SPL+70*10)*BLV/100;
+
+      // 聖裁者
+      case "虎砲": return (MHP*(10*0.02+0.1)+MSP*(10*0.01+0.05))*0.25*(BLV/100);
+      case "爆破衝擊": return (13450+POW*10)*BLV/100;
+      case "第三擊 癒治": return (450+5*1800+POW*10)*BLV/100; // 對應 ROCalc「第三擊:懲治」
+      case "烈火氣彈": return (10*2150+POW*15)*BLV/100; // 對應 ROCalc IQ_MASSIVE_F_BLASTER／焰魔散彈
+      case "火焰彈": return (Math.floor(MHP*0.2)+5*650+POW*10)*(BLV/100);
+
+      // 風鷹狩獵者
+      case "漸進狙擊": return (13500+CON*10)*(BLV/100); // kRO v4
+      case "毀滅風暴": return (13500+CON*10)*BLV/100; // kRO v4
+      case "磐石陷阱":
+      case "深盲陷阱":
+      case "急速陷阱":
+      case "火焰陷阱": return (4250+CON*10)*BLV/100; // kRO v2 最新陷阱倍率／CON係數
+
+      // 天籟頌者 / 樂之舞靈
+      case "金屬狂怒": return (5*3850+SPL*1.5*5)*BLV/100;
+      case "節奏射擊": return (550+5*950+CON*5*5)*BLV/100;
+      case "節奏搖擺": return (250+5*3650+SPL*2*10)*BLV/100; // 對應 ROCalc「節奏戰波」
+      case "大暴雨": return (120*5)*BLV/100; // 預設樂器/鞭，DEX/AGI未輸入
+
+      // 月影忍者 / 疾風忍者
+      case "火焰砲": return (600+(1100+70*10)*10+SPL*5)*BLV/100;
+      case "冷焰砲": return (450+(950+40*10)*10+SPL*5)*BLV/100;
+      case "雷電砲": return (600+(1100+40*10)*10+SPL*5)*BLV/100;
+      case "金龍砲": return (800+(1500+15*10)*10+SPL*5)*BLV/100;
+      case "暗戰砲": return (450+950*10+SPL*5)*BLV/100;
+      case "詭影閃光": return (1500+(950+150*10)*10+POW*5)*BLV/100;
+      case "飛刀-旋轉": return (950+(1050+500*10)*5+POW*4)*BLV/100;
+      case "風魔飛鏢-構築": return ((900+(1750+100*10)*10+POW*5)+POW*5)*2*BLV/100;
+
+      // 夜行使（多武器分支採 RO Calculator 可用分支中的較高倍率）
+      case "夜裡的警惕": return ((800+200*10)*5+CON*3)*BLV/100; // 霰彈分支
+      case "獨一槍彈": return (1200+(3400+350*10)*5+CON*3)*BLV/100; // 手槍分支
+      case "螺旋射擊": return (1400+(2800+150*10)*5+CON*3)*BLV/100; // 來福分支
+      case "洞中急火": return (9000+10*20)*BLV/100; // Night Watch 手榴彈系 Lv5，榴彈精通預設 Lv10
+      case "落空手榴彈": return (4800+10*30)*BLV/100; // Night Watch 手榴彈系 Lv5，榴彈精通預設 Lv10
+      case "狂野射擊": return (870+180*5+CON)*BLV/100;
+      case "午夜墜落": return (2400+800*5+CON)*BLV/100; // 對應 ROCalc「午夜殞落」
+
+      // 終極初學者
+      case "地面重力": return (3000+(1500+4*10)*10+SPL*10)*BLV/100;
+      case "地獄毀滅": return (1700+(900+4*10)*10+SPL*3)*BLV/100;
+      case "新霜凍術": return (400+(500+3*10)*10+SPL*4)*BLV/100;
+      case "巨型音速投擲": return (900+(750+5*10)*10+POW*4)*BLV/100;
+      case "連續盾擊衝撞": return (850+(1050+3*10)*10+POW*3)*BLV/100;
+
+      // 魂靈師
+      case "玄鹿砲": return (1100+2050*7+50*10+SPL*5)*BLV/100;
+      case "玄鹿葉風": return (650+750*7+20*10+SPL*5)*BLV/100;
+      case "鐵虎咆哮": return (600+1050*7+50*10+POW*5)*BLV/100;
+      case "鐵虎空心爪": return (1100+2200*7+50*10+POW*5)*BLV/100;
+      case "鐵虎亂舞": return (480+160*7+70*10+POW*7)*BLV/100;
+
+      // 天帝
+      case "天晨一陽": return (1600+(1250+5*10)*5+POW*5)*BLV/100;
+      case "天晨一月": return (800+(1500+5*10)*5+POW*5)*BLV/100;
+
+      // 契靈士
+      case "四方神符": return (50+(250+15*10)*5+SPL*5)*BLV/100;
+      case "死靈淨化": return (250*5+2*10+SPL)*BLV/100*20;
+
+      default: return null;
+    }
   }
+
 
   window.renderSkillOptions=function(){
     const jobSel=document.getElementById("skillJobSelect");
@@ -1140,39 +1242,26 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const original=document.getElementById("skillOriginalPct");
     const star=document.getElementById("skillStarBonusPct");
     const box=document.getElementById("dragonBreathInputs");
-    const source=document.getElementById("skillOriginalSource");
 
     if(star) star.value=Number(s.bonus||0);
 
     if(isDragonicBreathSkill(s.name)){
       if(box) box.style.display="block";
-
       const mhp=Number(document.getElementById("skillMhp")?.value||5000000);
       const msp=Number(document.getElementById("skillMsp")?.value||55000);
       const pow=Number(document.getElementById("skillPow")?.value||600);
       const blv=Number(document.getElementById("skillBaseLv")?.value||275);
       const version=document.getElementById("dragonBreathVersion")?.value||"aura";
       const slv=10;
-
-      let originalPct=0;
-      if(version==="aura"){
-        // 目前採用的最新天龍光環版本
-        originalPct=(50+(420+0.0175*mhp+0.07*msp)*slv+pow*10)*blv/100;
-        if(source) source.textContent="本地內建｜最新天龍光環公式";
-      }else{
-        originalPct=Math.ceil((4250+Math.floor(mhp/8)+Math.floor(msp/2)+pow*7)*blv/100);
-        if(source) source.textContent="本地內建｜最新天龍氣息一般版公式";
-      }
-
+      const originalPct=version==="aura"
+        ? (50+(420+0.0175*mhp+0.07*msp)*slv+pow*10)*blv/100
+        : Math.ceil((4250+Math.floor(mhp/8)+Math.floor(msp/2)+pow*7)*blv/100);
       if(original) original.value=originalPct;
-      return;
+    }else{
+      if(box) box.style.display="none";
+      const pct=calcLocalOriginalSkillPct(s.name);
+      if(original) original.value=(pct!=null && Number.isFinite(pct)) ? pct : 0;
     }
-
-    if(box) box.style.display="none";
-
-    const result=getLocalOriginalSkillPct(s.name);
-    if(original) original.value=Number(result.pct||0);
-    if(source) source.textContent=result.source;
   };
 
   function checkedPctSum(className){
@@ -1359,7 +1448,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         const diff=reference ? (estimate/reference-1)*100 : 0;
         refInfo.innerHTML=`天龍氣息實測參考：110,000,000 / 下｜目前試算：${fmt(estimate)}｜差異 ${(diff>=0?"+":"")}${fmt(diff)}%`;
       }else{
-        refInfo.textContent="其他技能的原始倍率可直接修改；繁星加成會以額外倍率方式套用。";
+        refInfo.textContent="原始倍率已由本地內建 RO Calculator 公式帶入；有 kRO 新倍率者再套最新調整。無可靠對應時顯示 0%，仍可手動修改。";
       }
     }
 
@@ -1371,27 +1460,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         `魔法：MATK × MATK% × 對屬性 × 對階級 × 對種族 × 對體型 × 屬法傷 × 補品效果 × 爆傷 × SMATK × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率`;
     }
   };
-
-  window.saveCrystalPrice=function(){
-    localStorage.setItem(priceKey,document.getElementById("crystalUnitPrice").value||"1200");
-    localStorage.setItem(checkPriceKey,document.getElementById("crystalCheckPrice").value||"16");
-    recalcCrystal();
-  };
-  window.resetCrystalPrice=function(){
-    localStorage.removeItem(priceKey);
-    localStorage.removeItem(checkPriceKey);
-    document.getElementById("crystalUnitPrice").value=1200;
-    document.getElementById("crystalCheckPrice").value=16;
-    recalcCrystal();
-  };
-
-  document.getElementById("crystalUnitPrice")?.addEventListener("input",recalcCrystal);
-  document.getElementById("crystalCheckPrice")?.addEventListener("input",recalcCrystal);
-
-  const saved=localStorage.getItem(priceKey);
-  if(saved!==null) document.getElementById("crystalUnitPrice").value=saved;
-  const savedCheck=localStorage.getItem(checkPriceKey);
-  if(savedCheck!==null) document.getElementById("crystalCheckPrice").value=savedCheck;
 
   window.syncAspdCasts=function(){
     const aspd=Number(document.getElementById("combatAspd")?.value||193);
