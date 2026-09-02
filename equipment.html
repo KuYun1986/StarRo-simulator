@@ -12,32 +12,28 @@ body{margin:0;background:radial-gradient(circle at 15% -10%,rgba(48,90,130,.18),
 .wrap{max-width:1320px;margin:auto;padding:22px}
 h1{font-size:30px;margin:4px 0 10px;letter-spacing:.5px;display:flex;align-items:center;gap:10px}
 h1:before{content:"✦";display:grid;place-items:center;width:40px;height:40px;border:1px solid #d83b32;border-radius:9px}
+h2{margin:0 0 12px}
 .sub,.tiny{color:var(--muted)} .tiny{font-size:13px}
-.topnav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.topnav,.tabs,.actions{display:flex;gap:8px;flex-wrap:wrap}
+.topnav{margin:14px 0 18px}
+.tabs{margin:12px 0 14px}
 .game-page-link,button{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:9px;border:1px solid #3a4654;background:linear-gradient(180deg,#1b2430,#141b25);color:#f5f7fb;text-decoration:none;font-weight:700;min-height:42px;cursor:pointer}
-.game-page-link:hover,button:hover{filter:brightness(1.08)}
+button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;border-color:#319842!important}
 .card{background:linear-gradient(145deg,rgba(20,27,36,.97),rgba(12,17,24,.98));border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 34px rgba(0,0,0,.22);padding:20px;margin:14px 0}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.tabs button.on{background:linear-gradient(180deg,#268d34,#176c26);border-color:#319842}
-.cost-table{width:100%;border-collapse:collapse;margin-top:12px}
-.cost-table th,.cost-table td{padding:11px 8px;border-bottom:1px solid #27313b;text-align:left;vertical-align:middle}
+.table-wrap{overflow-x:auto}
+.cost-table{width:100%;border-collapse:collapse;margin-top:12px;min-width:850px}
+.cost-table th,.cost-table td{padding:10px 8px;border-bottom:1px solid #27313b;text-align:left;vertical-align:middle}
 .cost-table th{color:#aeb9c8;font-size:13px}
-.cost-table input{width:100%;min-width:100px;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit}
-.cost-table .qty{max-width:130px}
-.cost-table .price{max-width:170px}
+.cost-table input{width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit}
+.cost-table .qty{min-width:110px} .cost-table .pack{min-width:110px} .cost-table .price{min-width:130px}
 .money{font-variant-numeric:tabular-nums;font-weight:800;color:#7ee0a1;white-space:nowrap}
 .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}
 .stat{background:linear-gradient(180deg,rgba(17,24,34,.96),rgba(11,16,23,.96));border:1px solid #28323e;border-radius:10px;padding:14px}
-.label{color:#aab5c4;font-size:13px;font-weight:700}
-.stat b{font-size:22px;display:block;margin-top:5px}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;border-color:#319842!important}
+.label{color:#aab5c4;font-size:13px;font-weight:700} .stat b{font-size:22px;display:block;margin-top:5px}
+.actions{margin-top:14px}
 .note{margin-top:12px;padding:12px;border:1px solid #28323e;border-radius:10px;background:#0b1119;line-height:1.8}
-@media(max-width:720px){
-  .wrap{padding:12px} h1{font-size:23px}
-  .card{padding:14px} .summary{grid-template-columns:1fr}
-  .cost-table{display:block;overflow-x:auto;white-space:nowrap}
-}
+.zero{color:#ffb36a}
+@media(max-width:720px){.wrap{padding:12px}h1{font-size:23px}.card{padding:14px}.summary{grid-template-columns:1fr}.tabs button{flex:1 1 145px}}
 </style>
 </head>
 <body>
@@ -52,115 +48,304 @@ h1:before{content:"✦";display:grid;place-items:center;width:40px;height:40px;b
   <a href="collection.html" class="game-page-link">📚 收藏區</a>
   <a href="shadow.html" class="game-page-link">💎 影子區</a>
 </div>
-<div class="sub">裝備製作模擬｜自行輸入目前道具價格，即時計算製作成本。</div>
+<div class="sub">裝備製作模擬｜所有 P 點價格都可以自行修改。</div>
 
 <section class="card">
-  <h2>🧰 裝備製作模擬</h2>
-  <div class="tabs" id="equipTabs"></div>
-  <div class="tiny">「需求數量」已依目前表格資料帶入；你也可以自行修改。價格會保存在目前瀏覽器。</div>
-  <div id="equipTableWrap"></div>
-  <div class="summary">
-    <div class="stat"><span class="label">材料種類</span><b id="costKinds">0 種</b></div>
-    <div class="stat"><span class="label">需求總數量</span><b id="costQty">0</b></div>
-    <div class="stat"><span class="label">製作總成本</span><b id="costTotal" style="color:#7ee0a1">0 P</b></div>
+<h2>🧰 裝備製作模擬</h2>
+<div class="tabs" id="equipTabs"></div>
+<div class="tiny">
+需求數量依「繁星附魔.xlsx」整理。原本的精煉／評級費用不計入本頁；只計算下方材料。價格欄可隨市場直接修改；「價格單位」例如 100，代表每 100 個材料的價格。沒有價格資料的項目會預設 0 P，直接自行填入即可。
+</div>
+<div class="table-wrap" id="equipTableWrap"></div>
+<div class="summary">
+  <div class="stat"><span class="label">材料種類</span><b id="costKinds">0 種</b></div>
+  <div class="stat"><span class="label">需求總數量</span><b id="costQty">0</b></div>
+  <div class="stat"><span class="label">製作總成本</span><b id="costTotal" style="color:#7ee0a1">0 P</b></div>
+</div>
+<div class="actions">
+  <button class="primary" onclick="saveCurrent()">💾 儲存目前價格</button>
+  <button onclick="restoreCurrent()">恢復此裝備預設</button>
+  <button onclick="restoreAll()">全部恢復預設</button>
+</div>
+<div class="note tiny">
+計算方式：需求數量 ÷ 價格單位 × P 點價格。<br>
+例如「紫水晶碎片」需求 23,900、價格單位 100、價格 90P → 23,900 ÷ 100 × 90 = 21,510P。<br>
+修改後的數量、價格單位、P 點價格會儲存在你的瀏覽器。
+</div>
+</section>
+<section class="card" id="serviceMaterialPrices">
+  <h2>💲 代敲／代評材料價格</h2>
+  <div class="tiny">以下為預設 P 點價格，可直接修改；修改後會保存在目前瀏覽器。</div>
+  <div class="table-wrap">
+    <table class="cost-table" style="min-width:650px">
+      <thead><tr><th>材料</th><th>預設價格 (P)</th></tr></thead>
+      <tbody>
+        <tr><td><b>鐵匠的祝福</b></td><td><input id="svcPriceBless" type="number" min="0" step="any" value="7"></td></tr>
+        <tr><td><b>支票</b></td><td><input id="svcPriceCheck" type="number" min="0" step="any" value="16"></td></tr>
+        <tr><td><b>大金</b></td><td><input id="svcPriceBigGold" type="number" min="0" step="any" value="800"></td></tr>
+        <tr><td><b>小金</b></td><td><input id="svcPriceSmallGold" type="number" min="0" step="any" value="90"></td></tr>
+        <tr><td><b>大灰</b></td><td><input id="svcPriceBigGray" type="number" min="0" step="any" value="100"></td></tr>
+        <tr><td><b>小灰</b></td><td><input id="svcPriceSmallGray" type="number" min="0" step="any" value="1"></td></tr>
+        <tr><td><b>乙太塔菲</b></td><td><input id="svcPriceTaffy" type="number" min="0" step="any" value="40"></td></tr>
+        <tr><td><b>庇佑以太</b></td><td><input id="svcPriceDust" type="number" min="0" step="any" value="2"></td></tr>
+        <tr><td><b>紅利</b></td><td><input id="svcPriceRed" type="number" min="0" step="any" value="200"></td></tr>
+      </tbody>
+    </table>
   </div>
   <div class="actions">
-    <button class="primary" onclick="savePrices()">💾 儲存目前價格</button>
-    <button onclick="resetCurrentPrices()">清除此裝備價格</button>
-    <button onclick="resetAllPrices()">全部價格清除</button>
-  </div>
-  <div class="note tiny">
-    輸入方式：例如某材料目前單價 685 P，就在「目前單價」輸入 685；小計＝需求數量 × 單價。<br>
-    本區只計算你輸入的材料成本，不會自動加入未列出的代敲、評級或其他費用。
+    <button class="primary" type="button" onclick="saveServicePrices()">💾 儲存材料價格</button>
+    <button type="button" onclick="resetServicePrices()">恢復預設價格</button>
   </div>
 </section>
+
+<section class="card" id="serviceFeeSimulator">
+  <h2>🔨 古雲代敲／代評費用試算</h2>
+  <div class="tiny">以下皆為單件規則，可輸入件數自動放大需求量。</div>
+
+  <div style="margin-top:18px;padding-top:4px">
+    <h3 style="margin:0 0 10px">古雲代敲材料試算</h3>
+    <div class="row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0">
+      <span style="min-width:110px">裝備類型</span>
+      <select id="refineServiceType" style="min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
+        <option value="A-D">1級裝／A~D級裝</option>
+        <option value="S">2級防具／5級武器／S裝</option>
+        <option value="SS">SS裝</option>
+      </select>
+      <span>件數</span>
+      <input id="refineServiceQty" type="number" min="1" step="1" value="1" style="width:100px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
+    </div>
+
+    <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+      <div class="stat"><span class="label">代敲費用</span><b id="refineRedFee">10 紅</b></div>
+      <div class="stat"><span class="label">支票</span><b id="refineChecks">10 張</b></div>
+      <div class="stat"><span class="label">鐵匠的祝福</span><b id="refineBless">0 個</b></div>
+      <div class="stat"><span class="label">精煉槌材料</span><b id="refineHammers">大小灰各 15 把</b></div>
+      <div class="stat"><span class="label">材料＋紅利總成本</span><b id="refineTotalP" style="color:#7ee0a1">0 P</b></div>
+    </div>
+
+    <div class="note tiny" id="refineServiceNote">
+      敲裝須自備：裝備、槌子、支票、材料。
+    </div>
+  </div>
+
+  <div style="margin-top:24px;border-top:1px solid #28323e;padding-top:20px">
+    <h3 style="margin:0 0 10px">古雲代評材料試算</h3>
+    <div class="row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0">
+      <span style="min-width:110px">評級類型</span>
+      <select id="gradeServiceType" style="min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
+        <option value="S">S裝</option>
+        <option value="SS">SS裝</option>
+      </select>
+      <span>件數</span>
+      <input id="gradeServiceQty" type="number" min="1" step="1" value="1" style="width:100px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
+    </div>
+
+    <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+      <div class="stat"><span class="label">代評費用</span><b id="gradeRedFee">20 紅</b></div>
+      <div class="stat"><span class="label">乙太塔菲石</span><b id="gradeTaffy">30 個</b></div>
+      <div class="stat"><span class="label">庇佑乙太星塵</span><b id="gradeDust">270 個</b></div>
+      <div class="stat"><span class="label">支票</span><b id="gradeChecks">9 張</b></div>
+      <div class="stat"><span class="label">材料＋紅利總成本</span><b id="gradeTotalP" style="color:#7ee0a1">0 P</b></div>
+    </div>
+
+    <div class="note tiny">
+      D、C 評級機率：29/30%。你提供的材料需求目前只有 S裝、SS裝，因此本試算先做這兩類。
+    </div>
+  </div>
+</section>
+
+
+
 </div>
 
 <script>
-const EQUIPMENT_DATA = {"信念頭": [{"name": "裝備附魔卷", "qty": 35}, {"name": "紫水晶碎片", "qty": 23900}, {"name": "聖域能量", "qty": 1500}, {"name": "聖域精華", "qty": 400}, {"name": "特定屬性聖域寶石碎片", "qty": 100}, {"name": "支票", "qty": 49}], "伊斯頭": [{"name": "神聖的貓鬍鬚", "qty": 18000}, {"name": "維格納上層證書", "qty": 15000}, {"name": "燦爛的夕陽的魔法石", "qty": 3000}, {"name": "明亮的綠松石魔法石", "qty": 3000}, {"name": "絢麗的星紅魔法石", "qty": 3000}, {"name": "綏藍魔法石", "qty": 3000}, {"name": "伊斯加爾特的恩典氣息", "qty": 2500}, {"name": "伊斯加爾特之心", "qty": 500}, {"name": "伊斯加爾特的祝福碎片", "qty": 500}, {"name": "晨曦之光#1001786", "qty": 10}, {"name": "魔星石#1001438", "qty": 10}, {"name": "正義女神寶石#1001797", "qty": 15}, {"name": "阿奎拉卡#300382", "qty": 1}, {"name": "仿真蓉可兒卡#300378", "qty": 1}, {"name": "究極拉斯甘德卡#300472", "qty": 1}, {"name": "幽靈船船長卡#300532", "qty": 1}, {"name": "被侵占的燒毀卡#300533", "qty": 1}]};
-let currentEquip = Object.keys(EQUIPMENT_DATA)[0];
-
-function keyFor(equip,item){ return "starro_cost_"+equip+"_"+item; }
-function qtyKeyFor(equip,item){ return "starro_qty_"+equip+"_"+item; }
-function fmt(n){ return Math.round(Number(n)||0).toLocaleString("zh-TW"); }
+const EQUIPMENT_DATA={"信念頭":[{"name":"裝備附魔卷","qty":35.0,"price":685.0,"pack":1},{"name":"紫水晶碎片","qty":23900.0,"price":90.0,"pack":100},{"name":"聖域能量","qty":1500.0,"price":2.0,"pack":1},{"name":"聖域精華","qty":400.0,"price":60.0,"pack":1},{"name":"特定屬性聖域寶石碎片","qty":100.0,"price":150.0,"pack":1},{"name":"支票","qty":52,"price":16.0,"pack":1}],"伊斯頭":[{"name":"支票","qty":10000.0,"price":16.0,"pack":1},{"name":"裝備附魔卷","qty":300.0,"price":685.0,"pack":1},{"name":"神聖的貓鬍鬚","qty":18000.0,"price":1.0,"pack":1},{"name":"維格納上層證書","qty":15000.0,"price":1.0,"pack":1},{"name":"燦爛的夕陽的魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"明亮的綠松石魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"絢麗的星紅魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"綏藍魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"伊斯加爾特的恩典氣息","qty":2500.0,"price":30.0,"pack":1},{"name":"伊斯加爾特之心","qty":500.0,"price":80000.0,"pack":500},{"name":"伊斯加爾特的祝福碎片","qty":500.0,"price":80000.0,"pack":500},{"name":"晨曦之光#1001786","qty":10.0,"price":4500.0,"pack":1},{"name":"魔星石#1001438","qty":10.0,"price":2500.0,"pack":1},{"name":"正義女神寶石#1001797","qty":15.0,"price":2200.0,"pack":1},{"name":"阿奎拉卡#300382","qty":1.0,"price":3000.0,"pack":1},{"name":"仿真蓉可兒卡#300378","qty":1.0,"price":700.0,"pack":1},{"name":"究極拉斯甘德卡#300472","qty":1.0,"price":7000.0,"pack":1},{"name":"幽靈船船長卡#300532","qty":1.0,"price":500.0,"pack":1},{"name":"被侵占的燒毀卡#300533","qty":1.0,"price":2500.0,"pack":1}],"凱薩":[{"name":"獼猴桃果實","qty":790.0,"price":0,"pack":1},{"name":"威力隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"耐力隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"專注隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"創造隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"咒術隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"智慧隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"威力隕石碎片","qty":2704.0,"price":16.0,"pack":1},{"name":"耐力隕石碎片","qty":2704.0,"price":5.0,"pack":1},{"name":"專注隕石碎片","qty":2704.0,"price":10.0,"pack":1},{"name":"創造隕石碎片","qty":2704.0,"price":11.0,"pack":1},{"name":"咒術隕石碎片","qty":2704.0,"price":13.0,"pack":1},{"name":"智慧隕石碎片","qty":2704.0,"price":11.0,"pack":1},{"name":"對應屬性的精華","qty":16.0,"price":5000.0,"pack":1},{"name":"對應屬性隕石碎片(3種)","qty":2500.0,"price":30.0,"pack":1},{"name":"對應屬性隕石浮塵(3種)","qty":2000.0,"price":3.0,"pack":1},{"name":"星辰粉末罐","qty":7000.0,"price":10.0,"pack":1},{"name":"地獄夜勝魔靈珠","qty":650.0,"price":125.0,"pack":1},{"name":"地獄參宿四靈珠","qty":325.0,"price":80.0,"pack":1},{"name":"地獄參宿七靈珠","qty":325.0,"price":80.0,"pack":1},{"name":"裝備附魔券","qty":6.0,"price":685.0,"pack":1}],"龍甲":[{"name":"支票","qty":4661.0,"price":16.0,"pack":1},{"name":"伊美樂心臟能量碎片","qty":3.0,"price":0,"pack":1},{"name":"伊美樂心臟能量","qty":6.0,"price":0,"pack":1},{"name":"裝備附魔卷","qty":34.0,"price":0,"pack":1},{"name":"小的龍骨頭","qty":300.0,"price":0,"pack":1},{"name":"大的龍骨頭","qty":800.0,"price":0,"pack":1},{"name":"火龍的鱗片","qty":600.0,"price":0,"pack":1},{"name":"血紅鱗片","qty":250.0,"price":0,"pack":1},{"name":"尼德霍德的水藍寶石鱗片","qty":2900.0,"price":0,"pack":1},{"name":"尼德霍德的血紅寶石鱗片","qty":350.0,"price":0,"pack":1},{"name":"防具強化石(頂級)","qty":450.0,"price":0,"pack":1},{"name":"七彩寶珠","qty":300.0,"price":0,"pack":1},{"name":"迪塔勒泰晤勒斯卡片","qty":1.0,"price":0,"pack":1},{"name":"骨骸迪塔勒泰晤勒斯卡片","qty":2.0,"price":0,"pack":1},{"name":"尼德霍格幻影卡片","qty":2.0,"price":0,"pack":1},{"name":"威力隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"耐力隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"專注隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"創造隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"咒術隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"智慧隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"獼猴桃","qty":1000.0,"price":0,"pack":1}],"懺悔武器":[{"name":"悔恨結晶","qty":35000.0,"price":14.0,"pack":100},{"name":"悔恨能量碎片","qty":4600.0,"price":10.0,"pack":1},{"name":"悔恨能量精華","qty":150.0,"price":1.0,"pack":1},{"name":"薩克萊卡片#300192","qty":1.0,"price":2000.0,"pack":1},{"name":"提亞拉卡片#300193","qty":1.0,"price":2500.0,"pack":1},{"name":"支票","qty":11,"price":16.0,"pack":1}],"神話／英雄LT武器":[{"name":"生體試驗晶片殘骸","qty":55000.0,"price":28.0,"pack":100},{"name":"生體試驗報告","qty":55000.0,"price":28.0,"pack":100},{"name":"生體能量精華","qty":100.0,"price":14.0,"pack":1},{"name":"生體能量精華(光)","qty":100.0,"price":24.0,"pack":1},{"name":"邪惡的心靈氣息","qty":1.0,"price":500.0,"pack":1},{"name":"生體能量殘骸","qty":1650.0,"price":14.0,"pack":1},{"name":"生體能量殘骸(光)","qty":1650.0,"price":24.0,"pack":1},{"name":"活體劍士卡片","qty":1.0,"price":650.0,"pack":1},{"name":"支票","qty":8,"price":16.0,"pack":1}],"吉芬披":[{"name":"暗夜吉芬鬥技場冠軍","qty":3600.0,"price":0,"pack":1},{"name":"暗夜吉芬鬥技場硬幣","qty":97500.0,"price":5.0,"pack":100},{"name":"暗夜吉芬鬥技場證明","qty":6000.0,"price":1.0,"pack":1},{"name":"暗夜吉芬衛冕硬幣","qty":600.0,"price":50.0,"pack":1},{"name":"弱化的潘利爾卡片","qty":20.0,"price":78.0,"pack":1},{"name":"暗夜吉芬衛冕冠軍證明","qty":550.0,"price":45.0,"pack":1},{"name":"潘利爾卡片","qty":1.0,"price":7000.0,"pack":1},{"name":"莎拉卡片","qty":1.0,"price":14500.0,"pack":1},{"name":"支票","qty":58,"price":16.0,"pack":1}],"生命披":[{"name":"季節(王)材料","qty":69.0,"price":50.0,"pack":1},{"name":"(季節)之靈","qty":1254.0,"price":3.0,"pack":1},{"name":"能量各2種","qty":1292.0,"price":28.0,"pack":1},{"name":"靈魂的保護","qty":305.0,"price":10.0,"pack":1},{"name":"生命循環","qty":300.0,"price":1.0,"pack":1},{"name":"生命的果實","qty":128.0,"price":1.0,"pack":1},{"name":"滅絕的果實","qty":98.0,"price":8.0,"pack":1},{"name":"生命的真相","qty":38.0,"price":50.0,"pack":1},{"name":"生命之光","qty":96.0,"price":300.0,"pack":1},{"name":"元素能量","qty":35.0,"price":145.0,"pack":1},{"name":"支票","qty":276.0,"price":16.0,"pack":1},{"name":"完整的符文","qty":15.0,"price":175.0,"pack":1},{"name":"濃縮神金#67992","qty":10.0,"price":5.0,"pack":1},{"name":"濃縮鍺金#67993","qty":10.0,"price":5.0,"pack":1},{"name":"殿堂象徵(金塊)","qty":50.0,"price":80.0,"pack":1},{"name":"幻象殿堂徵(銀塊)","qty":100.0,"price":40.0,"pack":1}],"奧林披":[{"name":"支票","qty":5500.0,"price":16.0,"pack":1},{"name":"裝備附魔卷","qty":120.0,"price":685.0,"pack":1},{"name":"無限挑戰日誌","qty":425.0,"price":0,"pack":1},{"name":"暗夜吉芬衛冕硬幣","qty":500.0,"price":40.0,"pack":1},{"name":"空中要塞鑰匙／原礦／礦石（三合一）","qty":1,"price":360000,"pack":1},{"name":"歐內斯特卡片#31026","qty":6.0,"price":4000.0,"pack":1},{"name":"晨曦之心","qty":30.0,"price":4800.0,"pack":1},{"name":"乙太塔菲石","qty":1000.0,"price":40.0,"pack":1},{"name":"凱薩祝福","qty":1000.0,"price":48.0,"pack":1}]};
+let currentEquip=Object.keys(EQUIPMENT_DATA)[0];
+const fmt=n=>Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});
+const storeKey=(kind,equip,item)=>`starro_equipcost_v3_${kind}_${equip}_${item}`;
 
 function renderTabs(){
   const box=document.getElementById("equipTabs");
   box.innerHTML=Object.keys(EQUIPMENT_DATA).map(name=>
-    `<button class="${name===currentEquip?'on':''}" onclick="switchEquip(${JSON.stringify(name)})">${name}</button>`
+    `<button type="button" class="${name===currentEquip?'on':''}" data-equip="${name}">${name}</button>`
   ).join("");
+  box.querySelectorAll("button[data-equip]").forEach(btn=>{
+    btn.addEventListener("click",()=>switchEquip(btn.dataset.equip));
+  });
 }
 
 function switchEquip(name){
-  currentEquip=name;
-  renderTabs();
-  renderTable();
+  currentEquip=name; renderTabs(); renderTable();
+}
+
+function stored(kind,r){
+  const v=localStorage.getItem(storeKey(kind,currentEquip,r.name));
+  return v===null ? null : Number(v);
 }
 
 function renderTable(){
   const rows=EQUIPMENT_DATA[currentEquip];
-  let html=`<table class="cost-table">
-    <thead><tr><th>道具</th><th>需求數量</th><th>目前單價 (P)</th><th>小計 (P)</th></tr></thead><tbody>`;
+  let s=`<table class="cost-table"><thead><tr>
+    <th>道具</th><th>需求數量</th><th>價格單位</th><th>目前價格 (P)</th><th>小計 (P)</th>
+  </tr></thead><tbody>`;
   rows.forEach((r,i)=>{
-    const savedQty=localStorage.getItem(qtyKeyFor(currentEquip,r.name));
-    const qty=savedQty!==null ? Number(savedQty) : r.qty;
-    const price=Number(localStorage.getItem(keyFor(currentEquip,r.name))||0);
-    html+=`<tr>
+    const qty=stored("qty",r) ?? r.qty;
+    const pack=stored("pack",r) ?? r.pack;
+    const price=stored("price",r) ?? r.price;
+    s+=`<tr>
       <td><b>${r.name}</b></td>
-      <td><input class="qty" id="qty_${i}" type="number" min="0" step="1" value="${qty}" oninput="recalc()"></td>
-      <td><input class="price" id="price_${i}" type="number" min="0" step="0.01" value="${price||''}" placeholder="自行輸入" oninput="recalc()"></td>
-      <td class="money" id="sub_${i}">0 P</td>
+      <td><input class="qty" id="q_${i}" type="number" min="0" step="any" value="${qty}" oninput="recalc()"></td>
+      <td><input class="pack" id="u_${i}" type="number" min="0.000001" step="any" value="${pack}" oninput="recalc()"></td>
+      <td><input class="price" id="p_${i}" type="number" min="0" step="any" value="${price}" oninput="recalc()"></td>
+      <td class="money" id="s_${i}">0 P</td>
     </tr>`;
   });
-  html+=`</tbody></table>`;
-  document.getElementById("equipTableWrap").innerHTML=html;
+  s+=`</tbody></table>`;
+  document.getElementById("equipTableWrap").innerHTML=s;
   recalc();
 }
 
 function recalc(){
-  const rows=EQUIPMENT_DATA[currentEquip];
   let qtyTotal=0,total=0;
-  rows.forEach((r,i)=>{
-    const qty=Math.max(0,Number(document.getElementById("qty_"+i)?.value||0));
-    const price=Math.max(0,Number(document.getElementById("price_"+i)?.value||0));
-    const subtotal=qty*price;
+  EQUIPMENT_DATA[currentEquip].forEach((r,i)=>{
+    const qty=Math.max(0,Number(document.getElementById("q_"+i)?.value||0));
+    const pack=Math.max(0.000001,Number(document.getElementById("u_"+i)?.value||1));
+    const price=Math.max(0,Number(document.getElementById("p_"+i)?.value||0));
+    const subtotal=qty/pack*price;
     qtyTotal+=qty; total+=subtotal;
-    const el=document.getElementById("sub_"+i);
-    if(el) el.textContent=fmt(subtotal)+" P";
+    const el=document.getElementById("s_"+i);
+    if(el){el.textContent=fmt(subtotal)+" P"; el.classList.toggle("zero",price===0);}
   });
-  document.getElementById("costKinds").textContent=rows.length+" 種";
+  document.getElementById("costKinds").textContent=EQUIPMENT_DATA[currentEquip].length+" 種";
   document.getElementById("costQty").textContent=fmt(qtyTotal);
   document.getElementById("costTotal").textContent=fmt(total)+" P";
 }
 
-function savePrices(){
+function saveCurrent(){
   EQUIPMENT_DATA[currentEquip].forEach((r,i)=>{
-    const qty=document.getElementById("qty_"+i)?.value||"0";
-    const price=document.getElementById("price_"+i)?.value||"0";
-    localStorage.setItem(qtyKeyFor(currentEquip,r.name),qty);
-    localStorage.setItem(keyFor(currentEquip,r.name),price);
+    localStorage.setItem(storeKey("qty",currentEquip,r.name),document.getElementById("q_"+i)?.value||"0");
+    localStorage.setItem(storeKey("pack",currentEquip,r.name),document.getElementById("u_"+i)?.value||"1");
+    localStorage.setItem(storeKey("price",currentEquip,r.name),document.getElementById("p_"+i)?.value||"0");
   });
   recalc();
 }
 
-function resetCurrentPrices(){
-  EQUIPMENT_DATA[currentEquip].forEach((r,i)=>{
-    localStorage.removeItem(keyFor(currentEquip,r.name));
-    localStorage.removeItem(qtyKeyFor(currentEquip,r.name));
-  });
-  renderTable();
+function clearEquip(equip){
+  EQUIPMENT_DATA[equip].forEach(r=>["qty","pack","price"].forEach(kind=>localStorage.removeItem(storeKey(kind,equip,r.name))));
 }
 
-function resetAllPrices(){
-  Object.entries(EQUIPMENT_DATA).forEach(([equip,rows])=>rows.forEach(r=>{
-    localStorage.removeItem(keyFor(equip,r.name));
-    localStorage.removeItem(qtyKeyFor(equip,r.name));
-  }));
-  renderTable();
-}
+function restoreCurrent(){clearEquip(currentEquip);renderTable();}
+function restoreAll(){Object.keys(EQUIPMENT_DATA).forEach(clearEquip);renderTable();}
 
-renderTabs();
-renderTable();
+renderTabs();renderTable();
 </script>
-</body>
-</html>
+
+<script id="serviceFeeScript">
+(function(){
+  const DEFAULT_PRICES={
+    bless:7, check:16, bigGold:800, smallGold:90,
+    bigGray:100, smallGray:1, taffy:40, dust:2, red:200
+  };
+  const PRICE_IDS={
+    bless:"svcPriceBless", check:"svcPriceCheck",
+    bigGold:"svcPriceBigGold", smallGold:"svcPriceSmallGold",
+    bigGray:"svcPriceBigGray", smallGray:"svcPriceSmallGray",
+    taffy:"svcPriceTaffy", dust:"svcPriceDust", red:"svcPriceRed"
+  };
+  const REFINE_RULES={
+    "A-D":{red:10,checks:10,bless:0,bigGold:0,smallGold:0,bigGray:15,smallGray:15,note:"A裝 +0~+20：大小灰各15把、支票10張、10紅。"},
+    "S":{red:20,checks:20,bless:200,bigGold:15,smallGold:15,bigGray:0,smallGray:0,note:"2級防具／5級武器／S裝 +0~+20：鐵匠的祝福200個、支票20張、大小金各15把、20紅。"},
+    "SS":{red:60,checks:35,bless:350,bigGold:35,smallGold:35,bigGray:0,smallGray:0,note:"SS裝 +0~+20：鐵匠的祝福350個、支票35張、大小金各35把、60紅。"}
+  };
+  const GRADE_RULES={
+    "S":{red:20,taffy:30,dust:270,checks:9},
+    "SS":{red:40,taffy:100,dust:1000,checks:25}
+  };
+  function fmt(n){return Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});}
+  function q(id){return Math.max(1,Math.floor(Number(document.getElementById(id)?.value||1)));}
+  function price(k){return Math.max(0,Number(document.getElementById(PRICE_IDS[k])?.value||0));}
+  function priceKey(k){return "starro_service_price_"+k;}
+
+  function loadServicePrices(){
+    Object.keys(DEFAULT_PRICES).forEach(k=>{
+      const saved=localStorage.getItem(priceKey(k));
+      const el=document.getElementById(PRICE_IDS[k]);
+      if(el) el.value=saved===null ? DEFAULT_PRICES[k] : saved;
+    });
+  }
+  window.saveServicePrices=function(){
+    Object.keys(DEFAULT_PRICES).forEach(k=>{
+      const el=document.getElementById(PRICE_IDS[k]);
+      if(el) localStorage.setItem(priceKey(k),el.value||"0");
+    });
+    renderRefine(); renderGrade();
+  };
+  window.resetServicePrices=function(){
+    Object.keys(DEFAULT_PRICES).forEach(k=>localStorage.removeItem(priceKey(k)));
+    loadServicePrices(); renderRefine(); renderGrade();
+  };
+
+  function renderRefine(){
+    const type=document.getElementById("refineServiceType").value;
+    const qty=q("refineServiceQty");
+    const r=REFINE_RULES[type];
+    document.getElementById("refineRedFee").textContent=fmt(r.red*qty)+" 紅";
+    document.getElementById("refineChecks").textContent=fmt(r.checks*qty)+" 張";
+    document.getElementById("refineBless").textContent=fmt(r.bless*qty)+" 個";
+    if(type==="A-D"){
+      document.getElementById("refineHammers").textContent="大小灰各 "+fmt(15*qty)+" 把";
+    }else{
+      const per=type==="SS"?35:15;
+      document.getElementById("refineHammers").textContent="大小金各 "+fmt(per*qty)+" 把";
+    }
+    const total=qty*(
+      r.red*price("red") +
+      r.checks*price("check") +
+      r.bless*price("bless") +
+      r.bigGold*price("bigGold") +
+      r.smallGold*price("smallGold") +
+      r.bigGray*price("bigGray") +
+      r.smallGray*price("smallGray")
+    );
+    document.getElementById("refineTotalP").textContent=fmt(total)+" P";
+    document.getElementById("refineServiceNote").textContent=
+      "敲裝須自備：裝備、槌子、支票、材料。 "+r.note;
+  }
+
+  function renderGrade(){
+    const type=document.getElementById("gradeServiceType").value;
+    const qty=q("gradeServiceQty");
+    const r=GRADE_RULES[type];
+    document.getElementById("gradeRedFee").textContent=fmt(r.red*qty)+" 紅";
+    document.getElementById("gradeTaffy").textContent=fmt(r.taffy*qty)+" 個";
+    document.getElementById("gradeDust").textContent=fmt(r.dust*qty)+" 個";
+    document.getElementById("gradeChecks").textContent=fmt(r.checks*qty)+" 張";
+    const total=qty*(
+      r.red*price("red") +
+      r.taffy*price("taffy") +
+      r.dust*price("dust") +
+      r.checks*price("check")
+    );
+    document.getElementById("gradeTotalP").textContent=fmt(total)+" P";
+  }
+
+  ["refineServiceType","refineServiceQty"].forEach(id=>{
+    document.getElementById(id)?.addEventListener(id.includes("Type")?"change":"input",renderRefine);
+  });
+  ["gradeServiceType","gradeServiceQty"].forEach(id=>{
+    document.getElementById(id)?.addEventListener(id.includes("Type")?"change":"input",renderGrade);
+  });
+  Object.values(PRICE_IDS).forEach(id=>{
+    document.getElementById(id)?.addEventListener("input",()=>{renderRefine();renderGrade();});
+  });
+
+  loadServicePrices();
+  renderRefine();
+  renderGrade();
+})();
+</script>
+
+
+
+
+</body></html>
