@@ -39,6 +39,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 .shadow-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .shadow-tabs button{min-width:130px}
 #damageTestPanel{margin-top:12px}
+
+#crystalRows select:disabled{opacity:.45;cursor:not-allowed;background:#10151c;color:#7f8996}
 </style>
 </head>
 <body>
@@ -57,7 +59,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="sub">影子結晶、升級素質與傷害倍率比較。</div>
 <section class="card" id="crystalSimulator">
 <h2>💎 影子區</h2>
-<div class="tiny">影子結晶試算｜保留完整結晶選項，只計算升級所需結晶數量。</div><div aria-label="影子區分頁" class="shadow-tabs" role="tablist"><button aria-selected="true" class="primary" id="shadowTabBtn" onclick="switchShadowTab('shadow')" role="tab" type="button">💎 影子區</button><button aria-selected="false" id="damageTabBtn" onclick="switchShadowTab('damage')" role="tab" type="button">🧪 測傷區</button></div><div aria-labelledby="shadowTabBtn" id="shadowMainPanel" role="tabpanel"><div class="note" id="damageMultiplierCompare" style="margin-top:14px">
+<div class="tiny">影子結晶試算｜預計等級為 Lv.0 時「原本等級」會鎖定；取得推薦或選擇預計等級後才可輸入原本等級。</div><div aria-label="影子區分頁" class="shadow-tabs" role="tablist"><button aria-selected="true" class="primary" id="shadowTabBtn" onclick="switchShadowTab('shadow')" role="tab" type="button">💎 影子區</button><button aria-selected="false" id="damageTabBtn" onclick="switchShadowTab('damage')" role="tab" type="button">🧪 測傷區</button></div><div aria-labelledby="shadowTabBtn" id="shadowMainPanel" role="tabpanel"><div class="note" id="damageMultiplierCompare" style="margin-top:14px">
 <b>⚔️ 傷害倍率比較</b>
 <div class="tiny" style="margin-top:4px">升級後倍率會即時讀取上方 6 格「預計等級」的結晶方案。 套用推薦後，自身面板也會同步扣除原本結晶效果，再加入新結晶效果。</div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
@@ -122,7 +124,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <td class="money" id="dmgTargetCrystalCrate">0</td>
 <td class="money" id="dmgFinalMulCrate">0</td>
 </tr>
-<tr>
+<tr id="damagePatkRow">
 <td><b>PATK</b></td>
 <td><input id="dmgPanelPatk" oninput="recalcDamageCompare()" step="any" type="number" value="0"/></td>
 <td><input id="dmgPctPatk" oninput="recalcDamageCompare()" step="any" type="number" value="0"/><div class="tiny" style="color:#ffd54a;font-weight:800">PATK%</div></td>
@@ -133,7 +135,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <td class="money" id="dmgTargetCrystalPatk">0</td>
 <td class="money" id="dmgFinalMulPatk">0</td>
 </tr>
-<tr>
+<tr id="damageSmatkRow">
 <td><b>SMATK</b></td>
 <td><input id="dmgPanelSmatk" oninput="recalcDamageCompare()" step="any" type="number" value="0"/></td>
 <td><input id="dmgPctSmatk" oninput="recalcDamageCompare()" step="any" type="number" value="0"/><div class="tiny" style="color:#ffd54a;font-weight:800">SMATK%</div></td>
@@ -160,9 +162,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     排名直接比較整體總倍率，不使用固定權重。物理模式會把「元素傷害(物理/魔法)」套用成元素物理、PATK/SMATK 套用成 PATK；魔法模式則對應元素魔法、SMATK。
   </div>
 <div class="actions">
-<button onclick="findBestCrystalBuild(6)" type="button">比較 Lv.6</button>
-<button onclick="findBestCrystalBuild(8)" type="button">比較 Lv.8</button>
-<button class="primary" onclick="findBestCrystalBuild(10)" type="button">比較 Lv.10</button>
+<button onclick="findBestCrystalBuild(6)" type="button">套用 Lv.6</button>
+<button onclick="findBestCrystalBuild(8)" type="button">套用 Lv.8</button>
+<button class="primary" onclick="findBestCrystalBuild(10)" type="button">套用 Lv.10</button>
 </div>
 <div class="summary" id="bestCrystalSummary" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-top:12px"></div>
 <div id="bestCrystalBuildResult" style="margin-top:10px;line-height:1.9;font-size:16px;font-weight:700;color:#cfe8ff">
@@ -586,7 +588,22 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     recalcCrystal();
   }
 
+  function syncCrystalBaseLevelLock(){
+    for(let i=0;i<SLOTS;i++){
+      const target=document.getElementById("crystalLv_"+i);
+      const base=document.getElementById("crystalBaseLv_"+i);
+      if(!target || !base) continue;
+      const locked=Number(target.value||0)===0;
+      base.disabled=locked;
+      base.title=locked ? "請先取得推薦方案或選擇預計等級" : "";
+      base.style.opacity=locked ? "0.45" : "1";
+      base.style.cursor=locked ? "not-allowed" : "pointer";
+      if(locked) base.value="0";
+    }
+  }
+
   window.recalcCrystal=function(){
+    syncCrystalBaseLevelLock();
     let totalQty=0;
     const totals={
       "屬性魔物物理":0,
@@ -684,12 +701,28 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
   let attackType="physical";
 
+  function syncAttackTypeVisibility(){
+    const isMagic=attackType==="magic";
+    const header=document.getElementById("bestAttackStatHeader");
+    if(header) header.textContent=isMagic ? "SMATK" : "PATK";
+    const genericLabel=document.getElementById("damageAttackLabel");
+    if(genericLabel) genericLabel.textContent=isMagic ? "SMATK" : "PATK";
+    const patkRow=document.getElementById("damagePatkRow");
+    const smatkRow=document.getElementById("damageSmatkRow");
+    if(patkRow) patkRow.style.display=isMagic ? "none" : "";
+    if(smatkRow) smatkRow.style.display=isMagic ? "" : "none";
+    document.querySelectorAll("[data-attack-label]").forEach(el=>{
+      el.textContent=isMagic ? "SMATK" : "PATK";
+    });
+  }
+
   window.setAttackType=function(type){
     attackType=(type==="magic") ? "magic" : "physical";
     const p=document.getElementById("attackTypePhysical");
     const m=document.getElementById("attackTypeMagic");
     if(p) p.classList.toggle("primary",attackType==="physical");
     if(m) m.classList.toggle("primary",attackType==="magic");
+    syncAttackTypeVisibility();
 
     recalcDamageCompare();
     if(bestCrystalBuild) findBestCrystalBuild(bestCrystalLevel);
@@ -886,7 +919,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
     dfs(0,0,[]);
     rows.sort((a,b)=>b.score-a.score);
-    bestCrystalRows=rows.slice(0,10);
+    bestCrystalRows=rows.slice(0,5);
     bestCrystalBuild=bestCrystalRows[0]?.types||null;
 
     const equipped=getEquippedCrystalBuild();
@@ -903,7 +936,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         <div class="stat"><span class="label">傷害提升</span><b style="color:#9fe7c8">${currentValue?((inc>=0?"+":"")+fmt(inc)+"%"):"—"}</b></div>`;
     }
     let html=`<div style="margin-bottom:10px"><b style="color:#9fe7c8">最佳方案：</b>${crystalCounts(best.types).map(([n,c])=>`<span class="badge">${n} Lv.${bestCrystalLevel} ×${c}</span>`).join(" ")}<br><span class="tiny">模式：${attackType==="magic"?"魔法｜SMATK":"物理｜PATK"}・${damageMode==="skill"?"技爆版":"爆傷版"}</span></div>`;
-    html+=`<div class="table-wrap"><table class="cost-table" style="min-width:980px"><thead><tr><th>排名</th><th>6格搭配</th><th>總倍率</th><th>比目前提升</th><th>PATK/SMATK</th><th>CRATE</th><th>暴傷</th><th>元素傷害(物理/魔法)</th><th>操作</th></tr></thead><tbody>`;
+    html+=`<div class="table-wrap"><table class="cost-table" style="min-width:980px"><thead><tr><th>排名</th><th>6格搭配</th><th>總倍率</th><th>比目前提升</th><th id="bestAttackStatHeader">${attackType==="magic"?"SMATK":"PATK"}</th><th>CRATE</th><th>暴傷</th><th>元素傷害(物理/魔法)</th><th>操作</th></tr></thead><tbody>`;
     bestCrystalRows.forEach((r,i)=>{
       const up=currentValue?((r.score/currentValue-1)*100):0;
       html+=`<tr><td>${i===0?"🥇 ":""}${i+1}</td><td>${crystalCounts(r.types).map(([n,c])=>`${n}×${c}`).join("、")}</td><td>${fmt(r.score)}</td><td style="color:#9fe7c8">${currentValue?((up>=0?"+":"")+fmt(up)+"%"):"—"}</td><td>${fmt(r.stats.attack)}</td><td>${fmt(r.stats.crate)}</td><td>${fmt(r.stats.crit)}%</td><td>${fmt(r.stats.attr)}%</td><td><button type="button" onclick="applyCrystalRank(${i})">套用</button></td></tr>`;
@@ -939,7 +972,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const box=document.getElementById("applyCompare");
     if(box){
       box.style.display="block";
-      const attackName="PATK/SMATK";
+      const attackName=attackType==="magic" ? "SMATK" : "PATK";
       const diff=(a,b,s="")=>`${fmt(a)} → ${fmt(b)}（${b-a>=0?"+":""}${fmt(b-a)}${s}）`;
       box.innerHTML=`<b>✅ 已套用排名 ${idx+1}</b><br>`+
         `元素傷害(物理/魔法)：${diff(before.attr,after.attr,"%") }<br>`+
@@ -1407,6 +1440,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
   };
 
+  syncAttackTypeVisibility();
   renderCrystalRows();
   initSkillBalanceSelectors();
   syncOriginalSkillFormula();
