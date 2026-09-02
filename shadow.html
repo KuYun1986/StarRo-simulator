@@ -316,12 +316,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>終傷藥水｜屬性</b></td>
 <td><input id="fullPotionAttrPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="5"/><div class="tiny">+5%</div></td>
 <td><input id="fullPotionAttrMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">+5%</div></td></tr>
-<tr><td><b>繁星物理傷害乘區</b></td>
+<tr><td><b>繁星傷害乘區</b></td>
 <td colspan="2">
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
-<label><span class="tiny">遠程物理終傷 %</span><input id="panelRangedFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="120"/></label>
-<label><span class="tiny">物理範圍傷害 %</span><input id="panelPhysicalAreaPct" oninput="recalcFullDamageTest()" step="any" type="number" value="185"/></label>
-<label><span class="tiny">物理最終傷害 %</span><input id="panelPhysicalFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="83"/></label>
+<label><span class="tiny">近遠法終傷 %</span><input id="panelRangedFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="120"/></label>
+<label><span class="tiny">範圍傷害 %</span><input id="panelPhysicalAreaPct" oninput="recalcFullDamageTest()" step="any" type="number" value="185"/></label>
+<label><span class="tiny">物法最終傷害 %</span><input id="panelPhysicalFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="83"/></label>
 <label><span class="tiny">爆擊最終傷害 %</span><input id="panelCritFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="65"/></label>
 </div>
 </td></tr>
@@ -483,7 +483,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </table>
 </div>
 <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:12px">
-<div class="stat"><span class="label">物理理論傷害</span><b id="fullPhysicalDamage" style="color:#8fd3ff">0</b></div>
+<div class="stat"><span class="label">普通攻擊傷害</span><b id="fullPhysicalDamage" style="color:#8fd3ff">0</b></div>
 <div class="stat"><span class="label">魔法理論傷害</span><b id="fullMagicDamage" style="color:#9fe7c8">0</b></div>
 <div class="stat"><span class="label">技能最終傷害｜物理</span><b id="fullPhysicalSkillDamage" style="color:#ffd54a">0</b></div>
 <div class="stat"><span class="label">技能最終傷害｜魔法</span><b id="fullMagicSkillDamage" style="color:#ffd54a">0</b></div>
