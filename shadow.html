@@ -260,14 +260,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <label><span class="tiny">最大HP</span><input id="skillMhp" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="5000000"/></label>
 <label><span class="tiny">最大SP</span><input id="skillMsp" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="55000"/></label>
 <label><span class="tiny">POW（技能公式所需，計PATK+CRATE）</span><input id="skillPow" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="600"/></label>
-<label><span class="tiny">CON</span><input id="skillCon" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="585"/></label>
-<label><span class="tiny">CRT</span><input id="skillCrt" oninput="recalcFullDamageTest()" type="number" value="500"/></label>
 <label><span class="tiny">Base Lv.</span><input id="skillBaseLv" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="275"/></label>
 </div>
 <div class="tiny" style="margin-top:6px">你的實測參考：最大HP約 500萬時，遊戲內單下約 110M；下方會顯示目前試算與 110M 的差距。</div>
 </div>
 <div class="tiny" style="margin-top:6px;color:#f6c85f">
-        註：POW／其他特殊能力值僅在技能原始公式需要時使用；若已直接填寫面板 PATK、CRATE，則不會再由 POW／CON／CRT 額外換算，避免重複計算。
+        註：POW 僅在技能原始公式需要時使用；面板 PATK、CRATE 直接依輸入值參與完整傷害計算。
       </div>
 <div id="skillBalanceInfo" style="margin-top:10px;font-size:16px;font-weight:800;color:#ffd54a">技能倍率：—</div>
 <div class="tiny" id="skillReferenceInfo" style="margin-top:5px"></div>
@@ -332,31 +330,66 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </div>
 <div class="tiny" style="margin-top:6px">武器四詞／五詞、甲、靴依你的規則各自乘算；飾品全技能傷害%獨立套用。</div>
 </td></tr>
-<tr><td><b>高級結晶(可複選)</b></td>
+<tr><td><b>高級結晶</b></td>
 <td colspan="2">
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
 <div>
 <b class="tiny">體型終傷</b><br/>
-<label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="2"/>D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="3"/>C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="4"/>B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="5"/>A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSizeFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="6"/>S +6%</label>
+<select class="advSizeFinalTier" onchange="recalcFullDamageTest()" style="width:100%;margin-top:5px">
+<option value="0">無</option>
+<option value="2">D +2%</option>
+<option value="5">C（自動含D）+5%</option>
+<option value="9">B（自動含C+D）+9%</option>
+<option value="14">A（自動含B+C+D）+14%</option>
+<option value="20">S（自動含A+B+C+D）+20%</option>
+</select>
 </div>
 <div>
 <b class="tiny">技能終傷</b><br/>
-<label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="2"/>D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="3"/>C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="4"/>B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="5"/>A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advSkillFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="6"/>S +6%</label>
+<select class="advSkillFinalTier" onchange="recalcFullDamageTest()" style="width:100%;margin-top:5px">
+<option value="0">無</option>
+<option value="2">D +2%</option>
+<option value="5">C（自動含D）+5%</option>
+<option value="9">B（自動含C+D）+9%</option>
+<option value="14">A（自動含B+C+D）+14%</option>
+<option value="20">S（自動含A+B+C+D）+20%</option>
+</select>
 </div>
 <div>
 <b class="tiny">物理範圍終傷</b><br/>
-<label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="15"/>D +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="15"/>C +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="15"/>B +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="15"/>A +15%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advPhysicalAreaFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="15"/>S +15%</label>
+<select class="advPhysicalAreaFinalTier" onchange="recalcFullDamageTest()" style="width:100%;margin-top:5px">
+<option value="0">無</option>
+<option value="15">D +15%</option>
+<option value="30">C（自動含D）+30%</option>
+<option value="45">B（自動含C+D）+45%</option>
+<option value="60">A（自動含B+C+D）+60%</option>
+<option value="75">S（自動含A+B+C+D）+75%</option>
+</select>
 </div>
 <div>
 <b class="tiny">種族終傷</b><br/>
-<label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="2"/>D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="3"/>C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="4"/>B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="5"/>A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advRaceFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="6"/>S +6%</label>
+<select class="advRaceFinalTier" onchange="recalcFullDamageTest()" style="width:100%;margin-top:5px">
+<option value="0">無</option>
+<option value="2">D +2%</option>
+<option value="5">C（自動含D）+5%</option>
+<option value="9">B（自動含C+D）+9%</option>
+<option value="14">A（自動含B+C+D）+14%</option>
+<option value="20">S（自動含A+B+C+D）+20%</option>
+</select>
 </div>
 <div>
 <b class="tiny">屬性終傷</b><br/>
-<label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="2"/>D +2%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="3"/>C +3%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="4"/>B +4%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="5"/>A +5%</label><label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0"><input class="advAttrFinalTier" onchange="recalcFullDamageTest()" type="checkbox" value="6"/>S +6%</label>
+<select class="advAttrFinalTier" onchange="recalcFullDamageTest()" style="width:100%;margin-top:5px">
+<option value="0">無</option>
+<option value="2">D +2%</option>
+<option value="5">C（自動含D）+5%</option>
+<option value="9">B（自動含C+D）+9%</option>
+<option value="14">A（自動含B+C+D）+14%</option>
+<option value="20">S（自動含A+B+C+D）+20%</option>
+</select>
 </div>
 </div>
-<div class="tiny" style="margin-top:6px;color:#ffd54a">高級結晶改為可累加：勾選幾顆就把該顆效果加入計算；同種類 D／C／B／A／S 也可同時勾選。</div>
+<div class="tiny" style="margin-top:6px;color:#ffd54a">只需選最高階級，系統會自動包含較低階級。例如選 S，會自動套用 A＋B＋C＋D＋S 的總效果。</div>
 </td></tr>
 <tr><td><b>減傷</b></td>
 <td colspan="2">
@@ -1215,8 +1248,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   function checkedPctSum(className){
-    return Array.from(document.querySelectorAll("."+className+":checked"))
-      .reduce((sum,el)=>sum+Number(el.value||0),0);
+    const els=Array.from(document.querySelectorAll("."+className));
+    return els.reduce((sum,el)=>{
+      if(el.tagName==="SELECT") return sum+Number(el.value||0);
+      if(el.type==="checkbox" && el.checked) return sum+Number(el.value||0);
+      return sum;
+    },0);
   }
 
   function pctMul(v){
@@ -1241,9 +1278,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const critDivisor=(damageMode==="skill") ? 2 : 1;
     const critMul=(100 + crit/critDivisor)/100;
     const crateMul=(140 + crate)/100;
-    // V64 試算：PATK 採「面板平面值」處理，不再視為 +PATK% 獨立乘區。
-    // 物理起始值改為 (基礎ATK + 面板PATK)，再套用後續各乘區。
-    const panelPhysicalBase=val("fullAtk") + effectivePatk;
+    // PATK / SMATK 面板採獨立乘區：
+    // 例如 PATK 3854 => (100+3854)/100 = ×39.54。
+    const patkMul=(100 + effectivePatk)/100;
     const smatkMul=(100 + effectiveSmatk)/100;
 
     const bbqCritFinalMul=buffBbqCritFinal ? 1.15 : 1;
@@ -1298,7 +1335,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
 
     const physical =
-      panelPhysicalBase *
+      val("fullAtk") *
+      patkMul *
       pctMul(val("fullAttrPhys")) *
       pctMul(val("fullClassPhys")) *
       pctMul(val("fullRacePhys")) *
