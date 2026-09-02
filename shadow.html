@@ -224,6 +224,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       先依你提供的公式，把各項加成獨立轉成倍率後相乘。此區只做測試，不影響上方最佳結晶推薦。
     </div>
 <div class="note" style="margin-top:10px">
+<b>🎛️ 測傷模式</b>
+<div class="tiny" style="margin-top:5px">此處為測傷區獨立設定，不會連動影子區；物理只顯示物理欄，魔法只顯示魔法欄。</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">
+<button class="primary" id="fullAttackPhysicalBtn" onclick="setFullAttackType('physical')" type="button">物理</button>
+<button id="fullAttackMagicBtn" onclick="setFullAttackType('magic')" type="button">魔法</button>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+<button class="primary" id="fullDamageCritBtn" onclick="setFullDamageMode('crit')" type="button">爆傷</button>
+<button id="fullDamageSkillBtn" onclick="setFullDamageMode('skill')" type="button">技爆</button>
+</div>
+<div class="tiny" id="fullDamageModeText" style="margin-top:8px;color:#ffd54a;font-weight:800">目前：物理｜爆傷</div>
+</div>
+<div class="note" style="margin-top:10px">
 <b>🧙 職業／技能傷害</b>
 <div class="tiny" style="margin-top:6px">
         「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡直接加在技能倍率上，例如原始 4250%、繁星 +80% = 4330%。繁星未提供額外倍率的技能，預設顯示 +0%。
@@ -270,69 +283,77 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div id="skillBalanceInfo" style="margin-top:10px;font-size:16px;font-weight:800;color:#ffd54a">技能倍率：—</div>
 <div class="tiny" id="skillReferenceInfo" style="margin-top:5px"></div>
 </div>
+<div class="note" style="margin-top:10px">
+<b>📌 現在素質</b>
+<div class="actions" style="margin-top:8px">
+<button type="button" onclick="applyGuyunTestStats()">古雲測試</button>
+<button type="button" onclick="clearCurrentStats()">全部歸零</button>
+</div>
+<div class="tiny" style="margin-top:6px">首次進入時素質預設為 0；需要測試時可直接套用「古雲測試」。</div>
+</div>
 <div class="table-wrap" style="margin-top:10px">
-<table class="cost-table" style="min-width:980px">
-<thead><tr><th>項目</th><th>物理</th><th>魔法</th></tr></thead>
+<table class="cost-table" id="fullDamageStatsTable" style="min-width:760px">
+<thead><tr><th>項目</th><th id="fullPhysicalColHead">物理</th><th id="fullMagicColHead">魔法</th></tr></thead>
 <tbody>
 <tr><td><b>基礎攻擊</b></td>
-<td><input id="fullAtk" oninput="recalcFullDamageTest()" step="any" type="number" value="10000"/><div class="tiny">ATK</div></td>
+<td><input id="fullAtk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">ATK</div></td>
 <td><input id="fullMatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">MATK</div></td></tr>
 <tr><td><b>特殊攻擊</b></td>
-<td><input id="fullPatk" oninput="recalcFullDamageTest()" step="any" type="number" value="3854"/><div class="tiny">PATK</div></td>
+<td><input id="fullPatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">PATK</div></td>
 <td><input id="fullSmatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">SMATK</div></td></tr>
 <tr><td><b>攻擊%</b></td>
-<td><input id="fullAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="147"/><div class="tiny">ATK%</div></td>
+<td><input id="fullAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">ATK%</div></td>
 <td><input id="fullMatkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">MATK%</div></td></tr>
 <tr><td><b>對屬性</b></td>
-<td><input id="fullAttrPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="460"/><div class="tiny">%</div></td>
+<td><input id="fullAttrPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullAttrMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>對階級</b></td>
-<td><input id="fullClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="550"/><div class="tiny">%</div></td>
+<td><input id="fullClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>對種族</b></td>
-<td><input id="fullRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="410"/><div class="tiny">%</div></td>
+<td><input id="fullRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullRaceMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>對體型</b></td>
-<td><input id="fullSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="755"/><div class="tiny">%</div></td>
+<td><input id="fullSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>屬性攻擊／屬法傷</b></td>
-<td><input id="fullElementAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="200"/><div class="tiny">屬性攻擊%</div></td>
+<td><input id="fullElementAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬性攻擊%</div></td>
 <td><input id="fullElementMagicPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬法傷%</div></td></tr>
 <tr><td><b>近遠傷</b></td>
-<td><input id="fullRangePct" oninput="recalcFullDamageTest()" step="any" type="number" value="1148"/><div class="tiny">%</div></td>
+<td><input id="fullRangePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><span class="tiny">—</span></td></tr>
 <tr><td><b>暴擊傷害</b></td>
 <td><input id="fullCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullMagicCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>終傷藥水｜體型</b></td>
-<td><input id="fullPotionSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="11"/><div class="tiny">+11%</div></td>
-<td><input id="fullPotionSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">+12%</div></td></tr>
+<td><input id="fullPotionSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td>
+<td><input id="fullPotionSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td></tr>
 <tr><td><b>終傷藥水｜種族</b></td>
-<td><input id="fullPotionRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="12"/><div class="tiny">+12%</div></td>
-<td><input id="fullPotionRaceMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">+10%</div></td></tr>
+<td><input id="fullPotionRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td>
+<td><input id="fullPotionRaceMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td></tr>
 <tr><td><b>終傷藥水｜階級</b></td>
-<td><input id="fullPotionClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="10"/><div class="tiny">+10%</div></td>
-<td><input id="fullPotionClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">+10%</div></td></tr>
+<td><input id="fullPotionClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td>
+<td><input id="fullPotionClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td></tr>
 <tr><td><b>終傷藥水｜屬性</b></td>
-<td><input id="fullPotionAttrPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="5"/><div class="tiny">+5%</div></td>
-<td><input id="fullPotionAttrMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">+5%</div></td></tr>
+<td><input id="fullPotionAttrPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td>
+<td><input id="fullPotionAttrMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td></tr>
 <tr><td><b>繁星傷害乘區</b></td>
 <td colspan="2">
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
-<label><span class="tiny">近遠法終傷 %</span><input id="panelRangedFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="120"/></label>
-<label><span class="tiny">範圍傷害 %</span><input id="panelPhysicalAreaPct" oninput="recalcFullDamageTest()" step="any" type="number" value="185"/></label>
-<label><span class="tiny">物法最終傷害 %</span><input id="panelPhysicalFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="83"/></label>
-<label><span class="tiny">爆擊最終傷害 %</span><input id="panelCritFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="65"/></label>
+<label><span class="tiny">近遠法終傷 %</span><input id="panelRangedFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">範圍傷害 %</span><input id="panelPhysicalAreaPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">物法最終傷害 %</span><input id="panelPhysicalFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">爆擊最終傷害 %</span><input id="panelCritFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
 </div>
 </td></tr>
 <tr><td><b>裝備技能傷害詞條</b></td>
 <td colspan="2">
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
-<label><span class="tiny">武器四詞｜全技能最終傷害 %</span><input id="weaponSkillFinal4Pct" oninput="recalcFullDamageTest()" step="any" type="number" value="25"/></label>
-<label><span class="tiny">武器五詞｜全技能最終傷害 %</span><input id="weaponSkillFinal5Pct" oninput="recalcFullDamageTest()" step="any" type="number" value="15"/></label>
-<label><span class="tiny">華金甲｜全技能最終傷害 %</span><input id="armorSkillFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="11"/></label>
-<label><span class="tiny">華金靴｜全技能最終傷害 %</span><input id="shoeSkillFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="9"/></label>
-<label><span class="tiny">華金飾品｜全技能傷害 %</span><input id="accessorySkillPct" oninput="recalcFullDamageTest()" step="any" type="number" value="25"/></label>
+<label><span class="tiny">武器四詞｜全技能最終傷害 %</span><input id="weaponSkillFinal4Pct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">武器五詞｜全技能最終傷害 %</span><input id="weaponSkillFinal5Pct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">華金甲｜全技能最終傷害 %</span><input id="armorSkillFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">華金靴｜全技能最終傷害 %</span><input id="shoeSkillFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">華金飾品｜全技能傷害 %</span><input id="accessorySkillPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
 </div>
 <div class="tiny" style="margin-top:6px">武器四詞／五詞、甲、靴依你的規則各自乘算；飾品全技能傷害%獨立套用。</div>
 </td></tr>
@@ -492,7 +513,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="tiny" style="margin-top:6px;color:#ffd54a"><b>特殊攻擊：</b>PATK / SMATK 採獨立乘區，例如 PATK 3854 = ×39.54；暴擊傷害欄位位於「近遠傷」下一格。</div>
 <div class="note" style="margin-top:14px">
 <b>⚡ 單次傷害／DPS</b>
-<div class="tiny" style="margin-top:5px">上方「技能最終傷害｜物理」會自動帶入單次傷害；再次施放 60% 另外顯示期望值，不會塞回「單次傷害」。</div>
+<div class="tiny" style="margin-top:5px">會依上方測傷模式，自動把「技能最終傷害｜物理／魔法」對應結果帶入單次傷害；再次施放 60% 另外顯示期望值。</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:10px">
 <label><span class="tiny">目前單次傷害</span><input id="actualSingleHit" oninput="recalcCombatOutput()" step="1000000" type="number" value="110000000"/></label>
 <label><span class="tiny">ASPD</span>
@@ -1278,6 +1299,107 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     return 1 + Number(v||0)/100;
   }
 
+
+  const GUYUN_TEST_STATS={
+      "fullAtk":10000,
+      "fullMatk":0,
+      "fullPatk":3854,
+      "fullSmatk":0,
+      "fullAtkPct":147,
+      "fullMatkPct":0,
+      "fullAttrPhys":460,
+      "fullAttrMagic":0,
+      "fullClassPhys":550,
+      "fullClassMagic":0,
+      "fullRacePhys":410,
+      "fullRaceMagic":0,
+      "fullSizePhys":755,
+      "fullSizeMagic":0,
+      "fullElementAtkPct":200,
+      "fullElementMagicPct":0,
+      "fullRangePct":1148,
+      "fullCritDamagePct":0,
+      "fullMagicCritDamagePct":0,
+      "fullPotionSizePhys":11,
+      "fullPotionSizeMagic":0,
+      "fullPotionRacePhys":12,
+      "fullPotionRaceMagic":0,
+      "fullPotionClassPhys":10,
+      "fullPotionClassMagic":0,
+      "fullPotionAttrPhys":5,
+      "fullPotionAttrMagic":0,
+      "panelRangedFinalPct":120,
+      "panelPhysicalAreaPct":185,
+      "panelPhysicalFinalPct":83,
+      "panelCritFinalPct":65,
+      "weaponSkillFinal4Pct":25,
+      "weaponSkillFinal5Pct":15,
+      "armorSkillFinalPct":11,
+      "shoeSkillFinalPct":9,
+      "accessorySkillPct":25
+  };
+
+  window.applyGuyunTestStats=function(){
+    Object.entries(GUYUN_TEST_STATS).forEach(([id,value])=>{
+      const el=document.getElementById(id);
+      if(el) el.value=value;
+    });
+    if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
+  };
+
+  window.clearCurrentStats=function(){
+    Object.keys(GUYUN_TEST_STATS).forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.value=0;
+    });
+    if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
+  };
+
+  let fullAttackType="physical";
+  let fullDamageMode="crit";
+
+  function syncFullDamageModeUI(){
+    const isMagic=fullAttackType==="magic";
+    const physical=document.getElementById("fullAttackPhysicalBtn");
+    const magic=document.getElementById("fullAttackMagicBtn");
+    const crit=document.getElementById("fullDamageCritBtn");
+    const skill=document.getElementById("fullDamageSkillBtn");
+    if(physical) physical.classList.toggle("primary",!isMagic);
+    if(magic) magic.classList.toggle("primary",isMagic);
+    if(crit) crit.classList.toggle("primary",fullDamageMode==="crit");
+    if(skill) skill.classList.toggle("primary",fullDamageMode==="skill");
+    const txt=document.getElementById("fullDamageModeText");
+    if(txt) txt.textContent=`目前：${isMagic?"魔法":"物理"}｜${fullDamageMode==="skill"?"技爆":"爆傷"}`;
+
+    const table=document.getElementById("fullDamageStatsTable");
+    if(table){
+      const pHead=document.getElementById("fullPhysicalColHead");
+      const mHead=document.getElementById("fullMagicColHead");
+      if(pHead) pHead.style.display=isMagic ? "none" : "";
+      if(mHead) mHead.style.display=isMagic ? "" : "none";
+
+      table.querySelectorAll("tbody tr").forEach(tr=>{
+        const cells=Array.from(tr.children);
+        if(cells.length===3){
+          cells[1].style.display=isMagic ? "none" : "";
+          cells[2].style.display=isMagic ? "" : "none";
+        }
+      });
+    }
+  }
+
+  window.setFullAttackType=function(type){
+    fullAttackType=type==="magic" ? "magic" : "physical";
+    syncFullDamageModeUI();
+    recalcFullDamageTest();
+  };
+
+  window.setFullDamageMode=function(mode){
+    fullDamageMode=mode==="skill" ? "skill" : "crit";
+    syncFullDamageModeUI();
+    recalcFullDamageTest();
+  };
+
   window.recalcFullDamageTest=function(){
     const val=id=>Number(document.getElementById(id)?.value||0);
 
@@ -1294,7 +1416,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const effectivePatk=patk+(buffHolyAuthority?50:0);
     const effectiveSmatk=smatk+(buffHolyAuthority?50:0);
 
-    const critDivisor=(damageMode==="skill") ? 2 : 1;
+    const critDivisor=(fullDamageMode==="skill") ? 2 : 1;
     const critMul=(100 + crit/critDivisor)/100;
     const magicCritMul=(100 + magicCrit/critDivisor)/100;
     const crateMul=(140 + crate)/100;
@@ -1449,7 +1571,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     const actualSingleHit=document.getElementById("actualSingleHit");
     if(actualSingleHit){
-      actualSingleHit.value=finalPhysicalRounded;
+      actualSingleHit.value=fullAttackType==="magic" ? finalMagicRounded : finalPhysicalRounded;
       if(typeof recalcCombatOutput==="function") recalcCombatOutput();
     }
     if(skillInfo){
@@ -1462,7 +1584,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     if(refInfo){
       if(isDragonicBreathSkill(selectedSkill.name)){
-        const estimate=finalPhysicalRounded;
+        const estimate=fullAttackType==="magic" ? finalMagicRounded : finalPhysicalRounded;
         const reference=110000000;
         const diff=reference ? (estimate/reference-1)*100 : 0;
         refInfo.innerHTML=`天龍氣息實測參考：110,000,000 / 下｜目前試算：${fmt(estimate)}｜差異 ${(diff>=0?"+":"")}${fmt(diff)}%`;
@@ -1474,7 +1596,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const f=document.getElementById("fullDamageFormulaText");
     if(f){
       f.innerHTML=
-        `<b>目前模式：${damageMode==="skill"?"技爆版（爆傷÷2）":"爆傷版"}</b><br>`+
+        `<b>目前模式：${fullAttackType==="magic"?"魔法":"物理"}｜${fullDamageMode==="skill"?"技爆版（爆傷÷2）":"爆傷版"}</b><br>`+
         `物理：(ATK + 面板PATK) × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 遠程物理終傷 × 物理範圍傷害 × 物理最終傷害 × 爆擊最終傷害 × 裝備技能傷害詞條 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
         `魔法：MATK × MATK% × 對屬性 × 對階級 × 對種族 × 對體型 × 屬法傷 × 補品效果 × 爆傷 × SMATK × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率`;
     }
@@ -1509,6 +1631,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   syncAttackTypeVisibility();
+  syncFullDamageModeUI();
   renderCrystalRows();
   initSkillBalanceSelectors();
   syncOriginalSkillFormula();
