@@ -247,17 +247,12 @@ a{color:#77a9ff}
 <body class="game-only-page"><div class="wrap">
 <h1>🎮 繁星遊戲區</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
-<a href="index.html" class="game-nav-link">🏠 主頁</a>
-<a href="game.html" class="game-nav-link">🎮 遊戲區</a>
-<a href="wash.html" class="game-nav-link">🧪 洗詞區</a>
-<a href="enchant.html" class="game-nav-link">✨ 附魔區</a>
-<a href="identify.html" class="game-nav-link">🔍 鑑定區</a>
-<a href="collection.html" class="game-nav-link">📚 收藏區</a>
-<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
-<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('百家樂'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎴 百家樂</button>
+<a href="index.html" class="game-nav-link">← 回模擬器</a>
+<a href="shadow.html" class="game-nav-link">💎 影子區</a>
 <button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('推筒子'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🀙 推筒子</button>
-<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('射龍門'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🐉 射龍門</button>
-<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('繁星大輪盤'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 繁星大輪盤</button>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('21點'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🃏 21點</button>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('繁星大輪盤'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎡 輪盤</button>
+<button onclick="document.querySelectorAll('section.event-game').forEach(x=>{if(x.innerText.includes('百家樂'))x.scrollIntoView({behavior:'smooth',block:'start'})})">🎴 百家樂</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -814,7 +809,6 @@ a{color:#77a9ff}
   <div class="tiny" style="margin-top:6px">最多同時下注 <b>4 種不同顏色</b>；四色合計每局不可超過 <b>5,000 紅</b>。</div>
 </div>
 
-
 <div class="actions" style="margin-top:10px">
   <button class="primary" onclick="marqueePlay(1)">轉 1 次</button>
   <button onclick="marqueePlay(10)">轉 10 次</button>
@@ -918,15 +912,11 @@ a{color:#77a9ff}
 
 <section class="card event-game">
 <h2>🃏 21點</h2>
-<p class="tiny">娛樂模擬：6副牌、莊家17點停牌。可選每局下注 <b>10,000 P</b> 或 <b>1,000 紅</b>；Blackjack 淨贏 2 倍、一般勝利淨贏 1 倍、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。</p>
+<p class="tiny">娛樂模擬：6副牌、莊家17點停牌、Blackjack 勝利 +20,000 P、一般勝利 +10,000 P、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。使用虛擬籌碼。</p>
 
-<div class="stat" style="margin-top:10px">
-  <span class="label">下注方式</span>
-  <div class="actions" style="margin-top:8px">
-    <button id="bjBetPBtn" class="primary" onclick="bjSetBetMode('p')">10,000 P</button>
-    <button id="bjBetRedBtn" onclick="bjSetBetMode('red')">1,000 紅</button>
-  </div>
-  <div class="tiny" style="margin-top:6px">目前下注：<b id="bjBetModeText">10,000 P</b></div>
+<div class="row">
+<span>每局固定下注</span>
+<b>10,000 P</b>
 </div>
 
 <div class="actions">
@@ -935,6 +925,10 @@ a{color:#77a9ff}
 <button id="bjStandBtn" onclick="bjStand()" disabled>停牌</button>
 <button id="bjDoubleBtn" onclick="bjDouble()" disabled>加倍</button>
 <button onclick="bjReset()">重置</button>
+</div>
+
+<div id="bjBank" class="stat" style="margin-top:12px">
+<span class="label">虛擬籌碼</span><b id="bjChips">500,000 P</b>
 </div>
 <div id="bjTable" style="margin-top:10px"></div>
 <div id="bjLog" style="margin-top:10px"></div>
@@ -974,40 +968,6 @@ a{color:#77a9ff}
 <div id="ttStats" style="margin-top:10px"></div>
 <div id="ttPreview" style="margin-top:10px"></div>
 </section>
-
-<section class="card event-game" id="dragonGateCard">
-<h2>🐉 射龍門</h2>
-<div class="tiny" style="line-height:1.9">
-  每把固定 <b>100 紅</b>。先發兩張龍門牌，看到牌後再自行決定是否射門。<br>
-  <b>放棄：</b>退回 50 紅，本局實際損失 50 紅。<br>
-  <b>龍門緊閉：</b>兩張牌點數相鄰，視為和局，不扣紅並自動重新發牌。<br>
-  <b>一般龍門：</b>射門後，第3張落在兩張龍門牌之間 → 贏 1.5 倍；落在龍門外 → 輸 50%；撞柱 → 輸 100%。<br>
-  <b>撞柱：</b>可在看到兩張龍門牌後選擇投注；第3張撞到任一龍門牌 → <b>+5倍（+500紅）</b>，沒撞到 → <b>-100紅</b>；若是 <b>A＋A</b> 且第3張為 A → <b>+10倍（+1,000紅）</b>。<br><b>龍門對：</b>兩張牌同點，可選壓大／壓小／射龍柱／撞柱／放棄。
-</div>
-
-<div class="actions" style="margin-top:10px">
-  <button class="primary" onclick="dragonDeal()">發牌</button>
-  <button onclick="dragonReset()">清除紀錄</button>
-</div>
-
-<div id="dragonNormalChoices" class="actions" style="margin-top:10px;display:none">
-  <button class="primary" onclick="dragonShoot()">射門</button>
-  <button onclick="dragonBetPillar()">撞柱</button>
-  <button onclick="dragonFold()">放棄（退50紅）</button>
-</div>
-
-<div id="dragonPairChoices" class="actions" style="margin-top:10px;display:none">
-  <button class="primary" onclick="dragonPairChoose('high')">壓大</button>
-  <button onclick="dragonPairChoose('low')">壓小</button>
-  <button onclick="dragonPairChoose('pillar')">射龍柱（賭11）</button>
-  <button onclick="dragonBetPillar()">撞柱</button>
-  <button onclick="dragonPairChoose('fold')">放棄（退50紅）</button>
-</div>
-
-<div id="dragonNow" style="margin-top:12px"></div>
-<div id="dragonStats" class="statgrid" style="margin-top:10px"></div>
-</section>
-
 
 </div>
 <script>
@@ -2407,225 +2367,96 @@ function marqueeReset(){
 }
 
 /* ===== 21點 ===== */
-let bjBetMode="p";
-let bjState={
-  deck:null,
-  player:[],
-  dealer:[],
-  bet:0,
-  active:false,
-  rounds:0,
-  w:0,
-  l:0,
-  p:0,
-  netP:0,
-  netRed:0
-};
+let bjState={chips:2000000,deck:[],player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
 
-function bjBetAmount(){
-  return bjBetMode==="red" ? 1000 : 10000;
-}
-function bjBetUnit(){
-  return bjBetMode==="red" ? "紅" : "P";
-}
-function bjSetBetMode(mode){
-  if(bjState.active){
-    alert("本局進行中，請結束後再切換下注方式。");
-    return;
-  }
-  bjBetMode=mode==="red"?"red":"p";
-  const pBtn=document.getElementById("bjBetPBtn");
-  const rBtn=document.getElementById("bjBetRedBtn");
-  const txt=document.getElementById("bjBetModeText");
-  if(pBtn)pBtn.classList.toggle("primary",bjBetMode==="p");
-  if(rBtn)rBtn.classList.toggle("primary",bjBetMode==="red");
-  if(txt)txt.textContent=bjBetMode==="red"?"1,000 紅":"10,000 P";
-}
-function bjApplyNet(delta){
-  if(bjBetMode==="red") bjState.netRed+=delta;
-  else bjState.netP+=delta;
-}
 function bjBuildDeck(){
-  const ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-  let d=[];
-  for(let k=0;k<6;k++){
-    for(let s=0;s<4;s++){
-      for(const r of ranks)d.push(r);
-    }
-  }
-  for(let i=d.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [d[i],d[j]]=[d[j],d[i]];
-  }
-  return d;
+ const ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+ let d=[];
+ for(let k=0;k<6;k++)for(let s=0;s<4;s++)for(const r of ranks)d.push(r);
+ for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}
+ return d;
 }
 function bjDraw(){
-  if(!Array.isArray(bjState.deck) || bjState.deck.length<52){
-    bjState.deck=bjBuildDeck();
-  }
-  return bjState.deck.pop();
+ if(bjState.deck.length<52)bjState.deck=bjBuildDeck();
+ return bjState.deck.pop();
 }
 function bjValue(hand){
-  let total=0,aces=0;
-  for(const c of hand){
-    if(c==="A"){total+=11;aces++;}
-    else if(["J","Q","K"].includes(c))total+=10;
-    else total+=Number(c);
-  }
-  while(total>21&&aces>0){total-=10;aces--;}
-  return total;
+ let total=0,aces=0;
+ for(const c of hand){
+   if(c==="A"){total+=11;aces++}
+   else if(["J","Q","K"].includes(c))total+=10;
+   else total+=+c;
+ }
+ while(total>21&&aces>0){total-=10;aces--}
+ return total;
 }
-function bjBlackjack(hand){
-  return hand.length===2&&bjValue(hand)===21;
-}
+function bjBlackjack(hand){return hand.length===2&&bjValue(hand)===21}
 function bjButtons(on){
-  for(const id of ["bjHitBtn","bjStandBtn","bjDoubleBtn"]){
-    const e=document.getElementById(id);
-    if(e)e.disabled=!on;
-  }
-  if(on&&bjState.player.length!==2){
-    const d=document.getElementById("bjDoubleBtn");
-    if(d)d.disabled=true;
-  }
+ for(const id of ["bjHitBtn","bjStandBtn","bjDoubleBtn"]){
+   const e=document.getElementById(id);if(e)e.disabled=!on;
+ }
+ if(on&&bjState.player.length!==2){let d=document.getElementById("bjDoubleBtn");if(d)d.disabled=true}
 }
 function bjRender(hideDealer=true,msg=""){
-  const table=document.getElementById("bjTable");
-  if(!table)return;
-  const pv=bjValue(bjState.player);
-  const shown=hideDealer&&bjState.active?[bjState.dealer[0],"🂠"]:bjState.dealer;
-  const dv=hideDealer&&bjState.active?"?":bjValue(bjState.dealer);
-  table.innerHTML=`<div class="stat">
-    <span class="label">莊家｜${dv}</span>
-    <div style="font-size:28px;margin:6px 0">${shown.join("　")}</div>
-    <hr>
-    <span class="label">玩家｜${pv}</span>
-    <div style="font-size:28px;margin:6px 0">${bjState.player.join("　")}</div>
-    ${msg?`<div style="margin-top:8px"><b>${msg}</b></div>`:""}
-  </div>`;
-}
-function bjRenderLog(){
-  const log=document.getElementById("bjLog");
-  if(!log)return;
-  const pNet=(bjState.netP>=0?"+":"")+bjState.netP.toLocaleString()+" P";
-  const rNet=(bjState.netRed>=0?"+":"")+bjState.netRed.toLocaleString()+" 紅";
-  log.innerHTML=`<div class="stat">
-    <span class="label">21點累計</span>
-    <div class="tiny" style="line-height:1.9;margin-top:6px">
-      局數 ${bjState.rounds}｜勝 ${bjState.w}｜負 ${bjState.l}｜和 ${bjState.p}<br>
-      P 淨利：<b class="${bjState.netP>=0?"ok":"bad"}">${pNet}</b>｜
-      紅 淨利：<b class="${bjState.netRed>=0?"ok":"bad"}">${rNet}</b>
-    </div>
-  </div>`;
+ const pv=bjValue(bjState.player);
+ const shown=hideDealer&&bjState.active?[bjState.dealer[0],"🂠"]:bjState.dealer;
+ const dv=hideDealer&&bjState.active?"?":bjValue(bjState.dealer);
+ document.getElementById("bjChips").textContent=bjState.chips.toLocaleString()+" P";
+ document.getElementById("bjTable").innerHTML=`<div class="stat">
+ <span class="label">莊家｜${dv}</span><div style="font-size:28px;margin:6px 0">${shown.join("　")}</div>
+ <hr><span class="label">玩家｜${pv}</span><div style="font-size:28px;margin:6px 0">${bjState.player.join("　")}</div>
+ ${msg?`<div style="margin-top:8px"><b>${msg}</b></div>`:""}
+ </div>`;
 }
 function bjNewRound(){
-  if(bjState.active)return;
-  if(!Array.isArray(bjState.deck) || bjState.deck.length<52){
-    bjState.deck=bjBuildDeck();
-  }
-
-  bjState.bet=bjBetAmount();
-  bjState.player=[bjDraw(),bjDraw()];
-  bjState.dealer=[bjDraw(),bjDraw()];
-  bjState.active=true;
-  bjState.rounds++;
-
-  bjButtons(true);
-  bjRender(true);
-
-  if(bjBlackjack(bjState.player)||bjBlackjack(bjState.dealer)){
-    bjFinish();
-  }
+ if(bjState.active)return;
+ let bet=10000;
+ if(bet>bjState.chips)return alert("籌碼不足");
+ if(!bjState.deck.length)bjState.deck=bjBuildDeck();
+ bjState.bet=bet;bjState.chips-=bet;bjState.player=[bjDraw(),bjDraw()];bjState.dealer=[bjDraw(),bjDraw()];bjState.active=true;bjState.rounds++;
+ bjButtons(true);bjRender(true);
+ if(bjBlackjack(bjState.player)||bjBlackjack(bjState.dealer))bjFinish();
 }
 function bjHit(){
-  if(!bjState.active)return;
-  bjState.player.push(bjDraw());
-  bjRender(true);
-  const v=bjValue(bjState.player);
-  if(v>21)bjFinish("玩家爆牌");
-  else if(v===21 || bjState.player.length>=5)bjStand();
-  else bjButtons(true);
+ if(!bjState.active)return;
+ bjState.player.push(bjDraw());bjRender(true);
+ let v=bjValue(bjState.player);
+ if(v>21)bjFinish("玩家爆牌");
+ else if(v===21 || bjState.player.length>=5)bjStand();
+ else bjButtons(true);
 }
 function bjStand(){
-  if(!bjState.active)return;
-  while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
-  bjFinish();
+ if(!bjState.active)return;
+ while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
+ bjFinish();
 }
 function bjDouble(){
-  if(!bjState.active||bjState.player.length!==2)return;
-  bjState.bet*=2;
-  bjState.player.push(bjDraw());
-  if(bjValue(bjState.player)<=21){
-    while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
-  }
-  bjFinish();
+ if(!bjState.active||bjState.player.length!==2)return;
+ if(bjState.chips<bjState.bet)return alert("籌碼不足以加倍");
+ bjState.chips-=bjState.bet;bjState.bet*=2;
+ bjState.player.push(bjDraw());
+ if(bjValue(bjState.player)<=21)while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
+ bjFinish();
 }
 function bjFinish(force=""){
-  if(!bjState.active)return;
-
-  const p=bjValue(bjState.player);
-  const d=bjValue(bjState.dealer);
-  const pb=bjBlackjack(bjState.player);
-  const db=bjBlackjack(bjState.dealer);
-  let result="";
-  let delta=0;
-
-  if(force==="玩家爆牌"||p>21){
-    delta=-bjState.bet;
-    result=`玩家爆牌｜-${bjState.bet.toLocaleString()} ${bjBetUnit()}`;
-    bjState.l++;
-  }else if(d>21){
-    delta=bjState.bet;
-    result=`莊家爆牌｜玩家勝｜+${bjState.bet.toLocaleString()} ${bjBetUnit()}`;
-    bjState.w++;
-  }else if(pb&&!db){
-    delta=bjState.bet*2;
-    result=`Blackjack！玩家勝｜+${delta.toLocaleString()} ${bjBetUnit()}`;
-    bjState.w++;
-  }else if(db&&!pb){
-    delta=-bjState.bet;
-    result=`莊家 Blackjack｜-${bjState.bet.toLocaleString()} ${bjBetUnit()}`;
-    bjState.l++;
-  }else if(p>d){
-    delta=bjState.bet;
-    result=`玩家勝｜+${bjState.bet.toLocaleString()} ${bjBetUnit()}`;
-    bjState.w++;
-  }else if(p<d){
-    delta=-bjState.bet;
-    result=`莊家勝${d===21?"（21點）":""}｜-${bjState.bet.toLocaleString()} ${bjBetUnit()}`;
-    bjState.l++;
-  }else{
-    result="平手｜退回下注";
-    bjState.p++;
-  }
-
-  bjApplyNet(delta);
-  bjState.active=false;
-  bjButtons(false);
-  bjRender(false,result);
-  bjRenderLog();
+ if(!bjState.active)return;
+ const p=bjValue(bjState.player),d=bjValue(bjState.dealer);
+ const pb=bjBlackjack(bjState.player),db=bjBlackjack(bjState.dealer);
+ let result="",pay=0;
+ if(force==="玩家爆牌"||p>21){result="玩家爆牌｜莊家勝";bjState.l++}
+ else if(d>21){result="莊家爆牌｜玩家勝";pay=bjState.bet*2;bjState.w++}
+ else if(pb&&!db){result="Blackjack！玩家勝｜+20,000 P";pay=bjState.bet*3;bjState.w++}
+ else if(db&&!pb){result="莊家 Blackjack｜-10,000 P";bjState.l++}
+ else if(p>d){result="玩家勝";pay=bjState.bet*2;bjState.w++}
+ else if(p<d){result=`莊家勝${d===21?"（21點）":""}｜-10,000 P`;bjState.l++}
+ else{result="平手｜退回下注";pay=bjState.bet;bjState.p++}
+ bjState.chips+=Math.floor(pay);bjState.active=false;bjButtons(false);bjRender(false,result);
+ document.getElementById("bjLog").innerHTML=`<div class="tiny">局數 ${bjState.rounds}｜勝 ${bjState.w}｜負 ${bjState.l}｜和 ${bjState.p}</div>`;
 }
 function bjReset(){
-  bjState={
-    deck:bjBuildDeck(),
-    player:[],
-    dealer:[],
-    bet:0,
-    active:false,
-    rounds:0,
-    w:0,
-    l:0,
-    p:0,
-    netP:0,
-    netRed:0
-  };
-  bjButtons(false);
-  const table=document.getElementById("bjTable");
-  const log=document.getElementById("bjLog");
-  if(table)table.innerHTML="";
-  if(log)log.innerHTML="";
-  bjSetBetMode("p");
+ bjState={chips:500000,deck:bjBuildDeck(),player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
+ bjButtons(false);document.getElementById("bjChips").textContent="500,000 P";document.getElementById("bjTable").innerHTML="";document.getElementById("bjLog").innerHTML="";
 }
-setTimeout(()=>{bjState.deck=bjBuildDeck();bjButtons(false);bjSetBetMode("p");},0);
 
 /* ===== 推筒子 ===== */
 let ttState={rounds:0,w:0,l:0,net:0};
@@ -2721,7 +2552,7 @@ function ttPlay(){
    if(cmp>0){
      ttState.w++;
      delta=TT_BET;
-     result=`玩家勝｜+${delta.toLocaleString()} ${bjBetUnit()}`;
+     result=`玩家勝｜+${delta.toLocaleString()} P`;
    }else{
      ttState.l++;
      delta=-TT_BET;
@@ -3642,244 +3473,6 @@ onSnapshot(q,snap=>{
   const e=document.getElementById("fbStatus");
   if(e)e.textContent="⚠️ 戰報讀取失敗";
 });
-</script>
-
-
-
-<script>
-/* ===== 射龍門 ===== */
-const DRAGON_BET=100;
-
-let dragonState={
-  rounds:0,
-  totalBet:0,
-  net:0,
-  wins:0,
-  losses:0,
-  closed:0,
-  pillars:0,
-  pairs:0,
-  pending:null
-};
-
-function dragonRank(){
-  return 1+Math.floor(Math.random()*13);
-}
-function dragonRankText(v){
-  return v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v);
-}
-function dragonRenderStats(){
-  const s=dragonState;
-  const box=document.getElementById("dragonStats");
-  if(!box)return;
-  box.innerHTML=
-    card("每把下注",DRAGON_BET+" 紅")+
-    card("正式局數",s.rounds.toLocaleString())+
-    card("累計下注",s.totalBet.toLocaleString()+" 紅")+
-    card("累計淨利",(s.net>=0?"+":"")+s.net.toLocaleString()+" 紅",s.net>=0?"ok":"bad")+
-    card("勝 / 負",`${s.wins} / ${s.losses}`)+
-    card("撞柱",s.pillars.toLocaleString())+
-    card("撞柱率",s.rounds?((s.pillars/s.rounds)*100).toFixed(2)+"%":"0.00%")+
-    card("龍門對",s.pairs.toLocaleString())+
-    card("龍門緊閉重發",s.closed.toLocaleString())+
-    card("遊戲時間",typeof starroFormatPlayTime==="function"?starroFormatPlayTime(s.rounds):`${s.rounds*2} 分鐘`);
-}
-function dragonShowCards(a,b,extra=""){
-  document.getElementById("dragonNow").innerHTML=
-    `<div class="stat">`+
-    `<span class="label">龍門牌</span>`+
-    `<div style="font-size:32px;font-weight:800;margin:10px 0">${dragonRankText(a)}　／　${dragonRankText(b)}</div>`+
-    `<div class="tiny" style="line-height:1.8">${extra}</div>`+
-    `</div>`;
-}
-function dragonShowResult(a,b,c,title,detail,delta){
-  const netText=(delta>0?"+":"")+delta.toLocaleString()+" 紅";
-  document.getElementById("dragonNow").innerHTML=
-    `<div class="stat">`+
-    `<span class="label">龍門牌：${dragonRankText(a)}　／　${dragonRankText(b)}</span>`+
-    `${c!=null?`<div style="font-size:24px;font-weight:800;margin:8px 0">第3張：${dragonRankText(c)}</div>`:""}`+
-    `<b class="${delta>0?"ok":delta<0?"bad":""}">${title}｜${netText}</b>`+
-    `<div class="tiny" style="margin-top:6px;line-height:1.8">${detail}</div>`+
-    `</div>`;
-}
-function dragonApply(delta){
-  dragonState.rounds++;
-  dragonState.totalBet+=DRAGON_BET;
-  dragonState.net+=delta;
-  if(delta>0)dragonState.wins++;
-  else if(delta<0)dragonState.losses++;
-  dragonRenderStats();
-}
-function dragonClearChoices(){
-  const n=document.getElementById("dragonNormalChoices");
-  const p=document.getElementById("dragonPairChoices");
-  if(n)n.style.display="none";
-  if(p)p.style.display="none";
-}
-function dragonDeal(){
-  if(dragonState.pending){
-    alert("請先完成目前這一把。");
-    return;
-  }
-
-  dragonClearChoices();
-
-  let a,b;
-  do{
-    a=dragonRank();
-    b=dragonRank();
-    if(Math.abs(a-b)===1) dragonState.closed++;
-  }while(Math.abs(a-b)===1);
-
-  if(a>b)[a,b]=[b,a];
-
-  dragonState.pending={a,b};
-
-  if(a===b){
-    dragonState.pairs++;
-    document.getElementById("dragonPairChoices").style.display="flex";
-    dragonShowCards(a,b,"🐉 龍門對：請選擇壓大、壓小、射龍柱、撞柱或放棄。");
-  }else{
-    document.getElementById("dragonNormalChoices").style.display="flex";
-    dragonShowCards(a,b,"看完兩張牌後，請選擇「射門」、「撞柱」或「放棄」。");
-  }
-  dragonRenderStats();
-}
-function dragonFold(){
-  const p=dragonState.pending;
-  if(!p)return;
-  dragonApply(-50);
-  dragonShowResult(p.a,p.b,null,"放棄","退回 50 紅，本局實際損失 50 紅。",-50);
-  dragonState.pending=null;
-  dragonClearChoices();
-}
-function dragonBetPillar(){
-  const p=dragonState.pending;
-  if(!p)return;
-
-  const {a,b}=p;
-  const c=dragonRank();
-  const hit=(c===a || c===b);
-  let delta,title,detail;
-
-  if(hit){
-    dragonState.pillars++;
-    const aa=(a===1 && b===1 && c===1);
-    delta=aa ? 1000 : 500;
-    title=aa ? "🔥 A+A 撞柱成功" : "💥 撞柱成功";
-    detail=aa
-      ? "A＋A 撞到 A，贏得 10 倍：+1,000 紅。"
-      : "第3張撞到龍門牌，贏得 5 倍：+500 紅。";
-  }else{
-    delta=-100;
-    title="撞柱失敗";
-    detail="第3張沒有撞到任何龍門牌，輸掉 100 紅。";
-  }
-
-  dragonApply(delta);
-  dragonShowResult(a,b,c,title,detail,delta);
-  dragonState.pending=null;
-  dragonClearChoices();
-}
-
-function dragonShoot(){
-  const p=dragonState.pending;
-  if(!p || p.a===p.b)return;
-
-  const {a,b}=p;
-  const c=dragonRank();
-  let delta=0,title="",detail="";
-
-  if(c>a && c<b){
-    delta=150;
-    title="🎯 射中龍門";
-    detail="第3張落在兩張龍門牌之間，贏得 1.5 倍：+150 紅。";
-  }else if(c===a || c===b){
-    delta=-100;
-    dragonState.pillars++;
-    title="💥 撞柱";
-    detail="第3張與其中一張龍門牌同點，輸掉 100 紅。";
-  }else{
-    delta=-50;
-    title="龍門外";
-    detail="第3張落在龍門外，輸掉 50 紅。";
-  }
-
-  dragonApply(delta);
-  dragonShowResult(a,b,c,title,detail,delta);
-  dragonState.pending=null;
-  dragonClearChoices();
-}
-function dragonPairChoose(choice){
-  const p=dragonState.pending;
-  if(!p || p.a!==p.b)return;
-  const {a,b}=p;
-
-  if(choice==="fold"){
-    dragonApply(-50);
-    dragonShowResult(a,b,null,"放棄","退回 50 紅，本局實際損失 50 紅。",-50);
-    dragonState.pending=null;
-    dragonClearChoices();
-    return;
-  }
-
-  const c=dragonRank();
-  let delta=0,title="",detail="";
-
-  if(choice==="pillar"){
-    if(c===a){
-      delta=1200;
-      title="🐉 射中龍柱";
-      detail="第3張與龍門對同點，贏得 12 倍：+1,200 紅。";
-    }else{
-      delta=-100;
-      title="射龍柱失敗";
-      detail="第3張沒有與龍門對同點，輸掉 100 紅。";
-    }
-  }else{
-    const isHigh=choice==="high";
-    if(c===a){
-      delta=-100;
-      dragonState.pillars++;
-      title="💥 撞柱";
-      detail="第3張與龍門牌同點，輸掉 100 紅。";
-    }else{
-      const correct=isHigh ? c>a : c<a;
-      if(correct){
-        delta=150;
-        title=isHigh?"壓大成功":"壓小成功";
-        detail="方向判斷正確，贏得 1.5 倍：+150 紅。";
-      }else{
-        delta=-50;
-        title=isHigh?"壓大失敗":"壓小失敗";
-        detail="方向判斷錯誤，輸掉 50 紅。";
-      }
-    }
-  }
-
-  dragonApply(delta);
-  dragonShowResult(a,b,c,title,detail,delta);
-  dragonState.pending=null;
-  dragonClearChoices();
-}
-function dragonReset(){
-  dragonState={rounds:0,totalBet:0,net:0,wins:0,losses:0,closed:0,pillars:0,pairs:0,pending:null};
-  document.getElementById("dragonNow").innerHTML="";
-  dragonClearChoices();
-  dragonRenderStats();
-}
-setTimeout(dragonRenderStats,0);
-</script>
-
-<script>
-(function(){
-  const wanted=["21點","百家樂","推筒子","射龍門","繁星大輪盤"];
-  const sections=[...document.querySelectorAll("section.event-game")];
-  if(!sections.length) return;
-  const parent=sections[0].parentElement;
-  const ordered=wanted.map(name=>sections.find(s=>s.innerText.includes(name))).filter(Boolean);
-  ordered.forEach(s=>parent.appendChild(s));
-})();
 </script>
 
 </body></html>
