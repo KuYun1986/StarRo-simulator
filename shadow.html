@@ -288,7 +288,11 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="actions" style="margin-top:8px">
 <button type="button" onclick="applyGuyunTestStats()">古雲測試</button>
 <button type="button" onclick="clearCurrentStats()">全部歸零</button>
+<button type="button" onclick="saveCurrentDamageStats()">💾 保存目前素質</button>
+<button type="button" onclick="loadSavedDamageStats()">📂 載入保存素質</button>
+<button type="button" onclick="deleteSavedDamageStats()">🗑️ 刪除保存素質</button>
 </div>
+<div class="tiny" id="damageStatsSaveText" style="margin-top:6px;color:#9fe7c8">保存位置：此瀏覽器本機</div>
 <div class="tiny" style="margin-top:6px">首次進入時素質預設為 0；需要測試時可直接套用「古雲測試」。</div>
 </div>
 <div class="table-wrap" style="margin-top:10px">
@@ -296,8 +300,26 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <thead><tr><th>項目</th><th id="fullPhysicalColHead">物理</th><th id="fullMagicColHead">魔法</th></tr></thead>
 <tbody>
 <tr><td><b>基礎攻擊</b></td>
-<td><input id="fullAtk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">ATK</div></td>
-<td><input id="fullMatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">MATK</div></td></tr>
+<td>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+<input id="fullAtkBase1" oninput="syncBaseAttackTotals();recalcFullDamageTest()" step="any" type="number" value="0" style="width:105px"/>
+<span>+</span>
+<input id="fullAtkBase2" oninput="syncBaseAttackTotals();recalcFullDamageTest()" step="any" type="number" value="0" style="width:105px"/>
+<span>=</span>
+<input id="fullAtk" readonly step="any" type="number" value="0" style="width:120px;font-weight:800"/>
+</div>
+<div class="tiny">ATK + ATK = 總合基礎攻擊</div>
+</td>
+<td>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+<input id="fullMatkBase1" oninput="syncBaseAttackTotals();recalcFullDamageTest()" step="any" type="number" value="0" style="width:105px"/>
+<span>+</span>
+<input id="fullMatkBase2" oninput="syncBaseAttackTotals();recalcFullDamageTest()" step="any" type="number" value="0" style="width:105px"/>
+<span>=</span>
+<input id="fullMatk" readonly step="any" type="number" value="0" style="width:120px;font-weight:800"/>
+</div>
+<div class="tiny">MATK + MATK = 總合基礎攻擊</div>
+</td></tr>
 <tr><td><b>特殊攻擊</b></td>
 <td><input id="fullPatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">PATK</div></td>
 <td><input id="fullSmatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">SMATK</div></td></tr>
@@ -504,10 +526,10 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </table>
 </div>
 <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:12px">
-<div class="stat"><span class="label">物理理論傷害</span><b id="fullPhysicalDamage" style="color:#8fd3ff">0</b></div>
-<div class="stat"><span class="label">魔法理論傷害</span><b id="fullMagicDamage" style="color:#9fe7c8">0</b></div>
-<div class="stat"><span class="label">技能最終傷害｜物理</span><b id="fullPhysicalSkillDamage" style="color:#ffd54a">0</b></div>
-<div class="stat"><span class="label">技能最終傷害｜魔法</span><b id="fullMagicSkillDamage" style="color:#ffd54a">0</b></div>
+<div class="stat" id="fullPhysicalTheoryCard"><span class="label">物理理論傷害</span><b id="fullPhysicalDamage" style="color:#8fd3ff">0</b></div>
+<div class="stat" id="fullMagicTheoryCard" style="display:none"><span class="label">魔法理論傷害</span><b id="fullMagicDamage" style="color:#9fe7c8">0</b></div>
+<div class="stat" id="fullPhysicalSkillCard"><span class="label">技能最終傷害｜物理</span><b id="fullPhysicalSkillDamage" style="color:#ffd54a">0</b></div>
+<div class="stat" id="fullMagicSkillCard" style="display:none"><span class="label">技能最終傷害｜魔法</span><b id="fullMagicSkillDamage" style="color:#ffd54a">0</b></div>
 </div>
 <div class="tiny" id="fullDamageFormulaText" style="margin-top:10px;line-height:1.8"></div>
 <div class="tiny" style="margin-top:6px;color:#ffd54a"><b>特殊攻擊：</b>PATK / SMATK 採獨立乘區，例如 PATK 3854 = ×39.54；暴擊傷害欄位位於「近遠傷」下一格。</div>
@@ -1300,9 +1322,126 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   }
 
 
+  window.syncBaseAttackTotals=function(){
+    const num=id=>Number(document.getElementById(id)?.value||0);
+    const atk=document.getElementById("fullAtk");
+    const matk=document.getElementById("fullMatk");
+    if(atk) atk.value=num("fullAtkBase1")+num("fullAtkBase2");
+    if(matk) matk.value=num("fullMatkBase1")+num("fullMatkBase2");
+  };
+
+  const DAMAGE_STATS_STORAGE_KEY="starro_damage_test_stats_v1";
+
+  function getDamageStatsSaveIds(){
+    return [
+      "fullAtkBase1","fullAtkBase2","fullMatkBase1","fullMatkBase2",
+      "fullPatk","fullSmatk","fullAtkPct","fullMatkPct",
+      "fullAttrPhys","fullAttrMagic","fullClassPhys","fullClassMagic",
+      "fullRacePhys","fullRaceMagic","fullSizePhys","fullSizeMagic",
+      "fullElementAtkPct","fullElementMagicPct","fullRangePct",
+      "fullCritDamagePct","fullMagicCritDamagePct",
+      "fullPotionSizePhys","fullPotionSizeMagic","fullPotionRacePhys","fullPotionRaceMagic",
+      "fullPotionClassPhys","fullPotionClassMagic","fullPotionAttrPhys","fullPotionAttrMagic",
+      "panelRangedFinalPct","panelPhysicalAreaPct","panelPhysicalFinalPct","panelCritFinalPct",
+      "weaponSkillFinal4Pct","weaponSkillFinal5Pct","armorSkillFinalPct","shoeSkillFinalPct","accessorySkillPct",
+      "fullDamageReduction","fullRemainingHpPct","combatAspd","combatCastsPerSec","combatRepeatChance",
+      "skillJobSelect","skillNameSelect","skillOriginalPct","skillStarBonusPct"
+    ];
+  }
+
+  function setDamageStatsSaveText(text,color){
+    const el=document.getElementById("damageStatsSaveText");
+    if(el){
+      el.textContent=text;
+      if(color) el.style.color=color;
+    }
+  }
+
+  window.saveCurrentDamageStats=function(){
+    try{
+      const data={
+        version:1,
+        fullAttackType,
+        fullDamageMode,
+        values:{},
+        checks:{},
+        selects:{}
+      };
+
+      getDamageStatsSaveIds().forEach(id=>{
+        const el=document.getElementById(id);
+        if(!el) return;
+        data.values[id]=el.value;
+      });
+
+      document.querySelectorAll("#fullDamageStatsTable input[type='checkbox']").forEach(el=>{
+        if(el.id) data.checks[el.id]=!!el.checked;
+      });
+
+      document.querySelectorAll("#fullDamageStatsTable select").forEach(el=>{
+        if(el.id) data.selects[el.id]=el.value;
+      });
+
+      localStorage.setItem(DAMAGE_STATS_STORAGE_KEY,JSON.stringify(data));
+      setDamageStatsSaveText("✅ 已保存目前素質（此瀏覽器本機）","#9fe7c8");
+    }catch(err){
+      setDamageStatsSaveText("⚠️ 保存失敗：瀏覽器可能禁止本機儲存","#ff8080");
+    }
+  };
+
+  window.loadSavedDamageStats=function(){
+    try{
+      const raw=localStorage.getItem(DAMAGE_STATS_STORAGE_KEY);
+      if(!raw){
+        setDamageStatsSaveText("尚未保存任何素質","#ffd54a");
+        return;
+      }
+      const data=JSON.parse(raw);
+
+      Object.entries(data.values||{}).forEach(([id,value])=>{
+        const el=document.getElementById(id);
+        if(el) el.value=value;
+      });
+      Object.entries(data.checks||{}).forEach(([id,value])=>{
+        const el=document.getElementById(id);
+        if(el && el.type==="checkbox") el.checked=!!value;
+      });
+      Object.entries(data.selects||{}).forEach(([id,value])=>{
+        const el=document.getElementById(id);
+        if(el) el.value=value;
+      });
+
+      fullAttackType=data.fullAttackType==="magic" ? "magic" : "physical";
+      fullDamageMode=data.fullDamageMode==="skill" ? "skill" : "crit";
+
+      syncBaseAttackTotals();
+      syncFullDamageModeUI();
+      if(typeof renderSkillOptions==="function") renderSkillOptions();
+      if(data.values?.skillNameSelect){
+        const skill=document.getElementById("skillNameSelect");
+        if(skill) skill.value=data.values.skillNameSelect;
+      }
+      if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
+      setDamageStatsSaveText("✅ 已載入保存素質","#9fe7c8");
+    }catch(err){
+      setDamageStatsSaveText("⚠️ 載入失敗：保存資料格式異常","#ff8080");
+    }
+  };
+
+  window.deleteSavedDamageStats=function(){
+    try{
+      localStorage.removeItem(DAMAGE_STATS_STORAGE_KEY);
+      setDamageStatsSaveText("已刪除保存素質","#ffd54a");
+    }catch(err){
+      setDamageStatsSaveText("⚠️ 刪除失敗","#ff8080");
+    }
+  };
+
   const GUYUN_TEST_STATS={
-      "fullAtk":10000,
-      "fullMatk":0,
+      "fullAtkBase1":10000,
+      "fullAtkBase2":0,
+      "fullMatkBase1":0,
+      "fullMatkBase2":0,
       "fullPatk":3854,
       "fullSmatk":0,
       "fullAtkPct":147,
@@ -1344,6 +1483,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const el=document.getElementById(id);
       if(el) el.value=value;
     });
+    syncBaseAttackTotals();
     if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
   };
 
@@ -1352,6 +1492,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const el=document.getElementById(id);
       if(el) el.value=0;
     });
+    syncBaseAttackTotals();
     if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
   };
 
@@ -1386,6 +1527,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         }
       });
     }
+
+    const pTheory=document.getElementById("fullPhysicalTheoryCard");
+    const mTheory=document.getElementById("fullMagicTheoryCard");
+    const pSkill=document.getElementById("fullPhysicalSkillCard");
+    const mSkill=document.getElementById("fullMagicSkillCard");
+    if(pTheory) pTheory.style.display=isMagic ? "none" : "";
+    if(mTheory) mTheory.style.display=isMagic ? "" : "none";
+    if(pSkill) pSkill.style.display=isMagic ? "none" : "";
+    if(mSkill) mSkill.style.display=isMagic ? "" : "none";
   }
 
   window.setFullAttackType=function(type){
@@ -1401,6 +1551,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   window.recalcFullDamageTest=function(){
+    if(typeof syncBaseAttackTotals==="function") syncBaseAttackTotals();
     const val=id=>Number(document.getElementById(id)?.value||0);
 
     const crit=val("fullCritDamagePct");
@@ -1525,6 +1676,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       rangedFinalMul *
       repeatCastMul;
 
+    // 魔法：
+    // MATK × MATK% × (對屬性 × 對階級 × 對種族 × 對體型)
+    // × 屬法傷 × 爆傷 × SMATK × CRATE × 終傷類
     const magic =
       val("fullMatk") *
       pctMul(val("fullMatkPct")) *
@@ -1533,10 +1687,25 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(val("fullRaceMagic")) *
       pctMul(val("fullSizeMagic")) *
       pctMul(val("fullElementMagicPct")) *
-      pctMul(magicAreaStonePct) *
       magicCritMul *
       smatkMul *
       crateMul *
+      // 終傷類
+      pctMul(val("panelRangedFinalPct")) *
+      pctMul(val("panelPhysicalAreaPct") + magicAreaStonePct) *
+      pctMul(val("panelPhysicalFinalPct")) *
+      pctMul(val("panelCritFinalPct")) *
+      bbqCritFinalMul *
+      pctMul(val("weaponSkillFinal4Pct")) *
+      pctMul(val("weaponSkillFinal5Pct")) *
+      pctMul(val("armorSkillFinalPct")) *
+      pctMul(val("shoeSkillFinalPct")) *
+      pctMul(val("accessorySkillPct")) *
+      pctMul(checkedPctSum("advSizeFinalTier")) *
+      pctMul(checkedPctSum("advSkillFinalTier")) *
+      pctMul(checkedPctSum("advPhysicalAreaFinalTier")) *
+      pctMul(checkedPctSum("advRaceFinalTier")) *
+      pctMul(checkedPctSum("advAttrFinalTier")) *
       pctMul(val("fullPotionSizeMagic")) *
       pctMul(val("fullPotionRaceMagic")) *
       pctMul(val("fullPotionClassMagic")) *
@@ -1597,8 +1766,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(f){
       f.innerHTML=
         `<b>目前模式：${fullAttackType==="magic"?"魔法":"物理"}｜${fullDamageMode==="skill"?"技爆版（爆傷÷2）":"爆傷版"}</b><br>`+
-        `物理：(ATK + 面板PATK) × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 遠程物理終傷 × 物理範圍傷害 × 物理最終傷害 × 爆擊最終傷害 × 裝備技能傷害詞條 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
-        `魔法：MATK × MATK% × 對屬性 × 對階級 × 對種族 × 對體型 × 屬法傷 × 補品效果 × 爆傷 × SMATK × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率`;
+        `物理：(ATK + 面板PATK) × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 裝備技能傷害詞條 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
+        `魔法：MATK × MATK% ×（對屬性 × 對階級 × 對種族 × 對體型）× 屬法傷 × 爆傷 × SMATK × CRATE × 終傷類<br><span style="color:#ffd54a">終傷類：近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 裝備技能傷害 × 高級結晶 × 終傷藥水 × 補品／反逆等效果</span>`;
     }
   };
 
@@ -1631,6 +1800,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   syncAttackTypeVisibility();
+  syncBaseAttackTotals();
   syncFullDamageModeUI();
   renderCrystalRows();
   initSkillBalanceSelectors();
