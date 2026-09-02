@@ -331,26 +331,34 @@ a{color:#77a9ff}
 <h2>🎁 掉落率計算器</h2>
 <p class="tiny">
   <span style="color:#ff5f6d;font-weight:800;display:block;margin-bottom:6px">1% 基礎掉落率道具</span>
-  <span>固定條件：伺服器倍率 1、卡片掉落內建 100%。</span><br>
+  <span>最終卡率依「掉落倍率 × 卡片倍率 × 無限幻境倍率」計算。</span>
 </p>
 
 <div class="drop-checks">
-  <label><input id="dropUseDream" type="checkbox" checked> 幻境：+200%掉落率</label>
   <label><input id="dropUseDaidai" type="checkbox" checked> 呆呆：掉落率 +100%</label>
-  <label><input id="dropUseCandy" type="checkbox" checked> 超黏掉寶糖：+200%掉落率</label>
+  <label><input id="dropUseCandy" type="checkbox" checked> 超黏掉寶糖：+200%</label>
   <label><input id="dropUseEvil" type="checkbox" checked> 惡波卷：卡片掉落 +200%</label>
 </div>
 
+<div class="row">
+  <span>無限幻境</span>
+  <select id="dropDreamMode">
+    <option value="0" selected>未使用｜+0%</option>
+    <option value="100">普通｜+100%</option>
+    <option value="200">進階｜+200%</option>
+  </select>
+  <span></span>
+</div>
 
 <div class="row">
-  <span>卡片掉落率</span>
-  <input id="dropCardRate" type="number" min="0" step="0.01" value="150">
+  <span>裝備卡片基礎掉落率</span>
+  <input id="dropCardRate" type="number" min="0" step="1" value="141">
   <span>%</span>
 </div>
 
 <div class="row">
-  <span>基礎掉落率</span>
-  <input id="dropEquipRate" type="number" min="0" step="1" value="150">
+  <span>裝備掉落率</span>
+  <input id="dropEquipRate" type="number" min="0" step="1" value="120">
   <span>%</span>
 </div>
 
@@ -361,8 +369,10 @@ a{color:#77a9ff}
 <div class="stat" style="margin-top:12px">
   <span class="label">計算公式</span>
   <div class="tiny" style="line-height:1.9;margin-top:6px">
-    (基礎掉落率 × (100% + 幻境 200%※勾選) × 卡片掉落率)<br>
-    × (伺服器倍率 + DAIDAI + 基礎掉落率 + 超黏掉寶糖)
+    最終卡率 ＝ 基礎掉落率<br>
+    × (100% + 裝備掉落% + 呆呆100% + 超黏200%)<br>
+    × (100% + 裝備卡片基礎掉落% + 惡波卷200%)<br>
+    × (100% + 無限幻境：普通100%／進階200%)
   </div>
 </div>
 
@@ -3701,52 +3711,64 @@ onSnapshot(q,snap=>{
 
 <script>
 function calcDropRate(){
-  const cardBasePercent = Number(document.getElementById("dropCardRate")?.value || 0);
-  const equipPercent = Number(document.getElementById("dropEquipRate")?.value || 0);
-
-  const useDream = !!document.getElementById("dropUseDream")?.checked;
+  const cardEquipPercent = Number(document.getElementById("dropCardRate")?.value || 0);
+  const equipDropPercent = Number(document.getElementById("dropEquipRate")?.value || 0);
   const useDaidai = !!document.getElementById("dropUseDaidai")?.checked;
   const useCandy = !!document.getElementById("dropUseCandy")?.checked;
   const useEvil = !!document.getElementById("dropUseEvil")?.checked;
+  const dreamBonusPercent = Number(document.getElementById("dropDreamMode")?.value || 0);
 
-  const cardBuiltInPercent = 100;
-  const cardPercent = cardBuiltInPercent + cardBasePercent + (useEvil ? 200 : 0);
+  const dropMultiplierPercent =
+    100 +
+    equipDropPercent +
+    (useDaidai ? 100 : 0) +
+    (useCandy ? 200 : 0);
 
-  const cardRate = cardPercent / 100;
-  const equipRate = equipPercent / 100;
+  const cardMultiplierPercent =
+    100 +
+    cardEquipPercent +
+    (useEvil ? 200 : 0);
 
-  const baseDrop = 1;
-  const serverRate = 1;
-  const infiniteDreamBonus = useDream ? 2 : 0; // 幻境勾選時 +200%
-  const daidai = useDaidai ? 1 : 0;
-  const candy = useCandy ? 2 : 0;
+  const dreamMultiplierPercent = 100 + dreamBonusPercent;
 
-  const firstPart = baseDrop * (1 + infiniteDreamBonus) * cardRate;
-  const secondPart = serverRate + daidai + equipRate + candy;
-  const finalRate = firstPart * secondPart;
+  const dropMultiplier = dropMultiplierPercent / 100;
+  const cardMultiplier = cardMultiplierPercent / 100;
+  const dreamMultiplier = dreamMultiplierPercent / 100;
+
+  const baseNormal = 1;
+  const baseBoss = 0.1;
+
+  const finalRate = baseNormal * dropMultiplier * cardMultiplier * dreamMultiplier;
+  const finalRate01 = baseBoss * dropMultiplier * cardMultiplier * dreamMultiplier;
 
   const result = document.getElementById("dropRateResult");
   const detail = document.getElementById("dropRateDetail");
   if(!result || !detail) return;
 
-  const finalRate01 = finalRate / 10;
+  const dreamName =
+    dreamBonusPercent === 200 ? "進階" :
+    dreamBonusPercent === 100 ? "普通" : "未使用";
 
   result.innerHTML =
     `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">1%</span> 道具<span style="color:#f7c65c;font-weight:800">(普卡)</span>最終掉落率</span><b class="ok">${finalRate.toFixed(2)}%</b></div>` +
     `<div class="stat"><span class="label"><span style="color:#ff5f6d;font-weight:800">0.1%</span>道具<span style="color:#f7c65c;font-weight:800">(王卡)</span>最終掉落率</span><b class="ok">${finalRate01.toFixed(2)}%</b></div>` +
-    `<div class="stat"><span class="label">實際卡片掉落率（含基礎100%）</span><b>${cardPercent.toFixed(0)}%</b></div>` +
-    `<div class="stat"><span class="label">後段倍率</span><b>${secondPart.toFixed(2)}</b></div>`;
+    `<div class="stat"><span class="label">掉落倍率</span><b>${dropMultiplier.toFixed(2)} 倍</b></div>` +
+    `<div class="stat"><span class="label">卡片倍率</span><b>${cardMultiplier.toFixed(2)} 倍</b></div>` +
+    `<div class="stat"><span class="label">無限幻境倍率</span><b>${dreamMultiplier.toFixed(2)} 倍</b></div>`;
 
   detail.innerHTML =
     `<div class="stat"><span class="label">實際代入</span>` +
     `<div class="tiny" style="line-height:1.9;margin-top:6px">` +
-    `卡片掉落率：基礎 100% + ${cardBasePercent}%` +
-    `${useEvil ? ` + 惡波 200%` : ""}` +
-    ` = ${cardPercent}%<br>` +
-    `幻境：${useDream ? "使用 +200%掉落率" : "未使用"}｜基礎掉落率：${equipPercent}%｜呆呆：${useDaidai ? "掉落率 +100%" : "未使用"}｜超黏：${useCandy ? "使用 +200%掉落率" : "未使用"}<br>` +
-    `(1 × (1 + ${infiniteDreamBonus}) × ${cardRate.toFixed(2)}) × ` +
-    `(${serverRate} + ${daidai} + ${equipRate.toFixed(2)} + ${candy})` +
-    `<br>= <b class="ok">${finalRate.toFixed(2)}%</b>` +
+    `掉落倍率：100% + 裝備 ${equipDropPercent}%` +
+    `${useDaidai ? ` + 呆呆 100%` : ""}` +
+    `${useCandy ? ` + 超黏 200%` : ""}` +
+    ` = ${dropMultiplierPercent}%（${dropMultiplier.toFixed(2)}倍）<br>` +
+    `卡片倍率：100% + 裝備卡片 ${cardEquipPercent}%` +
+    `${useEvil ? ` + 惡波卷 200%` : ""}` +
+    ` = ${cardMultiplierPercent}%（${cardMultiplier.toFixed(2)}倍）<br>` +
+    `無限幻境：${dreamName} +${dreamBonusPercent}% = ${dreamMultiplierPercent}%（${dreamMultiplier.toFixed(2)}倍）<br>` +
+    `普卡：1% × ${dropMultiplier.toFixed(2)} × ${cardMultiplier.toFixed(2)} × ${dreamMultiplier.toFixed(2)} = <b class="ok">${finalRate.toFixed(2)}%</b><br><br>` +
+    `王卡：0.1% × ${dropMultiplier.toFixed(2)} × ${cardMultiplier.toFixed(2)} × ${dreamMultiplier.toFixed(2)} = <b class="ok">${finalRate01.toFixed(2)}%</b>` +
     `</div></div>`;
 }
 
