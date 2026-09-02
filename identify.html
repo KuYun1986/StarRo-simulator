@@ -251,25 +251,230 @@ a{color:#77a9ff}
 .refine-green{color:#52d273;font-weight:700}
 .refine-legendary-gold{color:#ffd84d;font-weight:900;text-shadow:0 0 8px rgba(255,216,77,.22)}
 </style>
-<style>.grid{display:block!important}.grid section.card{margin-bottom:16px}</style></head>
-<body><div class="wrap">
+
+<style>
+.top-group{position:relative}
+.top-group>summary{
+  list-style:none;cursor:pointer;user-select:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:10px 16px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--text);font-weight:700;
+}
+.top-group>summary::-webkit-details-marker{display:none}
+.top-group[open]>summary{filter:brightness(1.08)}
+.top-group-menu{
+  position:absolute;z-index:50;top:calc(100% + 6px);left:0;
+  min-width:190px;padding:8px;border:1px solid var(--line);
+  border-radius:12px;background:var(--card);
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
+  display:grid;gap:6px;
+}
+.top-group-menu button{
+  width:100%;text-align:left;white-space:nowrap;
+}
+@media(max-width:700px){
+  .top-group-menu{position:fixed;left:12px;right:12px;top:auto;min-width:0}
+}
+</style>
+<style>.main-enchant-hidden{display:none!important}</style>
+
+<style>
+.identify-only-page section.card:not(.identify-card){display:none!important}
+.identify-only-page #onlineBar{display:none!important}
+.identify-only-page .grid{display:block!important}
+.identify-only-page section.identify-card{margin-bottom:16px}
+.identify-nav-link{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:10px 16px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--text);text-decoration:none;font-weight:700;
+}
+</style>
+</head>
+<body class="identify-only-page"><div class="wrap">
 <h1>🔍 繁星鑑定區</h1>
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
-<a href="index.html" class="game-page-link">🏠 主頁</a>
-<a href="game.html" class="game-page-link">🎮 遊戲區</a>
-<a href="wash.html" class="game-page-link">🧪 洗詞區</a>
-<a href="enchant.html" class="game-page-link">✨ 附魔區</a>
-<a href="identify.html" class="game-page-link">🔍 鑑定區</a>
-<a href="collection.html" class="game-page-link">📚 收藏區</a>
-<button onclick="jumpIdentify('進階武器鑑定')">🗡️ 進階武器</button>
-<button onclick="jumpIdentify('武器指定晶片')">💠 武器指定</button>
-<button onclick="jumpIdentify('頭中鑑定棒')">🎀 頭中</button>
-<button onclick="jumpIdentify('頭下鑑定棒')">🎗️ 頭下</button>
-<button onclick="jumpIdentify('鞋子鑑定棒')">👟 鞋子</button>
-<button onclick="jumpIdentify('飾品鑑定棒')">🪄 飾品</button>
+<a href="index.html" class="identify-nav-link">← 回模擬器</a>
+<a href="shadow.html" class="identify-nav-link">💎 影子區</a>
+<button onclick="starroIdentifyJump('進階武器鑑定')">🗡️ 進階武器</button>
+<button onclick="starroIdentifyJump('武器指定晶片')">💠 武器指定</button>
+<button onclick="starroIdentifyJump('頭中鑑定棒')">🎀 頭中</button>
+<button onclick="starroIdentifyJump('頭下鑑定棒')">🎗️ 頭下</button>
+<button onclick="starroIdentifyJump('鞋子鑑定棒')">👟 鞋子</button>
+<button onclick="starroIdentifyJump('飾品鑑定棒')">🪄 飾品</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
-<div class="grid">
+<div id="onlineBar" class="stat" style="margin-top:12px">
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span class="label">🌐 全服即時戰報（最近7天）</span>
+    <span id="fbStatus" class="tiny">連線中…</span>
+    <button onclick="changeStarroName()" style="margin-left:auto">👤 <span id="fbNameLabel">設定暱稱</span></button>
+  </div>
+  <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
+  <div id="jackpotFeed" style="margin-top:8px;max-height:220px;overflow:auto"></div>
+</div>
+
+
+<section class="card main-enchant-hidden">
+<h2>完整流程</h2>
+<p class="tiny">目前只保留精煉 1% 流程。</p>
+<div id="steps"></div>
+<div class="actions">
+<button onclick="addPreset('精煉 1%',1)">＋精煉1%</button>
+<button onclick="addPreset('自訂階段',10)">＋自訂</button>
+</div>
+<div style="margin-top:14px">
+<label>模擬次數</label>
+<input id="flowTrials" type="number" min="1" max="1000000" value="100000">
+</div>
+<div class="actions">
+<button class="primary" onclick="runFlow()">模擬完整流程</button>
+<button onclick="clearSteps()">清空</button>
+</div>
+<div id="theory" style="margin-top:14px"></div>
+<div id="flowResult" class="statgrid"></div>
+</section>
+
+
+
+
+
+
+
+
+
+<section class="card">
+<h2>💎 UR寶石箱(1)</h2>
+<div class="tiny">開啟 UR寶石箱(1)，有機會獲得 <b>UR寶石箱(2)</b>。</div>
+<div class="actions">
+<button class="primary" onclick="urGemBatch(10)">開 10 次</button>
+<button onclick="urGemBatch(100)">開 100 次</button>
+<button onclick="urGemBatch(1000)">開 1000 次</button>
+<button onclick="resetUrGem()">清除紀錄</button>
+</div>
+<div id="urGemNow" style="margin-top:12px"></div>
+<div id="urGemStats" style="margin-top:8px"></div>
+
+<hr style="margin:18px 0">
+<div class="label">UR寶石箱(2)｜16種寶石</div>
+<div class="tiny" style="line-height:1.9;margin-top:8px">
+物理素質爆發石、魔法素質爆發石、無敵石、莎拉石、魔法滲透石、物理連擊石、魔法連擊石、爆擊連擊石、近距離物理終傷石、遠距離物理終傷石、全屬性魔法終傷石、解除石、精煉石、再次追加石、再次施放石、屬性克制石
+</div>
+</section>
+
+<section class="card">
+<h2>🧰 精煉箱</h2>
+<p class="tiny">每抽消耗 <b>750 P</b>。隨機獲得一個精煉鎚，可一次開啟 10 / 100 / 1000 箱。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">內容物 / 機率</span>
+  <div class="tiny" style="line-height:1.9;margin-top:6px">
+    (小灰) 神工匠的鐵鎚：16.67%｜1 P<br>
+    (大灰) 極限神工匠的鐵鎚：16.67%｜110 P<br>
+    (-1灰槌) 乙太神工匠的鐵鎚：16.67%｜9 P<br>
+    (小金) 高密度乙太神工匠的鐵鎚：13.33%｜90 P<br>
+    (-1金槌) 極限乙太神工匠的鐵鎚：13.33%｜80 P<br>
+    <span class="refine-gold">(大金) 高密度極限乙太神工匠的鐵鎚</span>：10.00%｜800 P<br>
+    <span class="refine-green">(傳說-1綠) 傳說乙太神工匠的鐵鎚</span>：10.00%｜1,000 P<br>
+    <span class="refine-legendary-gold">(傳說大金) 高密度傳說乙太神工匠的鐵鎚</span>：3.33%｜20,000 P
+  </div>
+</div>
+
+<div class="actions" style="margin-top:10px">
+  <button class="primary" onclick="refineBoxOpen(10)">開 10 箱</button>
+  <button onclick="refineBoxOpen(100)">開 100 箱</button>
+  <button onclick="refineBoxOpen(1000)">開 1000 箱</button>
+  <button onclick="refineBoxReset()">清除紀錄</button>
+</div>
+
+<div id="refineBoxNow" style="margin-top:12px"></div>
+<div id="refineBoxStats" class="statgrid" style="margin-top:10px"></div>
+<div id="refineBoxDist" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>🎰 XR 轉蛋</h2>
+<div class="row"><span>每抽花費</span><b>19 紅利</b></div>
+<p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜連續 1001 抽未出大獎才觸發保底：XR大獎 / UR一獎 / UR二獎，3 抽 1；自然抽到任一大獎或觸發保底後，都重新從第 1 抽計算。</p>
+<div class="actions">
+<button class="primary" onclick="xrDraw(1)">抽 1 次</button>
+<button onclick="xrDraw(10)">抽 10 次</button>
+<button onclick="xrDraw(100)">抽 100 次</button>
+<button onclick="xrDraw(1001)">抽 1001 次</button>
+<button onclick="resetXR()">清除紀錄</button>
+</div>
+<div id="xrNow" style="margin-top:14px"></div>
+<div id="xrStats" class="statgrid"></div>
+<div id="xrDist" style="margin-top:10px"></div>
+</section>
+<section class="card">
+<h2>🎟️ UR 轉蛋</h2>
+<div class="row"><span>每抽花費</span><b>19 紅利</b></div>
+<p class="tiny">無保底｜UR：0.15%｜UR內容：UR服飾隨機書、華金自選箱；其中華金自選箱機率 0.05%。</p>
+<div class="actions">
+<button class="primary" onclick="urDraw(1)">抽 1 次</button>
+<button onclick="urDraw(10)">抽 10 次</button>
+<button onclick="urDraw(100)">抽 100 次</button>
+<button onclick="urDraw(500)">抽 500 次</button>
+<button onclick="resetUR()">清除紀錄</button>
+</div>
+<div id="urNow" style="margin-top:14px"></div>
+<div id="urStats" class="statgrid"></div>
+<div id="urDist" style="margin-top:10px"></div>
+</section>
+
+
+
+
+<section class="card"><h2>💎 時光超越靴附魔</h2>
+<p class="tiny"><b>第四洞先抽：</b>墮落根莖×4：70%｜闇答萊屍×4：20%｜希梅爾茲×4：10%。抽到希梅爾茲後才再抽第三洞。</p>
+<p class="tiny"><b>第三洞：</b>6種變異等機率，各約16.67%。</p>
+<div class="actions"><button class="primary" onclick="rollHoles()">隨機一次</button><button onclick="rollHoles10()">隨機 10 次</button><button onclick="resetHoles()">清除</button></div><div id="holeNow" style="margin-top:14px"></div><div id="holeStats" style="margin-top:10px"></div></section>
+
+<section class="card">
+<h2>🐉 龍甲附魔</h2>
+<p class="tiny">⭐ 使用「洗到特級」時，若全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
+
+<div class="stat">
+<span class="label">第四洞附魔｜期望值：約 6 次</span>
+<div class="tiny">LV2 → LV3：50%（期望 2 次）　｜　LV3 → 特級：25%（期望 4 次）　｜　<b>全程期望：約 6 次</b></div>
+<div class="actions">
+<button class="primary" onclick="dragon4Once()">附魔一次</button>
+<button onclick="dragon4ToSpecial()">洗到特級</button>
+<button onclick="resetDragon4()">重置</button>
+</div>
+<div id="dragon4Now" style="margin-top:10px"></div>
+<div id="dragon4Stats" style="margin-top:8px"></div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">第三洞附魔｜期望值：約 8 次</span>
+<div class="tiny">LV3 → LV4：75%（期望 2 次）　｜　LV4 → LV5：50%（期望 2 次）　｜　LV5 → 特級：25%（期望 4 次）　｜　<b>全程期望：約 8 次</b></div>
+<div class="actions">
+<button class="primary" onclick="dragon3Once()">附魔一次</button>
+<button onclick="dragon3ToSpecial()">洗到特級</button>
+<button onclick="resetDragon3()">重置</button>
+</div>
+<div id="dragon3Now" style="margin-top:10px"></div>
+<div id="dragon3Stats" style="margin-top:8px"></div>
+</div>
+</section>
+
+<section class="card">
+<h2>⚔️ 善惡武器附魔</h2>
+<p class="tiny">⭐ 使用「洗到 LV5」時，若 LV1→LV5 全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
+<div class="tiny"><b>洗到 LV5 期望值：約 14 次</b></div>
+<div class="tiny">LV1 → LV2：60%（期望 2 次）　｜　LV2 → LV3：45%（期望 3 次）　｜　LV3 → LV4：30%（期望 4 次）　｜　LV4 → LV5：15%（期望 7 次）　｜　<b>全程期望：約 14 次</b></div>
+<div class="actions">
+<button class="primary" onclick="weaponOnce()">附魔一次</button>
+<button onclick="weaponTo5()">洗到 LV5</button>
+<button onclick="resetWeapon()">重置</button>
+</div>
+<div id="weaponNow" style="margin-top:10px"></div>
+<div id="weaponStats" style="margin-top:8px"></div>
+</section>
+
+
+
 <section class="card">
 <h2>🗡️ 進階武器鑑定</h2>
 <p class="tiny">
@@ -301,6 +506,51 @@ a{color:#77a9ff}
 <div id="weaponChipNow" style="margin-top:12px"></div>
 <div id="weaponChipStats" class="statgrid"></div>
 <div id="weaponChipTop" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
+<div class="row"><span>每次洗詞花費</span><input id="huajinCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="runHuajinOnce()">🎲 洗一次華金</button>
+<button onclick="runHuajinBatch(10)">連洗 10 次</button>
+<button onclick="runHuajinBatch(100)">連洗 100 次</button>
+<button onclick="resetHuajin()">清除紀錄</button>
+</div>
+<div id="huajinNow" style="margin-top:14px"></div>
+<div id="huajinDist" style="margin-top:10px"></div>
+<div id="huajinStats" class="statgrid"></div>
+
+
+
+
+
+
+
+</section>
+
+<section class="card">
+<h2>💎 華金一條龍(耳環/飾品)</h2>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽「全技能傷害 +1%～+20%」。</p>
+<div class="row"><span>每次洗詞花費</span><input id="accessoryCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="runAccessoryOnce()">🎲 洗一次華金</button>
+<button onclick="runAccessoryBatch(10)">連洗 10 次</button>
+<button onclick="runAccessoryBatch(100)">連洗 100 次</button>
+<button onclick="resetAccessory()">清除紀錄</button>
+</div>
+<div id="accessoryNow" style="margin-top:14px"></div>
+<div id="accessoryDist" style="margin-top:10px"></div>
+<div id="accessoryStats" class="statgrid"></div>
+
+
+
+
+
+
+
+
 </section>
 
 <section class="card">
@@ -399,8 +649,8 @@ a{color:#77a9ff}
 <p class="tiny">鑑定魔法棒先抽 1～5 詞；只有出現第5詞才抽下方素質。指定魔法書固定為5詞，直接抽第5詞素質。數值區間內目前採整數等機率。</p>
 <div class="actions">
 <button class="primary" onclick="rollAccessoryIdentify('wand')">🪄 鑑定棒抽一次</button>
-<button onclick="rollWandBatch(10)">連抽10次</button>
-<button onclick="rollWandBatch(100)">連抽100次</button>
+<button onclick="rollWandBatch(10)">鑑定棒連抽10次</button>
+<button onclick="rollWandBatch(100)">鑑定棒連抽100次</button>
 <button onclick="resetIdentify()">清除紀錄</button>
 </div>
 <div id="identifyNow" style="margin-top:14px"></div>
@@ -429,101 +679,277 @@ a{color:#77a9ff}
 <div id="bookDist" style="margin-top:10px"></div>
 <p class="tiny">※ 同階級內各詞條及數值區間的細部權重官方未公布，目前採等機率。TOP 20 混合排序換算：POW / SPL / CON +35 = P.ATK / S.MATK / C.RATE +20%。</p>
 </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="card">
+<h2>🏆 SSS評級系統</h2>
+<p class="tiny">每次評級成功機率 <b>15%</b>，每次成本固定 <b>500 台幣</b>。</p>
+
+<div class="actions">
+<button class="primary" onclick="sssBatch(1)">評級 1 次</button>
+<button onclick="sssBatch(10)">評級 10 次</button>
+
+<button onclick="sssUntilSuccess()">洗到 SSS</button>
+<button onclick="sssReset()">清除紀錄</button>
 </div>
 
+<div id="sssNow" style="margin-top:12px"></div>
+<div id="sssStats" style="margin-top:10px"></div>
+</section>
+<section class="card">
+<h2>🔨 +20 → +30 精煉模擬</h2>
+<p class="tiny">⭐ 若從 +20 開始累計 <b>200 把精煉槌內</b> 達成 +30，會送上全服即時戰報。</p>
+<p class="tiny">每把武器從 <b>+20</b> 開始；每次精煉都消耗 <b>1 把精煉槌</b>，每把精煉槌 <b>15,000 P</b>。失敗維持原精煉值，成功才進到下一階。每次按 10 / 100 把精煉槌都會從「目前精煉值」繼續往上敲，進度不會重置；可一路累積到 +30。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">各階成功率</span>
+  <div class="tiny" style="line-height:1.9;margin-top:6px">
+    +20→+21：75%　｜　+21→+22：50%　｜　+22→+23：25%　｜　+23→+24：10%　｜　+24→+25：5%<br>
+    +25→+26：3%　｜　+26→+27：2%　｜　+27→+28：1%　｜　+28→+29：1%　｜　+29→+30：1%
+  </div>
+  <div class="tiny" style="margin-top:5px">理論平均：約 <b>420.7 把精煉槌／武器</b>，約 <b>6,310,500 P</b> 才能從 +20 到 +30。</div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<div class="actions" style="margin-top:10px">
+  <button class="primary" onclick="refine30One()">敲到 +30</button>
+  <button onclick="refine30Batch(10)">10 把精煉槌</button>
+  <button onclick="refine30Batch(100)">100 把精煉槌</button>
+  <button onclick="refine30Reset()">重置</button>
+</div>
+
+<div id="refine30Now" style="margin-top:10px"></div>
+<div id="refine30Stats" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>🛡️ 盾牌石</h2>
+<p class="tiny">⭐ 100 次內抽中成功結果會送上「全服即時戰報」。</p>
+<p class="tiny">每次使用都會計算成本；抽到「腐朽」仍可繼續洗，並累計腐朽數量。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">💧 清澈石</span>
+  <b>成功率 0.033%｜每次 500 P</b>
+  <div class="tiny">期望：約 3,031 次｜約 1,515,500 P</div>
+  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成腐朽；抽到腐朽後仍可繼續洗。</div>
+  <div class="actions" style="margin-top:8px">
+    <button class="primary" onclick="shieldClearBatch(1)">抽 1 次</button>
+    <button onclick="shieldClearBatch(10)">抽 10 次</button>
+    <button onclick="shieldClearBatch(100)">抽 100 次</button>
+    <button onclick="shieldClearBatch(1000)">抽 1000 次</button>
+    <button onclick="shieldClearReset()">重置</button>
+  </div>
+  <div id="shieldClearNow" style="margin-top:8px"></div>
+  <div id="shieldClearStats" style="margin-top:8px"></div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+  <span class="label">🎉 活動石</span>
+  <b>0.1% 直接變成「光芒」｜每次 999 P</b>
+  <div class="tiny">期望：約 1,000 次｜約 999,000 P</div>
+  <div class="actions" style="margin-top:8px">
+    <button class="primary" onclick="shieldEventBatch(1)">抽 1 次</button>
+    <button onclick="shieldEventBatch(10)">抽 10 次</button>
+    <button onclick="shieldEventBatch(100)">抽 100 次</button>
+    <button onclick="shieldEventUntilHit()">抽到出</button>
+    <button onclick="shieldEventReset()">重置</button>
+  </div>
+  <div id="shieldEventNow" style="margin-top:8px"></div>
+  <div id="shieldEventStats" style="margin-top:8px"></div>
+</div>
+</section>
+
+<section class="card">
+<h2>🧤 手套石</h2>
+<p class="tiny">⭐ 100 次內抽中純潔石成功會送上「全服即時戰報」。</p>
+<div class="stat">
+  <span class="label">✨ 純潔石</span>
+  <b>成功率 0.33%｜每次 500 P</b>
+  <div class="tiny">期望：約 304 次｜約 152,000 P</div>
+  <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成雜念；抽到雜念後仍可繼續洗。</div>
+  <div class="actions" style="margin-top:8px">
+    <button class="primary" onclick="glovePureBatch(1)">抽 1 次</button>
+    <button onclick="glovePureBatch(10)">抽 10 次</button>
+    <button onclick="glovePureBatch(100)">抽 100 次</button>
+    <button onclick="glovePureBatch(1000)">抽 1000 次</button>
+    <button onclick="glovePureReset()">重置</button>
+  </div>
+  <div id="glovePureNow" style="margin-top:8px"></div>
+  <div id="glovePureStats" style="margin-top:8px"></div>
+</div>
+</section>
+
+
+
+
+<section class="card main-game-hidden">
+<h2>🎡 繁星大輪盤</h2>
+<p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。可先預覽 100 次牌路，不下注也不計入正式累計。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">顏色 / 賠率 / 機率</span>
+  <div class="tiny" style="line-height:1.9;margin-top:6px">
+    🔴 紅色｜1:1｜46.15%<br>
+    🟡 黃色｜1:3｜23.08%<br>
+    🟢 綠色｜1:5｜15.38%<br>
+    🟣 紫色｜1:11｜7.69%<br>
+    🔵 藍色｜1:23｜3.85%<br>
+    🟠 橘色｜1:23｜3.85%
+  </div>
+</div>
+
+<div class="stat" style="margin-top:10px">
+  <span class="label">下注設定｜每次最多 5,000 紅｜最多同時 4 種顏色</span>
+
+  <div class="row" style="margin-top:8px">
+    <span>第 1 色</span>
+    <select id="marqueeBetColor1">
+      <option value="green">🟢 綠色 1:5</option>
+      <option value="purple">🟣 紫色 1:11</option>
+      <option value="blue">🔵 藍色 1:23</option>
+      <option value="orange">🟠 橘色 1:23</option>
+      <option value="red">🔴 紅色 1:1</option>
+      <option value="yellow">🟡 黃色 1:3</option>
+    </select>
+    <input id="marqueeBetAmount1" type="number" min="0" max="5000" step="100" value="1000">
+    <span>紅</span>
+  </div>
+
+  <div class="row" style="margin-top:8px">
+    <span>第 2 色</span>
+    <select id="marqueeBetColor2">
+      <option value="purple">🟣 紫色 1:11</option>
+      <option value="green">🟢 綠色 1:5</option>
+      <option value="blue">🔵 藍色 1:23</option>
+      <option value="orange">🟠 橘色 1:23</option>
+      <option value="red">🔴 紅色 1:1</option>
+      <option value="yellow">🟡 黃色 1:3</option>
+      <option value="">不下注</option>
+    </select>
+    <input id="marqueeBetAmount2" type="number" min="0" max="5000" step="100" value="1000">
+    <span>紅</span>
+  </div>
+
+  <div class="row" style="margin-top:8px">
+    <span>第 3 色</span>
+    <select id="marqueeBetColor3">
+      <option value="blue">🔵 藍色 1:23</option>
+      <option value="green">🟢 綠色 1:5</option>
+      <option value="purple">🟣 紫色 1:11</option>
+      <option value="orange">🟠 橘色 1:23</option>
+      <option value="red">🔴 紅色 1:1</option>
+      <option value="yellow">🟡 黃色 1:3</option>
+      <option value="">不下注</option>
+    </select>
+    <input id="marqueeBetAmount3" type="number" min="0" max="5000" step="100" value="1000">
+    <span>紅</span>
+  </div>
+
+  <div class="row" style="margin-top:8px">
+    <span>第 4 色</span>
+    <select id="marqueeBetColor4">
+      <option value="orange">🟠 橘色 1:23</option>
+      <option value="green">🟢 綠色 1:5</option>
+      <option value="purple">🟣 紫色 1:11</option>
+      <option value="blue">🔵 藍色 1:23</option>
+      <option value="red">🔴 紅色 1:1</option>
+      <option value="yellow">🟡 黃色 1:3</option>
+      <option value="">不下注</option>
+    </select>
+    <input id="marqueeBetAmount4" type="number" min="0" max="5000" step="100" value="1000">
+    <span>紅</span>
+  </div>
+
+  <div class="tiny" style="margin-top:6px">最多同時下注 <b>4 種不同顏色</b>；四色合計每局不可超過 <b>5,000 紅</b>。</div>
+</div>
+
+<div class="actions" style="margin-top:10px">
+  <button class="primary" onclick="marqueePlay(1)">轉 1 次</button>
+  <button onclick="marqueePlay(10)">轉 10 次</button>
+  <button onclick="marqueePlay(100)">轉 100 次</button>
+<button onclick="marqueePreview100()">預先轉 100 次（不下注）</button>
+  <button onclick="marqueeReset()">重置</button>
+</div>
+
+<div class="mq-wheel-wrap" style="margin-top:14px">
+  <div class="mq-pointer">▼</div>
+  <div id="marqueeWheel" class="mq-wheel">
+    <div class="mq-wheel-center">繁星</div>
+  </div>
+</div>
+<div id="marqueeWheelLabel" class="tiny" style="text-align:center;margin-top:8px">等待開獎</div>
+
+<div id="marqueeNow" style="margin-top:10px"></div>
+<div id="marqueeStats" style="margin-top:10px"></div>
+<div id="marqueePreview" style="margin-top:10px"></div>
+
+<div class="stat" style="margin-top:16px">
+  <span class="label">🔎 實機紀錄／公平性分析</span>
+  <div class="tiny" style="line-height:1.8;margin-top:5px">
+    用來記錄遊戲內實際開獎。每把下注時間約 2 分鐘，每次加注 100 紅利，每局總下注最多 5,000 紅利；先填各顏色下注金額，再點本把開出的顏色。
+    資料只存在你的瀏覽器 localStorage；樣本越多越有參考價值。
+  </div>
+
+  <div class="wheel-log-bets" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px">
+    <label>🔴 紅<input id="wlRed" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟡 黃<input id="wlYellow" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟢 綠<input id="wlGreen" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟣 紫<input id="wlPurple" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🔵 藍<input id="wlBlue" type="number" min="0" max="5000" step="100" value="0"></label>
+    <label>🟠 橘<input id="wlOrange" type="number" min="0" max="5000" step="100" value="0"></label>
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <span>重注門檻（預設 1,000）</span>
+    <input id="wlHeavyThreshold" type="number" min="0" max="5000" step="100" value="1000">
+    <span>紅利</span>
+  </div>
+
+  <div class="tiny" style="margin-top:8px">本把開獎：</div>
+  <div class="actions" style="margin-top:6px">
+    <button onclick="wheelLogAdd('red')">🔴 紅</button>
+    <button onclick="wheelLogAdd('yellow')">🟡 黃</button>
+    <button onclick="wheelLogAdd('green')">🟢 綠</button>
+    <button onclick="wheelLogAdd('purple')">🟣 紫</button>
+    <button onclick="wheelLogAdd('blue')">🔵 藍</button>
+    <button onclick="wheelLogAdd('orange')">🟠 橘</button>
+  </div>
+
+  <div class="row" style="margin-top:8px">
+    <button onclick="wheelLogUndo()">復原上一筆</button>
+    <button onclick="wheelLogExport()">匯出 CSV</button>
+    <button onclick="wheelLogClear()">清空紀錄</button>
+  </div>
+
+  <div id="wheelLogSummary" style="margin-top:10px"></div>
+  <div id="wheelLogRecent" style="margin-top:10px"></div>
+</div>
+</section>
 
 
 <section class="card main-game-hidden" id="baccaratCard">
@@ -563,9 +989,64 @@ a{color:#77a9ff}
   <div id="baccaratPreview" style="margin-top:10px"></div>
 </section>
 
+<section class="card main-game-hidden">
+<h2>🃏 21點</h2>
+<p class="tiny">娛樂模擬：6副牌、莊家17點停牌、Blackjack 勝利 +20,000 P、一般勝利 +10,000 P、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。使用虛擬籌碼。</p>
 
+<div class="row">
+<span>每局固定下注</span>
+<b>10,000 P</b>
+</div>
 
+<div class="actions">
+<button class="primary" onclick="bjNewRound()">新一局</button>
+<button id="bjHitBtn" onclick="bjHit()" disabled>要牌</button>
+<button id="bjStandBtn" onclick="bjStand()" disabled>停牌</button>
+<button id="bjDoubleBtn" onclick="bjDouble()" disabled>加倍</button>
+<button onclick="bjReset()">重置</button>
+</div>
 
+<div id="bjBank" class="stat" style="margin-top:12px">
+<span class="label">虛擬籌碼</span><b id="bjChips">500,000 P</b>
+</div>
+<div id="bjTable" style="margin-top:10px"></div>
+<div id="bjLog" style="margin-top:10px"></div>
+</section>
+
+<section class="card main-game-hidden">
+<h2>🀙 推筒子</h2>
+<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。</p>
+
+<div class="row">
+<span>同時下注</span>
+<select id="ttHands">
+<option value="1">1 手</option>
+<option value="2">2 手</option>
+<option value="3">3 手</option>
+<option value="4">4 手</option>
+<option value="5">5 手</option>
+<option value="6">6 手</option>
+<option value="7">7 手</option>
+<option value="8">8 手</option>
+<option value="9">9 手</option>
+<option value="10">10 手</option>
+</select>
+<span>每手 10萬P</span>
+</div>
+
+<div class="actions">
+<button class="primary" onclick="ttPlay()">開牌</button>
+<button onclick="ttPreview100()">預先發 100 次（不下注）</button>
+<button onclick="ttReset()">重置</button>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">累計輸贏</span><b id="ttNet">0 P</b>
+</div>
+<div id="ttTable" style="margin-top:10px"></div>
+<div id="ttStats" style="margin-top:10px"></div>
+<div id="ttPreview" style="margin-top:10px"></div>
+</section>
 
 </div>
 <script>
@@ -852,7 +1333,7 @@ function renderIdentify(){
  identifyDist.innerHTML=(tierTxt?`<div class="stat"><span class="label">階級分布</span><div style="margin-top:8px">${tierTxt}</div></div>`:"")+
  (top.length?`<div class="stat" style="margin-top:8px"><span class="label">詞條數值最高 TOP 20</span><div style="margin-top:8px;line-height:1.9">${top.map(x=>`${x[0]}：${x[1]} 次`).join("　")}</div></div>`:"");
  let five=(idStats.fiveResults||[]).slice().sort((a,b)=>b.value-a.value).slice(0,10);
- wandFiveOnly.innerHTML=five.length?`<div class="stat"><span class="label">⭐ 5詞完整結果 TOP 10</span><div style="margin-top:10px">${five.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+ wandFiveOnly.innerHTML=five.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:10px">${five.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
 }
 function resetIdentify(){idStats={total:0,tiers:{},lines:{},fiveResults:[]};identifyNow.innerHTML="";identifyStats.innerHTML="";identifyDist.innerHTML="";wandFiveOnly.innerHTML=""}
 
@@ -860,19 +1341,9 @@ function resetIdentify(){idStats={total:0,tiers:{},lines:{},fiveResults:[]};iden
 function rollWandBatch(n){
  const before=idStats.fiveResults.length;
  for(let i=0;i<n;i++) rollAccessoryIdentify("wand",false);
-
  const added=idStats.fiveResults.slice(before);
  const best=added.slice().sort((a,b)=>b.value-a.value)[0];
-
- identifyNow.innerHTML=
-   `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
-   `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
-   `5詞出現 ${added.length} 次`+
-   `${best
-      ? `<br><b class="ok">本批最高</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
-      : `｜未出5詞`}`+
-   `</div></div>`;
-
+ identifyNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
  renderIdentify();
 }
 let bookStatsData={total:0,tiers:{},lines:{}};
@@ -960,7 +1431,7 @@ function shoeWandTrial(show=true){
    let f=shoeFifth(),lines=[shoeLine1(),shoeLine2(),shoeLine3(),shoeLine4(),`${f.text}｜${starroTierDisplayLabel(f.tier)}${starroMaxTag(f.isMax)}`];
    sw.five.push({lines,value:f.value,isMax:f.isMax});
    if(f.isMax) starroSaiGaoBroadcast("鞋子鑑定棒",f.text,sw.total,shoeWandCost.value);
-   if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞</b><div class="tiny" style="line-height:1.9;margin-top:8px">${lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div></div>`;
+   if(show)shoeWandNow.innerHTML=`<div class="stat"><b class="ok">⭐ 取得5詞｜${lines[4]}</b></div>`;
  } else if(show) shoeWandNow.innerHTML=`<div class="stat"><b>取得 ${n} 詞</b></div>`;
  renderShoeWand();
 }
@@ -968,26 +1439,16 @@ function shoeWandOnce(){shoeWandTrial(true)}
 function shoeWandBatch(n){
  const before=sw.five.length;
  for(let i=0;i<n;i++)shoeWandTrial(false);
-
  const added=sw.five.slice(before);
  const best=added.slice().sort((a,b)=>b.value-a.value)[0];
-
- shoeWandNow.innerHTML=
-   `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
-   `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
-   `5詞出現 ${added.length} 次`+
-   `${best
-      ? `<br><b class="ok">本批最高</b><br>${best.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
-      : `｜未出5詞`}`+
-   `</div></div>`;
-
+ shoeWandNow.innerHTML=`<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span><div class="tiny" style="line-height:1.8;margin-top:5px">5詞出現 ${added.length} 次${best?`｜本批最高 <b class="ok">${best.lines[4]}</b>`:"｜未出5詞"}</div></div>`;
  renderShoeWand();
 }
 function renderShoeWand(){
  let c=Math.max(0,+shoeWandCost.value||0);
  shoeWandStats.innerHTML=card("累計鑑定",sw.total.toLocaleString())+card("5詞次數",sw.five.length.toLocaleString(),"ok")+card("累計花費",(sw.total*c).toLocaleString()+" 紅利");
  let a=sw.five.slice().sort((x,y)=>y.value-x.value).slice(0,10);
- shoeWandFive.innerHTML=a.length?`<div class="stat"><span class="label">⭐ 5詞完整結果 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>#${i+1}</b><br>${x.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}</div>`).join("")}</div></div>`:"";
+ shoeWandFive.innerHTML=a.length?`<div class="stat"><span class="label">🏆 第5詞 TOP 10</span><div style="margin-top:8px">${a.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>#${i+1}｜${x.lines[4]}</b></div>`).join("")}</div></div>`:"";
 }
 function resetShoeWand(){sw={total:0,five:[]};shoeWandNow.innerHTML="";shoeWandStats.innerHTML="";shoeWandFive.innerHTML=""}
 
@@ -1552,33 +2013,23 @@ function advWeaponOne(){
   return fourth;
 }
 function advWeaponBatch(n){
-  let hit=0;
-  let bestRec=null;
-
+  let hit=0,best=0,bestTier=0;
   for(let i=0;i<n;i++){
     const beforeDraw=advWeaponState.draws;
     const v=advWeaponOne();
-
     if(v!==null){
       hit++;
       const rec=advWeaponState.top.find(x=>x.draw===beforeDraw+1);
-      if(rec && (!bestRec || rec.value>bestRec.value)){
-        bestRec=rec;
-      }
+      const tier=rec?rec.tier:0;
+      if(v>best){best=v;bestTier=tier;}
     }
   }
-
+  const bestIsMax=hit && best===30;
   document.getElementById("advWeaponNow").innerHTML=
     `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次</span>`+
-    `<div class="tiny" style="line-height:1.9;margin-top:6px">`+
-    `第4詞出現 ${hit} 次`+
-    `${bestRec
-      ? `<br><b class="ok">本批最高｜全技能最終傷害 +${bestRec.value}%｜${starroTierDisplayByIndex(bestRec.tier)}${starroMaxTag(bestRec.isMax)}</b>`+
-        `<br>${bestRec.lines.map((z,j)=>`${j+1}. ${z}`).join("<br>")}`
-      : `｜未出第4詞`}`+
-    `<br>本次花費 ${(n*ADV_WEAPON_COST).toLocaleString()} 紅利`+
-    `</div></div>`;
-
+    `<div class="tiny" style="line-height:1.8;margin-top:5px">`+
+    `第4詞出現 ${hit} 次${hit?`｜本批最高 <b class="ok">+${best}%｜${starroTierDisplayByIndex(bestTier)}${starroMaxTag(bestIsMax)}</b>`:"｜未出第4詞"}<br>`+
+    `本次花費 ${(n*ADV_WEAPON_COST).toLocaleString()} 紅利</div></div>`;
   renderAdvWeapon();
 }
 function renderAdvWeapon(){
@@ -1590,7 +2041,7 @@ function renderAdvWeapon(){
     card("第4詞出現",s.fourth.toLocaleString(),"ok")+
     card("第4詞實際率",rate.toFixed(2)+"%");
   document.getElementById("advWeaponTop").innerHTML=
-    `<div class="label">🏆 第4詞 TOP 10（完整詞條）</div>`+
+    `<div class="label">🏆 第4詞 TOP 10</div>`+
     (s.top.length?s.top.map((x,i)=>
       `<div class="stat" style="margin-top:7px"><span class="label">#${i+1}｜第 ${x.draw.toLocaleString()} 次｜`+
       `<b class="ok">全技能最終傷害 +${x.value}%｜${starroTierDisplayByIndex(x.tier)}${starroMaxTag(x.isMax)}</b></span>`+
@@ -3230,9 +3681,37 @@ onSnapshot(q,snap=>{
 
 
 <script>
-function jumpIdentify(keyword){
-  const t=[...document.querySelectorAll("section.card")].find(x=>x.innerText.includes(keyword));
-  if(t)t.scrollIntoView({behavior:"smooth",block:"start"});
+function starroJumpTo(keyword){
+  const target=[...document.querySelectorAll("section.card")].find(x=>x.innerText.includes(keyword));
+  if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+  document.querySelectorAll(".top-group[open]").forEach(x=>x.removeAttribute("open"));
 }
 </script>
+
+
+<script>
+function starroIdentifyJump(keyword){
+  const target=[...document.querySelectorAll("section.identify-card")].find(x=>x.innerText.includes(keyword));
+  if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+}
+(function(){
+  const wanted=[
+    "進階武器鑑定",
+    "武器指定晶片",
+    "頭中鑑定棒",
+    "頭中指定書",
+    "頭下鑑定棒",
+    "頭下指定書",
+    "鞋子鑑定棒",
+    "鞋子指定書",
+    "飾品鑑定棒",
+    "飾品指定魔法書"
+  ];
+  const sections=[...document.querySelectorAll("section.identify-card")];
+  if(!sections.length)return;
+  const parent=sections[0].parentElement;
+  wanted.map(name=>sections.find(s=>s.innerText.includes(name))).filter(Boolean).forEach(s=>parent.appendChild(s));
+})();
+</script>
+
 </body></html>
