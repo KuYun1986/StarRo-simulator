@@ -277,6 +277,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>基礎攻擊</b></td>
 <td><input id="fullAtk" oninput="recalcFullDamageTest()" step="any" type="number" value="10000"/><div class="tiny">ATK</div></td>
 <td><input id="fullMatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">MATK</div></td></tr>
+<tr><td><b>特殊攻擊</b></td>
+<td><input id="fullPatk" oninput="recalcFullDamageTest()" step="any" type="number" value="3854"/><div class="tiny">PATK</div></td>
+<td><input id="fullSmatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">SMATK</div></td></tr>
 <tr><td><b>攻擊%</b></td>
 <td><input id="fullAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="147"/><div class="tiny">ATK%</div></td>
 <td><input id="fullMatkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">MATK%</div></td></tr>
@@ -298,6 +301,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>近遠傷</b></td>
 <td><input id="fullRangePct" oninput="recalcFullDamageTest()" step="any" type="number" value="1148"/><div class="tiny">%</div></td>
 <td><span class="tiny">—</span></td></tr>
+<tr><td><b>暴擊傷害</b></td>
+<td><input id="fullCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
+<td><input id="fullMagicCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>終傷藥水｜體型</b></td>
 <td><input id="fullPotionSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="11"/><div class="tiny">+11%</div></td>
 <td><input id="fullPotionSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">+12%</div></td></tr>
@@ -471,7 +477,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="stat"><span class="label">技能最終傷害｜魔法</span><b id="fullMagicSkillDamage" style="color:#ffd54a">0</b></div>
 </div>
 <div class="tiny" id="fullDamageFormulaText" style="margin-top:10px;line-height:1.8"></div>
-<div class="tiny" style="margin-top:6px;color:#ffd54a"><b>V64 PATK 試算：</b>物理區的 PATK 採面板平面值，計算起點為「基礎 ATK + 面板 PATK（含神聖權能 +50）」；不再把 PATK 3854 當成 +3854% 獨立乘區。</div>
+<div class="tiny" style="margin-top:6px;color:#ffd54a"><b>特殊攻擊：</b>PATK / SMATK 採獨立乘區，例如 PATK 3854 = ×39.54；暴擊傷害欄位位於「近遠傷」下一格。</div>
 <div class="note" style="margin-top:14px">
 <b>⚡ 單次傷害／DPS</b>
 <div class="tiny" style="margin-top:5px">上方「技能最終傷害｜物理」會自動帶入單次傷害；再次施放 60% 另外顯示期望值，不會塞回「單次傷害」。</div>
@@ -1263,10 +1269,11 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   window.recalcFullDamageTest=function(){
     const val=id=>Number(document.getElementById(id)?.value||0);
 
-    const crit=Number(document.getElementById("dmgPanelCrit")?.value||0);
+    const crit=val("fullCritDamagePct");
+    const magicCrit=val("fullMagicCritDamagePct");
     const crate=Number(document.getElementById("dmgPanelCrate")?.value||0);
-    const patk=Number(document.getElementById("dmgPanelPatk")?.value||0);
-    const smatk=Number(document.getElementById("dmgPanelSmatk")?.value||0);
+    const patk=val("fullPatk");
+    const smatk=val("fullSmatk");
 
     const buffBbqCritFinal=!!document.getElementById("buffBbqCritFinal")?.checked;
     const buffXmasFruitSkillFinal=!!document.getElementById("buffXmasFruitSkillFinal")?.checked;
@@ -1277,6 +1284,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     const critDivisor=(damageMode==="skill") ? 2 : 1;
     const critMul=(100 + crit/critDivisor)/100;
+    const magicCritMul=(100 + magicCrit/critDivisor)/100;
     const crateMul=(140 + crate)/100;
     // PATK / SMATK 面板採獨立乘區：
     // 例如 PATK 3854 => (100+3854)/100 = ×39.54。
@@ -1382,7 +1390,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(val("fullRaceMagic")) *
       pctMul(val("fullSizeMagic")) *
       pctMul(val("fullElementMagicPct")) *
-      critMul *
+      magicCritMul *
       smatkMul *
       crateMul *
       pctMul(val("fullPotionSizeMagic")) *
