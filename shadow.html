@@ -239,7 +239,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="note" style="margin-top:10px">
 <b>🧙 職業／技能傷害</b>
 <div class="tiny" style="margin-top:6px">
-        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡直接加在技能倍率上，例如原始 4250%、繁星 +80% = 4330%。繁星未提供額外倍率的技能，預設顯示 +0%。
+        「技能原始倍率」與「繁星技能平衡」分開計算。繁星平衡採乘算：原始倍率 × (1 + 平衡% / 100)。例如原始 16,775%、繁星 414% → 16,775% × 5.14 = 86,223.5%。繁星未提供額外倍率的技能，預設為 0%（×1）。
       </div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px">
 <label>
@@ -277,11 +277,29 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </div>
 <div class="tiny" style="margin-top:6px">你的實測參考：最大HP約 500萬時，遊戲內單下約 110M；下方會顯示目前試算與 110M 的差距。</div>
 </div>
+<div class="note" id="ninjaFormulaInputs" style="margin-top:10px;display:none">
+<b>🥷 月影／疾風技能原始倍率參數｜TwRO 2024-07-23</b>
+<div class="tiny" id="ninjaFormulaText" style="margin-top:5px;color:#ffd54a"></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px">
+<label id="ninjaSkillLvWrap"><span class="tiny">技能 Lv.</span><input id="ninjaSkillLv" min="1" max="10" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="5"/></label>
+<label id="ninjaPrereqWrap"><span class="tiny" id="ninjaPrereqLabel">前置技能 Lv.</span><input id="ninjaPrereqLv" min="0" max="10" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="5"/></label>
+<label id="ninjaPowWrap"><span class="tiny">POW</span><input id="ninjaPow" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="100"/></label>
+<label id="ninjaSplWrap"><span class="tiny">SPL</span><input id="ninjaSpl" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="100"/></label>
+<label id="ninjaConWrap"><span class="tiny">CON</span><input id="ninjaCon" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="100"/></label>
+<label id="ninjaConstructModeWrap" style="display:none"><span class="tiny">構築狀態</span>
+<select id="ninjaConstructMode" onchange="syncOriginalSkillFormula();recalcFullDamageTest()" style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit">
+<option value="normal">一般情況</option><option value="explosion">爆炸情況</option>
+</select></label>
+<label><span class="tiny">Base Lv.</span><input id="ninjaBaseLv" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="275"/></label>
+</div>
+<div class="tiny" id="ninjaFormulaNote" style="margin-top:6px;color:#9fe7c8"></div>
+</div>
 <div class="tiny" style="margin-top:6px;color:#f6c85f">
         註：POW 僅在技能原始公式需要時使用；面板 PATK、CRATE 直接依輸入值參與完整傷害計算。
       </div>
 <div id="skillBalanceInfo" style="margin-top:10px;font-size:16px;font-weight:800;color:#ffd54a">技能倍率：—</div>
 <div class="tiny" id="skillReferenceInfo" style="margin-top:5px"></div>
+<div class="tiny" style="margin-top:6px;color:#9fe7c8"><b>技能版本：</b>其他職業以 twRO 第 4.2 版為基準；月影／疾風依 TwRO 2024-07-23 公式。繁星技能平衡採乘算。</div>
 </div>
 <div class="note" style="margin-top:10px">
 <b>📌 現在素質</b>
@@ -1082,12 +1100,33 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   window.applyBestCrystalBuild=function(){ if(bestCrystalRows.length) applyCrystalRank(0); };
 
 
-  const SKILL_BALANCE_DATA={"盧恩龍爵":[{"name":"風暴衝擊","bonus":1127.0},{"name":"風暴斬擊","bonus":177.0},{"name":"天龍氣息","bonus":80.0},{"name":"狂暴粉碎","bonus":180.0},{"name":"天龍擊刺","bonus":382.0}],"帝國聖衛軍":[{"name":"聖十字雨","bonus":380.0},{"name":"瞬間斬擊","bonus":232.0},{"name":"盾牌投擲","bonus":380.0},{"name":"光芒之矛","bonus":586.0},{"name":"帝國十字","bonus":363.0}],"禁咒魔導士":[{"name":"冰刃斬","bonus":1488.0},{"name":"豔紅魔矢","bonus":400.0},{"name":"毀滅彗星","bonus":445.0},{"name":"神秘幻滅","bonus":1025.0}],"元素支配者":[{"name":"超自然波","bonus":526.0},{"name":"雷霆陣地","bonus":620.0},{"name":"灼熱岩漿","bonus":140.0},{"name":"鑽石風暴","bonus":140.0},{"name":"大地驅動","bonus":140.0},{"name":"超自然流動","bonus":508.0}],"機甲神匠":[{"name":"戰斧熔滅","bonus":1025.0},{"name":"強力粉碎","bonus":575.0},{"name":"三連雷射","bonus":274.0},{"name":"閃光衝擊波","bonus":170.0},{"name":"強力掃擊","bonus":671.0},{"name":"能量加農砲","bonus":305.0}],"生命締造者":[{"name":"爆炸炸藥","bonus":508.0},{"name":"強酸禁地","bonus":170.0},{"name":"手推車加農砲","bonus":913.0},{"name":"粉塵爆炸","bonus":440.0},{"name":"混亂的荊棘","bonus":391.0}],"十字影武":[{"name":"十字斬","bonus":200.0},{"name":"暗影刺擊","bonus":0},{"name":"野蠻衝擊","bonus":286.0},{"name":"心靈震波","bonus":1321.0},{"name":"十字斬擊","bonus":350.0}],"深淵追跡者":[{"name":"深淵墜落","bonus":170.0},{"name":"狂暴射擊","bonus":440.0},{"name":"連鎖射擊","bonus":445.0},{"name":"追跡突擊","bonus":1025.0},{"name":"追跡射擊","bonus":1977.0},{"name":"深淵火焰","bonus":100.0},{"name":"靈巧刺擊","bonus":386.0}],"樞機主教":[{"name":"聖光打擊(書)","bonus":484.0},{"name":"聖光打擊(錘)","bonus":484.0},{"name":"制裁謳歌","bonus":30.0},{"name":"神聖之花","bonus":48.0}],"聖裁者":[{"name":"虎砲","bonus":20.0},{"name":"爆破衝擊","bonus":555.0},{"name":"第三擊 癒治","bonus":1250.0},{"name":"烈火氣彈","bonus":872.0},{"name":"火焰彈","bonus":0}],"風鷹狩獵者":[{"name":"漸進狙擊","bonus":170.0},{"name":"毀滅風暴","bonus":350.0},{"name":"磐石陷阱","bonus":2900.0},{"name":"深盲陷阱","bonus":2900.0},{"name":"急速陷阱","bonus":2900.0},{"name":"火焰陷阱","bonus":2900.0}],"天籟頌者":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"樂之舞靈":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"月影忍者/疾風忍者":[{"name":"火焰砲","bonus":260.0},{"name":"冷焰砲","bonus":414.0},{"name":"雷電砲","bonus":275.0},{"name":"金龍砲","bonus":440.0},{"name":"暗戰砲","bonus":600.0},{"name":"詭影閃光","bonus":135.0},{"name":"飛刀-旋轉","bonus":575.0},{"name":"風魔飛鏢-構築","bonus":350.0}],"夜行使":[{"name":"夜裡的警惕","bonus":607.0},{"name":"獨一槍彈","bonus":671.0},{"name":"螺旋射擊","bonus":800.0},{"name":"洞中急火","bonus":900.0},{"name":"落空手榴彈","bonus":1285.0},{"name":"狂野射擊","bonus":567.0},{"name":"午夜墜落","bonus":500.0}],"終極初學者":[{"name":"地面重力","bonus":218.0},{"name":"地獄毀滅","bonus":508.0},{"name":"新霜凍術","bonus":305.0},{"name":"巨型音速投擲","bonus":260.0},{"name":"連續盾擊衝撞","bonus":125.0}],"魂靈師":[{"name":"玄鹿砲","bonus":363.0},{"name":"玄鹿葉風","bonus":305.0},{"name":"鐵虎咆哮","bonus":768.0},{"name":"鐵虎空心爪","bonus":143.0},{"name":"鐵虎亂舞","bonus":363.0}],"天帝":[{"name":"天晨一陽","bonus":274.0},{"name":"天晨一月","bonus":376.0}],"契靈士":[{"name":"四方神符","bonus":33.0},{"name":"死靈淨化","bonus":260.0}]};
+  const SKILL_BALANCE_DATA={"盧恩龍爵":[{"name":"風暴衝擊","bonus":1127.0},{"name":"風暴斬擊","bonus":177.0},{"name":"天龍氣息","bonus":80.0},{"name":"狂暴粉碎","bonus":180.0},{"name":"天龍擊刺","bonus":382.0}],"帝國聖衛軍":[{"name":"聖十字雨","bonus":380.0},{"name":"瞬間斬擊","bonus":232.0},{"name":"盾牌投擲","bonus":380.0},{"name":"光芒之矛","bonus":586.0},{"name":"帝國十字","bonus":363.0}],"禁咒魔導士":[{"name":"冰刃斬","bonus":1488.0},{"name":"豔紅魔矢","bonus":400.0},{"name":"毀滅彗星","bonus":445.0},{"name":"神秘幻滅","bonus":1025.0}],"元素支配者":[{"name":"超自然波","bonus":526.0},{"name":"雷霆陣地","bonus":620.0},{"name":"灼熱岩漿","bonus":140.0},{"name":"鑽石風暴","bonus":140.0},{"name":"大地驅動","bonus":140.0},{"name":"超自然流動","bonus":508.0}],"機甲神匠":[{"name":"戰斧熔滅","bonus":1025.0},{"name":"強力粉碎","bonus":575.0},{"name":"三連雷射","bonus":274.0},{"name":"閃光衝擊波","bonus":170.0},{"name":"強力掃擊","bonus":671.0},{"name":"能量加農砲","bonus":305.0}],"生命締造者":[{"name":"爆炸炸藥","bonus":508.0},{"name":"強酸禁地","bonus":170.0},{"name":"手推車加農砲","bonus":913.0},{"name":"粉塵爆炸","bonus":440.0},{"name":"混亂的荊棘","bonus":391.0}],"十字影武":[{"name":"十字斬","bonus":200.0},{"name":"暗影刺擊","bonus":0},{"name":"野蠻衝擊","bonus":286.0},{"name":"心靈震波","bonus":1321.0},{"name":"十字斬擊","bonus":350.0}],"深淵追跡者":[{"name":"深淵墜落","bonus":170.0},{"name":"狂暴射擊","bonus":440.0},{"name":"連鎖射擊","bonus":445.0},{"name":"追跡突擊","bonus":1025.0},{"name":"追跡射擊","bonus":1977.0},{"name":"深淵火焰","bonus":100.0},{"name":"靈巧刺擊","bonus":386.0}],"樞機主教":[{"name":"聖光打擊(書)","bonus":484.0},{"name":"聖光打擊(錘)","bonus":484.0},{"name":"制裁謳歌","bonus":30.0},{"name":"神聖之花","bonus":48.0}],"聖裁者":[{"name":"虎砲","bonus":20.0},{"name":"爆破衝擊","bonus":555.0},{"name":"第三擊 癒治","bonus":1250.0},{"name":"烈火氣彈","bonus":872.0},{"name":"火焰彈","bonus":0}],"風鷹狩獵者":[{"name":"漸進狙擊","bonus":170.0},{"name":"毀滅風暴","bonus":350.0},{"name":"磐石陷阱","bonus":2900.0},{"name":"深盲陷阱","bonus":2900.0},{"name":"急速陷阱","bonus":2900.0},{"name":"火焰陷阱","bonus":2900.0}],"天籟頌者":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"樂之舞靈":[{"name":"金屬狂怒","bonus":131.0},{"name":"節奏射擊","bonus":247.0},{"name":"大暴雨","bonus":3990.0},{"name":"節奏搖擺","bonus":170.0}],"月影忍者/疾風忍者":[
+{"name":"飛刀-扭曲","bonus":0.0},
+{"name":"飛刀-旋轉","bonus":575.0},
+{"name":"飛刀-曲折","bonus":0.0},
+{"name":"飛刀-噩夢","bonus":0.0},
+{"name":"風魔飛鏢-掌握","bonus":0.0},
+{"name":"風魔飛鏢-構築","bonus":350.0},
+{"name":"詭影狩獵","bonus":0.0},
+{"name":"詭影舞動","bonus":0.0},
+{"name":"詭影閃光","bonus":135.0},
+{"name":"詭影-噩夢","bonus":0.0},
+{"name":"火焰砲","bonus":260.0},
+{"name":"冷焰砲","bonus":414.0},
+{"name":"雷電砲","bonus":275.0},
+{"name":"金龍砲","bonus":440.0},
+{"name":"暗戰砲","bonus":600.0},
+{"name":"暗黑龍-噩夢","bonus":0.0},
+{"name":"海市蜃樓","bonus":0.0},
+{"name":"滲透","bonus":0.0},
+{"name":"致命融化","bonus":0.0},
+{"name":"消除噩夢","bonus":0.0}
+],"夜行使":[{"name":"夜裡的警惕","bonus":607.0},{"name":"獨一槍彈","bonus":671.0},{"name":"螺旋射擊","bonus":800.0},{"name":"洞中急火","bonus":900.0},{"name":"落空手榴彈","bonus":1285.0},{"name":"狂野射擊","bonus":567.0},{"name":"午夜墜落","bonus":500.0}],"終極初學者":[{"name":"地面重力","bonus":218.0},{"name":"地獄毀滅","bonus":508.0},{"name":"新霜凍術","bonus":305.0},{"name":"巨型音速投擲","bonus":260.0},{"name":"連續盾擊衝撞","bonus":125.0}],"魂靈師":[{"name":"玄鹿砲","bonus":363.0},{"name":"玄鹿葉風","bonus":305.0},{"name":"鐵虎咆哮","bonus":768.0},{"name":"鐵虎空心爪","bonus":143.0},{"name":"鐵虎亂舞","bonus":363.0}],"天帝":[{"name":"天晨一陽","bonus":274.0},{"name":"天晨一月","bonus":376.0}],"契靈士":[{"name":"四方神符","bonus":33.0},{"name":"死靈淨化","bonus":260.0}]};
 
 
   // ===== 本地技能原始倍率 =====
   // 以 RO Calculator 公開公式為基礎直接寫入本頁，不使用 fetch / 外接 JSON。
-  // 天龍氣息保留 V51 已確認最新公式；有巴哈 kRO 新倍率者直接覆蓋舊係數。
+  // 職業倍率以巴哈「kRO 迄今技能調整／優化整理」所標示 twRO 第4.2版本為主；忍者另依 TwRO 2024-07-23 實測公式。
   function calcLocalOriginalSkillPct(name){
     const val=id=>Number(document.getElementById(id)?.value||0);
     const BLV=val("skillBaseLv")||275;
@@ -1100,19 +1139,28 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     // 公式需要這些能力值時先以 0 計算，避免自行猜數值。
     const SPL=0, STR=0, INT=0;
 
+    // 月影／疾風專用可調參數（TwRO 2024-07-23）
+    const ninjaSkillLv=()=>Math.max(1,Number(document.getElementById("ninjaSkillLv")?.value||5));
+    const ninjaPrereqLv=()=>Math.max(0,Number(document.getElementById("ninjaPrereqLv")?.value||5));
+    const ninjaPow=()=>Number(document.getElementById("ninjaPow")?.value||100);
+    const ninjaSpl=()=>Number(document.getElementById("ninjaSpl")?.value||100);
+    const ninjaCon=()=>Number(document.getElementById("ninjaCon")?.value||100);
+    const ninjaBlv=()=>Number(document.getElementById("ninjaBaseLv")?.value||275);
+    const ninjaConstructMode=()=>document.getElementById("ninjaConstructMode")?.value||"normal";
+
     switch(name){
       // 盧恩龍爵
       case "風暴衝擊": return (10+Math.floor(STR/5.7))*100*BLV/100;
       case "風暴斬擊": return (300+5*750+POW*5)*BLV/100;
-      case "狂暴粉碎": return (23500+POW*10)*BLV/100; // kRO v7：基本倍率 23500%
+      case "狂暴粉碎": return (20000+POW*10)*BLV/100; // twRO 4.2：第4版基本倍率 20000%
       case "天龍擊刺":{
         const aura=(document.getElementById("dragonBreathVersion")?.value||"aura")==="aura";
-        return (aura ? (5000+POW*10) : (4550+POW*7))*BLV/100; // kRO v7
+        return (aura ? (4200+POW*10) : (3850+POW*7))*BLV/100; // twRO 4.2：神龍貫刺初始版
       }
 
       // 帝國聖衛軍
       case "聖十字雨": return ((450+10*10)*10+SPL*7)*BLV/100;
-      case "瞬間斬擊": return (2500+10*600+POW*7)*BLV/100; // kRO v7，精熟預設 Lv10
+      case "瞬間斬擊": return (2200+10*500+POW*7)*BLV/100; // twRO 4.2：第4版，精熟預設 Lv10
       case "盾牌投擲": return (1000+(3500+150*10)*5+POW*10)*BLV/100;
       case "光芒之矛": return (3500+1150*10+POW*5+10*50)*BLV/100;
       case "帝國十字": return (1650+1350*5+POW*5+10*25)*BLV/100;
@@ -1129,7 +1177,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       case "灼熱岩漿": return (700+5*1100+SPL*5)*BLV/100;
       case "鑽石風暴": return (500+5*2400+SPL*5)*BLV/100;
       case "大地驅動": return (500+5*2400+SPL*5)*BLV/100;
-      case "超自然流動": return (21000+SPL*12)*BLV/100; // kRO v7：18500→21000，SPL 7→12
+      case "超自然流動": return (18500+SPL*7)*BLV/100; // twRO 4.2：心靈波流初始版
 
       // 機甲神匠
       case "戰斧熔滅": return (450+5*1150+POW*5)*BLV/100;
@@ -1164,15 +1212,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
       // 樞機主教
       case "聖光打擊(書)":
-      case "聖光打擊(錘)": return (13750+10*500+POW*5)*BLV/100; // kRO v7，精熟預設 Lv10
-      case "制裁謳歌": return (12000+10*35+SPL*7)*BLV/100; // kRO v7，靈魂忠誠預設 Lv10
+      case "聖光打擊(錘)": return (12000+10*500+POW*5)*BLV/100; // twRO 4.2，精熟預設 Lv10
+      case "制裁謳歌": return (17500+10*500+SPL*10)*BLV/100; // twRO 4.2：採範圍段，靈魂忠誠預設 Lv10
       case "神聖之花": return (4000*5+10*SPL+70*10)*BLV/100;
 
       // 聖裁者
       case "虎砲": return (MHP*(10*0.02+0.1)+MSP*(10*0.01+0.05))*0.25*(BLV/100);
       case "爆破衝擊": return (13450+POW*10)*BLV/100;
       case "第三擊 癒治": return (450+5*1800+POW*10)*BLV/100; // 對應 ROCalc「第三擊:懲治」
-      case "烈火氣彈": return (10*2150+POW*15)*BLV/100; // 對應 ROCalc IQ_MASSIVE_F_BLASTER／焰魔散彈
+      case "烈火氣彈": return (23000+POW*15)*BLV/100; // twRO 4.2：焰魔散彈基本倍率 23000%
       case "火焰彈": return (Math.floor(MHP*0.2)+5*650+POW*10)*(BLV/100);
 
       // 風鷹狩獵者
@@ -1190,14 +1238,97 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       case "大暴雨": return (120*5)*BLV/100; // 預設樂器/鞭，DEX/AGI未輸入
 
       // 月影忍者 / 疾風忍者
-      case "火焰砲": return (600+(1100+70*10)*10+SPL*5)*BLV/100;
-      case "冷焰砲": return (450+(950+40*10)*10+SPL*5)*BLV/100;
-      case "雷電砲": return (600+(1100+40*10)*10+SPL*5)*BLV/100;
-      case "金龍砲": return (800+(1500+15*10)*10+SPL*5)*BLV/100;
-      case "暗戰砲": return (450+950*10+SPL*5)*BLV/100;
-      case "詭影閃光": return (1500+(950+150*10)*10+POW*5)*BLV/100;
-      case "飛刀-旋轉": return (950+(1050+500*10)*5+POW*4)*BLV/100;
-      case "風魔飛鏢-構築": return ((900+(1750+100*10)*10+POW*5)+POW*5)*2*BLV/100;
+      // TwRO 2024-07-23：依豆沙包「流浪忍者&疾風忍者技能數據解析」。
+      case "飛刀-扭曲": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 飛刀-曲折
+        return (300 + slv*600 + slv*10*pre + ninjaPow()*3) * ninjaBlv()/100;
+      }
+      case "飛刀-旋轉": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 飛刀-扭曲
+        return (800 + slv*700 + slv*70*pre + ninjaPow()*4) * ninjaBlv()/100;
+      }
+      case "飛刀-曲折": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 飛刀-旋轉
+        return (200 + slv*360 + slv*10*pre + ninjaPow()*5) * ninjaBlv()/100;
+      }
+      case "飛刀-噩夢":
+        return (18000 + ninjaPow()*10) * ninjaBlv()/100;
+
+      case "風魔飛鏢-掌握": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 風魔飛鏢-構築
+        return (850 + slv*350 + slv*5*pre + ninjaPow()*3) * ninjaBlv()/100;
+      }
+      case "風魔飛鏢-構築": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 依 2024-07-23 文章：風魔飛鏢-構築
+        const base=ninjaConstructMode()==="explosion" ? 1500 : 1200;
+        return (600 + slv*base + slv*30*pre + ninjaPow()*5) * ninjaBlv()/100;
+      }
+
+      case "詭影狩獵": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 詭影閃光
+        return (600 + slv*900 + slv*5*pre + ninjaPow()*3) * ninjaBlv()/100;
+      }
+      case "詭影舞動": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 詭影狩獵
+        return (550 + slv*750 + slv*50*pre + ninjaPow()*4) * ninjaBlv()/100;
+      }
+      case "詭影閃光": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 詭影舞動
+        return (1500 + slv*750 + slv*50*pre + ninjaPow()*5) * ninjaBlv()/100;
+      }
+      case "詭影-噩夢":
+        return (18000 + ninjaPow()*10) * ninjaBlv()/100;
+
+      case "火焰砲": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 暗戰砲
+        return (500 + slv*1000 + slv*70*pre + ninjaSpl()*5) * ninjaBlv()/100;
+      }
+      case "冷焰砲": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 暗戰砲
+        return (350 + slv*850 + slv*40*pre + ninjaSpl()*5) * ninjaBlv()/100;
+      }
+      case "雷電砲": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 暗戰砲
+        return (500 + slv*950 + slv*70*pre + ninjaSpl()*5) * ninjaBlv()/100;
+      }
+      case "金龍砲": {
+        const slv=ninjaSkillLv();
+        const pre=ninjaPrereqLv(); // 暗戰砲
+        return (450 + slv*950 + slv*15*pre + ninjaSpl()*5) * ninjaBlv()/100;
+      }
+      case "暗戰砲": {
+        const slv=ninjaSkillLv();
+        return (450 + slv*950 + ninjaSpl()*5) * ninjaBlv()/100;
+      }
+      case "暗黑龍-噩夢":
+        return (15500 + ninjaSpl()*10) * ninjaBlv()/100;
+
+      // 海市蜃樓：分身施放對應記述技能，計算防禦前傷害 ×0.3；
+      // 無單一固定原始倍率，因此保留 0 讓玩家依被記述技能手動輸入。
+      case "海市蜃樓": return 0;
+
+      case "滲透": {
+        const slv=ninjaSkillLv();
+        return (slv*700 + ninjaCon()*3) * ninjaBlv()/100;
+      }
+      case "致命融化": {
+        const slv=ninjaSkillLv();
+        return (slv*700 + ninjaCon()*3) * ninjaBlv()/100;
+      }
+
+      // 消除噩夢沒有傷害倍率。
+      case "消除噩夢": return 0;
 
       // 夜行使（多武器分支採 RO Calculator 可用分支中的較高倍率）
       case "夜裡的警惕": return ((800+200*10)*5+CON*3)*BLV/100; // 霰彈分支
@@ -1288,8 +1419,60 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const original=document.getElementById("skillOriginalPct");
     const star=document.getElementById("skillStarBonusPct");
     const box=document.getElementById("dragonBreathInputs");
+    const ninjaBox=document.getElementById("ninjaFormulaInputs");
+    const ninjaText=document.getElementById("ninjaFormulaText");
+    const ninjaNote=document.getElementById("ninjaFormulaNote");
+    const ninjaPrereqLabel=document.getElementById("ninjaPrereqLabel");
+    const ninjaSkillLvWrap=document.getElementById("ninjaSkillLvWrap");
+    const ninjaPrereqWrap=document.getElementById("ninjaPrereqWrap");
+    const ninjaPowWrap=document.getElementById("ninjaPowWrap");
+    const ninjaSplWrap=document.getElementById("ninjaSplWrap");
+    const ninjaConWrap=document.getElementById("ninjaConWrap");
+    const ninjaConstructModeWrap=document.getElementById("ninjaConstructModeWrap");
+    const NINJA_FORMULA_SKILLS=new Set(["飛刀-扭曲","飛刀-旋轉","飛刀-曲折","飛刀-噩夢","風魔飛鏢-掌握","風魔飛鏢-構築","詭影狩獵","詭影舞動","詭影閃光","詭影-噩夢","火焰砲","冷焰砲","雷電砲","金龍砲","暗戰砲","暗黑龍-噩夢","海市蜃樓","滲透","致命融化","消除噩夢"]);
+    const isNinjaFormula=NINJA_FORMULA_SKILLS.has(s.name);
 
     if(star) star.value=Number(s.bonus||0);
+
+    if(ninjaBox) ninjaBox.style.display=isNinjaFormula ? "block" : "none";
+    if(isNinjaFormula){
+      const show=(el,on)=>{ if(el) el.style.display=on ? "" : "none"; };
+      const cfg={
+        "飛刀-扭曲":{f:"[300 + 技能Lv×600 + 技能Lv×10×飛刀-曲折Lv + POW×3] × BaseLv /100",pre:"飛刀-曲折 Lv.",pow:1},
+        "飛刀-旋轉":{f:"[800 + 技能Lv×700 + 技能Lv×70×飛刀-扭曲Lv + POW×4] × BaseLv /100",pre:"飛刀-扭曲 Lv.",pow:1},
+        "飛刀-曲折":{f:"[200 + 技能Lv×360 + 技能Lv×10×飛刀-旋轉Lv + POW×5] × BaseLv /100",pre:"飛刀-旋轉 Lv.",pow:1},
+        "飛刀-噩夢":{f:"[18000 + POW×10] × BaseLv /100",pow:1,noSlv:1},
+        "風魔飛鏢-掌握":{f:"[850 + 技能Lv×350 + 技能Lv×5×風魔飛鏢-構築Lv + POW×3] × BaseLv /100",pre:"風魔飛鏢-構築 Lv.",pow:1},
+        "風魔飛鏢-構築":{f:"一般：[600 + 技能Lv×1200 + 技能Lv×30×風魔飛鏢-構築Lv + POW×5] × BaseLv /100；爆炸：1200→1500",pre:"風魔飛鏢-構築 Lv.",pow:1,construct:1},
+        "詭影狩獵":{f:"[600 + 技能Lv×900 + 技能Lv×5×詭影閃光Lv + POW×3] × BaseLv /100",pre:"詭影閃光 Lv.",pow:1},
+        "詭影舞動":{f:"[550 + 技能Lv×750 + 技能Lv×50×詭影狩獵Lv + POW×4] × BaseLv /100",pre:"詭影狩獵 Lv.",pow:1},
+        "詭影閃光":{f:"[1500 + 技能Lv×750 + 技能Lv×50×詭影舞動Lv + POW×5] × BaseLv /100",pre:"詭影舞動 Lv.",pow:1},
+        "詭影-噩夢":{f:"[18000 + POW×10] × BaseLv /100",pow:1,noSlv:1},
+        "火焰砲":{f:"[500 + 技能Lv×1000 + 技能Lv×70×暗戰砲Lv + SPL×5] × BaseLv /100",pre:"暗戰砲 Lv.",spl:1},
+        "冷焰砲":{f:"[350 + 技能Lv×850 + 技能Lv×40×暗戰砲Lv + SPL×5] × BaseLv /100",pre:"暗戰砲 Lv.",spl:1},
+        "雷電砲":{f:"[500 + 技能Lv×950 + 技能Lv×70×暗戰砲Lv + SPL×5] × BaseLv /100",pre:"暗戰砲 Lv.",spl:1},
+        "金龍砲":{f:"[450 + 技能Lv×950 + 技能Lv×15×暗戰砲Lv + SPL×5] × BaseLv /100",pre:"暗戰砲 Lv.",spl:1},
+        "暗戰砲":{f:"[450 + 技能Lv×950 + SPL×5] × BaseLv /100",spl:1},
+        "暗黑龍-噩夢":{f:"[15500 + SPL×10] × BaseLv /100",spl:1,noSlv:1},
+        "海市蜃樓":{f:"分身施放對應記述技能；計算防禦前傷害 ×0.3",manual:1},
+        "滲透":{f:"[技能Lv×700 + CON×3] × BaseLv /100",con:1},
+        "致命融化":{f:"[技能Lv×700 + CON×3] × BaseLv /100",con:1},
+        "消除噩夢":{f:"無傷害倍率",manual:1}
+      }[s.name]||{};
+      if(ninjaText) ninjaText.textContent=cfg.f||"";
+      if(ninjaPrereqLabel && cfg.pre) ninjaPrereqLabel.textContent=cfg.pre;
+      show(ninjaSkillLvWrap,!cfg.noSlv && !cfg.manual);
+      show(ninjaPrereqWrap,!!cfg.pre && !cfg.manual);
+      show(ninjaPowWrap,!!cfg.pow && !cfg.manual);
+      show(ninjaSplWrap,!!cfg.spl && !cfg.manual);
+      show(ninjaConWrap,!!cfg.con && !cfg.manual);
+      show(ninjaConstructModeWrap,!!cfg.construct && !cfg.manual);
+      if(ninjaNote){
+        ninjaNote.textContent=cfg.manual
+          ? (s.name==="海市蜃樓" ? "此技能沒有單一固定倍率，原始倍率欄保留可手動輸入被記述技能×0.3後的倍率。" : "此技能沒有傷害倍率。")
+          : "原始倍率會依上方參數即時計算。";
+      }
+    }
 
     if(isDragonicBreathSkill(s.name)){
       if(box) box.style.display="block";
@@ -1754,7 +1937,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const selectedSkill=getSelectedSkillBalance();
     const originalPct=Number(document.getElementById("skillOriginalPct")?.value||0);
     const starBonusPct=Number(document.getElementById("skillStarBonusPct")?.value||0);
-    const balancedPct=originalPct+starBonusPct;
+    const starBalanceMul=1+starBonusPct/100;
+    const balancedPct=originalPct*starBalanceMul;
     const skillMul=balancedPct/100;
 
     const pSkill=document.getElementById("fullPhysicalSkillDamage");
@@ -1780,7 +1964,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         ? `｜${(document.getElementById("dragonBreathVersion")?.value||"aura")==="aura"?"天龍光環版（最新）":"一般版（最新）"}`
         : "";
       skillInfo.textContent=
-        `${selectedSkill.job}｜${selectedSkill.name}${dragonVersionText}：原始 ${fmt(originalPct)}% + 繁星 ${fmt(starBonusPct)}% = ${fmt(balancedPct)}%`;
+        `${selectedSkill.job}｜${selectedSkill.name}${dragonVersionText}：原始 ${fmt(originalPct)}% × (1 + ${fmt(starBonusPct)}%) = ${fmt(balancedPct)}%（×${fmt(starBalanceMul)}）`;
     }
 
     if(refInfo){
@@ -1790,7 +1974,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         const diff=reference ? (estimate/reference-1)*100 : 0;
         refInfo.innerHTML=`天龍氣息實測參考：110,000,000 / 下｜目前試算：${fmt(estimate)}｜差異 ${(diff>=0?"+":"")}${fmt(diff)}%`;
       }else{
-        refInfo.textContent="原始倍率已由本地內建 RO Calculator 公式帶入；有 kRO 新倍率者再套最新調整。無可靠對應時顯示 0%，仍可手動修改。";
+        refInfo.textContent="技能原始倍率以 twRO 第 4.2 版為基準；月影忍者／疾風忍者依 TwRO 2024-07-23 技能數據解析。公式型技能仍可手動修改原始倍率。";
       }
     }
 
