@@ -235,6 +235,17 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <button id="fullDamageSkillBtn" onclick="setFullDamageMode('skill')" type="button">技爆</button>
 </div>
 <div class="tiny" id="fullDamageModeText" style="margin-top:8px;color:#ffd54a;font-weight:800">目前：物理｜爆傷</div>
+<div class="note" id="fullCritEffectBox" style="margin-top:10px">
+  <b>✨ 爆擊效果（單選）</b>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+    <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="fullCritEffectMode" value="none" checked onchange="recalcFullDamageTest()"> 無效果</label>
+    <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="fullCritEffectMode" value="critDamage" onchange="recalcFullDamageTest()"> (1) 爆擊傷害效果</label>
+    <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="fullCritEffectMode" value="skillCrit" onchange="recalcFullDamageTest()"> (2) 技能爆擊效果</label>
+  </div>
+  <div class="tiny" id="fullCritEffectText" style="margin-top:7px;color:#ffd54a">
+    無效果：依目前選擇的爆傷版／技爆版計算。
+  </div>
+</div>
 </div>
 <div class="note" style="margin-top:10px">
 <b>🧙 職業／技能傷害</b>
@@ -1569,6 +1580,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         version:1,
         fullAttackType,
         fullDamageMode,
+        fullCritEffectMode:getFullCritEffectMode(),
         values:{},
         checks:{},
         selects:{}
@@ -1619,6 +1631,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
       fullAttackType=data.fullAttackType==="magic" ? "magic" : "physical";
       fullDamageMode=data.fullDamageMode==="skill" ? "skill" : "crit";
+      const effectValue=["none","critDamage","skillCrit"].includes(data.fullCritEffectMode) ? data.fullCritEffectMode : "none";
+      const effectRadio=document.querySelector(`input[name="fullCritEffectMode"][value="${effectValue}"]`);
+      if(effectRadio) effectRadio.checked=true;
 
       syncBaseAttackTotals();
       syncFullDamageModeUI();
@@ -1715,6 +1730,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     applyGuyunEffectChecks();
     syncBaseAttackTotals();
     if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
+    const noneEffect=document.querySelector('input[name="fullCritEffectMode"][value="none"]');
+    if(noneEffect) noneEffect.checked=true;
   };
 
   window.clearCurrentStats=function(){
@@ -1725,6 +1742,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     clearDamageEffectChecks();
     syncBaseAttackTotals();
     if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
+    const noneEffect=document.querySelector('input[name="fullCritEffectMode"][value="none"]');
+    if(noneEffect) noneEffect.checked=true;
   };
 
   let fullAttackType="physical";
@@ -1781,6 +1800,10 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     recalcFullDamageTest();
   };
 
+  function getFullCritEffectMode(){
+    return document.querySelector('input[name="fullCritEffectMode"]:checked')?.value || "none";
+  }
+
   window.recalcFullDamageTest=function(){
     if(typeof syncBaseAttackTotals==="function") syncBaseAttackTotals();
     const val=id=>Number(document.getElementById(id)?.value||0);
@@ -1805,9 +1828,32 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const effectivePatk=patk+(buffHolyAuthority?50:0);
     const effectiveSmatk=smatk+(buffHolyAuthority?50:0);
 
-    const critDivisor=(fullDamageMode==="skill") ? 2 : 1;
+    const critEffectMode=getFullCritEffectMode();
+
+    // 原本版本：
+    // 爆傷版 = 爆擊傷害不減半
+    // 技爆版 = 爆擊額外傷害 / 2
+    // (1) 爆擊傷害效果：技能爆擊時的額外傷害不會被減半。
+    const critDivisor=(fullDamageMode==="skill" && critEffectMode!=="critDamage") ? 2 : 1;
     const critMul=(100 + crit/critDivisor)/100;
     const magicCritMul=(100 + magicCrit/critDivisor)/100;
+
+    // (2) 技能爆擊效果：所有技能套用爆擊。
+    // 本測傷器的最終技能傷害會套入此爆擊乘區；選此效果時明確視為技能可爆擊。
+    const skillCritEnabled = (critEffectMode==="skillCrit") || (fullDamageMode==="skill") || (fullDamageMode==="crit");
+    const physicalCritApplyMul = skillCritEnabled ? critMul : 1;
+    const magicCritApplyMul = skillCritEnabled ? magicCritMul : 1;
+
+    const effectText=document.getElementById("fullCritEffectText");
+    if(effectText){
+      effectText.textContent =
+        critEffectMode==="critDamage"
+          ? "(1) 爆擊傷害效果：技能爆擊時，爆擊傷害不減半；依目前選擇的版本套用。"
+          : critEffectMode==="skillCrit"
+          ? "(2) 技能爆擊效果：所有技能套用爆擊；依目前選擇的版本套用。"
+          : "無效果：依目前選擇的爆傷版／技爆版計算。";
+    }
+
     const crateMul=(140 + crate)/100;
     // PATK / SMATK 面板採獨立乘區：
     // 例如 PATK 3854 => (100+3854)/100 = ×39.54。
@@ -1899,7 +1945,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(checkedPctSum("advPhysicalAreaFinalTier")) *
       pctMul(checkedPctSum("advRaceFinalTier")) *
       pctMul(checkedPctSum("advAttrFinalTier")) *
-      critMul *
+      physicalCritApplyMul *
       crateMul *
       pctMul(val("fullPotionSizePhys")) *
       pctMul(val("fullPotionRacePhys")) *
@@ -1925,7 +1971,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(val("fullRaceMagic")) *
       pctMul(val("fullSizeMagic")) *
       pctMul(val("fullElementMagicPct")) *
-      magicCritMul *
+      magicCritApplyMul *
       smatkMul *
       crateMul *
       // 終傷類
