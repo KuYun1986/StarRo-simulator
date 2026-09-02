@@ -286,8 +286,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="note" style="margin-top:10px">
 <b>📌 現在素質</b>
 <div class="actions" style="margin-top:8px">
+<button type="button" onclick="clearCurrentStats()">預設</button>
 <button type="button" onclick="applyGuyunTestStats()">古雲測試</button>
-<button type="button" onclick="clearCurrentStats()">全部歸零</button>
 <button type="button" onclick="saveCurrentDamageStats()">💾 保存目前素質</button>
 <button type="button" onclick="loadSavedDamageStats()">📂 載入保存素質</button>
 <button type="button" onclick="deleteSavedDamageStats()">🗑️ 刪除保存素質</button>
@@ -453,7 +453,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>反逆效果</b></td>
 <td colspan="2">
 <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-<input checked="" id="fullReversalEnabled" onchange="recalcFullDamageTest()" style="width:auto" type="checkbox"/>
+<input id="fullReversalEnabled" onchange="recalcFullDamageTest()" style="width:auto" type="checkbox"/>
 <span>套用反逆效果</span>
 <span class="tiny">｜剩餘血量</span>
 <input id="fullRemainingHpPct" max="100" min="0" oninput="recalcFullDamageTest()" step="any" style="width:110px;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit" type="number" value="1"/>
@@ -466,15 +466,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <td colspan="2">
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="buffBbqCritFinal" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="buffBbqCritFinal" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>烤肉串串</b><br/><span class="tiny">爆擊終傷 +15%</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="buffXmasFruitSkillFinal" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="buffXmasFruitSkillFinal" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>聖誕果實</b><br/><span class="tiny">全技能終傷 +5%</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="buffHolyAuthority" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="buffHolyAuthority" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>神聖權能</b><br/><span class="tiny">PATK / SMATK +50</span></span>
 </label>
 </div>
@@ -484,15 +484,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <td colspan="2">
 <div class="ur-stone-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="stoneBackstab" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="stoneBackstab" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>UR(1) 背刺石 Lv3</b><br/><span class="tiny">背後攻擊最終傷害 +150%｜×2.5</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="stonePhysicalCombo" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="stonePhysicalCombo" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>UR(2) 物理連擊石 Lv3</b><br/><span class="tiny">物理攻擊堆疊 +100% 傷害｜×2</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="stoneCritCombo" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="stoneCritCombo" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>UR(2) 爆擊連擊石 Lv3</b><br/><span class="tiny">爆擊傷害堆疊 +75% 傷害｜×1.75</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
@@ -500,7 +500,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <span><b>UR(2) 近距終傷石 Lv3</b><br/><span class="tiny">近距離物理終傷 +90%｜×1.9</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="stoneRangedFinal" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="stoneRangedFinal" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>UR(2) 遠距終傷石 Lv3</b><br/><span class="tiny">遠距離物理終傷 +90%｜×1.9</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
@@ -516,7 +516,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <span><b>UR(1) 屬性詛咒石 Lv3</b><br/><span class="tiny">全屬性物理傷害 +90%｜同乘區相加</span></span>
 </label>
 <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #34404e;border-radius:10px;background:#0b1119;cursor:pointer">
-<input checked="" id="stoneRepeatCast" onchange="recalcFullDamageTest()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
+<input id="stoneRepeatCast" onchange="syncRepeatStoneToDps();recalcFullDamageTest();recalcCombatOutput()" style="width:18px;height:18px;margin-top:2px;flex:0 0 auto" type="checkbox"/>
 <span><b>UR(2) 再次施放石 Lv3</b><br/><span class="tiny">60% 機率再次施放｜期望 ×1.6</span></span>
 </label>
 </div>
@@ -544,7 +544,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </select>
 </label>
 <label><span class="tiny">每秒技能次數</span><input id="combatCastsPerSec" oninput="recalcCombatOutput()" step="0.1" type="number" value="7"/></label>
-<label><span class="tiny">再次施放機率 %</span><input id="combatRepeatChance" max="100" min="0" oninput="recalcCombatOutput()" step="1" type="number" value="60"/></label>
+<label><span class="tiny">再次施放機率 %</span><input id="combatRepeatChance" readonly step="1" type="number" value="0"/></label>
 </div>
 <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-top:12px">
 <div class="stat"><span class="label">單次傷害</span><b id="combatSingleHit">110,000,000</b></div>
@@ -1344,7 +1344,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "fullPotionClassPhys","fullPotionClassMagic","fullPotionAttrPhys","fullPotionAttrMagic",
       "panelRangedFinalPct","panelPhysicalAreaPct","panelPhysicalFinalPct","panelCritFinalPct",
       "weaponSkillFinal4Pct","weaponSkillFinal5Pct","armorSkillFinalPct","shoeSkillFinalPct","accessorySkillPct",
-      "fullDamageReduction","fullRemainingHpPct","combatAspd","combatCastsPerSec","combatRepeatChance",
+      "fullDamageReduction","fullRemainingHpPct","combatAspd","combatCastsPerSec",
       "skillJobSelect","skillNameSelect","skillOriginalPct","skillStarBonusPct"
     ];
   }
@@ -1416,6 +1416,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
       syncBaseAttackTotals();
       syncFullDamageModeUI();
+      syncRepeatStoneToDps();
       if(typeof renderSkillOptions==="function") renderSkillOptions();
       if(data.values?.skillNameSelect){
         const skill=document.getElementById("skillNameSelect");
@@ -1436,6 +1437,25 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       setDamageStatsSaveText("⚠️ 刪除失敗","#ff8080");
     }
   };
+
+  const GUYUN_TEST_CHECKED_IDS=["fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneRangedFinal","stoneRepeatCast"];
+  const DAMAGE_EFFECT_CHECKBOX_IDS=["fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneMeleeFinal","stoneRangedFinal","stoneMagicAreaFinal","stonePhysicalAreaFinal","stoneAttributeCurse","stoneRepeatCast"];
+
+  function applyGuyunEffectChecks(){
+    DAMAGE_EFFECT_CHECKBOX_IDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.checked=GUYUN_TEST_CHECKED_IDS.includes(id);
+    });
+    if(typeof syncRepeatStoneToDps==="function") syncRepeatStoneToDps();
+  }
+
+  function clearDamageEffectChecks(){
+    DAMAGE_EFFECT_CHECKBOX_IDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.checked=false;
+    });
+    if(typeof syncRepeatStoneToDps==="function") syncRepeatStoneToDps();
+  }
 
   const GUYUN_TEST_STATS={
       "fullAtkBase1":10000,
@@ -1483,6 +1503,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const el=document.getElementById(id);
       if(el) el.value=value;
     });
+    applyGuyunEffectChecks();
     syncBaseAttackTotals();
     if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
   };
@@ -1492,6 +1513,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const el=document.getElementById(id);
       if(el) el.value=0;
     });
+    clearDamageEffectChecks();
     syncBaseAttackTotals();
     if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
   };
@@ -1716,8 +1738,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     const p=document.getElementById("fullPhysicalDamage");
     const m=document.getElementById("fullMagicDamage");
-    if(p) p.textContent=fmt(physical);
-    if(m) m.textContent=fmt(magic);
+    if(p) p.textContent=Number.isFinite(physical) ? fmt(physical) : "0";
+    if(m) m.textContent=Number.isFinite(magic) ? fmt(magic) : "0";
 
     const selectedSkill=getSelectedSkillBalance();
     const originalPct=Number(document.getElementById("skillOriginalPct")?.value||0);
@@ -1735,8 +1757,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const finalPhysicalRounded=Math.round(finalPhysicalSkillDamage);
     const finalMagicRounded=Math.round(finalMagicSkillDamage);
 
-    if(pSkill) pSkill.textContent=finalPhysicalRounded.toLocaleString("en-US");
-    if(mSkill) mSkill.textContent=finalMagicRounded.toLocaleString("en-US");
+    if(pSkill) pSkill.textContent=Number.isFinite(finalPhysicalRounded) ? finalPhysicalRounded.toLocaleString("en-US") : "0";
+    if(mSkill) mSkill.textContent=Number.isFinite(finalMagicRounded) ? finalMagicRounded.toLocaleString("en-US") : "0";
 
     const actualSingleHit=document.getElementById("actualSingleHit");
     if(actualSingleHit){
@@ -1779,10 +1801,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(input && table[aspd]!=null) input.value=table[aspd];
   };
 
+  window.syncRepeatStoneToDps=function(){
+    const checked=!!document.getElementById("stoneRepeatCast")?.checked;
+    const input=document.getElementById("combatRepeatChance");
+    if(input) input.value=checked ? 60 : 0;
+  };
+
   window.recalcCombatOutput=function(){
     const hit=Math.max(0,Number(document.getElementById("actualSingleHit")?.value||0));
     const cps=Math.max(0,Number(document.getElementById("combatCastsPerSec")?.value||0));
-    const repeat=Math.max(0,Math.min(100,Number(document.getElementById("combatRepeatChance")?.value||0)));
+    const repeatStone=!!document.getElementById("stoneRepeatCast")?.checked;
+    const repeat=repeatStone ? 60 : 0;
+    const repeatInput=document.getElementById("combatRepeatChance");
+    if(repeatInput) repeatInput.value=repeat;
     const repeatMul=1+repeat/100;
     const baseDps=hit*cps;
     const expectedDps=baseDps*repeatMul;
@@ -1802,6 +1833,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   syncAttackTypeVisibility();
   syncBaseAttackTotals();
   syncFullDamageModeUI();
+  syncRepeatStoneToDps();
   renderCrystalRows();
   initSkillBalanceSelectors();
   syncOriginalSkillFormula();
