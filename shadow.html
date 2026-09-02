@@ -166,11 +166,11 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <button onclick="findBestCrystalBuild(8)" type="button">推薦 Lv.8</button>
 <button class="primary" onclick="findBestCrystalBuild(10)" type="button">推薦 Lv.10</button>
 </div>
-<div class="summary" id="bestCrystalSummary" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-top:12px"></div>
+
 <div id="bestCrystalBuildResult" style="margin-top:10px;line-height:1.9;font-size:16px;font-weight:700;color:#cfe8ff">
     請先在上方「傷害倍率比較」輸入自身素質，再選擇 Lv.6、Lv.8 或 Lv.10。
   </div>
-<div class="note tiny" id="applyCompare" style="display:none;margin-top:12px"></div>
+
 </div><div class="note" style="margin:12px 0 14px">
 <b>🎛️ 結晶預設</b>
 <div class="actions" style="margin-top:8px">
@@ -279,7 +279,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </div>
 <div class="note" id="ninjaFormulaInputs" style="margin-top:10px;display:none">
 <b>🥷 月影／疾風技能原始倍率參數｜TwRO 2024-07-23</b>
-<div class="tiny" id="ninjaFormulaText" style="margin-top:5px;color:#ffd54a"></div>
+
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px">
 <label id="ninjaSkillLvWrap"><span class="tiny">技能 Lv.</span><input id="ninjaSkillLv" min="1" max="10" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="5"/></label>
 <label id="ninjaPrereqWrap"><span class="tiny" id="ninjaPrereqLabel">前置技能 Lv.</span><input id="ninjaPrereqLv" min="0" max="10" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="5"/></label>
@@ -292,7 +292,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </select></label>
 <label><span class="tiny">Base Lv.</span><input id="ninjaBaseLv" oninput="syncOriginalSkillFormula();recalcFullDamageTest()" type="number" value="275"/></label>
 </div>
-<div class="tiny" id="ninjaFormulaNote" style="margin-top:6px;color:#9fe7c8"></div>
+
 </div>
 <div class="tiny" style="margin-top:6px;color:#f6c85f">
         註：POW 僅在技能原始公式需要時使用；面板 PATK、CRATE 直接依輸入值參與完整傷害計算。
@@ -302,7 +302,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <b>🧮 技能計算方法</b>
 <div id="skillFormulaMethodText" class="tiny" style="margin-top:6px;color:#8fd3ff;font-size:15px;line-height:1.7">選擇技能後顯示計算方法</div>
 </div>
-<div class="tiny" id="skillReferenceInfo" style="margin-top:5px"></div>
+
 </div>
 <div class="note" style="margin-top:10px">
 <b>📌 現在素質</b>
@@ -344,30 +344,38 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>特殊攻擊</b></td>
 <td><input id="fullPatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">PATK</div></td>
 <td><input id="fullSmatk" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">SMATK</div></td></tr>
+<tr><td><b>CRATE</b></td>
+<td><input id="fullCratePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">CRATE</div></td>
+<td><input id="fullCrateMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">CRATE</div></td></tr>
+<tr><td><b>暴擊傷害</b></td>
+<td><input id="fullCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
+<td><input id="fullMagicCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>攻擊%</b></td>
 <td><input id="fullAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">ATK%</div></td>
 <td><input id="fullMatkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">MATK%</div></td></tr>
 <tr><td><b>對屬性</b></td>
 <td><input id="fullAttrPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullAttrMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
-<tr><td><b>對階級</b></td>
-<td><input id="fullClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
-<td><input id="fullClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>對種族</b></td>
 <td><input id="fullRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullRaceMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
+<tr><td><b>對階級</b></td>
+<td><input id="fullClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
+<td><input id="fullClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>對體型</b></td>
 <td><input id="fullSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
+
+
+
+
 <tr><td><b>屬性攻擊／屬法傷</b></td>
 <td><input id="fullElementAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬性攻擊%</div></td>
 <td><input id="fullElementMagicPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬法傷%</div></td></tr>
 <tr><td><b>近遠傷</b></td>
 <td><input id="fullRangePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><span class="tiny">—</span></td></tr>
-<tr><td><b>暴擊傷害</b></td>
-<td><input id="fullCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
-<td><input id="fullMagicCritDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
+
 <tr><td><b>終傷藥水｜體型</b></td>
 <td><input id="fullPotionSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td>
 <td><input id="fullPotionSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></td></tr>
@@ -553,8 +561,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="stat" id="fullPhysicalSkillCard"><span class="label">技能最終傷害｜物理</span><b id="fullPhysicalSkillDamage" style="color:#ffd54a">0</b></div>
 <div class="stat" id="fullMagicSkillCard" style="display:none"><span class="label">技能最終傷害｜魔法</span><b id="fullMagicSkillDamage" style="color:#ffd54a">0</b></div>
 </div>
-<div class="tiny" id="fullDamageFormulaText" style="margin-top:10px;line-height:1.8"></div>
-<div class="tiny" id="fullDamageReductionStatus" style="margin-top:6px;color:#9fe7c8;font-weight:800"></div>
+
+
 <div class="tiny" style="margin-top:6px;color:#ffd54a"><b>特殊攻擊：</b>PATK / SMATK 採獨立乘區，例如 PATK 3854 = ×39.54；暴擊傷害欄位位於「近遠傷」下一格。</div>
 <div class="note" style="margin-top:14px">
 <b>⚡ 單次傷害／DPS</b>
@@ -575,7 +583,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="stat"><span class="label">再次施放期望倍率</span><b id="combatRepeatMul">×1.600</b></div>
 <div class="stat"><span class="label">含再次施放｜期望 DPS</span><b id="combatExpectedDps" style="color:#ffd54a">1,232,000,000</b></div>
 </div>
-<div class="tiny" id="combatDpsText" style="margin-top:8px"></div>
+
 </div>
 </div></div>
 
@@ -1533,7 +1541,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   function getDamageStatsSaveIds(){
     return [
       "fullAtkBase1","fullAtkBase2","fullMatkBase1","fullMatkBase2",
-      "fullPatk","fullSmatk","fullAtkPct","fullMatkPct",
+      "fullPatk","fullSmatk","fullCratePhys","fullCrateMagic","fullAtkPct","fullMatkPct",
       "fullAttrPhys","fullAttrMagic","fullClassPhys","fullClassMagic",
       "fullRacePhys","fullRaceMagic","fullSizePhys","fullSizeMagic",
       "fullElementAtkPct","fullElementMagicPct","fullRangePct",
@@ -1662,6 +1670,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "fullMatkBase2":0,
       "fullPatk":3854,
       "fullSmatk":0,
+      "fullCratePhys":0,
+      "fullCrateMagic":0,
       "fullAtkPct":147,
       "fullMatkPct":0,
       "fullAttrPhys":460,
@@ -1777,7 +1787,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     const crit=val("fullCritDamagePct");
     const magicCrit=val("fullMagicCritDamagePct");
-    const crate=Number(document.getElementById("dmgPanelCrate")?.value||0);
+    const crate=val(fullAttackType==="magic" ? "fullCrateMagic" : "fullCratePhys");
     const patk=val("fullPatk");
     const smatk=val("fullSmatk");
 
@@ -1987,7 +1997,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         const diff=reference ? (estimate/reference-1)*100 : 0;
         refInfo.innerHTML=`天龍氣息實測參考：110,000,000 / 下｜目前試算：${fmt(estimate)}｜差異 ${(diff>=0?"+":"")}${fmt(diff)}%`;
       }else{
-        refInfo.textContent="月影忍者／疾風忍者已依 TwRO 2024-07-23 技能數據解析整套更新；公式型技能可調技能Lv／前置技能Lv／POW、SPL、CON／Base Lv。海市蜃樓無單一固定倍率，消除噩夢無傷害倍率。";
+        refInfo.textContent="";
       }
     }
 
