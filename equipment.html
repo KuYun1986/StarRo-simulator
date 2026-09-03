@@ -159,56 +159,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <div class="note tiny" id="multiServiceNote">尚未選擇步驟。</div>
   </div>
 
-  <div style="margin-top:18px;padding-top:4px">
-    <h3 style="margin:0 0 10px">古雲代敲材料試算</h3>
-    <div class="row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0">
-      <span style="min-width:110px">裝備類型</span>
-      <select id="refineServiceType" style="min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
-        <option value="A-D">1級裝／A~D級裝</option>
-        <option value="S">2級防具／5級武器／S裝</option>
-        <option value="SS">SS裝</option>
-      </select>
-      <span>件數</span>
-      <input id="refineServiceQty" type="number" min="1" step="1" value="1" style="width:100px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
-    </div>
-
-    <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
-      <div class="stat"><span class="label">代敲費用</span><b id="refineRedFee">10 紅</b></div>
-      <div class="stat"><span class="label">支票</span><b id="refineChecks">10 張</b></div>
-      <div class="stat"><span class="label">鐵匠的祝福</span><b id="refineBless">0 個</b></div>
-      <div class="stat"><span class="label">精煉槌材料</span><b id="refineHammers">大小灰各 15 把</b></div>
-      <div class="stat"><span class="label">材料＋紅利總成本</span><b id="refineTotalP" style="color:#7ee0a1">0 P</b></div>
-    </div>
-
-    <div class="note tiny" id="refineServiceNote">
-      敲裝須自備：裝備、槌子、支票、材料。
-    </div>
+  <div class="note tiny" style="margin-top:14px;line-height:1.8">
+    <span style="color:#ff5c5c;font-weight:700">精煉37%、評級27%</span><br>
+    敲裝須自備：裝備、槌子、支票、材料。<br>
+    D、C 評級機率：29/30%。
   </div>
 
-  <div style="margin-top:24px;border-top:1px solid #28323e;padding-top:20px">
-    <h3 style="margin:0 0 10px">古雲代評材料試算</h3>
-    <div class="row" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0">
-      <span style="min-width:110px">評級類型</span>
-      <select id="gradeServiceType" style="min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
-        <option value="S">S裝</option>
-        <option value="SS">SS裝</option>
-      </select>
-      <span>件數</span>
-      <input id="gradeServiceQty" type="number" min="1" step="1" value="1" style="width:100px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
-    </div>
-
-    <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
-      <div class="stat"><span class="label">代評費用</span><b id="gradeRedFee">20 紅</b></div>
-      <div class="stat"><span class="label">乙太塔菲石</span><b id="gradeTaffy">30 個</b></div>
-      <div class="stat"><span class="label">庇佑乙太星塵</span><b id="gradeDust">270 個</b></div>
-      <div class="stat"><span class="label">支票</span><b id="gradeChecks">9 張</b></div>
-      <div class="stat"><span class="label">材料＋紅利總成本</span><b id="gradeTotalP" style="color:#7ee0a1">0 P</b></div>
-    </div>
-
-    <div class="note tiny">
-      D、C 評級機率：29/30%。你提供的材料需求目前只有 S裝、SS裝，因此本試算先做這兩類。
-    </div>
-  </div>
 </section>
 
 
@@ -490,7 +446,9 @@ renderTabs();renderTable();
   };
 
   function renderRefine(){
-    const type=document.getElementById("refineServiceType").value;
+    const typeEl=document.getElementById("refineServiceType");
+    if(!typeEl) return;
+    const type=typeEl.value;
     const qty=q("refineServiceQty");
     const r=REFINE_RULES[type];
     document.getElementById("refineRedFee").textContent=fmt(r.red*qty)+" 紅";
@@ -517,7 +475,9 @@ renderTabs();renderTable();
   }
 
   function renderGrade(){
-    const type=document.getElementById("gradeServiceType").value;
+    const typeEl=document.getElementById("gradeServiceType");
+    if(!typeEl) return;
+    const type=typeEl.value;
     const qty=q("gradeServiceQty");
     const r=GRADE_RULES[type];
     document.getElementById("gradeRedFee").textContent=fmt(r.red*qty)+" 紅";
