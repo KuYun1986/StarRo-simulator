@@ -342,6 +342,17 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="table-wrap" style="margin-top:10px">
 <table class="cost-table" id="fullDamageStatsTable" style="min-width:760px">
 <thead><tr><th>項目</th><th id="fullPhysicalColHead">物理</th><th id="fullMagicColHead">魔法</th></tr>
+<tr id="archMageClimaxRow" style="display:none">
+  <td><b>禁咒技能效果</b></td>
+  <td colspan="2">
+    <label style="display:flex;align-items:center;gap:8px">
+      <input id="archMageClimaxEnabled" type="checkbox" onchange="syncOriginalSkillFormula();recalcFullDamageTest()"/>
+      <span>魔力巔峰</span>
+    </label>
+    <div class="tiny" id="archMageClimaxInfo">依官方現行技能倍率切換一般／魔力巔峰倍率</div>
+  </td>
+</tr>
+
 <tr>
   <td><b>技能屬性選擇</b></td>
   <td colspan="2">
@@ -469,9 +480,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>對種族%（依上方選擇）</b></td>
 <td><input id="fullRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullRaceMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
-<tr><td><b>對一般階級</b></td>
+<tr><td><b>對BOSS階級</b></td>
 <td><input id="fullClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="66"/><div class="tiny">%</div></td>
 <td><input id="fullClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="66"/><div class="tiny">%</div></td></tr>
+<tr id="fullBossClassBuffRow">
+  <td><b>BOSS階級增幅</b></td>
+  <td colspan="2">
+    <label style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+      <input id="fullBossClassBuff" type="checkbox" onchange="recalcFullDamageTest()"/>
+      <span id="fullBossClassBuffLabel">豪傑（+100% BOSS階級）</span>
+    </label>
+    <div class="tiny">與對BOSS階級%同乘區加算 +100%</div>
+  </td>
+</tr>
 <tr><td><b>對體型%（依上方選擇）</b></td>
 <td><input id="fullSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
@@ -1533,17 +1554,56 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     return name==="天龍氣息" || name==="天龍氣息(天龍光環)";
   }
 
-  const LOCAL_SKILL_FORMULA_TEXT={"虎砲":"(MHP×(SLV×0.02+0.1) + MSP×(SLV×0.01+0.05)) × 0.25 × (BLV/100)","天龍氣息":"一般：UP((4250 + DOWN(MHP/8) + DOWN(MSP/2) + POW×7) × BLV/100)；天龍光環：(50 + (420 + 0.0175×MHP + 0.07×MSP)×SLV + POW×10) × BLV/100","飛刀-旋轉":"[800 + (700 + 70×飛刀-扭曲Lv)×SLV + 4×POW] × BLV/100","冷焰砲":"[350 + (850 + 40×暗戰砲Lv)×SLV + 5×SPL] × BLV/100","火焰砲":"[500 + 1000×SLV + 70×SLV×暗戰砲Lv + 5×SPL] × BLV/100","雷電砲":"[500 + 950×SLV + 70×SLV×暗戰砲Lv + 5×SPL] × BLV/100","金龍砲":"[450 + 950×SLV + 15×SLV×暗戰砲Lv + 5×SPL] × BLV/100","暗戰砲":"[450 + 950×SLV + 5×SPL] × BLV/100","風暴衝擊":"(10+DOWN(STR/5.7))×100 × BLV/100","風暴斬擊":"(300+5×750+POW×5) × BLV/100","狂暴粉碎":"(23500 + POW×10) × BLV/100","聖十字雨":"((450+10×10)×10+SPL×7) × BLV/100","瞬間斬擊":"(2500 + 精熟Lv×600 + POW×7) × BLV/100","盾牌投擲":"(1000+(3500+150×10)×5+POW×10) × BLV/100","光芒之矛":"(3500+1150×10+POW×5+10×50) × BLV/100","帝國十字":"(1650+1350×5+POW×5+10×25) × BLV/100","冰刃斬":"(400+5×950+SPL×5) × BLV/100","豔紅魔矢":"((5×400+SPL×3)+(5×750+SPL×5)) × BLV/100","毀滅彗星":"(3000+5×600) × BLV/100","神秘幻滅":"(5×950+SPL×5) × BLV/100","超自然波":"(70×5+INT×3)×2 × BLV/100","雷霆陣地":"(700+5×1100+SPL×5) × BLV/100","灼熱岩漿":"(700+5×1100+SPL×5) × BLV/100","鑽石風暴":"(500+5×2400+SPL×5) × BLV/100","大地驅動":"(500+5×2400+SPL×5) × BLV/100","超自然流動":"(21000 + SPL×12) × BLV/100","戰斧熔滅":"(450+5×1150+POW×5) × BLV/100","強力粉碎":"(80+240×10+POW×7) × BLV/100","三連雷射":"(650+1150×5+POW×12) × BLV/100","閃光衝擊波":"(14600+POW×7) × BLV/100","強力掃擊":"(300+850×5+POW) × BLV/100","能量加農砲":"(250+750×5+POW) × BLV/100","爆炸炸藥":"(500+650×5+POW×7) × BLV/100","強酸禁地":"(5×400+POW×6) × BLV/100","手推車加農砲":"(5×350+2×INT) × BLV/100","粉塵爆炸":"(450+600×5+POW) × BLV/100","混亂的荊棘":"(200+300×10+POW×7) × BLV/100","十字斬":"(1000+5×230) × BLV/100","暗影刺擊":"(5×550+POW×5) × BLV/100","野蠻衝擊":"(1300+POW×5) × BLV/100","心靈震波":"(10×150+STR+INT) × BLV/100","十字斬擊":"(5×300+POW×5) × BLV/100","深淵墜落":"(150+650×5+SPL×5) × BLV/100","狂暴射擊":"(250+800×10+CON×15) × BLV/100","連鎖射擊":"(800+2550×5+CON×15) × BLV/100","追跡突擊":"(1750+500×5+POW×7) × BLV/100","追跡射擊":"(1500+700×5+CON×10) × BLV/100","深淵火焰":"((820+10×30)×5+SPL×7) × BLV/100","靈巧刺擊":"(700+550×10+POW×7) × BLV/100","聖光打擊(錘)":"(13750 + 精熟Lv×500 + POW×5) × BLV/100","制裁謳歌":"(12000 + 靈魂忠誠Lv×35 + SPL×7) × BLV/100","神聖之花":"(4000×5+10×SPL+70×10) × BLV/100","爆破衝擊":"(13450+POW×10) × BLV/100","第三擊 癒治":"(450+5×1800+POW×10) × BLV/100","烈火氣彈":"(23000 + POW×15) × BLV/100","火焰彈":"(DOWN(MHP×0.2)+5×650+POW×10)×(BLV/100)","漸進狙擊":"(13500+CON×10)×(BLV/100)","毀滅風暴":"(13500+CON×10) × BLV/100","火焰陷阱":"(4250+CON×10) × BLV/100","金屬狂怒":"(5×3850+SPL×1.5×5) × BLV/100","節奏射擊":"(550+5×950+CON×5×5) × BLV/100","節奏搖擺":"(250+5×3650+SPL×2×10) × BLV/100","大暴雨":"(120×5) × BLV/100","飛刀-噩夢":"(18000 + ninjaPow()×10) × ninjaBlv()/100","詭影-噩夢":"(18000 + ninjaPow()×10) × ninjaBlv()/100","暗黑龍-噩夢":"(15500 + ninjaSpl()×10) × ninjaBlv()/100","海市蜃樓":"0","消除噩夢":"0","夜裡的警惕":"((800+200×10)×5+CON×3) × BLV/100","獨一槍彈":"(1200+(3400+350×10)×5+CON×3) × BLV/100","螺旋射擊":"(1400+(2800+150×10)×5+CON×3) × BLV/100","洞中急火":"(9000+10×20) × BLV/100","落空手榴彈":"(4800+10×30) × BLV/100","狂野射擊":"(870+180×5+CON) × BLV/100","午夜墜落":"(2400+800×5+CON) × BLV/100","地面重力":"(3000+(1500+4×10)×10+SPL×10) × BLV/100","地獄毀滅":"(1700+(900+4×10)×10+SPL×3) × BLV/100","新霜凍術":"(400+(500+3×10)×10+SPL×4) × BLV/100","巨型音速投擲":"(900+(750+5×10)×10+POW×4) × BLV/100","連續盾擊衝撞":"(850+(1050+3×10)×10+POW×3) × BLV/100","玄鹿砲":"(1100+2050×7+50×10+SPL×5) × BLV/100","玄鹿葉風":"(650+750×7+20×10+SPL×5) × BLV/100","鐵虎咆哮":"(600+1050×7+50×10+POW×5) × BLV/100","鐵虎空心爪":"(1100+2200×7+50×10+POW×5) × BLV/100","鐵虎亂舞":"(480+160×7+70×10+POW×7) × BLV/100","天晨一陽":"(1600+(1250+5×10)×5+POW×5) × BLV/100","天晨一月":"(800+(1500+5×10)×5+POW×5) × BLV/100","四方神符":"(50+(250+15×10)×5+SPL×5) × BLV/100","死靈淨化":"(250×5+2×10+SPL) × BLV/100×20","天龍擊刺":"一般：(4550 + POW×7) × BLV/100；天龍光環：(5000 + POW×10) × BLV/100","聖光打擊(書)":"(13750 + 精熟Lv×500 + POW×5) × BLV/100"};
+
+  // 禁咒魔導士：官方現行基礎技能倍率（Lv5；不再額外乘 BaseLv/100）
+  // peak = 魔力巔峰狀態倍率；若未列 peak 則與一般倍率相同。
+  const ARCH_MAGE_OFFICIAL_BASE_PCT={
+    "冰刃斬":{normal:5200,peak:7100},
+    "冰刃斬擊":{normal:5200,peak:7100},
+    "毀滅彗星":{normal:6000,peak:6000},
+    "暴風加農砲":{normal:7750,peak:9250},
+    "巨石降臨":{normal:7750,peak:9250},
+    "毀滅颶風":{normal:14850,peak:14850}
+  };
+
+  function isArchMageJob(){
+    const job=document.getElementById("skillJobSelect")?.value||"";
+    return job.includes("禁咒");
+  }
+
+  function getArchMageOfficialPct(skillName){
+    if(!isArchMageJob()) return null;
+    const cfg=ARCH_MAGE_OFFICIAL_BASE_PCT[skillName];
+    if(!cfg) return null;
+    const peak=!!document.getElementById("archMageClimaxEnabled")?.checked;
+    return peak ? Number(cfg.peak) : Number(cfg.normal);
+  }
+
+  function syncArchMageClimaxUI(){
+    const row=document.getElementById("archMageClimaxRow");
+    if(!row) return;
+    row.style.display=isArchMageJob() ? "" : "none";
+  }
+
+  const LOCAL_SKILL_FORMULA_TEXT={"虎砲":"(MHP×(SLV×0.02+0.1) + MSP×(SLV×0.01+0.05)) × 0.25 × (BLV/100)","天龍氣息":"一般：UP((4250 + DOWN(MHP/8) + DOWN(MSP/2) + POW×7) × BLV/100)；天龍光環：(50 + (420 + 0.0175×MHP + 0.07×MSP)×SLV + POW×10) × BLV/100","飛刀-旋轉":"[800 + (700 + 70×飛刀-扭曲Lv)×SLV + 4×POW] × BLV/100","冷焰砲":"[350 + (850 + 40×暗戰砲Lv)×SLV + 5×SPL] × BLV/100","火焰砲":"[500 + 1000×SLV + 70×SLV×暗戰砲Lv + 5×SPL] × BLV/100","雷電砲":"[500 + 950×SLV + 70×SLV×暗戰砲Lv + 5×SPL] × BLV/100","金龍砲":"[450 + 950×SLV + 15×SLV×暗戰砲Lv + 5×SPL] × BLV/100","暗戰砲":"[450 + 950×SLV + 5×SPL] × BLV/100","風暴衝擊":"(10+DOWN(STR/5.7))×100 × BLV/100","風暴斬擊":"(300+5×750+POW×5) × BLV/100","狂暴粉碎":"(23500 + POW×10) × BLV/100","聖十字雨":"((450+10×10)×10+SPL×7) × BLV/100","瞬間斬擊":"(2500 + 精熟Lv×600 + POW×7) × BLV/100","盾牌投擲":"(1000+(3500+150×10)×5+POW×10) × BLV/100","光芒之矛":"(3500+1150×10+POW×5+10×50) × BLV/100","帝國十字":"(1650+1350×5+POW×5+10×25) × BLV/100","冰刃斬":"(400+5×950+SPL×5) × BLV/100","豔紅魔矢":"((5×400+SPL×3)+(5×750+SPL×5)) × BLV/100","毀滅彗星":"官方現行 Lv5 基礎倍率：6000%","神秘幻滅":"(5×950+SPL×5) × BLV/100","超自然波":"(70×5+INT×3)×2 × BLV/100","雷霆陣地":"(700+5×1100+SPL×5) × BLV/100","灼熱岩漿":"(700+5×1100+SPL×5) × BLV/100","鑽石風暴":"(500+5×2400+SPL×5) × BLV/100","大地驅動":"(500+5×2400+SPL×5) × BLV/100","超自然流動":"(21000 + SPL×12) × BLV/100","戰斧熔滅":"(450+5×1150+POW×5) × BLV/100","強力粉碎":"(80+240×10+POW×7) × BLV/100","三連雷射":"(650+1150×5+POW×12) × BLV/100","閃光衝擊波":"(14600+POW×7) × BLV/100","強力掃擊":"(300+850×5+POW) × BLV/100","能量加農砲":"(250+750×5+POW) × BLV/100","爆炸炸藥":"(500+650×5+POW×7) × BLV/100","強酸禁地":"(5×400+POW×6) × BLV/100","手推車加農砲":"(5×350+2×INT) × BLV/100","粉塵爆炸":"(450+600×5+POW) × BLV/100","混亂的荊棘":"(200+300×10+POW×7) × BLV/100","十字斬":"(1000+5×230) × BLV/100","暗影刺擊":"(5×550+POW×5) × BLV/100","野蠻衝擊":"(1300+POW×5) × BLV/100","心靈震波":"(10×150+STR+INT) × BLV/100","十字斬擊":"(5×300+POW×5) × BLV/100","深淵墜落":"(150+650×5+SPL×5) × BLV/100","狂暴射擊":"(250+800×10+CON×15) × BLV/100","連鎖射擊":"(800+2550×5+CON×15) × BLV/100","追跡突擊":"(1750+500×5+POW×7) × BLV/100","追跡射擊":"(1500+700×5+CON×10) × BLV/100","深淵火焰":"((820+10×30)×5+SPL×7) × BLV/100","靈巧刺擊":"(700+550×10+POW×7) × BLV/100","聖光打擊(錘)":"(13750 + 精熟Lv×500 + POW×5) × BLV/100","制裁謳歌":"(12000 + 靈魂忠誠Lv×35 + SPL×7) × BLV/100","神聖之花":"(4000×5+10×SPL+70×10) × BLV/100","爆破衝擊":"(13450+POW×10) × BLV/100","第三擊 癒治":"(450+5×1800+POW×10) × BLV/100","烈火氣彈":"(23000 + POW×15) × BLV/100","火焰彈":"(DOWN(MHP×0.2)+5×650+POW×10)×(BLV/100)","漸進狙擊":"(13500+CON×10)×(BLV/100)","毀滅風暴":"(13500+CON×10) × BLV/100","火焰陷阱":"(4250+CON×10) × BLV/100","金屬狂怒":"(5×3850+SPL×1.5×5) × BLV/100","節奏射擊":"(550+5×950+CON×5×5) × BLV/100","節奏搖擺":"(250+5×3650+SPL×2×10) × BLV/100","大暴雨":"(120×5) × BLV/100","飛刀-噩夢":"(18000 + ninjaPow()×10) × ninjaBlv()/100","詭影-噩夢":"(18000 + ninjaPow()×10) × ninjaBlv()/100","暗黑龍-噩夢":"(15500 + ninjaSpl()×10) × ninjaBlv()/100","海市蜃樓":"0","消除噩夢":"0","夜裡的警惕":"((800+200×10)×5+CON×3) × BLV/100","獨一槍彈":"(1200+(3400+350×10)×5+CON×3) × BLV/100","螺旋射擊":"(1400+(2800+150×10)×5+CON×3) × BLV/100","洞中急火":"(9000+10×20) × BLV/100","落空手榴彈":"(4800+10×30) × BLV/100","狂野射擊":"(870+180×5+CON) × BLV/100","午夜墜落":"(2400+800×5+CON) × BLV/100","地面重力":"(3000+(1500+4×10)×10+SPL×10) × BLV/100","地獄毀滅":"(1700+(900+4×10)×10+SPL×3) × BLV/100","新霜凍術":"(400+(500+3×10)×10+SPL×4) × BLV/100","巨型音速投擲":"(900+(750+5×10)×10+POW×4) × BLV/100","連續盾擊衝撞":"(850+(1050+3×10)×10+POW×3) × BLV/100","玄鹿砲":"(1100+2050×7+50×10+SPL×5) × BLV/100","玄鹿葉風":"(650+750×7+20×10+SPL×5) × BLV/100","鐵虎咆哮":"(600+1050×7+50×10+POW×5) × BLV/100","鐵虎空心爪":"(1100+2200×7+50×10+POW×5) × BLV/100","鐵虎亂舞":"(480+160×7+70×10+POW×7) × BLV/100","天晨一陽":"(1600+(1250+5×10)×5+POW×5) × BLV/100","天晨一月":"(800+(1500+5×10)×5+POW×5) × BLV/100","四方神符":"(50+(250+15×10)×5+SPL×5) × BLV/100","死靈淨化":"(250×5+2×10+SPL) × BLV/100×20","天龍擊刺":"一般：(4550 + POW×7) × BLV/100；天龍光環：(5000 + POW×10) × BLV/100","聖光打擊(書)":"(13750 + 精熟Lv×500 + POW×5) × BLV/100"};
 
   function updateSkillFormulaMethodText(skillName){
     const el=document.getElementById("skillFormulaMethodText");
     if(!el) return;
+    const cfg=isArchMageJob() ? ARCH_MAGE_OFFICIAL_BASE_PCT[skillName] : null;
+    if(cfg){
+      const peak=!!document.getElementById("archMageClimaxEnabled")?.checked;
+      const pct=peak ? cfg.peak : cfg.normal;
+      el.textContent=`官方現行 Lv5 基礎倍率：${pct}%${cfg.peak!==cfg.normal ? (peak?"（魔力巔峰）":"（一般）") : ""}`;
+      return;
+    }
     const txt=LOCAL_SKILL_FORMULA_TEXT[skillName];
     el.textContent=txt || "此技能目前沒有可確認的固定公式；原始倍率欄可手動輸入。";
   }
 
   window.syncOriginalSkillFormula=function(){
     const s=getSelectedSkillBalance();
+    syncArchMageClimaxUI();
     updateSkillFormulaMethodText(s.name);
     const original=document.getElementById("skillOriginalPct");
     const star=document.getElementById("skillStarBonusPct");
@@ -1617,9 +1677,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       if(original) original.value=originalPct;
     }else{
       if(box) box.style.display="none";
-      const pct=calcLocalOriginalSkillPct(s.name);
+      syncArchMageClimaxUI();
+      const officialArchMagePct=getArchMageOfficialPct(s.name);
+      const pct=(officialArchMagePct!=null) ? officialArchMagePct : calcLocalOriginalSkillPct(s.name);
       if(original) original.value=(pct!=null && Number.isFinite(pct)) ? pct : 0;
     }
+    syncArchMageClimaxUI();
   };
 
   function checkedPctSum(className){
@@ -1757,7 +1820,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   const GUYUN_TEST_CHECKED_IDS=[];
-  const DAMAGE_EFFECT_CHECKBOX_IDS=["fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneMeleeFinal","stoneRangedFinal","stoneMagicAreaFinal","stonePhysicalAreaFinal","stoneAttributeCurse","stoneRepeatCast"];
+  const DAMAGE_EFFECT_CHECKBOX_IDS=["archMageClimaxEnabled","fullBossClassBuff","fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneMeleeFinal","stoneRangedFinal","stoneMagicAreaFinal","stonePhysicalAreaFinal","stoneAttributeCurse","stoneRepeatCast"];
 
   function applyGuyunEffectChecks(){
     DAMAGE_EFFECT_CHECKBOX_IDS.forEach(id=>{
@@ -1789,7 +1852,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "fullAttrPhys":0,
       "fullAttrMagic":188,
       "fullClassPhys":0,
-      "fullClassMagic":66,
+      "fullClassMagic":111,
       "fullRacePhys":0,
       "fullRaceMagic":220,
       "fullSizePhys":0,
@@ -1905,6 +1968,13 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(mTheory) mTheory.style.display=isMagic ? "" : "none";
     if(pSkill) pSkill.style.display=isMagic ? "none" : "";
     if(mSkill) mSkill.style.display=isMagic ? "" : "none";
+
+    const bossClassBuffLabel=document.getElementById("fullBossClassBuffLabel");
+    if(bossClassBuffLabel){
+      bossClassBuffLabel.textContent=isMagic
+        ? "真理解放（+100% BOSS階級）"
+        : "豪傑（+100% BOSS階級）";
+    }
 }
 
   window.setFullAttackType=function(type){
@@ -1994,6 +2064,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const buffBbqCritFinal=!!document.getElementById("buffBbqCritFinal")?.checked;
     const buffXmasFruitSkillFinal=!!document.getElementById("buffXmasFruitSkillFinal")?.checked;
     const buffHolyAuthority=!!document.getElementById("buffHolyAuthority")?.checked;
+    const bossClassBuff=!!document.getElementById("fullBossClassBuff")?.checked;
 
     const effectivePatk=patk+(buffHolyAuthority?50:0);
     const effectiveSmatk=smatk+(buffHolyAuthority?50:0);
@@ -2008,27 +2079,30 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
     let physicalCritApplyMul=1;
     let magicCritApplyMul=1;
+    let critFinalApplyMul=1;
 
     if(critEffectMode==="critDamage"){
       const fullCritMul=(100 + crit)/100;
       const fullMagicCritMul=(100 + magicCrit)/100;
       physicalCritApplyMul=fullCritMul * crateMul;
       magicCritApplyMul=fullMagicCritMul * crateMul;
+      critFinalApplyMul=pctMul(val("panelCritFinalPct"));
     }else if(critEffectMode==="skillCrit"){
       const skillCritMul=(100 + crit/2)/100;
       const skillMagicCritMul=(100 + magicCrit/2)/100;
       physicalCritApplyMul=skillCritMul * crateMul;
       magicCritApplyMul=skillMagicCritMul * crateMul;
+      critFinalApplyMul=pctMul(val("panelCritFinalPct"));
     }
 
     const effectText=document.getElementById("fullCritEffectText");
     if(effectText){
       effectText.textContent =
         critEffectMode==="critDamage"
-          ? "(1) 爆擊傷害效果：爆傷不減半，固定套用完整爆傷 × CRATE。"
+          ? "(1) 爆擊傷害效果：完整爆傷 × CRATE × 爆擊最終傷害。"
           : critEffectMode==="skillCrit"
-          ? "(2) 技能爆擊效果：所有技能套用爆擊，固定套用爆傷 /2 × CRATE。"
-          : "無效果：技能不套用爆傷／CRATE 爆擊乘區。";
+          ? "(2) 技能爆擊效果：爆傷 /2 × CRATE × 爆擊最終傷害。"
+          : "無效果：爆傷、CRATE、爆擊最終傷害皆不套用。";
     }
     // PATK / SMATK 面板採獨立乘區：
     // 例如 PATK 3854 => (100+3854)/100 = ×39.54。
@@ -2099,7 +2173,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       val("fullAtk") *
       patkMul *
       pctMul(val("fullAttrPhys")) *
-      pctMul(val("fullClassPhys")) *
+      pctMul(val("fullClassPhys") + (bossClassBuff ? 100 : 0)) *
       pctMul(val("fullRacePhys")) *
       pctMul(val("fullSizePhys")) *
       pctMul(val("fullElementAtkPct") + attributeCurseStonePct) *
@@ -2108,7 +2182,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(val("panelRangedFinalPct")) *
       pctMul(val("panelPhysicalAreaPct") + physicalAreaStonePct) *
       pctMul(val("panelPhysicalFinalPct")) *
-      pctMul(val("panelCritFinalPct")) *
+      critFinalApplyMul *
       bbqCritFinalMul *
       pctMul(val("allSkillFinalPct")) *
       pctMul(val("allSkillDamagePct")) *
@@ -2132,13 +2206,13 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       repeatCastMul;
 
     // 魔法：
-    // MATK × MATK% × (對屬性 × 對一般階級 × 對種族 × 對體型)
+    // MATK × MATK% × (對屬性 × 對BOSS階級 × 對種族 × 對體型)
     // × 屬法傷 × 爆傷 × SMATK × CRATE × 終傷類
     const magic =
       val("fullMatk") *
       pctMul(val("fullMatkPct")) *
       pctMul(val("fullAttrMagic")) *
-      pctMul(val("fullClassMagic")) *
+      pctMul(val("fullClassMagic") + (bossClassBuff ? 100 : 0)) *
       pctMul(val("fullRaceMagic")) *
       pctMul(val("fullSizeMagic")) *
       pctMul(val("fullElementMagicPct")) *
@@ -2148,7 +2222,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(val("panelRangedFinalPct")) *
       pctMul(val("panelPhysicalAreaPct") + magicAreaStonePct) *
       pctMul(val("panelPhysicalFinalPct")) *
-      pctMul(val("panelCritFinalPct")) *
+      critFinalApplyMul *
       bbqCritFinalMul *
       pctMul(val("allSkillFinalPct")) *
       pctMul(val("allSkillDamagePct")) *
@@ -2227,8 +2301,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(f){
       f.innerHTML=
         `<b>目前模式：${fullAttackType==="magic"?"魔法":"物理"}｜${fullDamageMode==="skill"?"技爆版（爆傷÷2）":"爆傷版"}</b><br>`+
-        `物理：(ATK + 面板PATK) × 對屬性 × 對一般階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 全技能最終傷害 × 全技能傷害 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
-        `魔法：MATK × MATK% ×（對屬性 × 對一般階級 × 對種族 × 對體型）× 屬法傷 × 爆傷 × SMATK × CRATE × 終傷類<br><span style="color:#ffd54a">終傷類：近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 全技能最終傷害 × 全技能傷害 × 高級結晶 × 終傷藥水 × 補品／反逆等效果</span>`;
+        `物理：(ATK + 面板PATK) × 對屬性 × 對BOSS階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 全技能最終傷害 × 全技能傷害 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
+        `魔法：MATK × MATK% ×（對屬性 × 對BOSS階級 × 對種族 × 對體型）× 屬法傷 × 爆傷 × SMATK × CRATE × 終傷類<br><span style="color:#ffd54a">終傷類：近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 全技能最終傷害 × 全技能傷害 × 高級結晶 × 終傷藥水 × 補品／反逆等效果</span>`;
     }
   };
 
