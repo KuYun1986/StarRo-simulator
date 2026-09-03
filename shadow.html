@@ -337,7 +337,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <button type="button" onclick="deleteSavedDamageStats()">🗑️ 刪除保存素質</button>
 </div>
 <div class="tiny" id="damageStatsSaveText" style="margin-top:6px;color:#9fe7c8">保存位置：此瀏覽器本機</div>
-<div class="tiny" style="margin-top:6px">首次進入時素質預設為 0；需要測試時可直接套用「古雲測試」。</div>
+<div class="tiny" style="margin-top:6px">首次進入時素質預設為 0</div>
 </div>
 <div class="table-wrap" style="margin-top:10px">
 <table class="cost-table" id="fullDamageStatsTable" style="min-width:760px">
@@ -670,7 +670,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </div>
 
 
-<div class="tiny" style="margin-top:6px;color:#ffd54a"><b>特殊攻擊：</b>PATK / SMATK 採獨立乘區，例如 PATK 3854 = ×39.54；暴擊傷害欄位位於「近遠傷」下一格。</div>
+<div class="tiny" style="margin-top:6px;color:#ffd54a"></div>
 <div class="note" style="margin-top:14px">
 <b>⚡ 單次傷害／DPS</b>
 <div class="tiny" style="margin-top:5px">會依上方測傷模式，自動把「技能最終傷害｜物理／魔法」對應結果帶入單次傷害；再次施放 60% 另外顯示期望值。</div>
@@ -1756,7 +1756,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     }
   };
 
-  const GUYUN_TEST_CHECKED_IDS=["fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneRangedFinal","stoneRepeatCast"];
+  const GUYUN_TEST_CHECKED_IDS=[];
   const DAMAGE_EFFECT_CHECKBOX_IDS=["fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneMeleeFinal","stoneRangedFinal","stoneMagicAreaFinal","stonePhysicalAreaFinal","stoneAttributeCurse","stoneRepeatCast"];
 
   function applyGuyunEffectChecks(){
@@ -1776,45 +1776,45 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   }
 
   const GUYUN_TEST_STATS={
-      "fullAtkBase1":10000,
+      "fullAtkBase1":0,
       "fullAtkBase2":0,
-      "fullMatkBase1":0,
-      "fullMatkBase2":0,
-      "fullPatk":3854,
-      "fullSmatk":0,
+      "fullMatkBase1":2802,
+      "fullMatkBase2":2668,
+      "fullPatk":0,
+      "fullSmatk":722,
       "fullCratePhys":0,
-      "fullCrateMagic":0,
-      "fullAtkPct":147,
-      "fullMatkPct":0,
-      "fullAttrPhys":460,
-      "fullAttrMagic":0,
-      "fullClassPhys":66,
+      "fullCrateMagic":160,
+      "fullAtkPct":0,
+      "fullMatkPct":142,
+      "fullAttrPhys":0,
+      "fullAttrMagic":181,
+      "fullClassPhys":0,
       "fullClassMagic":66,
-      "fullRacePhys":410,
-      "fullRaceMagic":0,
-      "fullSizePhys":755,
-      "fullSizeMagic":0,
-      "fullElementAtkPct":200,
-      "fullElementMagicPct":0,
-      "fullRangePct":1148,
+      "fullRacePhys":0,
+      "fullRaceMagic":220,
+      "fullSizePhys":0,
+      "fullSizeMagic":213,
+      "fullElementAtkPct":0,
+      "fullElementMagicPct":254,
+      "fullRangePct":0,
       "fullCritDamagePct":0,
-      "fullMagicCritDamagePct":0,
-      "fullPotionSizePhys":11,
+      "fullMagicCritDamagePct":468,
+      "fullPotionSizePhys":0,
       "fullPotionSizeMagic":0,
-      "fullPotionRacePhys":12,
+      "fullPotionRacePhys":0,
       "fullPotionRaceMagic":0,
-      "fullPotionClassPhys":10,
+      "fullPotionClassPhys":0,
       "fullPotionClassMagic":0,
-      "fullPotionAttrPhys":5,
+      "fullPotionAttrPhys":0,
       "fullPotionAttrMagic":0,
-      "panelRangedFinalPct":120,
-      "panelPhysicalAreaPct":185,
-      "panelPhysicalFinalPct":83,
-      "panelCritFinalPct":65,
-      "fullDamageReduction":99.9999999999,
-      "skillCustomExtraPct":0,
-      "allSkillFinalPct":0,
-      "allSkillDamagePct":0,
+      "panelRangedFinalPct":0,
+      "panelPhysicalAreaPct":15,
+      "panelPhysicalFinalPct":5,
+      "panelCritFinalPct":10,
+      "fullDamageReduction":99.999,
+      "skillCustomExtraPct":231,
+      "allSkillFinalPct":35,
+      "allSkillDamagePct":15,
       "skillAttackElement":0,
       "monsterElementLv4":0,
       "monsterSizeSelect":"medium",
@@ -1826,8 +1826,11 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const el=document.getElementById(id);
       if(el) el.value=value;
     });
+    fullAttackType="magic";
     applyGuyunEffectChecks();
     syncBaseAttackTotals();
+    syncFullDamageModeUI();
+    if(typeof renderElementLv4Chart==="function") renderElementLv4Chart();
     if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
     const noneEffect=document.querySelector('input[name="fullCritEffectMode"][value="none"]');
     if(noneEffect) noneEffect.checked=true;
