@@ -377,6 +377,35 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <div class="tiny" id="elementLv4Info">屬性倍率：×1.00</div>
   </td>
 </tr>
+<tr>
+  <td><b>怪物體型</b></td>
+  <td colspan="2">
+    <select id="monsterSizeSelect" onchange="recalcFullDamageTest()" style="width:100%">
+      <option value="medium">中型</option>
+      <option value="large">大型</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><b>怪物種族</b></td>
+  <td colspan="2">
+    <select id="monsterRaceSelect" onchange="recalcFullDamageTest()" style="width:100%">
+      <option value="0">無形</option>
+      <option value="1">不死</option>
+      <option value="2">動物</option>
+      <option value="3">植物</option>
+      <option value="4">昆蟲</option>
+      <option value="5">魚貝</option>
+      <option value="6">惡魔</option>
+      <option value="7">人形</option>
+      <option value="8">天使</option>
+      <option value="9">龍族</option>
+      <option value="10">玩家(人類)</option>
+      <option value="11">玩家(貓族)</option>
+    </select>
+    <div class="tiny">參考 Landgris RO Calculator 敵方種族分類</div>
+  </td>
+</tr>
 <tr id="elementLv4ChartRow" style="display:none">
   <td colspan="3">
     <div style="border:1px solid #2c3c4d;border-radius:12px;padding:12px;background:#0b121b">
@@ -437,13 +466,13 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>對屬性</b></td>
 <td><input id="fullAttrPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullAttrMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
-<tr><td><b>對種族</b></td>
+<tr><td><b>對種族%（依上方選擇）</b></td>
 <td><input id="fullRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullRaceMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 <tr><td><b>對一般階級</b></td>
 <td><input id="fullClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="66"/><div class="tiny">%</div></td>
 <td><input id="fullClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="66"/><div class="tiny">%</div></td></tr>
-<tr><td><b>對體型</b></td>
+<tr><td><b>對體型%（依上方選擇）</b></td>
 <td><input id="fullSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
 
@@ -1630,7 +1659,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "panelRangedFinalPct","panelPhysicalAreaPct","panelPhysicalFinalPct","panelCritFinalPct",
       "allSkillFinalPct","allSkillDamagePct",
       "fullDamageReduction","fullRemainingHpPct","combatAspd","combatCastsPerSec",
-      "skillJobSelect","skillNameSelect","skillAttackElement","monsterElementLv4","skillOriginalPct","skillStarBonusPct","skillCustomExtraPct"
+      "skillJobSelect","skillNameSelect","skillAttackElement","monsterElementLv4","monsterSizeSelect","monsterRaceSelect","skillOriginalPct","skillStarBonusPct","skillCustomExtraPct"
     ];
   }
 
@@ -1787,7 +1816,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "allSkillFinalPct":0,
       "allSkillDamagePct":0,
       "skillAttackElement":0,
-      "monsterElementLv4":0
+      "monsterElementLv4":0,
+      "monsterSizeSelect":"medium",
+      "monsterRaceSelect":0
   };
 
   window.applyGuyunTestStats=function(){
