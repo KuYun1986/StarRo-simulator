@@ -1826,14 +1826,31 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       const el=document.getElementById(id);
       if(el) el.value=value;
     });
+
+    // 古雲測試固定：禁咒魔導士｜毀滅彗星
+    const jobSel=document.getElementById("skillJobSelect");
+    const skillSel=document.getElementById("skillNameSelect");
+    if(jobSel){
+      const jobOption=Array.from(jobSel.options).find(opt=>String(opt.textContent||"").includes("禁咒"));
+      if(jobOption){
+        jobSel.value=jobOption.value;
+        if(typeof renderSkillOptions==="function") renderSkillOptions();
+      }
+    }
+    if(skillSel){
+      const cometOption=Array.from(skillSel.options).find(opt=>String(opt.textContent||"").includes("毀滅彗星"));
+      if(cometOption) skillSel.value=cometOption.value;
+    }
+    if(typeof syncOriginalSkillFormula==="function") syncOriginalSkillFormula();
+
     fullAttackType="magic";
     applyGuyunEffectChecks();
     syncBaseAttackTotals();
     syncFullDamageModeUI();
     if(typeof renderElementLv4Chart==="function") renderElementLv4Chart();
-    if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
     const noneEffect=document.querySelector('input[name="fullCritEffectMode"][value="none"]');
     if(noneEffect) noneEffect.checked=true;
+    if(typeof recalcFullDamageTest==="function") recalcFullDamageTest();
   };
 
   window.clearCurrentStats=function(){
