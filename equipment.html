@@ -70,31 +70,40 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <div class="note tiny">
 計算方式：需求數量 ÷ 價格單位 × P 點價格。<br>
 例如「紫水晶碎片」需求 23,900、價格單位 100、價格 90P → 23,900 ÷ 100 × 90 = 21,510P。<br>
-「現價」為 2026.09.04 更新；彙整全部裝備材料，同名道具只列一次，價格與價格單位會同步到所有裝備頁。修改後會儲存在你的瀏覽器。
+「現價」為 2026.09.04 更新；預設收合，點「顯示裝備現價」才展開。彙整全部裝備材料，同名道具只列一次，價格與價格單位會同步到所有裝備頁。修改後會儲存在你的瀏覽器。
 </div>
 </section>
 <section class="card" id="serviceMaterialPrices">
-  <h2>💲 代敲／代評材料價格</h2>
-  <div class="tiny">以下為預設 P 點價格，可直接修改；修改後會保存在目前瀏覽器。</div>
-  <div class="table-wrap">
-    <table class="cost-table" style="min-width:650px">
-      <thead><tr><th>材料</th><th>預設價格 (P)</th></tr></thead>
-      <tbody>
-        <tr><td><b>鐵匠的祝福</b></td><td><input id="svcPriceBless" type="number" min="0" step="any" value="7"></td></tr>
-        <tr><td><b>支票</b></td><td><input id="svcPriceCheck" type="number" min="0" step="any" value="16"></td></tr>
-        <tr><td><b>大金</b></td><td><input id="svcPriceBigGold" type="number" min="0" step="any" value="800"></td></tr>
-        <tr><td><b>小金</b></td><td><input id="svcPriceSmallGold" type="number" min="0" step="any" value="90"></td></tr>
-        <tr><td><b>大灰</b></td><td><input id="svcPriceBigGray" type="number" min="0" step="any" value="100"></td></tr>
-        <tr><td><b>小灰</b></td><td><input id="svcPriceSmallGray" type="number" min="0" step="any" value="1"></td></tr>
-        <tr><td><b>乙太塔菲</b></td><td><input id="svcPriceTaffy" type="number" min="0" step="any" value="40"></td></tr>
-        <tr><td><b>庇佑以太</b></td><td><input id="svcPriceDust" type="number" min="0" step="any" value="2"></td></tr>
-        <tr><td><b>紅利</b></td><td><input id="svcPriceRed" type="number" min="0" step="any" value="200"></td></tr>
-      </tbody>
-    </table>
+  <h2>💲 代敲材料預設價格 (P)</h2>
+  <div class="tiny" style="margin-bottom:12px">
+    預設收合；點下方按鈕才顯示。價格可自行修改並儲存在目前瀏覽器。
   </div>
-  <div class="actions">
-    <button class="primary" type="button" onclick="saveServicePrices()">💾 儲存材料價格</button>
-    <button type="button" onclick="resetServicePrices()">恢復預設價格</button>
+  <button type="button" id="toggleServicePriceBtn"
+    style="padding:9px 14px;border:1px solid #34404e;border-radius:9px;background:#111925;color:#fff;cursor:pointer">
+    顯示代敲材料價格
+  </button>
+
+  <div id="servicePricePanel" style="display:none;margin-top:12px">
+    <div class="table-wrap">
+      <table class="cost-table" style="min-width:650px">
+        <thead><tr><th>材料</th><th>預設價格 (P)</th></tr></thead>
+        <tbody>
+          <tr><td><b>鐵匠的祝福#6635</b></td><td><input id="svcPriceBless" type="number" min="0" step="any" value="6"></td></tr>
+          <tr><td><b>支票#60332</b></td><td><input id="svcPriceCheck" type="number" min="0" step="any" value="18"></td></tr>
+          <tr><td><b>大金#60687</b></td><td><input id="svcPriceBigGold" type="number" min="0" step="any" value="950"></td></tr>
+          <tr><td><b>小金#60360</b></td><td><input id="svcPriceSmallGold" type="number" min="0" step="any" value="120"></td></tr>
+          <tr><td><b>大灰#60685</b></td><td><input id="svcPriceBigGray" type="number" min="0" step="any" value="148"></td></tr>
+          <tr><td><b>小灰#60169</b></td><td><input id="svcPriceSmallGray" type="number" min="0" step="any" value="1"></td></tr>
+          <tr><td><b>乙太塔菲#60381</b></td><td><input id="svcPriceTaffy" type="number" min="0" step="any" value="40"></td></tr>
+          <tr><td><b>庇佑以太#1000337</b></td><td><input id="svcPriceDust" type="number" min="0" step="any" value="1"></td></tr>
+          <tr><td><b>紅利點數#60101</b></td><td><input id="svcPriceRed" type="number" min="0" step="any" value="220"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button class="primary" type="button" onclick="saveServicePrices()">💾 儲存材料價格</button>
+      <button type="button" onclick="resetServicePrices()">恢復預設價格</button>
+    </div>
   </div>
 </section>
 
@@ -291,9 +300,16 @@ function stored(kind,r){
 }
 
 function renderMasterTable(){
-  let s=`<table class="cost-table"><thead><tr>
-    <th>道具</th><th>價格單位</th><th>目前價格 (P)</th>
-  </tr></thead><tbody>`;
+  let s=`<div style="margin-bottom:12px">
+    <button type="button" id="toggleCurrentPriceBtn"
+      style="padding:9px 14px;border:1px solid #34404e;border-radius:9px;background:#111925;color:#fff;cursor:pointer">
+      顯示裝備現價
+    </button>
+  </div>
+  <div id="currentPricePanel" style="display:none">
+    <table class="cost-table"><thead><tr>
+      <th>道具</th><th>價格單位</th><th>目前價格 (P)</th>
+    </tr></thead><tbody>`;
   MASTER_ITEMS.forEach((r,i)=>{
     const pack=masterPack(r.name);
     const price=masterPrice(r.name);
@@ -305,8 +321,17 @@ function renderMasterTable(){
         oninput="updateMasterItem(${i})"></td>
     </tr>`;
   });
-  s+=`</tbody></table>`;
+  s+=`</tbody></table></div>`;
   document.getElementById("equipTableWrap").innerHTML=s;
+
+  const btn=document.getElementById("toggleCurrentPriceBtn");
+  const panel=document.getElementById("currentPricePanel");
+  btn?.addEventListener("click",()=>{
+    const opening=panel.style.display==="none";
+    panel.style.display=opening ? "" : "none";
+    btn.textContent=opening ? "隱藏裝備現價" : "顯示裝備現價";
+  });
+
   document.getElementById("costKinds").textContent=MASTER_ITEMS.length+" 種";
   document.getElementById("costQty").textContent="—";
   document.getElementById("costTotal").textContent="—";
@@ -422,8 +447,8 @@ renderTabs();renderTable();
 <script id="serviceFeeScript">
 (function(){
   const DEFAULT_PRICES={
-    bless:7, check:16, bigGold:800, smallGold:90,
-    bigGray:100, smallGray:1, taffy:40, dust:2, red:200
+    bless:6, check:18, bigGold:950, smallGold:120,
+    bigGray:148, smallGray:1, taffy:40, dust:1, red:220
   };
   const PRICE_IDS={
     bless:"svcPriceBless", check:"svcPriceCheck",
@@ -443,7 +468,7 @@ renderTabs();renderTable();
   function fmt(n){return Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});}
   function q(id){return Math.max(1,Math.floor(Number(document.getElementById(id)?.value||1)));}
   function price(k){return Math.max(0,Number(document.getElementById(PRICE_IDS[k])?.value||0));}
-  function priceKey(k){return "starro_service_price_"+k;}
+  function priceKey(k){return "starro_service_price_v66_"+k;}
 
   function loadServicePrices(){
     Object.keys(DEFAULT_PRICES).forEach(k=>{
@@ -461,7 +486,7 @@ renderTabs();renderTable();
   };
   window.resetServicePrices=function(){
     Object.keys(DEFAULT_PRICES).forEach(k=>localStorage.removeItem(priceKey(k)));
-    loadServicePrices(); renderRefine(); renderGrade();
+    loadServicePrices(); renderRefine(); renderGrade(); renderServiceMulti();
   };
 
   function renderRefine(){
@@ -579,6 +604,14 @@ renderTabs();renderTable();
     document.getElementById(id)?.addEventListener("input",()=>{renderRefine();renderGrade();});
   });
 
+
+  const servicePriceToggle=document.getElementById("toggleServicePriceBtn");
+  const servicePricePanel=document.getElementById("servicePricePanel");
+  servicePriceToggle?.addEventListener("click",()=>{
+    const opening=servicePricePanel.style.display==="none";
+    servicePricePanel.style.display=opening ? "" : "none";
+    servicePriceToggle.textContent=opening ? "隱藏代敲材料價格" : "顯示代敲材料價格";
+  });
   loadServicePrices();
   renderRefine();
   renderGrade();
