@@ -63,14 +63,14 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <div class="stat"><span class="label">製作總成本</span><b id="costTotal" style="color:#7ee0a1">0 P</b></div>
 </div>
 <div class="actions">
-  <button class="primary" onclick="saveCurrent()">💾 儲存目前價格</button>
+  <button class="primary" onclick="saveCurrent()">💾 儲存目前資料</button>
   <button onclick="restoreCurrent()">恢復此裝備預設</button>
   <button onclick="restoreAll()">全部恢復預設</button>
 </div>
 <div class="note tiny">
 計算方式：需求數量 ÷ 價格單位 × P 點價格。<br>
 例如「紫水晶碎片」需求 23,900、價格單位 100、價格 90P → 23,900 ÷ 100 × 90 = 21,510P。<br>
-修改後的數量、價格單位、P 點價格會儲存在你的瀏覽器。
+「現價」會彙整全部裝備材料，同名道具只列一次；價格與價格單位會同步到所有裝備頁。修改後會儲存在你的瀏覽器。
 </div>
 </section>
 <section class="card" id="serviceMaterialPrices">
@@ -208,13 +208,57 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
 <script>
 const EQUIPMENT_DATA={"信念頭":[{"name":"裝備附魔卷","qty":35.0,"price":685.0,"pack":1},{"name":"紫水晶碎片","qty":23900.0,"price":90.0,"pack":100},{"name":"聖域能量","qty":1500.0,"price":2.0,"pack":1},{"name":"聖域精華","qty":400.0,"price":60.0,"pack":1},{"name":"特定屬性聖域寶石碎片","qty":100.0,"price":150.0,"pack":1},{"name":"支票","qty":52,"price":16.0,"pack":1}],"伊斯頭":[{"name":"支票","qty":10000.0,"price":16.0,"pack":1},{"name":"裝備附魔卷","qty":300.0,"price":685.0,"pack":1},{"name":"神聖的貓鬍鬚","qty":18000.0,"price":1.0,"pack":1},{"name":"維格納上層證書","qty":15000.0,"price":1.0,"pack":1},{"name":"燦爛的夕陽的魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"明亮的綠松石魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"絢麗的星紅魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"綏藍魔法石","qty":3000.0,"price":35000.0,"pack":3000},{"name":"伊斯加爾特的恩典氣息","qty":2500.0,"price":30.0,"pack":1},{"name":"伊斯加爾特之心","qty":500.0,"price":80000.0,"pack":500},{"name":"伊斯加爾特的祝福碎片","qty":500.0,"price":80000.0,"pack":500},{"name":"晨曦之光#1001786","qty":10.0,"price":4500.0,"pack":1},{"name":"魔星石#1001438","qty":10.0,"price":2500.0,"pack":1},{"name":"正義女神寶石#1001797","qty":15.0,"price":2200.0,"pack":1},{"name":"阿奎拉卡#300382","qty":1.0,"price":3000.0,"pack":1},{"name":"仿真蓉可兒卡#300378","qty":1.0,"price":700.0,"pack":1},{"name":"究極拉斯甘德卡#300472","qty":1.0,"price":7000.0,"pack":1},{"name":"幽靈船船長卡#300532","qty":1.0,"price":500.0,"pack":1},{"name":"被侵占的燒毀卡#300533","qty":1.0,"price":2500.0,"pack":1}],"凱薩":[{"name":"獼猴桃果實","qty":790.0,"price":0,"pack":1},{"name":"威力隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"耐力隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"專注隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"創造隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"咒術隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"智慧隕石浮塵","qty":4.0,"price":1.0,"pack":1},{"name":"威力隕石碎片","qty":2704.0,"price":16.0,"pack":1},{"name":"耐力隕石碎片","qty":2704.0,"price":5.0,"pack":1},{"name":"專注隕石碎片","qty":2704.0,"price":10.0,"pack":1},{"name":"創造隕石碎片","qty":2704.0,"price":11.0,"pack":1},{"name":"咒術隕石碎片","qty":2704.0,"price":13.0,"pack":1},{"name":"智慧隕石碎片","qty":2704.0,"price":11.0,"pack":1},{"name":"對應屬性的精華","qty":16.0,"price":5000.0,"pack":1},{"name":"對應屬性隕石碎片(3種)","qty":2500.0,"price":30.0,"pack":1},{"name":"對應屬性隕石浮塵(3種)","qty":2000.0,"price":3.0,"pack":1},{"name":"星辰粉末罐","qty":7000.0,"price":10.0,"pack":1},{"name":"地獄夜勝魔靈珠","qty":650.0,"price":125.0,"pack":1},{"name":"地獄參宿四靈珠","qty":325.0,"price":80.0,"pack":1},{"name":"地獄參宿七靈珠","qty":325.0,"price":80.0,"pack":1},{"name":"裝備附魔券","qty":6.0,"price":685.0,"pack":1}],"龍甲":[{"name":"支票","qty":4661.0,"price":16.0,"pack":1},{"name":"伊美樂心臟能量碎片","qty":3.0,"price":0,"pack":1},{"name":"伊美樂心臟能量","qty":6.0,"price":0,"pack":1},{"name":"裝備附魔卷","qty":34.0,"price":0,"pack":1},{"name":"小的龍骨頭","qty":300.0,"price":0,"pack":1},{"name":"大的龍骨頭","qty":800.0,"price":0,"pack":1},{"name":"火龍的鱗片","qty":600.0,"price":0,"pack":1},{"name":"血紅鱗片","qty":250.0,"price":0,"pack":1},{"name":"尼德霍德的水藍寶石鱗片","qty":2900.0,"price":0,"pack":1},{"name":"尼德霍德的血紅寶石鱗片","qty":350.0,"price":0,"pack":1},{"name":"防具強化石(頂級)","qty":450.0,"price":0,"pack":1},{"name":"七彩寶珠","qty":300.0,"price":0,"pack":1},{"name":"迪塔勒泰晤勒斯卡片","qty":1.0,"price":0,"pack":1},{"name":"骨骸迪塔勒泰晤勒斯卡片","qty":2.0,"price":0,"pack":1},{"name":"尼德霍格幻影卡片","qty":2.0,"price":0,"pack":1},{"name":"威力隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"耐力隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"專注隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"創造隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"咒術隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"智慧隕石碎片","qty":2100.0,"price":0,"pack":1},{"name":"獼猴桃","qty":1000.0,"price":0,"pack":1}],"懺悔武器":[{"name":"悔恨結晶","qty":35000.0,"price":14.0,"pack":100},{"name":"悔恨能量碎片","qty":4600.0,"price":10.0,"pack":1},{"name":"悔恨能量精華","qty":150.0,"price":1.0,"pack":1},{"name":"薩克萊卡片#300192","qty":1.0,"price":2000.0,"pack":1},{"name":"提亞拉卡片#300193","qty":1.0,"price":2500.0,"pack":1},{"name":"支票","qty":11,"price":16.0,"pack":1}],"神話／英雄LT武器":[{"name":"生體試驗晶片殘骸","qty":55000.0,"price":28.0,"pack":100},{"name":"生體試驗報告","qty":55000.0,"price":28.0,"pack":100},{"name":"生體能量精華","qty":100.0,"price":14.0,"pack":1},{"name":"生體能量精華(光)","qty":100.0,"price":24.0,"pack":1},{"name":"邪惡的心靈氣息","qty":1.0,"price":500.0,"pack":1},{"name":"生體能量殘骸","qty":1650.0,"price":14.0,"pack":1},{"name":"生體能量殘骸(光)","qty":1650.0,"price":24.0,"pack":1},{"name":"活體劍士卡片","qty":1.0,"price":650.0,"pack":1},{"name":"支票","qty":8,"price":16.0,"pack":1}],"吉芬披":[{"name":"暗夜吉芬鬥技場冠軍","qty":3600.0,"price":0,"pack":1},{"name":"暗夜吉芬鬥技場硬幣","qty":97500.0,"price":5.0,"pack":100},{"name":"暗夜吉芬鬥技場證明","qty":6000.0,"price":1.0,"pack":1},{"name":"暗夜吉芬衛冕硬幣","qty":600.0,"price":50.0,"pack":1},{"name":"弱化的潘利爾卡片","qty":20.0,"price":78.0,"pack":1},{"name":"暗夜吉芬衛冕冠軍證明","qty":550.0,"price":45.0,"pack":1},{"name":"潘利爾卡片","qty":1.0,"price":7000.0,"pack":1},{"name":"莎拉卡片","qty":1.0,"price":14500.0,"pack":1},{"name":"支票","qty":58,"price":16.0,"pack":1}],"生命披":[{"name":"季節(王)材料","qty":69.0,"price":50.0,"pack":1},{"name":"(季節)之靈","qty":1254.0,"price":3.0,"pack":1},{"name":"能量各2種","qty":1292.0,"price":28.0,"pack":1},{"name":"靈魂的保護","qty":305.0,"price":10.0,"pack":1},{"name":"生命循環","qty":300.0,"price":1.0,"pack":1},{"name":"生命的果實","qty":128.0,"price":1.0,"pack":1},{"name":"滅絕的果實","qty":98.0,"price":8.0,"pack":1},{"name":"生命的真相","qty":38.0,"price":50.0,"pack":1},{"name":"生命之光","qty":96.0,"price":300.0,"pack":1},{"name":"元素能量","qty":35.0,"price":145.0,"pack":1},{"name":"支票","qty":276.0,"price":16.0,"pack":1},{"name":"完整的符文","qty":15.0,"price":175.0,"pack":1},{"name":"濃縮神金#67992","qty":10.0,"price":5.0,"pack":1},{"name":"濃縮鍺金#67993","qty":10.0,"price":5.0,"pack":1},{"name":"殿堂象徵(金塊)","qty":50.0,"price":80.0,"pack":1},{"name":"幻象殿堂徵(銀塊)","qty":100.0,"price":40.0,"pack":1}],"奧林披":[{"name":"支票","qty":5500.0,"price":16.0,"pack":1},{"name":"裝備附魔卷","qty":120.0,"price":685.0,"pack":1},{"name":"無限挑戰日誌","qty":425.0,"price":0,"pack":1},{"name":"暗夜吉芬衛冕硬幣","qty":500.0,"price":40.0,"pack":1},{"name":"空中要塞鑰匙／原礦／礦石（三合一）","qty":1,"price":360000,"pack":1},{"name":"歐內斯特卡片#31026","qty":6.0,"price":4000.0,"pack":1},{"name":"晨曦之心","qty":30.0,"price":4800.0,"pack":1},{"name":"乙太塔菲石","qty":1000.0,"price":40.0,"pack":1},{"name":"凱薩祝福","qty":1000.0,"price":48.0,"pack":1}]};
-let currentEquip=Object.keys(EQUIPMENT_DATA)[0];
+
+// 「現價」：彙整所有裝備製作材料，同名道具只列一次。
+// 同一道具的價格／價格單位共用，從現價或任何裝備頁修改都會同步到其他裝備。
+const MASTER_EQUIP_NAME="現價";
+const MASTER_PRICE_KEY=item=>`starro_equipcost_master_price_${item}`;
+const MASTER_PACK_KEY=item=>`starro_equipcost_master_pack_${item}`;
+
+function buildMasterItems(){
+  const map=new Map();
+  Object.values(EQUIPMENT_DATA).flat().forEach(r=>{
+    if(!map.has(r.name)){
+      map.set(r.name,{name:r.name,price:Number(r.price||0),pack:Number(r.pack||1)});
+    }else{
+      const cur=map.get(r.name);
+      // 同名項目若前面沒有價格，優先採用其他裝備中已有的非 0 價格。
+      if(Number(cur.price||0)===0 && Number(r.price||0)>0) cur.price=Number(r.price);
+      if((!cur.pack || cur.pack===1) && Number(r.pack||1)!==1) cur.pack=Number(r.pack);
+    }
+  });
+  return [...map.values()];
+}
+const MASTER_ITEMS=buildMasterItems();
+
+let currentEquip=MASTER_EQUIP_NAME;
 const fmt=n=>Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});
 const storeKey=(kind,equip,item)=>`starro_equipcost_v3_${kind}_${equip}_${item}`;
 
+function defaultMasterItem(name){
+  return MASTER_ITEMS.find(x=>x.name===name);
+}
+function masterPrice(name){
+  const saved=localStorage.getItem(MASTER_PRICE_KEY(name));
+  if(saved!==null) return Number(saved);
+  return Number(defaultMasterItem(name)?.price||0);
+}
+function masterPack(name){
+  const saved=localStorage.getItem(MASTER_PACK_KEY(name));
+  if(saved!==null) return Math.max(0.000001,Number(saved)||1);
+  return Math.max(0.000001,Number(defaultMasterItem(name)?.pack||1));
+}
+function setMasterPrice(name,v){
+  localStorage.setItem(MASTER_PRICE_KEY(name),String(Math.max(0,Number(v)||0)));
+}
+function setMasterPack(name,v){
+  localStorage.setItem(MASTER_PACK_KEY(name),String(Math.max(0.000001,Number(v)||1)));
+}
+
 function renderTabs(){
   const box=document.getElementById("equipTabs");
-  box.innerHTML=Object.keys(EQUIPMENT_DATA).map(name=>
+  const names=[MASTER_EQUIP_NAME,...Object.keys(EQUIPMENT_DATA)];
+  box.innerHTML=names.map(name=>
     `<button type="button" class="${name===currentEquip?'on':''}" data-equip="${name}">${name}</button>`
   ).join("");
   box.querySelectorAll("button[data-equip]").forEach(btn=>{
@@ -227,24 +271,59 @@ function switchEquip(name){
 }
 
 function stored(kind,r){
+  if(kind==="price") return masterPrice(r.name);
+  if(kind==="pack") return masterPack(r.name);
   const v=localStorage.getItem(storeKey(kind,currentEquip,r.name));
   return v===null ? null : Number(v);
 }
 
+function renderMasterTable(){
+  let s=`<table class="cost-table"><thead><tr>
+    <th>道具</th><th>價格單位</th><th>目前價格 (P)</th>
+  </tr></thead><tbody>`;
+  MASTER_ITEMS.forEach((r,i)=>{
+    const pack=masterPack(r.name);
+    const price=masterPrice(r.name);
+    s+=`<tr>
+      <td><b>${r.name}</b></td>
+      <td><input class="pack" id="mu_${i}" type="number" min="0.000001" step="any" value="${pack}"
+        oninput="updateMasterItem(${i})"></td>
+      <td><input class="price" id="mp_${i}" type="number" min="0" step="any" value="${price}"
+        oninput="updateMasterItem(${i})"></td>
+    </tr>`;
+  });
+  s+=`</tbody></table>`;
+  document.getElementById("equipTableWrap").innerHTML=s;
+  document.getElementById("costKinds").textContent=MASTER_ITEMS.length+" 種";
+  document.getElementById("costQty").textContent="—";
+  document.getElementById("costTotal").textContent="—";
+}
+
+function updateMasterItem(i){
+  const r=MASTER_ITEMS[i];
+  if(!r) return;
+  setMasterPack(r.name,document.getElementById("mu_"+i)?.value||1);
+  setMasterPrice(r.name,document.getElementById("mp_"+i)?.value||0);
+}
+
 function renderTable(){
+  if(currentEquip===MASTER_EQUIP_NAME){
+    renderMasterTable();
+    return;
+  }
   const rows=EQUIPMENT_DATA[currentEquip];
   let s=`<table class="cost-table"><thead><tr>
     <th>道具</th><th>需求數量</th><th>價格單位</th><th>目前價格 (P)</th><th>小計 (P)</th>
   </tr></thead><tbody>`;
   rows.forEach((r,i)=>{
     const qty=stored("qty",r) ?? r.qty;
-    const pack=stored("pack",r) ?? r.pack;
-    const price=stored("price",r) ?? r.price;
+    const pack=masterPack(r.name);
+    const price=masterPrice(r.name);
     s+=`<tr>
       <td><b>${r.name}</b></td>
       <td><input class="qty" id="q_${i}" type="number" min="0" step="any" value="${qty}" oninput="recalc()"></td>
-      <td><input class="pack" id="u_${i}" type="number" min="0.000001" step="any" value="${pack}" oninput="recalc()"></td>
-      <td><input class="price" id="p_${i}" type="number" min="0" step="any" value="${price}" oninput="recalc()"></td>
+      <td><input class="pack" id="u_${i}" type="number" min="0.000001" step="any" value="${pack}" oninput="syncEquipItem(${i})"></td>
+      <td><input class="price" id="p_${i}" type="number" min="0" step="any" value="${price}" oninput="syncEquipItem(${i})"></td>
       <td class="money" id="s_${i}">0 P</td>
     </tr>`;
   });
@@ -253,7 +332,17 @@ function renderTable(){
   recalc();
 }
 
+function syncEquipItem(i){
+  if(currentEquip===MASTER_EQUIP_NAME) return;
+  const r=EQUIPMENT_DATA[currentEquip]?.[i];
+  if(!r) return;
+  setMasterPack(r.name,document.getElementById("u_"+i)?.value||1);
+  setMasterPrice(r.name,document.getElementById("p_"+i)?.value||0);
+  recalc();
+}
+
 function recalc(){
+  if(currentEquip===MASTER_EQUIP_NAME) return;
   let qtyTotal=0,total=0;
   EQUIPMENT_DATA[currentEquip].forEach((r,i)=>{
     const qty=Math.max(0,Number(document.getElementById("q_"+i)?.value||0));
@@ -270,20 +359,46 @@ function recalc(){
 }
 
 function saveCurrent(){
+  if(currentEquip===MASTER_EQUIP_NAME){
+    MASTER_ITEMS.forEach((r,i)=>{
+      setMasterPack(r.name,document.getElementById("mu_"+i)?.value||1);
+      setMasterPrice(r.name,document.getElementById("mp_"+i)?.value||0);
+    });
+    renderMasterTable();
+    return;
+  }
   EQUIPMENT_DATA[currentEquip].forEach((r,i)=>{
     localStorage.setItem(storeKey("qty",currentEquip,r.name),document.getElementById("q_"+i)?.value||"0");
-    localStorage.setItem(storeKey("pack",currentEquip,r.name),document.getElementById("u_"+i)?.value||"1");
-    localStorage.setItem(storeKey("price",currentEquip,r.name),document.getElementById("p_"+i)?.value||"0");
+    setMasterPack(r.name,document.getElementById("u_"+i)?.value||1);
+    setMasterPrice(r.name,document.getElementById("p_"+i)?.value||0);
   });
   recalc();
 }
 
 function clearEquip(equip){
-  EQUIPMENT_DATA[equip].forEach(r=>["qty","pack","price"].forEach(kind=>localStorage.removeItem(storeKey(kind,equip,r.name))));
+  if(equip===MASTER_EQUIP_NAME) return;
+  EQUIPMENT_DATA[equip].forEach(r=>localStorage.removeItem(storeKey("qty",equip,r.name)));
 }
-
-function restoreCurrent(){clearEquip(currentEquip);renderTable();}
-function restoreAll(){Object.keys(EQUIPMENT_DATA).forEach(clearEquip);renderTable();}
+function restoreCurrent(){
+  if(currentEquip===MASTER_EQUIP_NAME){
+    MASTER_ITEMS.forEach(r=>{
+      localStorage.removeItem(MASTER_PRICE_KEY(r.name));
+      localStorage.removeItem(MASTER_PACK_KEY(r.name));
+    });
+    renderMasterTable();
+    return;
+  }
+  clearEquip(currentEquip);
+  renderTable();
+}
+function restoreAll(){
+  Object.keys(EQUIPMENT_DATA).forEach(clearEquip);
+  MASTER_ITEMS.forEach(r=>{
+    localStorage.removeItem(MASTER_PRICE_KEY(r.name));
+    localStorage.removeItem(MASTER_PACK_KEY(r.name));
+  });
+  renderTable();
+}
 
 renderTabs();renderTable();
 </script>
