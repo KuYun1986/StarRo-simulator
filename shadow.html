@@ -243,7 +243,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="fullCritEffectMode" value="skillCrit" onchange="recalcFullDamageTest()"> (2) 技能爆擊效果</label>
   </div>
   <div class="tiny" id="fullCritEffectText" style="margin-top:7px;color:#ffd54a">
-    無效果：依目前選擇的爆傷版／技爆版計算。
+    無效果：技能不套用爆傷／CRATE 爆擊乘區。
   </div>
 </div>
 </div>
@@ -329,7 +329,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </div>
 <div class="table-wrap" style="margin-top:10px">
 <table class="cost-table" id="fullDamageStatsTable" style="min-width:760px">
-<thead><tr><th>項目</th><th id="fullPhysicalColHead">物理</th><th id="fullMagicColHead">魔法</th></tr></thead>
+<thead><tr><th>項目</th><th id="fullPhysicalColHead">物理</th><th id="fullMagicColHead">魔法</th></tr>
+
+<tr>
+  <td><b>武器自創額外 %</b></td>
+  <td colspan="2">
+    <input id="skillCustomExtraPct" type="number" step="any" value="0" oninput="recalcFullDamageTest()"/>
+    <div class="tiny">天使下方查詢｜與繁星技能平衡%同桶加算</div>
+  </td>
+</tr></thead>
 <tbody>
 <tr><td><b>基礎攻擊</b></td>
 <td>
@@ -370,9 +378,19 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <tr><td><b>對種族</b></td>
 <td><input id="fullRacePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullRaceMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
-<tr><td><b>對階級</b></td>
+<tr><td><b>對BOSS階級</b></td>
 <td><input id="fullClassPhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullClassMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
+<tr id="fullBossClassBuffRow">
+  <td><b>階級增幅效果</b></td>
+  <td colspan="2">
+    <label style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+      <input id="fullBossClassBuff" type="checkbox" onchange="recalcFullDamageTest()"/>
+      <span id="fullBossClassBuffLabel">豪傑（+100% BOSS階級）</span>
+    </label>
+    <div class="tiny">勾選後與「對階級」同乘區相加 +100%</div>
+  </td>
+</tr>
 <tr><td><b>對體型</b></td>
 <td><input id="fullSizePhys" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><input id="fullSizeMagic" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td></tr>
@@ -410,14 +428,11 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </td></tr>
 <tr><td><b>裝備技能傷害詞條</b></td>
 <td colspan="2">
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
-<label><span class="tiny">武器四詞｜全技能最終傷害 %</span><input id="weaponSkillFinal4Pct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
-<label><span class="tiny">武器五詞｜全技能最終傷害 %</span><input id="weaponSkillFinal5Pct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
-<label><span class="tiny">華金甲｜全技能最終傷害 %</span><input id="armorSkillFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
-<label><span class="tiny">華金靴｜全技能最終傷害 %</span><input id="shoeSkillFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
-<label><span class="tiny">華金飾品｜全技能傷害 %</span><input id="accessorySkillPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+<label><span class="tiny">全技能最終傷害 %</span><input id="allSkillFinalPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
+<label><span class="tiny">全技能傷害 %</span><input id="allSkillDamagePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/></label>
 </div>
-<div class="tiny" style="margin-top:6px">武器四詞／五詞、甲、靴依你的規則各自乘算；飾品全技能傷害%獨立套用。</div>
+<div class="tiny" style="margin-top:6px">看天使素質最下方</div>
 </td></tr>
 <tr><td><b>高級結晶</b></td>
 <td colspan="2">
@@ -484,8 +499,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <td colspan="2">
 <select id="fullDamageReduction" onchange="recalcFullDamageTest()" style="width:100%;background:#0b1119;color:var(--text);border:1px solid #34404e;border-radius:9px;min-height:40px;padding:8px 10px;font:inherit">
 <option selected="" value="0">0%（不減傷）</option>
-<option value="99.93">99.93%（地獄副本）</option>
-<option value="99.999">99.999%</option>
+<option value="99.93">99.93%（地獄副本）</option><option value="99.999">99.999%</option>
+<option value="99.9999">99.9999%</option>
 <option value="99.9999999">99.9999999%</option>
 <option value="99.9999999999">99.9999999999%</option>
 </select>
@@ -1560,9 +1575,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "fullPotionSizePhys","fullPotionSizeMagic","fullPotionRacePhys","fullPotionRaceMagic",
       "fullPotionClassPhys","fullPotionClassMagic","fullPotionAttrPhys","fullPotionAttrMagic",
       "panelRangedFinalPct","panelPhysicalAreaPct","panelPhysicalFinalPct","panelCritFinalPct",
-      "weaponSkillFinal4Pct","weaponSkillFinal5Pct","armorSkillFinalPct","shoeSkillFinalPct","accessorySkillPct",
+      "allSkillFinalPct","allSkillDamagePct",
       "fullDamageReduction","fullRemainingHpPct","combatAspd","combatCastsPerSec",
-      "skillJobSelect","skillNameSelect","skillOriginalPct","skillStarBonusPct"
+      "skillJobSelect","skillNameSelect","skillOriginalPct","skillStarBonusPct","skillCustomExtraPct"
     ];
   }
 
@@ -1660,7 +1675,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   };
 
   const GUYUN_TEST_CHECKED_IDS=["fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneRangedFinal","stoneRepeatCast"];
-  const DAMAGE_EFFECT_CHECKBOX_IDS=["fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneMeleeFinal","stoneRangedFinal","stoneMagicAreaFinal","stonePhysicalAreaFinal","stoneAttributeCurse","stoneRepeatCast"];
+  const DAMAGE_EFFECT_CHECKBOX_IDS=["fullBossClassBuff","fullReversalEnabled","buffBbqCritFinal","buffXmasFruitSkillFinal","buffHolyAuthority","stoneBackstab","stonePhysicalCombo","stoneCritCombo","stoneMeleeFinal","stoneRangedFinal","stoneMagicAreaFinal","stonePhysicalAreaFinal","stoneAttributeCurse","stoneRepeatCast"];
 
   function applyGuyunEffectChecks(){
     DAMAGE_EFFECT_CHECKBOX_IDS.forEach(id=>{
@@ -1714,12 +1729,10 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "panelPhysicalAreaPct":185,
       "panelPhysicalFinalPct":83,
       "panelCritFinalPct":65,
-      "weaponSkillFinal4Pct":25,
-      "weaponSkillFinal5Pct":15,
-      "armorSkillFinalPct":11,
-      "shoeSkillFinalPct":9,
-      "accessorySkillPct":25,
-      "fullDamageReduction":99.9999999999
+      "fullDamageReduction":99.9999999999,
+      "skillCustomExtraPct":0,
+      "allSkillFinalPct":0,
+      "allSkillDamagePct":0
   };
 
   window.applyGuyunTestStats=function(){
@@ -1786,7 +1799,14 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(mTheory) mTheory.style.display=isMagic ? "" : "none";
     if(pSkill) pSkill.style.display=isMagic ? "none" : "";
     if(mSkill) mSkill.style.display=isMagic ? "" : "none";
-  }
+  
+    const bossClassBuffLabel=document.getElementById("fullBossClassBuffLabel");
+    if(bossClassBuffLabel){
+      bossClassBuffLabel.textContent=isMagic
+        ? "真理解放（+100% BOSS階級）"
+        : "豪傑（+100% BOSS階級）";
+    }
+}
 
   window.setFullAttackType=function(type){
     fullAttackType=type==="magic" ? "magic" : "physical";
@@ -1824,37 +1844,43 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const buffBbqCritFinal=!!document.getElementById("buffBbqCritFinal")?.checked;
     const buffXmasFruitSkillFinal=!!document.getElementById("buffXmasFruitSkillFinal")?.checked;
     const buffHolyAuthority=!!document.getElementById("buffHolyAuthority")?.checked;
+    const bossClassBuff=!!document.getElementById("fullBossClassBuff")?.checked;
 
     const effectivePatk=patk+(buffHolyAuthority?50:0);
     const effectiveSmatk=smatk+(buffHolyAuthority?50:0);
 
     const critEffectMode=getFullCritEffectMode();
 
-    // 原本版本：
-    // 爆傷版 = 爆擊傷害不減半
-    // 技爆版 = 爆擊額外傷害 / 2
-    // (1) 爆擊傷害效果：技能爆擊時的額外傷害不會被減半。
-    const critDivisor=(fullDamageMode==="skill" && critEffectMode!=="critDamage") ? 2 : 1;
-    const critMul=(100 + crit/critDivisor)/100;
-    const magicCritMul=(100 + magicCrit/critDivisor)/100;
+    // 單選爆擊效果：1、2 為互斥版本，不再延伸第二層版本判定。
+    // 無效果：技能不套爆擊乘區。
+    // (1) 爆擊傷害效果：技能爆擊時額外傷害不減半 => 完整爆傷 × CRATE。
+    // (2) 技能爆擊效果：所有技能套用爆擊 => 技能爆傷固定 /2 × CRATE。
+    const crateMul=(140 + crate)/100;
 
-    // (2) 技能爆擊效果：所有技能套用爆擊。
-    // 本測傷器的最終技能傷害會套入此爆擊乘區；選此效果時明確視為技能可爆擊。
-    const skillCritEnabled = (critEffectMode==="skillCrit") || (fullDamageMode==="skill") || (fullDamageMode==="crit");
-    const physicalCritApplyMul = skillCritEnabled ? critMul : 1;
-    const magicCritApplyMul = skillCritEnabled ? magicCritMul : 1;
+    let physicalCritApplyMul=1;
+    let magicCritApplyMul=1;
+
+    if(critEffectMode==="critDamage"){
+      const fullCritMul=(100 + crit)/100;
+      const fullMagicCritMul=(100 + magicCrit)/100;
+      physicalCritApplyMul=fullCritMul * crateMul;
+      magicCritApplyMul=fullMagicCritMul * crateMul;
+    }else if(critEffectMode==="skillCrit"){
+      const skillCritMul=(100 + crit/2)/100;
+      const skillMagicCritMul=(100 + magicCrit/2)/100;
+      physicalCritApplyMul=skillCritMul * crateMul;
+      magicCritApplyMul=skillMagicCritMul * crateMul;
+    }
 
     const effectText=document.getElementById("fullCritEffectText");
     if(effectText){
       effectText.textContent =
         critEffectMode==="critDamage"
-          ? "(1) 爆擊傷害效果：技能爆擊時，爆擊傷害不減半；依目前選擇的版本套用。"
+          ? "(1) 爆擊傷害效果：爆傷不減半，固定套用完整爆傷 × CRATE。"
           : critEffectMode==="skillCrit"
-          ? "(2) 技能爆擊效果：所有技能套用爆擊；依目前選擇的版本套用。"
-          : "無效果：依目前選擇的爆傷版／技爆版計算。";
+          ? "(2) 技能爆擊效果：所有技能套用爆擊，固定套用爆傷 /2 × CRATE。"
+          : "無效果：技能不套用爆傷／CRATE 爆擊乘區。";
     }
-
-    const crateMul=(140 + crate)/100;
     // PATK / SMATK 面板採獨立乘區：
     // 例如 PATK 3854 => (100+3854)/100 = ×39.54。
     const patkMul=(100 + effectivePatk)/100;
@@ -1924,7 +1950,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       val("fullAtk") *
       patkMul *
       pctMul(val("fullAttrPhys")) *
-      pctMul(val("fullClassPhys")) *
+      pctMul(val("fullClassPhys") + (bossClassBuff ? 100 : 0)) *
       pctMul(val("fullRacePhys")) *
       pctMul(val("fullSizePhys")) *
       pctMul(val("fullElementAtkPct") + attributeCurseStonePct) *
@@ -1935,18 +1961,14 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       pctMul(val("panelPhysicalFinalPct")) *
       pctMul(val("panelCritFinalPct")) *
       bbqCritFinalMul *
-      pctMul(val("weaponSkillFinal4Pct")) *
-      pctMul(val("weaponSkillFinal5Pct")) *
-      pctMul(val("armorSkillFinalPct")) *
-      pctMul(val("shoeSkillFinalPct")) *
-      pctMul(val("accessorySkillPct")) *
+      pctMul(val("allSkillFinalPct")) *
+      pctMul(val("allSkillDamagePct")) *
       pctMul(checkedPctSum("advSizeFinalTier")) *
       pctMul(checkedPctSum("advSkillFinalTier")) *
       pctMul(checkedPctSum("advPhysicalAreaFinalTier")) *
       pctMul(checkedPctSum("advRaceFinalTier")) *
       pctMul(checkedPctSum("advAttrFinalTier")) *
       physicalCritApplyMul *
-      crateMul *
       pctMul(val("fullPotionSizePhys")) *
       pctMul(val("fullPotionRacePhys")) *
       pctMul(val("fullPotionClassPhys")) *
@@ -1967,24 +1989,20 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       val("fullMatk") *
       pctMul(val("fullMatkPct")) *
       pctMul(val("fullAttrMagic")) *
-      pctMul(val("fullClassMagic")) *
+      pctMul(val("fullClassMagic") + (bossClassBuff ? 100 : 0)) *
       pctMul(val("fullRaceMagic")) *
       pctMul(val("fullSizeMagic")) *
       pctMul(val("fullElementMagicPct")) *
       magicCritApplyMul *
       smatkMul *
-      crateMul *
       // 終傷類
       pctMul(val("panelRangedFinalPct")) *
       pctMul(val("panelPhysicalAreaPct") + magicAreaStonePct) *
       pctMul(val("panelPhysicalFinalPct")) *
       pctMul(val("panelCritFinalPct")) *
       bbqCritFinalMul *
-      pctMul(val("weaponSkillFinal4Pct")) *
-      pctMul(val("weaponSkillFinal5Pct")) *
-      pctMul(val("armorSkillFinalPct")) *
-      pctMul(val("shoeSkillFinalPct")) *
-      pctMul(val("accessorySkillPct")) *
+      pctMul(val("allSkillFinalPct")) *
+      pctMul(val("allSkillDamagePct")) *
       pctMul(checkedPctSum("advSizeFinalTier")) *
       pctMul(checkedPctSum("advSkillFinalTier")) *
       pctMul(checkedPctSum("advPhysicalAreaFinalTier")) *
@@ -2006,9 +2024,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     const selectedSkill=getSelectedSkillBalance();
     const originalPct=Number(document.getElementById("skillOriginalPct")?.value||0);
     const starBonusPct=Number(document.getElementById("skillStarBonusPct")?.value||0);
-    const starBalanceMul=1+starBonusPct/100;
+    const customExtraPct=val("skillCustomExtraPct");
+    const totalSkillBonusPct=starBonusPct+customExtraPct;
+    const starBalanceMul=1+totalSkillBonusPct/100;
     const balancedPct=originalPct*starBalanceMul;
-    const skillMul=balancedPct/100;
+    const finalSkillPct=balancedPct;
+    const skillMul=finalSkillPct/100;
 
     const pSkill=document.getElementById("fullPhysicalSkillDamage");
     const mSkill=document.getElementById("fullMagicSkillDamage");
@@ -2033,7 +2054,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         ? `｜${(document.getElementById("dragonBreathVersion")?.value||"aura")==="aura"?"天龍光環版（最新）":"一般版（最新）"}`
         : "";
       skillInfo.textContent=
-        `${selectedSkill.job}｜${selectedSkill.name}${dragonVersionText}：原始 ${fmt(originalPct)}% × (1 + ${fmt(starBonusPct)}%) = ${fmt(balancedPct)}%（×${fmt(starBalanceMul)}）`;
+        `${selectedSkill.job}｜${selectedSkill.name}${dragonVersionText}：原始 ${fmt(originalPct)}% × [1 + (${fmt(starBonusPct)}% + 自創額外 ${fmt(customExtraPct)}%)] = ${fmt(balancedPct)}%（×${fmt(starBalanceMul)}）`;
     }
 
     if(refInfo){
@@ -2051,8 +2072,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     if(f){
       f.innerHTML=
         `<b>目前模式：${fullAttackType==="magic"?"魔法":"物理"}｜${fullDamageMode==="skill"?"技爆版（爆傷÷2）":"爆傷版"}</b><br>`+
-        `物理：(ATK + 面板PATK) × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 裝備技能傷害詞條 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
-        `魔法：MATK × MATK% ×（對屬性 × 對階級 × 對種族 × 對體型）× 屬法傷 × 爆傷 × SMATK × CRATE × 終傷類<br><span style="color:#ffd54a">終傷類：近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 裝備技能傷害 × 高級結晶 × 終傷藥水 × 補品／反逆等效果</span>`;
+        `物理：(ATK + 面板PATK) × 對屬性 × 對階級 × 對種族 × 對體型 × 屬性攻擊% × ATK% × 近遠傷 × 近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 全技能最終傷害 × 全技能傷害 × 高級結晶(可累加) × 補品效果 × 爆傷 × CRATE × 體型藥水 × 種族藥水 × 階級藥水 × 屬性藥水 × (1-減傷) × 反逆倍率<br>`+
+        `魔法：MATK × MATK% ×（對屬性 × 對階級 × 對種族 × 對體型）× 屬法傷 × 爆傷 × SMATK × CRATE × 終傷類<br><span style="color:#ffd54a">終傷類：近遠法終傷 × 範圍傷害 × 物法最終傷害 × 爆擊最終傷害 × 全技能最終傷害 × 全技能傷害 × 高級結晶 × 終傷藥水 × 補品／反逆等效果</span>`;
     }
   };
 
