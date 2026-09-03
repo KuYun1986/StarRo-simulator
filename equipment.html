@@ -46,7 +46,6 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
   <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
   <a href="collection.html" class="game-page-link">📚 收藏區</a>
-  <a href="equipment.html" class="game-page-link">💰 裝備成本區</a>
   <a href="shadow.html" class="game-page-link">💎 影子區</a>
 </div>
 <div class="sub">裝備製作模擬｜所有 P 點價格都可以自行修改。</div>
@@ -102,6 +101,54 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <section class="card" id="serviceFeeSimulator">
   <h2>🔨 古雲代敲／代評費用試算</h2>
   <div class="tiny">以下皆為單件規則，可輸入件數自動放大需求量。</div>
+
+  <div style="margin-top:18px;padding:16px;border:1px solid #28323e;border-radius:12px">
+    <h3 style="margin:0 0 10px">複選總計</h3>
+    <div class="tiny" style="margin-bottom:12px">
+      可同時勾選多個步驟。例如 +0 A 要做到 +20 SS，可依裝備需求複選「敲S、評S、敲SS、評SS」一次總計。
+    </div>
+
+    <div id="serviceMultiOptions" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
+        <input type="checkbox" value="refine:A-D"> 敲 A~D
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
+        <input type="checkbox" value="refine:S"> 敲 S
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
+        <input type="checkbox" value="refine:S">
+        <span>敲 S<br><span class="tiny">2級防具、5級武器</span></span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
+        <input type="checkbox" value="grade:S"> 評 S
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
+        <input type="checkbox" value="refine:SS"> 敲 SS
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
+        <input type="checkbox" value="grade:SS"> 評 SS
+      </label>
+
+      <span style="display:flex;align-items:center;gap:8px;margin-left:auto">
+        件數
+        <input id="serviceMultiQty" type="number" min="1" step="1" value="1"
+          style="width:90px;min-height:42px;padding:8px 10px;border-radius:9px;background:#0b1119;color:#fff;border:1px solid #34404e">
+      </span>
+    </div>
+
+    <div class="summary" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+      <div class="stat"><span class="label">代敲／代評費用</span><b id="multiRedFee">0 紅</b></div>
+      <div class="stat"><span class="label">支票</span><b id="multiChecks">0 張</b></div>
+      <div class="stat"><span class="label">鐵匠的祝福</span><b id="multiBless">0 個</b></div>
+      <div class="stat"><span class="label">大小金</span><b id="multiGold">各 0 把</b></div>
+      <div class="stat"><span class="label">大小灰</span><b id="multiGray">各 0 把</b></div>
+      <div class="stat"><span class="label">乙太塔菲石</span><b id="multiTaffy">0 個</b></div>
+      <div class="stat"><span class="label">庇佑乙太星塵</span><b id="multiDust">0 個</b></div>
+      <div class="stat"><span class="label">全部總成本(含紅利)</span><b id="multiTotalP" style="color:#7ee0a1">0 P</b></div>
+    </div>
+
+    <div class="note tiny" id="multiServiceNote">尚未選擇步驟。</div>
+  </div>
 
   <div style="margin-top:18px;padding-top:4px">
     <h3 style="margin:0 0 10px">古雲代敲材料試算</h3>
@@ -279,7 +326,7 @@ renderTabs();renderTable();
       const el=document.getElementById(PRICE_IDS[k]);
       if(el) localStorage.setItem(priceKey(k),el.value||"0");
     });
-    renderRefine(); renderGrade();
+    renderRefine(); renderGrade(); renderServiceMulti();
   };
   window.resetServicePrices=function(){
     Object.keys(DEFAULT_PRICES).forEach(k=>localStorage.removeItem(priceKey(k)));
@@ -330,12 +377,73 @@ renderTabs();renderTable();
     document.getElementById("gradeTotalP").textContent=fmt(total)+" P";
   }
 
+  function renderServiceMulti(){
+    const qty=q("serviceMultiQty");
+    const checked=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')].map(x=>x.value);
+
+    const sum={
+      red:0,checks:0,bless:0,bigGold:0,smallGold:0,bigGray:0,smallGray:0,
+      taffy:0,dust:0
+    };
+
+    const labels=[];
+    checked.forEach(v=>{
+      const [kind,type]=v.split(":");
+      if(kind==="refine" && REFINE_RULES[type]){
+        const r=REFINE_RULES[type];
+        sum.red+=r.red; sum.checks+=r.checks; sum.bless+=r.bless;
+        sum.bigGold+=r.bigGold; sum.smallGold+=r.smallGold;
+        sum.bigGray+=r.bigGray; sum.smallGray+=r.smallGray;
+        labels.push(type==="A-D" ? "敲 A~D" : "敲 "+type);
+      }else if(kind==="grade" && GRADE_RULES[type]){
+        const r=GRADE_RULES[type];
+        sum.red+=r.red; sum.checks+=r.checks;
+        sum.taffy+=r.taffy; sum.dust+=r.dust;
+        labels.push("評 "+type);
+      }
+    });
+
+    Object.keys(sum).forEach(k=>sum[k]*=qty);
+
+    document.getElementById("multiRedFee").textContent=fmt(sum.red)+" 紅";
+    document.getElementById("multiChecks").textContent=fmt(sum.checks)+" 張";
+    document.getElementById("multiBless").textContent=fmt(sum.bless)+" 個";
+    document.getElementById("multiGold").textContent=
+      sum.bigGold===sum.smallGold ? "各 "+fmt(sum.bigGold)+" 把"
+                                 : "大 "+fmt(sum.bigGold)+"／小 "+fmt(sum.smallGold)+" 把";
+    document.getElementById("multiGray").textContent=
+      sum.bigGray===sum.smallGray ? "各 "+fmt(sum.bigGray)+" 把"
+                                 : "大 "+fmt(sum.bigGray)+"／小 "+fmt(sum.smallGray)+" 把";
+    document.getElementById("multiTaffy").textContent=fmt(sum.taffy)+" 個";
+    document.getElementById("multiDust").textContent=fmt(sum.dust)+" 個";
+
+    const total=
+      sum.red*price("red") +
+      sum.checks*price("check") +
+      sum.bless*price("bless") +
+      sum.bigGold*price("bigGold") +
+      sum.smallGold*price("smallGold") +
+      sum.bigGray*price("bigGray") +
+      sum.smallGray*price("smallGray") +
+      sum.taffy*price("taffy") +
+      sum.dust*price("dust");
+
+    document.getElementById("multiTotalP").textContent=fmt(total)+" P";
+    document.getElementById("multiServiceNote").textContent=
+      labels.length ? "已選："+labels.join(" → ")+"｜件數："+qty : "尚未選擇步驟。";
+  }
+
   ["refineServiceType","refineServiceQty"].forEach(id=>{
     document.getElementById(id)?.addEventListener(id.includes("Type")?"change":"input",renderRefine);
   });
   ["gradeServiceType","gradeServiceQty"].forEach(id=>{
     document.getElementById(id)?.addEventListener(id.includes("Type")?"change":"input",renderGrade);
   });
+
+  document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]').forEach(el=>{
+    el.addEventListener("change",renderServiceMulti);
+  });
+  document.getElementById("serviceMultiQty")?.addEventListener("input",renderServiceMulti);
   Object.values(PRICE_IDS).forEach(id=>{
     document.getElementById(id)?.addEventListener("input",()=>{renderRefine();renderGrade();});
   });
@@ -343,6 +451,7 @@ renderTabs();renderTable();
   loadServicePrices();
   renderRefine();
   renderGrade();
+  renderServiceMulti();
 })();
 </script>
 
