@@ -403,7 +403,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       <option value="10">玩家(人類)</option>
       <option value="11">玩家(貓族)</option>
     </select>
-    <div class="tiny">參考 Landgris RO Calculator 敵方種族分類</div>
+    
   </td>
 </tr>
 <tr id="elementLv4ChartRow" style="display:none">
@@ -479,9 +479,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
 
 
-<tr><td><b>屬性攻擊／屬法傷</b></td>
-<td><input id="fullElementAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬性攻擊%</div></td>
-<td><input id="fullElementMagicPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬法傷%</div></td></tr>
+<tr><td><b>屬性傷（依上方選擇）</b></td>
+<td><input id="fullElementAtkPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬性攻擊%　<span id="elementDamageAngelNotePhys">查詢大天使：(暗)屬性物理傷害</span></div></td>
+<td><input id="fullElementMagicPct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">屬法傷%　<span id="elementDamageAngelNoteMagic">查詢大天使：(暗)屬性魔法傷害</span></div></td></tr>
 <tr><td><b>近遠傷</b></td>
 <td><input id="fullRangePct" oninput="recalcFullDamageTest()" step="any" type="number" value="0"/><div class="tiny">%</div></td>
 <td><span class="tiny">—</span></td></tr>
@@ -585,7 +585,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 <option value="99.9999999">99.9999999%</option>
 <option value="99.9999999999">99.9999999999%</option>
 </select>
-<div class="tiny">預設套用最後一個：99.9999999999%</div>
+<div class="tiny"></div>
 </td></tr>
 <tr><td><b>反逆效果</b></td>
 <td colspan="2">
@@ -1787,15 +1787,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       "fullAtkPct":0,
       "fullMatkPct":142,
       "fullAttrPhys":0,
-      "fullAttrMagic":181,
+      "fullAttrMagic":188,
       "fullClassPhys":0,
       "fullClassMagic":66,
       "fullRacePhys":0,
       "fullRaceMagic":220,
       "fullSizePhys":0,
-      "fullSizeMagic":213,
+      "fullSizeMagic":212,
       "fullElementAtkPct":0,
-      "fullElementMagicPct":254,
+      "fullElementMagicPct":282,
       "fullRangePct":0,
       "fullCritDamagePct":0,
       "fullMagicCritDamagePct":468,
