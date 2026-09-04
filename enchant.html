@@ -257,9 +257,9 @@ a{color:#77a9ff}
 <div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
 <a href="index.html" class="game-page-link">← 回主頁</a>
 <button onclick="jumpEnchant('龍甲附魔')">🐉 龍甲附魔</button>
-<button onclick="jumpEnchant('伊斯頭幻象附魔')">🪽 伊斯頭幻象附魔</button>
 <button onclick="jumpEnchant('善惡武器附魔')">⚔️ 善惡武器附魔</button>
 <button onclick="jumpEnchant('時光超越靴附魔')">💎 時光超越靴附魔</button>
+<button onclick="jumpEnchant('伊斯頭幻象附魔')">🪽 伊斯頭幻象附魔</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div class="grid">
@@ -293,46 +293,6 @@ a{color:#77a9ff}
 </section>
 
 <section class="card">
-<h2>🪽 伊斯頭幻象附魔</h2>
-<p class="tiny">第四洞升級路線：恩典 → 幻象 Lv.1 → 幻象 Lv.2 → 幻象 Lv.3。失敗時等級維持不變。</p>
-
-<div class="stat">
-<span class="label">第四洞附魔｜期望值：約 4 次</span>
-<div class="tiny">恩典 → 幻象 Lv.1：100%（期望 1 次）　｜　幻象 Lv.1 → Lv.2：80%（期望 1.25 次）　｜　幻象 Lv.2 → Lv.3：60%（期望 1.67 次）　｜　<b>全程期望：約 3.92 次</b></div>
-<div class="actions">
-<button class="primary" onclick="isgardIllusionOnce()">附魔一次</button>
-<button onclick="isgardIllusionTo3()">洗到幻象 Lv.3</button>
-<button onclick="resetIsgardIllusion()">重置</button>
-</div>
-<div id="isgardIllusionNow" style="margin-top:10px"></div>
-<div id="isgardIllusionStats" style="margin-top:8px"></div>
-</div>
-
-<div class="stat" style="margin-top:12px">
-<span class="label">第四洞升級費用（恩典 → 幻象 Lv.1）</span>
-<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 300<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 1,000<br><span style="color:#6db7ff;font-weight:700">神祕零件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 5</div>
-</div>
-
-<div class="stat" style="margin-top:12px">
-<span class="label">第四洞升級費用（幻象 Lv.1 → Lv.2）</span>
-<div class="tiny" style="color:#ff6961;font-weight:700">80% 成功率</div>
-<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 500<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 3,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 10</div>
-</div>
-
-<div class="stat" style="margin-top:12px">
-<span class="label">第四洞升級費用（幻象 Lv.2 → Lv.3）</span>
-<div class="tiny" style="color:#ff6961;font-weight:700">60% 成功率</div>
-<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 800<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 40<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 30<br><span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 15</div>
-</div>
-
-<div class="stat" style="margin-top:12px">
-<span class="label">洗到幻象 Lv.3｜期望材料（概算）</span>
-<div class="tiny">依期望次數換算：1 次、1.25 次、1.67 次。</div>
-<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span>：約 2,258.33<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span>：約 4,750<br><span style="color:#6db7ff;font-weight:700">神祕零件</span>：約 5,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span>：約 11,250<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span>：約 117.5<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span>：約 42.5<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span>：約 104.17<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span>：約 50<br><span style="color:#6db7ff;font-weight:700">虛幻核心意志</span>：約 50</div>
-</div>
-</section>
-
-<section class="card">
 <h2>⚔️ 善惡武器附魔</h2>
 <p class="tiny">⭐ 使用「洗到 LV5」時，若 LV1→LV5 全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 <div class="tiny"><b>洗到 LV5 期望值：約 14 次</b></div>
@@ -350,6 +310,147 @@ a{color:#77a9ff}
 <p class="tiny"><b>第四洞先抽：</b>墮落根莖×4：70%｜闇答萊屍×4：20%｜希梅爾茲×4：10%。抽到希梅爾茲後才再抽第三洞。</p>
 <p class="tiny"><b>第三洞：</b>6種變異等機率，各約16.67%。</p>
 <div class="actions"><button class="primary" onclick="rollHoles()">隨機一次</button><button onclick="rollHoles10()">隨機 10 次</button><button onclick="resetHoles()">清除</button></div><div id="holeNow" style="margin-top:14px"></div><div id="holeStats" style="margin-top:10px"></div></section>
+
+<section class="card">
+<h2>🪽 伊斯頭幻象附魔</h2>
+<p class="tiny">第四洞升級路線：恩典 → 幻象 Lv.1 → 幻象 Lv.2 → 幻象 Lv.3。失敗時等級維持不變。</p>
+
+<div class="stat">
+<span class="label">第四洞附魔｜期望值：約 4 次</span>
+<div class="tiny">恩典 → 幻象 Lv.1：100%（期望 1 次）　｜　幻象 Lv.1 → Lv.2：80%（期望 1.25 次）　｜　幻象 Lv.2 → Lv.3：60%（期望 1.67 次）　｜　<b>全程期望：約 3.92 次</b></div>
+<div class="actions">
+<button class="primary" onclick="isgardIllusionOnce()">附魔一次</button>
+<button onclick="isgardIllusionTo3()">洗到幻象 Lv.3</button>
+<button onclick="resetIsgardIllusion()">重置</button>
+</div>
+<div id="isgardIllusionNow" style="margin-top:10px"></div>
+<div id="isgardIllusionStats" style="margin-top:8px"></div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第四洞升級費用（恩典 → 幻象 Lv.1）</summary>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 300<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 1,000<br><span style="color:#6db7ff;font-weight:700">神祕零件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 5</details>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第四洞升級費用（幻象 Lv.1 → Lv.2）</summary>
+<div class="tiny" style="color:#ff6961;font-weight:700">80% 成功率</details>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 500<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 3,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 10</div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第四洞升級費用（幻象 Lv.2 → Lv.3）</summary>
+<div class="tiny" style="color:#ff6961;font-weight:700">60% 成功率</details>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 800<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 40<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 30<br><span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 15</div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">材料加總</summary>
+<div class="tiny">三個階段各成功 1 次的材料總需求：</details>
+<div style="line-height:1.9;margin-top:6px">
+<span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 1,600<br>
+<span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 4,000<br>
+<span style="color:#6db7ff;font-weight:700">神祕零件</span> × 5,000<br>
+<span style="color:#6db7ff;font-weight:700">核心元件</span> × 10,000<br>
+<span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 90<br>
+<span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 70<br>
+<span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 30<br>
+<span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 30<br>
+<span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 30
+</div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">洗到幻象 Lv.3｜期望值</span>
+<div class="tiny"><b>約 3.92 次</b></div>
+</div>
+</div>
+
+<hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:22px 0">
+
+<h3 style="margin:0 0 8px;color:#fff">第三洞幻象附魔</h3>
+<p class="tiny">第三洞升級路線：心印 → Lv.1 → Lv.2 → Lv.3 → Lv.4 → Lv.5。失敗時等級維持不變。</p>
+
+<div class="stat">
+<span class="label">第三洞附魔｜期望值：約 6.46 次</span>
+<div class="tiny">心印 → Lv.1：100%（期望 1 次）　｜　Lv.1 → Lv.2：90%（期望 1.11 次）　｜　Lv.2 → Lv.3：80%（期望 1.25 次）　｜　Lv.3 → Lv.4：70%（期望 1.43 次）　｜　Lv.4 → Lv.5：60%（期望 1.67 次）　｜　<b>全程期望：約 6.46 次</b></div>
+<div class="actions">
+<button class="primary" onclick="isgardHole3Once()">附魔一次</button>
+<button onclick="isgardHole3To5()">洗到 Lv.5</button>
+<button onclick="resetIsgardHole3()">重置</button>
+</div>
+<div id="isgardHole3Now" style="margin-top:10px"></div>
+<div id="isgardHole3Stats" style="margin-top:8px"></div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第三洞升級費用（心印 → Lv.1）</summary>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 300<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 1,000<br><span style="color:#6db7ff;font-weight:700">神祕零件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 5</details>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第三洞升級費用（Lv.1 → Lv.2）</summary>
+<div class="tiny" style="color:#ff6961;font-weight:700">90% 成功率</details>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 400<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 20<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 3,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 10,000<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 10</div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第三洞升級費用（Lv.2 → Lv.3）</summary>
+<div class="tiny" style="color:#ff6961;font-weight:700">80% 成功率</details>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 600<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 20<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 15</div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第三洞升級費用（Lv.3 → Lv.4）</summary>
+<div class="tiny" style="color:#ff6961;font-weight:700">70% 成功率</details>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 900<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 40<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 30<br><span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 35<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 10</div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">第三洞升級費用（Lv.4 → Lv.5）</summary>
+<div class="tiny" style="color:#ff6961;font-weight:700">60% 成功率</details>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 1,500<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 40<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 50<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 50<br><span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 65<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 15</div>
+</div>
+
+<details class="stat" style="margin-top:12px">
+<summary class="label" style="cursor:pointer">材料加總</summary>
+<div class="tiny">五個階段各成功 1 次的材料總需求：</details>
+<div style="line-height:1.9;margin-top:6px">
+<span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 3,700<br>
+<span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 160<br>
+<span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 9,000<br>
+<span style="color:#6db7ff;font-weight:700">神祕零件</span> × 5,000<br>
+<span style="color:#6db7ff;font-weight:700">核心元件</span> × 15,000<br>
+<span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 140<br>
+<span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 100<br>
+<span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 100<br>
+<span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 55
+</div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">洗到 Lv.5｜期望值</span>
+<div class="tiny"><b>約 6.46 次</b></div>
+</div>
+
+
+<details class="stat" style="margin-top:16px">
+<summary class="label" style="cursor:pointer">第四洞＋第三洞｜材料全加總</summary>
+<div class="tiny" style="margin-top:8px">第四洞 3 階段＋第三洞 5 階段，各成功 1 次的材料總需求：</div>
+<div style="line-height:1.9;margin-top:8px">
+<span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 5,300<br>
+<span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 13,000<br>
+<span style="color:#6db7ff;font-weight:700">神祕零件</span> × 10,000<br>
+<span style="color:#6db7ff;font-weight:700">核心元件</span> × 25,000<br>
+<span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 250<br>
+<span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 210<br>
+<span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 130<br>
+<span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 130<br>
+<span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 85
+</div>
+</details>
+
+</section>
 </div>
 
 </div>
@@ -1662,6 +1763,10 @@ function isgardIllusionOnce(){
   if(ok) isgardIllusion.lv++;
   if(nowEl) nowEl.innerHTML=`<div class="tiny">${stage.from} → ${stage.to}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
   renderIsgardIllusion();
+
+
+
+
 }
 function isgardIllusionTo3(){
   const nowEl=document.getElementById('isgardIllusionNow');
@@ -1698,6 +1803,69 @@ function resetIsgardIllusion(){
   renderIsgardIllusion();
 }
 renderIsgardIllusion();
+
+const isgardHole3StageMap={
+  0:{from:'心印',to:'Lv.1',rate:100,key:'stage01',cost:{'繁星徽記':300,'浮現核心方塊':30,'武器殘骸':1000,'神祕零件':5000,'核心元件':5000,'米古爾的符文意識':5}},
+  1:{from:'Lv.1',to:'Lv.2',rate:90,key:'stage12',cost:{'繁星徽記':400,'浮現核心方塊':30,'幻象核心方塊':20,'武器殘骸':3000,'核心元件':10000,'米古爾的符文意識':10}},
+  2:{from:'Lv.2',to:'Lv.3',rate:80,key:'stage23',cost:{'繁星徽記':600,'浮現核心方塊':30,'幻象核心方塊':30,'虛幻核心元件':20,'武器殘骸':5000,'米古爾的符文意識':15}},
+  3:{from:'Lv.3',to:'Lv.4',rate:70,key:'stage34',cost:{'繁星徽記':900,'浮現核心方塊':30,'幻象核心方塊':40,'虛幻核心元件':30,'虛幻核心意志':35,'米古爾的符文意識':10}},
+  4:{from:'Lv.4',to:'Lv.5',rate:60,key:'stage45',cost:{'繁星徽記':1500,'浮現核心方塊':40,'幻象核心方塊':50,'虛幻核心元件':50,'虛幻核心意志':65,'米古爾的符文意識':15}}
+};
+let isgardHole3={lv:0,tries:0,stage01:0,stage12:0,stage23:0,stage34:0,stage45:0,spent:{}};
+
+function isgardHole3Name(){
+  return isgardHole3.lv===0?'心印':`Lv.${isgardHole3.lv}`;
+}
+function isgardHole3AddCost(cost){
+  for(const [k,v] of Object.entries(cost)){
+    isgardHole3.spent[k]=(isgardHole3.spent[k]||0)+v;
+  }
+}
+function isgardHole3Once(){
+  const nowEl=document.getElementById('isgardHole3Now');
+  if(isgardHole3.lv>=5){ if(nowEl) nowEl.innerHTML='<b class="ok">已達 Lv.5</b>'; return; }
+  const stage=isgardHole3StageMap[isgardHole3.lv];
+  isgardHole3[stage.key]++;
+  isgardHole3.tries++;
+  isgardHole3AddCost(stage.cost);
+  const ok=Math.random()*100<stage.rate;
+  if(ok) isgardHole3.lv++;
+  if(nowEl) nowEl.innerHTML=`<div class="tiny">${stage.from} → ${stage.to}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
+  renderIsgardHole3();
+}
+function isgardHole3To5(){
+  const nowEl=document.getElementById('isgardHole3Now');
+  let batch=0,guard=0;
+  while(isgardHole3.lv<5 && guard++<100000){
+    const stage=isgardHole3StageMap[isgardHole3.lv];
+    isgardHole3[stage.key]++;
+    isgardHole3.tries++;
+    batch++;
+    isgardHole3AddCost(stage.cost);
+    if(Math.random()*100<stage.rate) isgardHole3.lv++;
+  }
+  if(nowEl) nowEl.innerHTML=`<b class="ok">Lv.5 完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
+  renderIsgardHole3();
+}
+function renderIsgardHole3(){
+  const statsEl=document.getElementById('isgardHole3Stats');
+  if(!statsEl) return;
+  const spentEntries=Object.entries(isgardHole3.spent);
+  const spentHtml=spentEntries.length
+    ? spentEntries.map(([k,v])=>`<span style="color:#6db7ff;font-weight:700">${k}</span>：${Number(v).toLocaleString()}`).join('<br>')
+    : '尚未消耗材料';
+  statsEl.innerHTML=`<div class="tiny">目前：<b>${isgardHole3Name()}</b>　累計附魔：${isgardHole3.tries} 次</div>
+  <div style="line-height:1.9;margin-top:6px"><b>心印 → Lv.1：</b>${isgardHole3.stage01} 次<br><b>Lv.1 → Lv.2：</b>${isgardHole3.stage12} 次<br><b>Lv.2 → Lv.3：</b>${isgardHole3.stage23} 次<br><b>Lv.3 → Lv.4：</b>${isgardHole3.stage34} 次<br><b>Lv.4 → Lv.5：</b>${isgardHole3.stage45} 次</div>
+  <div class="stat" style="margin-top:10px"><span class="label">累計消耗材料</span><div style="line-height:1.9;margin-top:6px">${spentHtml}</div></div>`;
+}
+function resetIsgardHole3(){
+  isgardHole3={lv:0,tries:0,stage01:0,stage12:0,stage23:0,stage34:0,stage45:0,spent:{}};
+  const nowEl=document.getElementById('isgardHole3Now');
+  if(nowEl) nowEl.innerHTML='';
+  renderIsgardHole3();
+}
+renderIsgardHole3();
+
 
 let weaponEnchant={lv:1,tries:0,stage12:0,stage23:0,stage34:0,stage45:0};
 function weaponRate(){return weaponEnchant.lv===1?60:weaponEnchant.lv===2?45:weaponEnchant.lv===3?30:weaponEnchant.lv===4?15:0}
