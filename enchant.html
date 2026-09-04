@@ -214,8 +214,6 @@ a{color:#77a9ff}
   .wheel-log-bets{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
 }
 
-
-.topnav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}.game-page-link{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:9px;border:1px solid #3a4654;background:linear-gradient(180deg,#1b2430,#141b25);color:#f5f7fb;font-weight:700;min-height:42px}
 </style>
 <meta property="og:title" content="繁星仙境模擬器">
 <meta property="og:description" content="古雲防上頭用V777（機率僅供參考，實際依遊戲為主）">
@@ -256,15 +254,12 @@ a{color:#77a9ff}
 <style>.grid{display:block!important}.grid section.card{margin-bottom:16px}</style></head>
 <body><div class="wrap">
 <h1>✨ 繁星附魔區</h1>
-<div class="topnav">
-  <a href="index.html" class="game-page-link">🏠 主頁</a>
-  <a href="game.html" class="game-page-link">🎮 遊戲區</a>
-  <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
-  <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
-  <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
-  <a href="collection.html" class="game-page-link">📚 收藏區</a>
-  <a href="equipment.html" class="game-page-link">💰 裝備成本區</a>
-  <a href="shadow.html" class="game-page-link">💎 影子區</a>
+<div class="topnav" style="display:flex;gap:8px;flex-wrap:wrap">
+<a href="index.html" class="game-page-link">← 回主頁</a>
+<button onclick="jumpEnchant('龍甲附魔')">🐉 龍甲附魔</button>
+<button onclick="jumpEnchant('伊斯頭幻象附魔')">🪽 伊斯頭幻象附魔</button>
+<button onclick="jumpEnchant('善惡武器附魔')">⚔️ 善惡武器附魔</button>
+<button onclick="jumpEnchant('時光超越靴附魔')">💎 時光超越靴附魔</button>
 </div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div class="grid">
@@ -294,6 +289,46 @@ a{color:#77a9ff}
 </div>
 <div id="dragon3Now" style="margin-top:10px"></div>
 <div id="dragon3Stats" style="margin-top:8px"></div>
+</div>
+</section>
+
+<section class="card">
+<h2>🪽 伊斯頭幻象附魔</h2>
+<p class="tiny">第四洞升級路線：恩典 → 幻象 Lv.1 → 幻象 Lv.2 → 幻象 Lv.3。失敗時等級維持不變。</p>
+
+<div class="stat">
+<span class="label">第四洞附魔｜期望值：約 4 次</span>
+<div class="tiny">恩典 → 幻象 Lv.1：100%（期望 1 次）　｜　幻象 Lv.1 → Lv.2：80%（期望 1.25 次）　｜　幻象 Lv.2 → Lv.3：60%（期望 1.67 次）　｜　<b>全程期望：約 3.92 次</b></div>
+<div class="actions">
+<button class="primary" onclick="isgardIllusionOnce()">附魔一次</button>
+<button onclick="isgardIllusionTo3()">洗到幻象 Lv.3</button>
+<button onclick="resetIsgardIllusion()">重置</button>
+</div>
+<div id="isgardIllusionNow" style="margin-top:10px"></div>
+<div id="isgardIllusionStats" style="margin-top:8px"></div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">第四洞升級費用（恩典 → 幻象 Lv.1）</span>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 300<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 1,000<br><span style="color:#6db7ff;font-weight:700">神祕零件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 5</div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">第四洞升級費用（幻象 Lv.1 → Lv.2）</span>
+<div class="tiny" style="color:#ff6961;font-weight:700">80% 成功率</div>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 500<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span> × 3,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span> × 5,000<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 10</div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">第四洞升級費用（幻象 Lv.2 → Lv.3）</span>
+<div class="tiny" style="color:#ff6961;font-weight:700">60% 成功率</div>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span> × 800<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span> × 30<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span> × 40<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span> × 30<br><span style="color:#6db7ff;font-weight:700">虛幻核心意志</span> × 30<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span> × 15</div>
+</div>
+
+<div class="stat" style="margin-top:12px">
+<span class="label">洗到幻象 Lv.3｜期望材料（概算）</span>
+<div class="tiny">依期望次數換算：1 次、1.25 次、1.67 次。</div>
+<div style="line-height:1.9;margin-top:6px"><span style="color:#6db7ff;font-weight:700">繁星徽記</span>：約 2,258.33<br><span style="color:#6db7ff;font-weight:700">武器殘骸</span>：約 4,750<br><span style="color:#6db7ff;font-weight:700">神祕零件</span>：約 5,000<br><span style="color:#6db7ff;font-weight:700">核心元件</span>：約 11,250<br><span style="color:#6db7ff;font-weight:700">浮現核心方塊</span>：約 117.5<br><span style="color:#6db7ff;font-weight:700">米古爾的符文意識</span>：約 42.5<br><span style="color:#6db7ff;font-weight:700">幻象核心方塊</span>：約 104.17<br><span style="color:#6db7ff;font-weight:700">虛幻核心元件</span>：約 50<br><span style="color:#6db7ff;font-weight:700">虛幻核心意志</span>：約 50</div>
 </div>
 </section>
 
@@ -1599,6 +1634,70 @@ function renderDragon3(){
 }
 function resetDragon3(){dragon3={lv:3,tries:0,success:0,stage34:0,stage45:0,stage5S:0};document.getElementById("dragon3Now").innerHTML="";renderDragon3()}
 
+
+
+const isgardIllusionStageMap={
+  0:{from:'恩典',to:'幻象 Lv.1',rate:100,key:'stage01',cost:{'繁星徽記':300,'武器殘骸':1000,'神祕零件':5000,'核心元件':5000,'浮現核心方塊':30,'米古爾的符文意識':5}},
+  1:{from:'幻象 Lv.1',to:'幻象 Lv.2',rate:80,key:'stage12',cost:{'繁星徽記':500,'武器殘骸':3000,'核心元件':5000,'浮現核心方塊':30,'幻象核心方塊':30,'米古爾的符文意識':10}},
+  2:{from:'幻象 Lv.2',to:'幻象 Lv.3',rate:60,key:'stage23',cost:{'繁星徽記':800,'浮現核心方塊':30,'幻象核心方塊':40,'虛幻核心元件':30,'虛幻核心意志':30,'米古爾的符文意識':15}}
+};
+let isgardIllusion={lv:0,tries:0,stage01:0,stage12:0,stage23:0,spent:{}};
+
+function isgardIllusionName(){
+  return isgardIllusion.lv===0?'恩典':isgardIllusion.lv===1?'幻象 Lv.1':isgardIllusion.lv===2?'幻象 Lv.2':'幻象 Lv.3';
+}
+function isgardIllusionAddCost(cost){
+  for(const [k,v] of Object.entries(cost)){
+    isgardIllusion.spent[k]=(isgardIllusion.spent[k]||0)+v;
+  }
+}
+function isgardIllusionOnce(){
+  const nowEl=document.getElementById('isgardIllusionNow');
+  if(isgardIllusion.lv>=3){ if(nowEl) nowEl.innerHTML='<b class="ok">已達幻象 Lv.3</b>'; return; }
+  const stage=isgardIllusionStageMap[isgardIllusion.lv];
+  isgardIllusion[stage.key]++;
+  isgardIllusion.tries++;
+  isgardIllusionAddCost(stage.cost);
+  const ok=Math.random()*100<stage.rate;
+  if(ok) isgardIllusion.lv++;
+  if(nowEl) nowEl.innerHTML=`<div class="tiny">${stage.from} → ${stage.to}｜${ok?'<b class="ok">成功</b>':'<b class="bad">失敗，等級維持</b>'}</div>`;
+  renderIsgardIllusion();
+}
+function isgardIllusionTo3(){
+  const nowEl=document.getElementById('isgardIllusionNow');
+  let batch=0,guard=0;
+  while(isgardIllusion.lv<3 && guard++<100000){
+    const stage=isgardIllusionStageMap[isgardIllusion.lv];
+    isgardIllusion[stage.key]++;
+    isgardIllusion.tries++;
+    batch++;
+    isgardIllusionAddCost(stage.cost);
+    if(Math.random()*100<stage.rate) isgardIllusion.lv++;
+  }
+  if(batch===3 && typeof starroAnnounce==='function'){
+    starroAnnounce('伊斯頭幻象附魔','全程一發入魂','恩典→幻象 Lv.1→幻象 Lv.2→幻象 Lv.3｜全程 3 次完成');
+  }
+  if(nowEl) nowEl.innerHTML=`<b class="ok">幻象 Lv.3 完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
+  renderIsgardIllusion();
+}
+function renderIsgardIllusion(){
+  const statsEl=document.getElementById('isgardIllusionStats');
+  if(!statsEl) return;
+  const spentEntries=Object.entries(isgardIllusion.spent);
+  const spentHtml=spentEntries.length
+    ? spentEntries.map(([k,v])=>`<span style="color:#6db7ff;font-weight:700">${k}</span>：${Number(v).toLocaleString()}`).join('<br>')
+    : '尚未消耗材料';
+  statsEl.innerHTML=`<div class="tiny">目前：<b>${isgardIllusionName()}</b>　累計附魔：${isgardIllusion.tries} 次</div>
+  <div style="line-height:1.9;margin-top:6px"><b>恩典 → 幻象 Lv.1：</b>${isgardIllusion.stage01} 次<br><b>幻象 Lv.1 → Lv.2：</b>${isgardIllusion.stage12} 次<br><b>幻象 Lv.2 → Lv.3：</b>${isgardIllusion.stage23} 次</div>
+  <div class="stat" style="margin-top:10px"><span class="label">累計消耗材料</span><div style="line-height:1.9;margin-top:6px">${spentHtml}</div></div>`;
+}
+function resetIsgardIllusion(){
+  isgardIllusion={lv:0,tries:0,stage01:0,stage12:0,stage23:0,spent:{}};
+  const nowEl=document.getElementById('isgardIllusionNow');
+  if(nowEl) nowEl.innerHTML='';
+  renderIsgardIllusion();
+}
+renderIsgardIllusion();
 
 let weaponEnchant={lv:1,tries:0,stage12:0,stage23:0,stage34:0,stage45:0};
 function weaponRate(){return weaponEnchant.lv===1?60:weaponEnchant.lv===2?45:weaponEnchant.lv===3?30:weaponEnchant.lv===4?15:0}
