@@ -170,6 +170,63 @@ section{padding:12px;min-width:0}
 }
 </style>
 
+
+<style>
+.charcalc{
+  margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#0c1524;padding:12px
+}
+.charcalc details>summary{cursor:pointer;font-weight:900;font-size:16px;user-select:none}
+.charcalc details[open]>summary{margin-bottom:10px}
+.charcalc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.charcalc-group{margin-top:12px}
+.charcalc-title{font-size:13px;color:#8fbfff;font-weight:900;margin-bottom:7px}
+.charcalc-row{
+  display:grid;grid-template-columns:70px minmax(70px,1fr) 78px 84px;
+  gap:7px;align-items:center;padding:7px 8px;border:1px solid #263752;border-radius:9px;background:#111b2b
+}
+.charcalc-row .cc-label{font-weight:900;color:#e9f2ff}
+.charcalc-row input{
+  width:100%;height:34px;border-radius:7px;border:1px solid #33445f;
+  background:#0b1421;color:#eef4ff;padding:0 8px;font-size:14px
+}
+.charcalc-row .cc-add{color:#73b9ff;text-align:right;font-weight:800;white-space:nowrap}
+.charcalc-row .cc-total{color:#69dfab;text-align:right;font-weight:900;white-space:nowrap}
+.charcalc-head{
+  display:grid;grid-template-columns:70px minmax(70px,1fr) 78px 84px;gap:7px;
+  color:#7f91ad;font-size:11px;padding:0 8px 5px
+}
+.charcalc-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.charcalc-note{font-size:12px;color:#8fa0ba;line-height:1.65}
+@media(max-width:650px){
+  .charcalc-grid{grid-template-columns:1fr}
+  .charcalc-row,.charcalc-head{grid-template-columns:62px minmax(62px,1fr) 72px 76px}
+}
+</style>
+
+
+<style>
+.charcalc-pointbar{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px
+}
+.charcalc-pointcard{
+  padding:10px;border:1px solid #2d405e;border-radius:10px;background:#101b2c
+}
+.charcalc-pointcard .k{font-size:12px;color:#8fa2c1}
+.charcalc-pointcard .v{font-size:20px;font-weight:900;margin-top:3px}
+.charcalc-pointcard .okv{color:#70d9a7}
+.charcalc-pointcard .badv{color:#ff7676}
+.charcalc-levelrow{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0
+}
+.charcalc-levelrow input{
+  width:90px;height:34px;border-radius:7px;border:1px solid #33445f;
+  background:#0b1421;color:#eef4ff;padding:0 8px
+}
+@media(max-width:650px){
+  .charcalc-pointbar{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -255,6 +312,78 @@ section{padding:12px;min-width:0}
         「每…、當…時、機率、依精煉/素質/裝備數量變動」等條件式效果不直接加總，會列在下方提醒。
       </div>
 <div class="stats" id="stats"></div>
+
+<div class="charcalc">
+<details id="characterCalcDetails">
+<summary>🧮 角色素質計算機</summary>
+<div class="charcalc-note">
+參考 RO Calculator 的角色素質欄位配置製作成本地版。左欄輸入角色目前基礎／面板值；
+勾選收藏後，「收藏加成」會自動帶入並計算總值。
+</div>
+<div class="charcalc-levelrow">
+  <b>Base Lv.</b>
+  <input id="charCalcLevel" type="number" min="1" max="275" step="1" value="275">
+  <span class="charcalc-note">預設 275 等</span>
+</div>
+
+<div class="charcalc-pointbar">
+  <div class="charcalc-pointcard">
+    <div class="k">基本素質｜可分配點數</div>
+    <div class="v" id="charBasicAvailable">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">基本素質｜已使用點數</div>
+    <div class="v" id="charBasicUsed">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">基本素質｜剩餘點數</div>
+    <div class="v okv" id="charBasicRemain">0</div>
+  </div>
+</div>
+
+<div class="charcalc-pointbar">
+  <div class="charcalc-pointcard">
+    <div class="k">特性素質｜可分配點數</div>
+    <div class="v" id="charTraitAvailable">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">特性素質｜已使用點數</div>
+    <div class="v" id="charTraitUsed">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">特性素質｜剩餘點數</div>
+    <div class="v okv" id="charTraitRemain">0</div>
+  </div>
+</div>
+<div class="charcalc-actions">
+  <button id="charCalcReset">清空角色輸入</button>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">基本素質</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcBasic"></div>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">四轉特性素質</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcTrait"></div>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">戰鬥面板</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcCombat"></div>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">百分比加成</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcPct"></div>
+</div>
+</details>
+</div>
 <div class="conditional">
 <h3>⚠️ 條件式／無法直接加總效果</h3>
 <div class="cond-list" id="conditions"></div>
@@ -765,6 +894,179 @@ function renderList(){
   renderRequiredPanels();
 }
 
+
+const CHAR_CALC_KEY="starro_collection_charcalc_v158";
+const CHAR_BASIC=["STR","AGI","VIT","INT","DEX","LUK"];
+const CHAR_TRAIT=["POW","STA","WIS","SPL","CON","CRT"];
+const CHAR_COMBAT=["ATK","MATK","P.ATK","S.MATK","CRI","C.RATE","HIT","FLEE","DEF","MDEF","MHP","MSP","ASPD"];
+const CHAR_PCT=[
+  ["ATK%","ATK %"],["MATK%","MATK %"],["MHP%","MHP %"],["MSP%","MSP %"],
+  ["爆擊傷害%","爆擊傷害 %"],["遠距離傷害%","遠距離傷害 %"],
+  ["近距離傷害%","近距離傷害 %"],["技能終傷%","技能終傷 %"],["技能後延遲%","技能後延遲 %"]
+];
+let charCalcInput={level:275};
+try{
+  const x=JSON.parse(localStorage.getItem(CHAR_CALC_KEY)||"{}");
+  if(x&&typeof x==="object") charCalcInput=x;
+}catch(e){}
+if(!Number.isFinite(Number(charCalcInput.level))) charCalcInput.level=275;
+
+
+function normalStatAvailable(level){
+  level=Math.max(1,Math.min(275,Math.floor(Number(level)||275)));
+  // 轉生角色 Lv1 起始 100 點；200 後一般素質點不再增加。
+  let pts=100;
+  const cap=Math.min(level,200);
+  for(let x=1;x<cap;x++){
+    if(x<100) pts+=Math.floor(x/5)+3;
+    else if(x<=150) pts+=Math.floor(x/10)+13;
+    else pts+=Math.floor((x-150)/7)+28;
+  }
+  return pts;
+}
+
+function normalStatCostTo(target){
+  let v=Math.max(1,Math.min(130,Math.floor(Number(target)||1)));
+  let cost=0;
+  for(let low=1;low<v;low++){
+    if(low<100) cost+=2+Math.floor((low-1)/10);
+    else cost+=16+4*Math.floor((low-100)/5);
+  }
+  return cost;
+}
+
+function traitAvailable(level){
+  level=Math.max(1,Math.min(275,Math.floor(Number(level)||275)));
+  if(level<200) return 0;
+  const gainedLevels=level-200;
+  return 7 + gainedLevels*3 + Math.floor(gainedLevels/5)*4;
+}
+
+function basicStatInputValue(key){
+  const raw=charCalcInput[key];
+  if(raw===undefined || raw===null || raw==="") return 1;
+  return Math.max(1,Math.min(130,Math.floor(Number(raw)||1)));
+}
+
+function traitStatInputValue(key){
+  const raw=charCalcInput[key];
+  if(raw===undefined || raw===null || raw==="") return 0;
+  return Math.max(0,Math.min(110,Math.floor(Number(raw)||0)));
+}
+
+function renderStatPointSummary(){
+  const level=Math.max(1,Math.min(275,Math.floor(Number(charCalcInput.level)||275)));
+  const basicAvail=normalStatAvailable(level);
+  const basicUsed=CHAR_BASIC.reduce((s,k)=>s+normalStatCostTo(basicStatInputValue(k)),0);
+  const basicRemain=basicAvail-basicUsed;
+
+  const traitAvail=traitAvailable(level);
+  const traitUsed=CHAR_TRAIT.reduce((s,k)=>s+traitStatInputValue(k),0);
+  const traitRemain=traitAvail-traitUsed;
+
+  const set=(id,val,bad=false)=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=Number(val).toLocaleString();
+    el.classList.toggle("badv",bad);
+    el.classList.toggle("okv",!bad && id.includes("Remain"));
+  };
+  set("charBasicAvailable",basicAvail);
+  set("charBasicUsed",basicUsed);
+  set("charBasicRemain",basicRemain,basicRemain<0);
+  set("charTraitAvailable",traitAvail);
+  set("charTraitUsed",traitUsed);
+  set("charTraitRemain",traitRemain,traitRemain<0);
+
+  const lv=document.getElementById("charCalcLevel");
+  if(lv && String(lv.value)!==String(level)) lv.value=level;
+}
+
+function saveCharCalc(){
+  try{localStorage.setItem(CHAR_CALC_KEY,JSON.stringify(charCalcInput));}catch(e){}
+}
+
+function getSelectedCollectionStatMap(){
+  const totals=new Map();
+  for(const it of ITEMS){
+    if(!selected.has(keyOf(it))) continue;
+    const p=parseDirect(it.effect);
+    for(const [k,v] of p.map) totals.set(k,(totals.get(k)||0)+v);
+  }
+  return totals;
+}
+
+function collectionStatBonus(key,map){
+  let v=Number(map.get(key)||0);
+
+  // All / AllState 套用至六大基本素質
+  if(CHAR_BASIC.includes(key)){
+    v+=Number(map.get("ALL")||0);
+    v+=Number(map.get("All")||0);
+    v+=Number(map.get("全能力")||0);
+  }
+
+  // 全特殊屬性、四轉特殊屬性套用至 POW~CRT
+  if(CHAR_TRAIT.includes(key)){
+    v+=Number(map.get("全特殊屬性")||0);
+    v+=Number(map.get("四轉特殊屬性")||0);
+  }
+  return v;
+}
+
+function charNumber(key){
+  const n=Number(charCalcInput[key]);
+  return Number.isFinite(n)?n:0;
+}
+
+function charRow(key,label,map,isPct=false){
+  const add=collectionStatBonus(key,map);
+  let base=charNumber(key);
+  let inputValue=charCalcInput[key];
+
+  if(CHAR_BASIC.includes(key)){
+    base=basicStatInputValue(key);
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=1;
+  }else if(CHAR_TRAIT.includes(key)){
+    base=traitStatInputValue(key);
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=0;
+  }else{
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=0;
+  }
+
+  const total=base+add;
+  const addTxt=(add>0?"+":"")+fmt(add)+(isPct?"%":"");
+  const totalTxt=fmt(total)+(isPct?"%":"");
+  return `<div class="charcalc-row">
+    <span class="cc-label">${esc(label)}</span>
+    <input class="charcalc-input" data-char-key="${esc(key)}" type="number" step="${CHAR_BASIC.includes(key)||CHAR_TRAIT.includes(key)?1:0.1}" value="${esc(inputValue)}">
+    <span class="cc-add">${addTxt}</span>
+    <span class="cc-total">${totalTxt}</span>
+  </div>`;
+}
+
+function renderCharacterCalculator(){
+  const map=getSelectedCollectionStatMap();
+  const basic=$("#charCalcBasic"),trait=$("#charCalcTrait"),combat=$("#charCalcCombat"),pct=$("#charCalcPct");
+  if(!basic||!trait||!combat||!pct) return;
+
+  basic.innerHTML=CHAR_BASIC.map(k=>charRow(k,k,map,false)).join("");
+  trait.innerHTML=CHAR_TRAIT.map(k=>charRow(k,k,map,false)).join("");
+  combat.innerHTML=CHAR_COMBAT.map(k=>charRow(k,k,map,false)).join("");
+  pct.innerHTML=CHAR_PCT.map(([k,label])=>charRow(k,label,map,true)).join("");
+
+  document.querySelectorAll(".charcalc-input").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      const key=inp.dataset.charKey;
+      charCalcInput[key]=inp.value;
+      saveCharCalc();
+      renderCharacterCalculator();
+    });
+  });
+
+  renderStatPointSummary();
+}
+
 function renderTotals(){
   const totals=new Map(), conditionRows=[];
   for(const it of ITEMS){
@@ -791,6 +1093,7 @@ function renderTotals(){
   $("#conditions").innerHTML=conditionRows.length?conditionRows.map(x=>
     `<div class="cond-row"><b>${esc(x.name)}</b><br>${esc(x.effects)}</div>`
   ).join(""):'<div class="empty">目前沒有條件式效果</div>';
+  renderCharacterCalculator();
 }
 
 
@@ -1004,6 +1307,26 @@ $("#importExcelFile").addEventListener("change",e=>importSelectedExcel(e.target.
 
 $("#normalSlots").addEventListener("input",updateSummary);
 $("#jroSlots").addEventListener("input",updateSummary);
+
+const charCalcLevel=$("#charCalcLevel");
+if(charCalcLevel){
+  charCalcLevel.value=String(Math.max(1,Math.min(275,Math.floor(Number(charCalcInput.level)||275))));
+  charCalcLevel.addEventListener("input",()=>{
+    charCalcInput.level=Math.max(1,Math.min(275,Math.floor(Number(charCalcLevel.value)||275)));
+    saveCharCalc();
+    renderCharacterCalculator();
+  });
+}
+
+const charCalcResetBtn=$("#charCalcReset");
+if(charCalcResetBtn){
+  charCalcResetBtn.addEventListener("click",()=>{
+    charCalcInput={level:275};
+    saveCharCalc();
+    renderCharacterCalculator();
+  });
+}
+
 $("#search").addEventListener("input",()=>{renderSubcats();renderSpecials();renderList();});
 $("#groupFilter").addEventListener("change",()=>{renderSubcats();renderSpecials();renderList();});
 $("#onlySelected").addEventListener("click",()=>{
@@ -1060,7 +1383,7 @@ $("#clear").addEventListener("click",()=>{
   selected.clear();save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
 });
 
-updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
+updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 </script>
 </body>
 </html>
