@@ -91,7 +91,7 @@ h1{margin:0 0 6px;font-size:28px}
   background:#0a111c;color:#fff;padding:0 9px;font-size:16px;font-weight:800
 }
 .cum-summary{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 14px
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:10px 0 14px
 }
 .cum-summary .result{min-height:82px}
 .cum-tier{
@@ -239,10 +239,14 @@ h1{margin:0 0 6px;font-size:28px}
         <div class="k">已解鎖獎勵估值</div>
         <div class="v gold" id="cumUnlockedValue">NT$0.00</div>
       </div>
+      <div class="result">
+        <div class="k">新解鎖獎勵估值</div>
+        <div class="v green" id="cumNewUnlockedValue">NT$0.00</div>
+      </div>
     </div>
 
     <div class="note">
-      「目前累計儲值」填過去已消費金額；「預計再儲值」填這次預計加值，系統會以兩者加總判斷可達成的累儲階段。多選一獎勵預設自動選目前估值最高的物品，也可自行改選。估值直接使用下方「2026.08 儲值物價表」目前設定價格。
+      「目前累計儲值」填過去已消費金額；「預計再儲值」填這次預計加值。已解鎖獎勵估值＝原本累計已達成的獎勵；新解鎖獎勵估值＝這次新增儲值後才跨到的獎勵。多選一預設自動選目前估值最高的物品，也可自行改選。
     </div>
 
     <div id="cumulativeTierList" style="margin-top:10px"></div>
@@ -863,8 +867,14 @@ function renderCumulativeRewards(){
   document.getElementById("cumReachedCount").textContent=`${reached.length} / ${CUMULATIVE_REWARD_TIERS.length}`;
   document.getElementById("cumNextTier").textContent=next?`NT${Number(next.amount).toLocaleString("zh-TW")}`:"全部達成";
 
-  const unlockedValue=reached.reduce((sum,tier)=>sum+tierValue(tier,map),0);
+  const currentReached=CUMULATIVE_REWARD_TIERS.filter(x=>current>=x.amount);
+  const newlyUnlocked=CUMULATIVE_REWARD_TIERS.filter(x=>x.amount>current && x.amount<=amount);
+
+  const unlockedValue=currentReached.reduce((sum,tier)=>sum+tierValue(tier,map),0);
+  const newUnlockedValue=newlyUnlocked.reduce((sum,tier)=>sum+tierValue(tier,map),0);
+
   document.getElementById("cumUnlockedValue").textContent=money(unlockedValue);
+  document.getElementById("cumNewUnlockedValue").textContent=money(newUnlockedValue);
 
   document.getElementById("cumulativeTierList").innerHTML=CUMULATIVE_REWARD_TIERS.map(tier=>{
     const reachedNow=amount>=tier.amount;
