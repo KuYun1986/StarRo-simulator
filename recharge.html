@@ -91,7 +91,7 @@ h1{margin:0 0 6px;font-size:28px}
   background:#0a111c;color:#fff;padding:0 9px;font-size:16px;font-weight:800
 }
 .cum-summary{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:10px 0 14px
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:10px 0 14px
 }
 .cum-summary .result{min-height:82px}
 .cum-tier{
@@ -228,6 +228,10 @@ h1{margin:0 0 6px;font-size:28px}
         <div class="v gold" id="cumProjectedAmount">NT$0</div>
       </div>
       <div class="result">
+        <div class="k">本次儲值取得</div>
+        <div class="v blue" id="cumPlannedPoints">0紅＋0P</div>
+      </div>
+      <div class="result">
         <div class="k">已達成階段</div>
         <div class="v green" id="cumReachedCount">0</div>
       </div>
@@ -246,7 +250,7 @@ h1{margin:0 0 6px;font-size:28px}
     </div>
 
     <div class="note">
-      「目前累計儲值」填過去已消費金額；「預計再儲值」填這次預計加值。已解鎖獎勵估值＝原本累計已達成的獎勵；新解鎖獎勵估值＝這次新增儲值後才跨到的獎勵。多選一預設自動選目前估值最高的物品，也可自行改選。 固定獎勵裡的商城點數／紅利點數會隨「目前累計儲值」浮動：例：目前25,000＋預計5,000→30,000，30,000階會變成5,000紅＋35,000P。估值則依物價表比值換算：5,000紅 ÷ 1.6＝NT$3,125；35,000P ÷ 280＝NT$125，兩者都計入該階獎勵估值。
+      「目前累計儲值」填過去已消費金額；「預計再儲值」填這次預計加值。已解鎖獎勵估值＝原本累計已達成的獎勵；新解鎖獎勵估值＝這次新增儲值後才跨到的獎勵。多選一預設自動選目前估值最高的物品，也可自行改選。 固定獎勵裡的商城點數／紅利點數會依「本次單筆預計儲值」的比例浮動。例如目前0＋預計20,000，因單筆20,000為1T:10P，所有這次新解鎖的累儲階段加總會是20,000紅＋200,000P；若目前25,000＋預計5,000，單筆5,000為1T:7P，所以新解鎖部分加總為5,000紅＋35,000P。估值仍依物價表比值換算：紅利÷紅利比值、商城P÷商城比值。
     </div>
 
     <div id="cumulativeTierList" style="margin-top:10px"></div>
@@ -880,9 +884,13 @@ function fixedRechargeCurrencyInfo(tier){
     };
   }
 
-  // 尚未達成階段：0；新解鎖階段依本次實際補到該門檻的金額浮動。
+  // 尚未達成階段：0；新解鎖階段的紅利/P點依「本次單筆預計儲值」的比例。
+  // 例如：目前 0、本次儲值 20,000，整筆比例為 1T:10P。
+  // 各新解鎖階段雖按門檻差額分攤紅利，但 P 點全部都用 10P/T，
+  // 因此全部新解鎖階段加總 = 20,000紅 + 200,000P。
   const redQty=dynamicChunk;
-  const rate=rechargePointRateByAmount(dynamicChunk);
+  const planned=Math.max(0,Math.floor(Number(cumulativeState.planned)||0));
+  const rate=rechargePointRateByAmount(planned);
   const shopQty=dynamicChunk*rate;
 
   return {
@@ -979,6 +987,9 @@ function renderCumulativeRewards(){
   document.getElementById("cumulativeAmount").value=current;
   document.getElementById("plannedRechargeAmount").value=planned;
   document.getElementById("cumProjectedAmount").textContent=`NT$${Number(amount).toLocaleString("zh-TW")}`;
+  const plannedRate=rechargePointRateByAmount(planned);
+  document.getElementById("cumPlannedPoints").textContent=
+    `${Number(planned).toLocaleString("zh-TW")}紅＋${Number(planned*plannedRate).toLocaleString("zh-TW")}P`;
   document.getElementById("cumReachedCount").textContent=`${reached.length} / ${CUMULATIVE_REWARD_TIERS.length}`;
   document.getElementById("cumNextTier").textContent=next?`NT${Number(next.amount).toLocaleString("zh-TW")}`:"全部達成";
 
