@@ -246,7 +246,7 @@ h1{margin:0 0 6px;font-size:28px}
     </div>
 
     <div class="note">
-      「目前累計儲值」填過去已消費金額；「預計再儲值」填這次預計加值。已解鎖獎勵估值＝原本累計已達成的獎勵；新解鎖獎勵估值＝這次新增儲值後才跨到的獎勵。多選一預設自動選目前估值最高的物品，也可自行改選。
+      「目前累計儲值」填過去已消費金額；「預計再儲值」填這次預計加值。已解鎖獎勵估值＝原本累計已達成的獎勵；新解鎖獎勵估值＝這次新增儲值後才跨到的獎勵。多選一預設自動選目前估值最高的物品，也可自行改選。 固定獎勵裡的商城點數／紅利點數會隨「目前累計儲值」浮動：例：目前25,000＋預計5,000→30,000，30,000階會變成5,000紅＋35,000P。估值則依物價表比值換算：5,000紅 ÷ 1.6＝NT$3,125；35,000P ÷ 280＝NT$125，兩者都計入該階獎勵估值。
     </div>
 
     <div id="cumulativeTierList" style="margin-top:10px"></div>
@@ -284,7 +284,7 @@ h1{margin:0 0 6px;font-size:28px}
         <tbody id="priceTableBody">
           <tr data-idx="0">
 <td>商城點數</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="1"></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="0.00"></td>
 <td class="price-nt calc-nt">0.00</td>
@@ -826,12 +826,100 @@ function money(v){
   return "NT$"+Number(v||0).toLocaleString("zh-TW",{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
+
+
+function rechargePointRateByAmount(amount){
+  amount=Math.max(0,Math.floor(Number(amount)||0));
+  if(amount>=20000) return 10;
+  if(amount>=15000) return 9;
+  if(amount>=10000) return 8;
+  if(amount>=5000) return 7;
+  if(amount>=1000) return 6;
+  if(amount>=100) return 5;
+  return 0;
+}
+
+function previousTierAmount(tierAmount){
+  const i=CUMULATIVE_REWARD_TIERS.findIndex(x=>x.amount===tierAmount);
+  return i>0?CUMULATIVE_REWARD_TIERS[i-1].amount:0;
+}
+
+function dynamicRechargeChunkForTier(tier){
+  const current=Math.max(0,Math.floor(Number(cumulativeState.amount)||0));
+  const planned=Math.max(0,Math.floor(Number(cumulativeState.planned)||0));
+  const projected=current+planned;
+
+  if(projected<tier.amount) return 0;
+
+  // 已經在目前累計前達成的階段，不浮動，維持原表。
+  if(current>=tier.amount) return null;
+
+  // 新解鎖階段：只計這次真正投入到該階段的金額。
+  const lower=Math.max(current,previousTierAmount(tier.amount));
+  return Math.max(0,tier.amount-lower);
+}
+
+function fixedRechargeCurrencyInfo(tier){
+  const shop=tier.fixed.find(r=>r.name==="商城點數");
+  const red=tier.fixed.find(r=>r.name==="紅利點數");
+  if(!shop && !red) return null;
+
+  const dynamicChunk=dynamicRechargeChunkForTier(tier);
+
+  // 已解鎖舊階段：沿用原表固定值。
+  if(dynamicChunk===null){
+    const shopQty=shop?Number(shop.qty||0):0;
+    const redQty=red?Number(red.qty||0):0;
+    const rate=(shopQty>0 && redQty>0)?shopQty/redQty:0;
+    return {
+      shopQty,
+      redQty,
+      rate,
+      combinedTValue:redQty>0?redQty:(rate>0?shopQty/rate:0),
+      dynamic:false
+    };
+  }
+
+  // 尚未達成階段：0；新解鎖階段依本次實際補到該門檻的金額浮動。
+  const redQty=dynamicChunk;
+  const rate=rechargePointRateByAmount(dynamicChunk);
+  const shopQty=dynamicChunk*rate;
+
+  return {
+    shopQty,
+    redQty,
+    rate,
+    combinedTValue:dynamicChunk,
+    dynamic:true
+  };
+}
+
+function fixedRewardValue(tier,reward,map){
+  if(reward.name==="商城點數" || reward.name==="紅利點數"){
+    const info=fixedRechargeCurrencyInfo(tier);
+    if(!info) return null;
+
+    const shopRatio=Math.max(0.000001,Number(document.getElementById("shopRatio")?.value)||280);
+    const bonusRatio=Math.max(0.000001,Number(document.getElementById("bonusRatio")?.value)||1.6);
+
+    if(reward.name==="商城點數"){
+      return info.shopQty/shopRatio;
+    }
+    return info.redQty/bonusRatio;
+  }
+
+  const u=rewardUnitValue(reward.name,map);
+  return u===null?null:u*Number(reward.qty||0);
+}
+
 function tierValue(tier,map){
   let total=0;
+
   for(const r of tier.fixed){
-    const u=rewardUnitValue(r.name,map);
-    if(u!==null) total+=u*Number(r.qty||0);
+    const v=fixedRewardValue(tier,r,map);
+    if(v!==null) total+=v;
   }
+
   if(tier.choices.length){
     const selected=selectedChoiceIndex(tier,map);
     const r=tier.choices[selected];
@@ -841,13 +929,40 @@ function tierValue(tier,map){
   return total;
 }
 
-function rewardRowsHtml(list,map){
+function rewardRowsHtml(list,map,tier=null){
   return list.map(r=>{
-    const u=rewardUnitValue(r.name,map);
-    const total=u===null?null:u*Number(r.qty||0);
+    let total=null;
+    let note="";
+    let shownQty=Number(r.qty||0);
+
+    if(tier && (r.name==="商城點數" || r.name==="紅利點數")){
+      const info=fixedRechargeCurrencyInfo(tier);
+      const shopRatio=Math.max(0.000001,Number(document.getElementById("shopRatio")?.value)||280);
+      const bonusRatio=Math.max(0.000001,Number(document.getElementById("bonusRatio")?.value)||1.6);
+
+      if(info){
+        if(r.name==="商城點數"){
+          shownQty=info.shopQty;
+          total=info.shopQty/shopRatio;
+          note=info.dynamic
+            ? `<div style="font-size:11px;color:#7faee8">本次補儲 ${money(info.redQty)}｜${Number(info.shopQty).toLocaleString("zh-TW")}P ÷ ${shopRatio}</div>`
+            : `<div style="font-size:11px;color:#7faee8">商城點數 ÷ ${shopRatio}</div>`;
+        }else{
+          shownQty=info.redQty;
+          total=info.redQty/bonusRatio;
+          note=info.dynamic
+            ? `<div style="font-size:11px;color:#ff8d8f">本次補儲 ${money(info.redQty)}｜${Number(info.redQty).toLocaleString("zh-TW")}紅 ÷ ${bonusRatio}</div>`
+            : `<div style="font-size:11px;color:#ff8d8f">紅利點數 ÷ ${bonusRatio}</div>`;
+        }
+      }
+    }else{
+      const u=rewardUnitValue(r.name,map);
+      total=u===null?null:u*Number(r.qty||0);
+    }
+
     return `<tr>
-      <td>${r.name}</td>
-      <td>× ${Number(r.qty||0).toLocaleString("zh-TW")}</td>
+      <td>${r.name}${note}</td>
+      <td>× ${Number(shownQty||0).toLocaleString("zh-TW")}</td>
       <td class="${total===null?"cum-price-missing":"cum-tier-value"}">${total===null?"—":money(total)}</td>
     </tr>`;
   }).join("");
@@ -879,7 +994,7 @@ function renderCumulativeRewards(){
   document.getElementById("cumulativeTierList").innerHTML=CUMULATIVE_REWARD_TIERS.map(tier=>{
     const reachedNow=amount>=tier.amount;
     const nextNow=next&&next.amount===tier.amount;
-    const fixed=rewardRowsHtml(tier.fixed,map);
+    const fixed=rewardRowsHtml(tier.fixed,map,tier);
     const selected=selectedChoiceIndex(tier,map);
 
     const choice=tier.choices.length?`
@@ -937,7 +1052,7 @@ document.addEventListener("input",e=>{
 });
 
 const PRICE_TABLE_KEY="starro_recharge_price_table_v3";
-const PRICE_TABLE_DEFAULTS=[{"name": "商城點數", "shop": "", "bonus": "", "nt": "0.00"}, {"name": "紅利點數", "shop": "", "bonus": "", "nt": "0.63"}, {"name": "進階精煉能力+20券", "shop": "20000", "bonus": "", "nt": "71.43"}, {"name": "進階精煉能力+18券", "shop": "10000", "bonus": "", "nt": "35.71"}, {"name": "進階精煉能力+16券", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "特殊強化石自選箱", "shop": "8000", "bonus": "", "nt": "28.57"}, {"name": "物理能力偵測器箱子(10入)", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "魔法能力偵測器箱子(10入)", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "副本王卡自選冊", "shop": "10000", "bonus": "", "nt": "35.71"}, {"name": "寵物裝備自選箱", "shop": "3500", "bonus": "", "nt": "12.50"}, {"name": "特殊寵物自選箱", "shop": "3000", "bonus": "", "nt": "10.71"}, {"name": "寶物兌換券", "shop": "1300", "bonus": "", "nt": "4.64"}, {"name": "地獄副本掃蕩券", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "UR寶石自選箱(1)", "shop": "1050", "bonus": "", "nt": "3.75"}, {"name": "高密度極限乙太神工匠的鐵鎚", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "VIP銅箱子", "shop": "900", "bonus": "", "nt": "3.21"}, {"name": "評級升級券", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "神級材料寶箱", "shop": "750", "bonus": "", "nt": "2.68"}, {"name": "武器鑑定晶片", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "副本入場券盒子", "shop": "600", "bonus": "", "nt": "2.14"}, {"name": "高級副本掃蕩券", "shop": "500", "bonus": "", "nt": "1.79"}, {"name": "天使波利祝福卷軸", "shop": "760", "bonus": "", "nt": "2.71"}, {"name": "惡魔波利祝福卷軸", "shop": "450", "bonus": "", "nt": "1.61"}, {"name": "庇佑冶煉秘粉", "shop": "500", "bonus": "", "nt": "1.79"}, {"name": "高密度乙太神工匠的鐵鎚", "shop": "135", "bonus": "", "nt": "0.48"}, {"name": "副本掃蕩卷", "shop": "99", "bonus": "", "nt": "0.35"}, {"name": "限量服裝鑑定針", "shop": "280", "bonus": "", "nt": "1.00"}, {"name": "稀有地質探測器工具箱", "shop": "200", "bonus": "", "nt": "0.71"}, {"name": "UR寶石碎片", "shop": "20", "bonus": "", "nt": "0.07"}, {"name": "1億元支票", "shop": "16", "bonus": "", "nt": "0.06"}, {"name": "轉蛋兌換券", "shop": "15", "bonus": "", "nt": "0.05"}, {"name": "祝福寶石兌換券", "shop": "15", "bonus": "", "nt": "0.05"}, {"name": "王卡硬幣", "shop": "4", "bonus": "", "nt": ""}, {"name": "(服飾)繁星二周年氣球", "shop": "", "bonus": "500", "nt": "312.50"}, {"name": "UR服飾魔法書轉移工具", "shop": "", "bonus": "2499", "nt": "1561.88"}, {"name": "S評級升級券", "shop": "", "bonus": "300", "nt": "187.50"}, {"name": "限量服飾自選盒(披肩)", "shop": "", "bonus": "300", "nt": "187.50"}, {"name": "限量服飾自選盒(頭飾)", "shop": "", "bonus": "200", "nt": "125.00"}, {"name": "無限熊皮軟糖(30日)", "shop": "", "bonus": "79.2", "nt": "49.50"}, {"name": "(特殊)裝備詞墜轉移工具", "shop": "", "bonus": "", "nt": "6000.00"}, {"name": "UR裝備自選箱", "shop": "", "bonus": "", "nt": "4500.00"}, {"name": "神話服飾鑑定藥水(屬性終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(種族終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(體型終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(階級終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "(特殊)裝備物法轉移卷軸(5)", "shop": "", "bonus": "", "nt": "2500.00"}, {"name": "UR服飾魔法書盒(指定)", "shop": "", "bonus": "", "nt": "1000.00"}, {"name": "UR寶石自選箱(2)", "shop": "", "bonus": "", "nt": "1500.00"}, {"name": "(JRO)王卡自選冊", "shop": "", "bonus": "", "nt": "1000.00"}, {"name": "SS評級升級券", "shop": "", "bonus": "", "nt": "350.00"}, {"name": "工廠經營許可證", "shop": "", "bonus": "", "nt": "540.00"}, {"name": "足跡特效石自選箱", "shop": "", "bonus": "", "nt": "150.00"}, {"name": "一周年手推車改裝券", "shop": "", "bonus": "", "nt": "500.00"}, {"name": "UR寶石箱子(2)", "shop": "", "bonus": "", "nt": "656.25"}, {"name": "鉭鈮石箱子(10入)", "shop": "", "bonus": "", "nt": "550.00"}, {"name": "UR服飾魔法書盒(隨機)", "shop": "", "bonus": "", "nt": "305.00"}, {"name": "(JRO)王室狩獵自選冊", "shop": "", "bonus": "", "nt": "400.00"}, {"name": "(JRO)老舊自選冊", "shop": "", "bonus": "", "nt": "300.00"}, {"name": "S服飾魔法書盒(指定)", "shop": "", "bonus": "", "nt": "50.00"}, {"name": "VIP倉庫啟用券", "shop": "", "bonus": "", "nt": "100.00"}, {"name": "神級材料自選箱", "shop": "", "bonus": "", "nt": "45.00"}, {"name": "(JRO)UR裝備碎片", "shop": "", "bonus": "", "nt": "35.00"}, {"name": "寵物裝備激發指定器(2)", "shop": "", "bonus": "", "nt": "25.00"}, {"name": "寵物裝備激發指定器(1)", "shop": "", "bonus": "", "nt": "10.00"}, {"name": "競標服裝鑑定針", "shop": "", "bonus": "", "nt": "8.00"}, {"name": "寵物裝備鑑定針", "shop": "", "bonus": "", "nt": "8.00"}, {"name": "紅利轉蛋兌換券", "shop": "", "bonus": "", "nt": "10.00"}, {"name": "影子昇華結晶", "shop": "", "bonus": "", "nt": "4.00"}, {"name": "科技研發加速器(1小時)", "shop": "", "bonus": "", "nt": "1.00"}, {"name": "S服飾魔法書盒(隨機)", "shop": "", "bonus": "", "nt": "0.00"}];
+const PRICE_TABLE_DEFAULTS=[{"name": "商城點數", "shop": "1", "bonus": "", "nt": "0.00"}, {"name": "紅利點數", "shop": "", "bonus": "", "nt": "0.63"}, {"name": "進階精煉能力+20券", "shop": "20000", "bonus": "", "nt": "71.43"}, {"name": "進階精煉能力+18券", "shop": "10000", "bonus": "", "nt": "35.71"}, {"name": "進階精煉能力+16券", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "特殊強化石自選箱", "shop": "8000", "bonus": "", "nt": "28.57"}, {"name": "物理能力偵測器箱子(10入)", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "魔法能力偵測器箱子(10入)", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "副本王卡自選冊", "shop": "10000", "bonus": "", "nt": "35.71"}, {"name": "寵物裝備自選箱", "shop": "3500", "bonus": "", "nt": "12.50"}, {"name": "特殊寵物自選箱", "shop": "3000", "bonus": "", "nt": "10.71"}, {"name": "寶物兌換券", "shop": "1300", "bonus": "", "nt": "4.64"}, {"name": "地獄副本掃蕩券", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "UR寶石自選箱(1)", "shop": "1050", "bonus": "", "nt": "3.75"}, {"name": "高密度極限乙太神工匠的鐵鎚", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "VIP銅箱子", "shop": "900", "bonus": "", "nt": "3.21"}, {"name": "評級升級券", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "神級材料寶箱", "shop": "750", "bonus": "", "nt": "2.68"}, {"name": "武器鑑定晶片", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "副本入場券盒子", "shop": "600", "bonus": "", "nt": "2.14"}, {"name": "高級副本掃蕩券", "shop": "500", "bonus": "", "nt": "1.79"}, {"name": "天使波利祝福卷軸", "shop": "760", "bonus": "", "nt": "2.71"}, {"name": "惡魔波利祝福卷軸", "shop": "450", "bonus": "", "nt": "1.61"}, {"name": "庇佑冶煉秘粉", "shop": "500", "bonus": "", "nt": "1.79"}, {"name": "高密度乙太神工匠的鐵鎚", "shop": "135", "bonus": "", "nt": "0.48"}, {"name": "副本掃蕩卷", "shop": "99", "bonus": "", "nt": "0.35"}, {"name": "限量服裝鑑定針", "shop": "280", "bonus": "", "nt": "1.00"}, {"name": "稀有地質探測器工具箱", "shop": "200", "bonus": "", "nt": "0.71"}, {"name": "UR寶石碎片", "shop": "20", "bonus": "", "nt": "0.07"}, {"name": "1億元支票", "shop": "16", "bonus": "", "nt": "0.06"}, {"name": "轉蛋兌換券", "shop": "15", "bonus": "", "nt": "0.05"}, {"name": "祝福寶石兌換券", "shop": "15", "bonus": "", "nt": "0.05"}, {"name": "王卡硬幣", "shop": "4", "bonus": "", "nt": ""}, {"name": "(服飾)繁星二周年氣球", "shop": "", "bonus": "500", "nt": "312.50"}, {"name": "UR服飾魔法書轉移工具", "shop": "", "bonus": "2499", "nt": "1561.88"}, {"name": "S評級升級券", "shop": "", "bonus": "300", "nt": "187.50"}, {"name": "限量服飾自選盒(披肩)", "shop": "", "bonus": "300", "nt": "187.50"}, {"name": "限量服飾自選盒(頭飾)", "shop": "", "bonus": "200", "nt": "125.00"}, {"name": "無限熊皮軟糖(30日)", "shop": "", "bonus": "79.2", "nt": "49.50"}, {"name": "(特殊)裝備詞墜轉移工具", "shop": "", "bonus": "", "nt": "6000.00"}, {"name": "UR裝備自選箱", "shop": "", "bonus": "", "nt": "4500.00"}, {"name": "神話服飾鑑定藥水(屬性終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(種族終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(體型終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(階級終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "(特殊)裝備物法轉移卷軸(5)", "shop": "", "bonus": "", "nt": "2500.00"}, {"name": "UR服飾魔法書盒(指定)", "shop": "", "bonus": "", "nt": "1000.00"}, {"name": "UR寶石自選箱(2)", "shop": "", "bonus": "", "nt": "1500.00"}, {"name": "(JRO)王卡自選冊", "shop": "", "bonus": "", "nt": "1000.00"}, {"name": "SS評級升級券", "shop": "", "bonus": "", "nt": "350.00"}, {"name": "工廠經營許可證", "shop": "", "bonus": "", "nt": "540.00"}, {"name": "足跡特效石自選箱", "shop": "", "bonus": "", "nt": "150.00"}, {"name": "一周年手推車改裝券", "shop": "", "bonus": "", "nt": "500.00"}, {"name": "UR寶石箱子(2)", "shop": "", "bonus": "", "nt": "656.25"}, {"name": "鉭鈮石箱子(10入)", "shop": "", "bonus": "", "nt": "550.00"}, {"name": "UR服飾魔法書盒(隨機)", "shop": "", "bonus": "", "nt": "305.00"}, {"name": "(JRO)王室狩獵自選冊", "shop": "", "bonus": "", "nt": "400.00"}, {"name": "(JRO)老舊自選冊", "shop": "", "bonus": "", "nt": "300.00"}, {"name": "S服飾魔法書盒(指定)", "shop": "", "bonus": "", "nt": "50.00"}, {"name": "VIP倉庫啟用券", "shop": "", "bonus": "", "nt": "100.00"}, {"name": "神級材料自選箱", "shop": "", "bonus": "", "nt": "45.00"}, {"name": "(JRO)UR裝備碎片", "shop": "", "bonus": "", "nt": "35.00"}, {"name": "寵物裝備激發指定器(2)", "shop": "", "bonus": "", "nt": "25.00"}, {"name": "寵物裝備激發指定器(1)", "shop": "", "bonus": "", "nt": "10.00"}, {"name": "競標服裝鑑定針", "shop": "", "bonus": "", "nt": "8.00"}, {"name": "寵物裝備鑑定針", "shop": "", "bonus": "", "nt": "8.00"}, {"name": "紅利轉蛋兌換券", "shop": "", "bonus": "", "nt": "10.00"}, {"name": "影子昇華結晶", "shop": "", "bonus": "", "nt": "4.00"}, {"name": "科技研發加速器(1小時)", "shop": "", "bonus": "", "nt": "1.00"}, {"name": "S服飾魔法書盒(隨機)", "shop": "", "bonus": "", "nt": "0.00"}];
 
 function loadPriceTableState(){
   try{
