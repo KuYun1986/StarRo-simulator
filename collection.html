@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>繁星收藏數值計算器｜精簡版</title>
+<title>繁星收藏模擬｜精簡版</title>
 <style>
 :root{
   --bg:#080d18;--panel:#101827;--panel2:#151f31;--line:#26354d;
@@ -78,11 +78,35 @@ section{padding:12px;min-width:0}
 
 .topnav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}.game-page-link{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:9px;border:1px solid #3a4654;background:linear-gradient(180deg,#1b2430,#141b25);color:#f5f7fb;font-weight:700;min-height:42px}
 </style>
+
+<style>
+.req-summary-box{
+  margin-top:14px;padding:12px;background:rgba(16,24,39,.95);
+  border:1px solid var(--line);border-radius:14px
+}
+.req-summary-box details>summary{
+  cursor:pointer;font-weight:800;user-select:none
+}
+.req-summary-box details[open]>summary{margin-bottom:10px}
+.req-summary-list{
+  max-height:34vh;overflow:auto;display:flex;flex-direction:column;gap:7px
+}
+.req-summary-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 10px;border:1px solid #2d3e58;border-radius:9px;background:#0d1725
+}
+.req-summary-left{display:flex;align-items:center;gap:8px;min-width:0}
+.req-summary-left input{width:17px!important;height:17px!important;margin:0!important;flex:0 0 auto}
+.req-summary-name{font-weight:700;word-break:break-word}
+.req-summary-qty{color:#9fb0ca;white-space:nowrap}
+.req-summary-missing .req-summary-name{color:#ff8b8b}
+</style>
+
 </head>
 <body>
 <div class="wrap">
 <div class="top">
-<h1>⭐ 繁星收藏數值計算器</h1>
+<h1>⭐ 繁星收藏模擬</h1>
 <div class="topnav">
   <a href="index.html" class="game-page-link">🏠 主頁</a>
   <a href="game.html" class="game-page-link">🎮 遊戲區</a>
@@ -133,6 +157,22 @@ section{padding:12px;min-width:0}
 <div class="kpi"><small>JRO 收藏使用格（重複道具不重算）</small><b id="jroUsed">0 / 600</b></div>
 <div class="kpi"><small>重複道具節省格數</small><b id="savedSlots">0</b></div>
 </div>
+
+<div class="req-summary-box">
+  <details id="selectedRequiredDetails">
+    <summary>📦 已選收藏總道具（數量） <span class="idtxt" id="selectedRequiredMeta"></span></summary>
+    <div class="note" style="margin:8px 0">預設全部打勾＝已有；沒有的道具自行取消打勾。</div>
+    <div class="req-summary-list" id="selectedRequiredList"></div>
+  </details>
+</div>
+
+<div class="req-summary-box">
+  <details id="missingRequiredDetails">
+    <summary>❗ 已選收藏所缺道具 <span class="idtxt" id="missingRequiredMeta"></span></summary>
+    <div class="req-summary-list" id="missingRequiredList" style="margin-top:8px"></div>
+  </details>
+</div>
+
 <div class="layout">
 <section>
 <div class="section-head">
@@ -163,6 +203,97 @@ localStorage.removeItem("starro_collection_selected");
 let onlySelected=false;
 let activeSubcat="all";
 const activeSpecials=new Set();
+
+const MISSING_REQ_KEY="starro_collection_missing_required_v147";
+function loadMissingRequired(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(MISSING_REQ_KEY)||"[]");
+    return new Set(Array.isArray(raw)?raw:[]);
+  }catch(e){
+    return new Set();
+  }
+}
+const missingRequired=loadMissingRequired();
+
+function saveMissingRequired(){
+  try{
+    localStorage.setItem(MISSING_REQ_KEY,JSON.stringify([...missingRequired]));
+  }catch(e){}
+}
+
+function parseRequiredItem(raw){
+  const s=String(raw||"").trim();
+  // 支援：道具名 × 10 / x10 / *10。沒有數量就視為 1。
+  const m=s.match(/^(.*?)(?:\s*(?:×|x|X|\*)\s*(\d+(?:\.\d+)?))$/);
+  if(m){
+    return {name:m[1].trim(),qty:Number(m[2])||1};
+  }
+  return {name:s,qty:1};
+}
+
+function getSelectedRequiredTotals(){
+  const totals=new Map();
+  for(const it of ITEMS){
+    if(!selected.has(keyOf(it))) continue;
+    for(const raw of (it.required||[])){
+      const p=parseRequiredItem(raw);
+      if(!p.name) continue;
+      totals.set(p.name,(totals.get(p.name)||0)+p.qty);
+    }
+  }
+  return totals;
+}
+
+function renderRequiredPanels(){
+  const totals=getSelectedRequiredTotals();
+  const rows=[...totals.entries()].sort((a,b)=>a[0].localeCompare(b[0],"zh-Hant"));
+
+  const totalMeta=$("#selectedRequiredMeta");
+  const totalList=$("#selectedRequiredList");
+  const missMeta=$("#missingRequiredMeta");
+  const missList=$("#missingRequiredList");
+  if(!totalMeta||!totalList||!missMeta||!missList) return;
+
+  totalMeta.textContent=rows.length?`（${rows.length} 種）`:"";
+
+  if(!rows.length){
+    totalList.innerHTML='<div class="empty">先勾選收藏，就會統計需求道具</div>';
+    missMeta.textContent="";
+    missList.innerHTML='<div class="empty">先勾選收藏，就會統計缺少道具</div>';
+    return;
+  }
+
+  totalList.innerHTML=rows.map(([name,qty])=>{
+    const owned=!missingRequired.has(name);
+    return `<label class="req-summary-row ${owned?"":"req-summary-missing"}">
+      <span class="req-summary-left">
+        <input class="req-owned-check" type="checkbox" data-name="${esc(name)}" ${owned?"checked":""}>
+        <span class="req-summary-name">${esc(name)}</span>
+      </span>
+      <span class="req-summary-qty">× ${Number(qty).toLocaleString("zh-TW",{maximumFractionDigits:2})}</span>
+    </label>`;
+  }).join("");
+
+  totalList.querySelectorAll(".req-owned-check").forEach(ch=>{
+    ch.addEventListener("change",()=>{
+      const name=ch.dataset.name;
+      if(ch.checked) missingRequired.delete(name);
+      else missingRequired.add(name);
+      saveMissingRequired();
+      renderRequiredPanels();
+    });
+  });
+
+  const missing=rows.filter(([name])=>missingRequired.has(name));
+  missMeta.textContent=missing.length?`（缺 ${missing.length} 種）`:"（0 種）";
+
+  missList.innerHTML=missing.length
+    ? missing.map(([name,qty])=>`<div class="req-summary-row req-summary-missing">
+        <span class="req-summary-name">${esc(name)}</span>
+        <span class="req-summary-qty">× ${Number(qty).toLocaleString("zh-TW",{maximumFractionDigits:2})}</span>
+      </div>`).join("")
+    : '<div class="empty">✅ 目前沒有標記缺少的道具</div>';
+}
 
 const SUBCAT_LABELS={
   "裝備":"裝備組合",
@@ -413,6 +544,7 @@ function renderList(){
   $("#visibleCount").textContent=`顯示 ${arr.length.toLocaleString()} 筆`;
   if(!arr.length){
     $("#list").innerHTML='<div class="empty">沒有符合條件的收藏</div>';
+    renderRequiredPanels();
     return;
   }
   $("#list").innerHTML=arr.map(it=>{
@@ -441,10 +573,11 @@ function renderList(){
   $("#list").querySelectorAll('input[type="checkbox"]').forEach(ch=>{
     ch.addEventListener("change",()=>{
       if(ch.checked)selected.add(ch.dataset.key);else selected.delete(ch.dataset.key);
-      save();updateSummary();renderTotals();
+      save();updateSummary();renderTotals();renderRequiredPanels();
       if(onlySelected)renderList();
     });
   });
+  renderRequiredPanels();
 }
 
 function renderTotals(){
@@ -611,7 +744,7 @@ async function importSelectedExcel(file){
     renderSubcats();
     renderSpecials();
     renderList();
-    renderTotals();
+    renderTotals();renderRequiredPanels();
 
     alert(`匯入完成：辨識 ${matched} 筆，新增勾選 ${added} 筆${skipped?`，未匹配 ${skipped} 筆`:""}。`);
   }catch(err){
@@ -697,13 +830,13 @@ $("#onlySelected").addEventListener("click",()=>{
 });
 $("#selectVisible").addEventListener("click",()=>{
   for(const it of getVisible())selected.add(keyOf(it));
-  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
+  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
 });
 $("#selectSpecialVisible").addEventListener("click",()=>{
   const arr=getVisible();
   if(!arr.length){ alert("目前這個特定分類沒有可勾選的收藏"); return; }
   for(const it of arr) selected.add(keyOf(it));
-  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
+  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
 });
 $("#clearSpecialFilter").addEventListener("click",()=>{
   if(!activeSpecials.size){
@@ -735,14 +868,14 @@ $("#clearSpecialFilter").addEventListener("click",()=>{
   renderSubcats();
   renderSpecials();
   renderList();
-  renderTotals();
+  renderTotals();renderRequiredPanels();
 });
 $("#clear").addEventListener("click",()=>{
   if(!confirm("確定清除全部已勾選收藏？"))return;
-  selected.clear();save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
+  selected.clear();save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
 });
 
-updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();
+updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
 </script>
 </body>
 </html>
