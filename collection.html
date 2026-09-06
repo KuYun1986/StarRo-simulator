@@ -322,7 +322,7 @@ function getSelectedRequiredTotals(){
       if(!name) return;
 
       let mark="";
-      const isXRFirst=String(it.name||"").includes("XR轉（01）") && i===0;
+      const isXRFirst=isPureXRCollection(it) && i===0;
       if(isXRFirst){
         mark="blue";
       }else if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
@@ -448,20 +448,26 @@ function requiredAggregateMark(name){
     return {cls:"req-agg-blue",suffix:""};
   }
   // JRO UR賞標記：沿用需求列表中的（UR賞）字樣，彙總區也顯示紅字。
-  if(s.includes("（大獎）")){
+  if(s.includes("（UR賞）")){
     return {cls:"req-agg-prize",suffix:""};
   }
   return {cls:"",suffix:""};
 }
 
+function isPureXRCollection(it){
+  const prefix=String(JRO_NAME_PREFIX[keyOf(it)]||"").trim();
+  return /^XR轉[（(]\d+[）)]/.test(prefix);
+}
+
 function renderRequiredWithMarks(it){
   const reqs=it.required||[];
+  const pureXR=isPureXRCollection(it);
+
   return reqs.map((x,i)=>{
     let style="";
     let suffix="";
-    const isXRFirst=String(it.name||"").includes("XR轉（01）") && i===0;
 
-    if(isXRFirst){
+    if(pureXR && i===0){
       style=' style="color:#5aa9ff;font-weight:900"';
       suffix=' <b>（XR賞）</b>';
     }else if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
@@ -655,6 +661,36 @@ function renderSpecials(){
   }));
 }
 
+function searchAliasesFor(it){
+  const name=String(it.name||"");
+  const prefix=String(JRO_NAME_PREFIX[keyOf(it)]||"");
+  const aliases=[];
+
+  // XR 純編號快捷搜尋
+  if(name.includes("超載狂暴回音")){
+    aliases.push("01","xr01","xr轉01","xr轉(01)","xr轉（01）");
+  }
+  if(name.includes("星星眼罩") || name.includes("萬神殿之靴")){
+    aliases.push("02","xr02","xr轉02","xr轉(02)","xr轉（02）");
+  }
+
+  // 紅轉：例如「紅02 / 紅轉02 / 紅轉(02)」都可搜尋。
+  const redMatches=[...prefix.matchAll(/紅轉[（(](\d+)[）)]/g)];
+  for(const x of redMatches){
+    const n=x[1].padStart(2,"0");
+    aliases.push(`紅${n}`,`紅轉${n}`,`紅轉(${n})`,`紅轉（${n}）`);
+  }
+
+  // XR 前綴也通用支援 xr01 / xr轉01。
+  const xrMatches=[...prefix.matchAll(/XR轉[（(](\d+)[）)]/gi)];
+  for(const x of xrMatches){
+    const n=x[1].padStart(2,"0");
+    aliases.push(`xr${n}`,`xr轉${n}`,`xr轉(${n})`,`xr轉（${n}）`);
+  }
+
+  return aliases;
+}
+
 function getVisible(){
   const q=$("#search").value.trim().toLowerCase();
   const g=$("#groupFilter").value;
@@ -666,7 +702,9 @@ function getVisible(){
     if(activeSpecials.size && ![...activeSpecials].some(key=>matchSpecial(it,key))) return false;
     if(!q)return true;
     const reqText=(it.required||[]).join(" ");
-    return (it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText).toLowerCase().includes(q);
+    const prefix=String(JRO_NAME_PREFIX[keyOf(it)]||"");
+    const aliasText=searchAliasesFor(it).join(" ");
+    return (it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText+" "+prefix+" "+aliasText).toLowerCase().includes(q);
   });
 
   const originalIndex=new Map(ITEMS.map((it,i)=>[keyOf(it),i]));
