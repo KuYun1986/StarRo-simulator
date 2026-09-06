@@ -108,6 +108,68 @@ section{padding:12px;min-width:0}
 .req-agg-blue{color:#5aa9ff!important;font-weight:900}
 </style>
 
+
+<style>
+#selectedRequiredList{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px!important;
+  max-height:42vh;
+  overflow:auto;
+}
+.req-total-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 10px;
+  border:1px solid #2d3e58;
+  border-radius:10px;
+  background:#0d1725;
+  cursor:pointer;
+  min-width:0;
+}
+.req-total-main{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.req-total-main input{
+  width:17px!important;
+  height:17px!important;
+  margin:0!important;
+  flex:0 0 auto;
+}
+.req-total-main .req-summary-name{
+  min-width:0;
+  word-break:break-word;
+}
+.req-special-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:1px 6px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.req-special-badge.prize{
+  color:#ff7b7d;
+  border:1px solid rgba(255,77,79,.45);
+  background:rgba(255,77,79,.08);
+}
+.req-special-badge.blue{
+  color:#72b7ff;
+  border:1px solid rgba(90,169,255,.45);
+  background:rgba(90,169,255,.08);
+}
+@media (max-width:760px){
+  #selectedRequiredList{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -167,7 +229,7 @@ section{padding:12px;min-width:0}
 <div class="req-summary-box">
   <details id="selectedRequiredDetails">
     <summary>📦 已選收藏總道具（數量） <span class="idtxt" id="selectedRequiredMeta"></span></summary>
-    <div class="note" style="margin:8px 0">預設全部打勾＝已有；沒有的道具自行取消打勾。</div>
+    <div class="note" style="margin:8px 0">預設全部打勾＝已有；沒有的自行取消。特別標示物品會排最前面，相同道具只顯示一次並合併數量。</div>
     <div class="req-summary-list" id="selectedRequiredList"></div>
   </details>
 </div>
@@ -239,39 +301,54 @@ function parseRequiredItem(raw){
 
 function getSelectedRequiredTotals(){
   const totals=new Map();
+
+  function normalizeReqName(name){
+    return String(name||"")
+      .replace(/\s+/g," ")
+      .trim();
+  }
+
+  function markRank(mark){
+    return mark==="blue"?2:(mark==="prize"?1:0);
+  }
+
   for(const it of ITEMS){
     if(!selected.has(keyOf(it))) continue;
+
     const reqs=it.required||[];
     reqs.forEach((raw,i)=>{
       const p=parseRequiredItem(raw);
-      if(!p.name) return;
+      const name=normalizeReqName(p.name);
+      if(!name) return;
 
-      let display=p.name;
       let mark="";
-      if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
+      const isXRFirst=String(it.name||"").includes("XR轉（01）") && i===0;
+      if(isXRFirst){
+        mark="blue";
+      }else if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
         mark="prize";
       }
-      if(String(it.name||"").includes("XR轉（01）") && i===0){
-        mark="blue";
-      }
 
-      // Same item should still merge. Prefer prize over blue if ever overlapping.
-      const existing=totals.get(display);
+      const existing=totals.get(name);
       if(existing){
         existing.qty+=p.qty;
-        if(mark==="prize") existing.mark="prize";
-        else if(mark==="blue" && !existing.mark) existing.mark="blue";
+        if(markRank(mark)>markRank(existing.mark)) existing.mark=mark;
       }else{
-        totals.set(display,{qty:p.qty,mark});
+        totals.set(name,{qty:p.qty,mark});
       }
     });
   }
+
   return totals;
 }
 
 function renderRequiredPanels(){
   const totals=getSelectedRequiredTotals();
-  const rows=[...totals.entries()].sort((a,b)=>a[0].localeCompare(b[0],"zh-Hant"));
+  const rows=[...totals.entries()].sort((a,b)=>{
+    const rank=x=>x[1].mark==="blue"?2:(x[1].mark==="prize"?1:0);
+    const d=rank(b)-rank(a);
+    return d!==0 ? d : a[0].localeCompare(b[0],"zh-Hant");
+  });
 
   const totalMeta=$("#selectedRequiredMeta");
   const totalList=$("#selectedRequiredList");
@@ -291,11 +368,15 @@ function renderRequiredPanels(){
   totalList.innerHTML=rows.map(([name,info])=>{
     const owned=!missingRequired.has(name);
     const markClass=info.mark==="prize"?" req-agg-prize":(info.mark==="blue"?" req-agg-blue":"");
-    const suffix=info.mark==="prize"?' <b>（大獎）</b>':"";
-    return `<label class="req-summary-row ${owned?"":"req-summary-missing"}">
-      <span class="req-summary-left">
+    const suffix=info.mark==="prize"?' <b>（UR賞）</b>':(info.mark==="blue"?' <b>（XR賞）</b>':"");
+    const badge=info.mark==="prize"
+      ? '<span class="req-special-badge prize">UR賞</span>'
+      : (info.mark==="blue" ? '<span class="req-special-badge blue">XR賞</span>' : "");
+    return `<label class="req-total-card ${owned?"":"req-summary-missing"}">
+      <span class="req-total-main">
         <input class="req-owned-check" type="checkbox" data-name="${esc(name)}" ${owned?"checked":""}>
         <span class="req-summary-name${markClass}">${esc(name)}${suffix}</span>
+        ${badge}
       </span>
       <span class="req-summary-qty">× ${Number(info.qty).toLocaleString("zh-TW",{maximumFractionDigits:2})}</span>
     </label>`;
@@ -317,7 +398,7 @@ function renderRequiredPanels(){
   missList.innerHTML=missing.length
     ? missing.map(([name,info])=>{
         const markClass=info.mark==="prize"?" req-agg-prize":(info.mark==="blue"?" req-agg-blue":"");
-        const suffix=info.mark==="prize"?' <b>（大獎）</b>':"";
+        const suffix=info.mark==="prize"?' <b>（UR賞）</b>':(info.mark==="blue"?' <b>（XR賞）</b>':"");
         return `<div class="req-summary-row req-summary-missing">
           <span class="req-summary-name${markClass}">${esc(name)}${suffix}</span>
           <span class="req-summary-qty">× ${Number(info.qty).toLocaleString("zh-TW",{maximumFractionDigits:2})}</span>
@@ -366,7 +447,7 @@ function requiredAggregateMark(name){
   if(s.includes("XR轉（01）")){
     return {cls:"req-agg-blue",suffix:""};
   }
-  // JRO 大獎標記：沿用需求列表中的（大獎）字樣，彙總區也顯示紅字。
+  // JRO UR賞標記：沿用需求列表中的（UR賞）字樣，彙總區也顯示紅字。
   if(s.includes("（大獎）")){
     return {cls:"req-agg-prize",suffix:""};
   }
@@ -378,15 +459,16 @@ function renderRequiredWithMarks(it){
   return reqs.map((x,i)=>{
     let style="";
     let suffix="";
-    // 使用者指定：JRO 裝備「需求列表」第 1、6 件標記大獎，紅字。
-    if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
-      style=' style="color:#ff4d4f;font-weight:900"';
-      suffix=' <b>（大獎）</b>';
-    }
-    // XR轉（01）開始：需求列表第一件裝標記藍字。
-    if(String(it.name||"").includes("XR轉（01）") && i===0){
+    const isXRFirst=String(it.name||"").includes("XR轉（01）") && i===0;
+
+    if(isXRFirst){
       style=' style="color:#5aa9ff;font-weight:900"';
+      suffix=' <b>（XR賞）</b>';
+    }else if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
+      style=' style="color:#ff4d4f;font-weight:900"';
+      suffix=' <b>（UR賞）</b>';
     }
+
     return `<span class="req-item"${style}>${esc(x)}${suffix}</span>`;
   }).join("");
 }
