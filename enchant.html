@@ -1907,6 +1907,13 @@ function isgardHole3To5(){
     isgardHole3AddCost(stage.cost);
     if(Math.random()*100<stage.rate) isgardHole3.lv++;
   }
+  if(batch===5){
+    starroAnnounce(
+      "伊斯頭第三洞幻象附魔",
+      "全程一發入魂",
+      "心印→Lv.1→Lv.2→Lv.3→Lv.4→Lv.5｜全程 5 次完成"
+    );
+  }
   if(nowEl) nowEl.innerHTML=`<b class="ok">Lv.5 完成</b><div class="tiny">本次共附魔 ${batch} 次</div>`;
   renderIsgardHole3();
 }
