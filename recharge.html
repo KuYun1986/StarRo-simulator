@@ -129,6 +129,27 @@ h1{margin:0 0 6px;font-size:28px}
 }
 </style>
 
+
+<style>
+.urbox-controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.urbox-controls button{
+  border:1px solid #354762;background:#141e2c;color:#eaf2ff;border-radius:8px;padding:7px 11px;cursor:pointer
+}
+.urbox-table-wrap{overflow:auto}
+.urbox-table{width:100%;border-collapse:collapse;min-width:520px}
+.urbox-table th,.urbox-table td{padding:8px 9px;border-bottom:1px solid #243247}
+.urbox-table th{color:#9fb0c8;font-size:13px;text-align:left}
+.urbox-table td:last-child,.urbox-table th:last-child{text-align:right}
+.urbox-price-input{
+  width:110px;height:31px;border-radius:7px;border:1px solid #33445f;
+  background:#0b1421;color:#eef4ff;padding:0 7px;text-align:right
+}
+.urbox-summary{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px
+}
+@media(max-width:650px){.urbox-summary{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body>
 <div class="wrap">
@@ -208,6 +229,102 @@ h1{margin:0 0 6px;font-size:28px}
   </details>
 </section>
 
+
+
+<section class="card">
+  <details id="urGemBox2Details">
+    <summary style="cursor:pointer;font-weight:900;font-size:20px">💎 UR(2)寶石箱子</summary>
+
+    <div class="urbox-controls">
+      <button id="urBoxReset">恢復預設價格</button>
+    </div>
+
+    <div class="urbox-table-wrap">
+      <table class="urbox-table">
+        <thead><tr><th>寶石名稱</th><th>台幣價</th></tr></thead>
+        <tbody id="urBoxBody">
+          <tr data-uridx="0">
+  <td>物理素質爆發</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="300"></td>
+</tr>
+<tr data-uridx="1">
+  <td>魔法素質爆發</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="300"></td>
+</tr>
+<tr data-uridx="2">
+  <td>無敵</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="300"></td>
+</tr>
+<tr data-uridx="3">
+  <td>莎拉</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="500"></td>
+</tr>
+<tr data-uridx="4">
+  <td>魔法滲透</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="800"></td>
+</tr>
+<tr data-uridx="5">
+  <td>物理連擊</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="500"></td>
+</tr>
+<tr data-uridx="6">
+  <td>魔法連擊</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="500"></td>
+</tr>
+<tr data-uridx="7">
+  <td>爆擊連擊</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="500"></td>
+</tr>
+<tr data-uridx="8">
+  <td>近距離物理終傷</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="500"></td>
+</tr>
+<tr data-uridx="9">
+  <td>遠距離物理終傷</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="500"></td>
+</tr>
+<tr data-uridx="10">
+  <td>全屬性魔法終傷</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="500"></td>
+</tr>
+<tr data-uridx="11">
+  <td>解除</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="1500"></td>
+</tr>
+<tr data-uridx="12">
+  <td>再次施放</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="1000"></td>
+</tr>
+<tr data-uridx="13">
+  <td>屬性克制</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="1400"></td>
+</tr>
+<tr data-uridx="14">
+  <td>精煉</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="300"></td>
+</tr>
+<tr data-uridx="15">
+  <td>再次追加</td>
+  <td><input class="urbox-price-input" type="number" min="0" step="1" value="1000"></td>
+</tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="urbox-summary">
+      <div class="result">
+        <div class="k">總金額</div>
+        <div class="v gold" id="urBoxTotal">NT$10,400</div>
+      </div>
+      <div class="result">
+        <div class="k">UR(2)箱價</div>
+        <div class="v green" id="urBoxAverage">NT$650</div>
+      </div>
+    </div>
+
+    <div class="note">價格可直接修改，總金額與均價會自動重算並保存在此瀏覽器。</div>
+  </details>
+</section>
 
 <section class="card">
   <details id="cumulativeRewardsDetails">
@@ -756,6 +873,55 @@ document.querySelectorAll(".quick button").forEach(btn=>{
   });
 });
 
+
+
+const URBOX2_KEY="starro_recharge_urbox2_v14";
+const URBOX2_DEFAULTS=[{"name": "物理素質爆發", "price": 300}, {"name": "魔法素質爆發", "price": 300}, {"name": "無敵", "price": 300}, {"name": "莎拉", "price": 500}, {"name": "魔法滲透", "price": 800}, {"name": "物理連擊", "price": 500}, {"name": "魔法連擊", "price": 500}, {"name": "爆擊連擊", "price": 500}, {"name": "近距離物理終傷", "price": 500}, {"name": "遠距離物理終傷", "price": 500}, {"name": "全屬性魔法終傷", "price": 500}, {"name": "解除", "price": 1500}, {"name": "再次施放", "price": 1000}, {"name": "屬性克制", "price": 1400}, {"name": "精煉", "price": 300}, {"name": "再次追加", "price": 1000}];
+
+function loadURBox2(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(URBOX2_KEY)||"null");
+    if(saved && Array.isArray(saved.prices)){
+      document.querySelectorAll("#urBoxBody .urbox-price-input").forEach((el,i)=>{
+        if(saved.prices[i]!==undefined) el.value=saved.prices[i];
+      });
+    }
+  }catch(e){}
+}
+
+function saveURBox2(){
+  const prices=[...document.querySelectorAll("#urBoxBody .urbox-price-input")].map(el=>el.value);
+  try{localStorage.setItem(URBOX2_KEY,JSON.stringify({prices}));}catch(e){}
+}
+
+function renderURBox2(){
+  const vals=[...document.querySelectorAll("#urBoxBody .urbox-price-input")].map(el=>Math.max(0,Number(el.value)||0));
+  const total=vals.reduce((a,b)=>a+b,0);
+  const avg=vals.length?total/vals.length:0;
+  document.getElementById("urBoxTotal").textContent="NT$"+total.toLocaleString("zh-TW",{maximumFractionDigits:2});
+  document.getElementById("urBoxAverage").textContent="NT$"+avg.toLocaleString("zh-TW",{maximumFractionDigits:2});
+}
+
+function initURBox2(){
+  loadURBox2();
+  document.querySelectorAll("#urBoxBody .urbox-price-input").forEach(el=>{
+    el.addEventListener("input",()=>{
+      renderURBox2();
+      saveURBox2();
+    });
+  });
+  document.getElementById("urBoxReset").addEventListener("click",()=>{
+    if(!confirm("恢復 UR寶石箱子(2) 預設價格？")) return;
+    document.querySelectorAll("#urBoxBody .urbox-price-input").forEach((el,i)=>{
+      el.value=URBOX2_DEFAULTS[i]?.price??0;
+    });
+    renderURBox2();
+    saveURBox2();
+  });
+  renderURBox2();
+}
+
+initURBox2();
 
 const CUMULATIVE_REWARD_TIERS=[{"amount": 1000, "fixed": [{"name": "無限熊皮軟糖(30日)", "qty": 1}, {"name": "VIP銅箱子", "qty": 1}, {"name": "稀有地質探測器工具箱", "qty": 10}, {"name": "1億元支票", "qty": 10}, {"name": "轉蛋兌換券", "qty": 151}, {"name": "商城點數", "qty": 6000}, {"name": "紅利點數", "qty": 1000}], "choices": []}, {"amount": 3000, "fixed": [{"name": "祝福寶石兌換券", "qty": 10}, {"name": "稀有地質探測器工具箱", "qty": 25}, {"name": "特殊寵物自選箱", "qty": 1}, {"name": "寵物裝備自選箱", "qty": 1}, {"name": "副本入場券盒子", "qty": 10}, {"name": "商城點數", "qty": 12000}, {"name": "紅利點數", "qty": 2000}], "choices": []}, {"amount": 5000, "fixed": [{"name": "(限定)時序象限裝備禮盒", "qty": 1}, {"name": "(活動)霸勒門德裝備禮盒", "qty": 1}, {"name": "UR寶石自選箱(1)", "qty": 1}, {"name": "1億元支票", "qty": 50}, {"name": "商城點數", "qty": 12000}, {"name": "紅利點數", "qty": 2000}], "choices": [{"name": "天使波利祝福卷軸", "qty": 20}, {"name": "王卡自選冊", "qty": 3}, {"name": "1億元支票", "qty": 350}, {"name": "副本入場券", "qty": 50}]}, {"amount": 10000, "fixed": [{"name": "祝福寶石兌換券", "qty": 25}, {"name": "動作解放變身卷軸(7日)", "qty": 1}, {"name": "UR寶石自選箱(1)", "qty": 1}, {"name": "天使波利祝福卷軸", "qty": 10}, {"name": "評級升級券", "qty": 8}, {"name": "商城點數", "qty": 35000}, {"name": "紅利點數", "qty": 5000}], "choices": [{"name": "UR寶石自選箱(1)", "qty": 2}, {"name": "紅利轉蛋兌換券", "qty": 25}, {"name": "副本掃蕩卷", "qty": 200}, {"name": "工廠經營許可證", "qty": 1}, {"name": "紅利點數", "qty": 500}]}, {"amount": 20000, "fixed": [{"name": "進階精煉能力+16券", "qty": 4}, {"name": "限量服飾自選盒(披肩)", "qty": 1}, {"name": "高密度乙太神工匠的鐵鎚", "qty": 15}, {"name": "特殊強化石自選箱", "qty": 4}, {"name": "UR寶石碎片", "qty": 40}, {"name": "商城點數", "qty": 80000}, {"name": "紅利點數", "qty": 10000}], "choices": [{"name": "限量服裝鑑定針", "qty": 150}, {"name": "科技研發加速器(1小時)", "qty": 75}, {"name": "UR服飾魔法書盒(隨機)", "qty": 1}, {"name": "限量服飾自選盒(頭飾)", "qty": 3}, {"name": "紅利點數", "qty": 1000}]}, {"amount": 30000, "fixed": [{"name": "UR寶石自選箱(1)", "qty": 2}, {"name": "寵物裝備自選箱", "qty": 5}, {"name": "高密度極限乙太神工匠的鐵鎚", "qty": 15}, {"name": "王卡硬幣", "qty": 1000}, {"name": "武器鑑定晶片", "qty": 50}, {"name": "限量服裝鑑定針", "qty": 100}, {"name": "商城點數", "qty": 80000}, {"name": "紅利點數", "qty": 10000}], "choices": [{"name": "UR寶石箱子(2)", "qty": 1}, {"name": "高級副本掃蕩券", "qty": 200}, {"name": "工廠經營許可證", "qty": 2}, {"name": "S服飾魔法書盒(隨機)", "qty": 2}, {"name": "一周年手推車改裝券", "qty": 1}, {"name": "紅利點數", "qty": 1000}]}, {"amount": 40000, "fixed": [{"name": "評級升級券", "qty": 8}, {"name": "高密度乙太神工匠的鐵鎚", "qty": 30}, {"name": "高密度極限乙太神工匠的鐵鎚", "qty": 30}, {"name": "UR寶石碎片", "qty": 60}, {"name": "物理能力偵測器箱子(10入)", "qty": 10}, {"name": "魔法能力偵測器箱子(10入)", "qty": 10}, {"name": "商城點數", "qty": 80000}, {"name": "紅利點數", "qty": 10000}], "choices": [{"name": "副本王卡自選冊", "qty": 3}, {"name": "S服飾魔法書盒(隨機)", "qty": 2}, {"name": "進階精煉能力+20券", "qty": 3}, {"name": "UR服飾魔法書盒(隨機)", "qty": 2}, {"name": "(服飾)繁星二周年氣球", "qty": 1}, {"name": "紅利點數", "qty": 1000}]}, {"amount": 50000, "fixed": [{"name": "UR寶石碎片", "qty": 80}, {"name": "S服飾魔法書盒(隨機)", "qty": 1}, {"name": "高密度乙太神工匠的鐵鎚", "qty": 30}, {"name": "高密度極限乙太神工匠的鐵鎚", "qty": 30}, {"name": "UR寶石自選箱(1)", "qty": 4}, {"name": "地獄副本掃蕩券", "qty": 30}, {"name": "商城點數", "qty": 80000}, {"name": "紅利點數", "qty": 10000}], "choices": [{"name": "UR寶石箱子(2)", "qty": 1}, {"name": "地獄副本掃蕩券", "qty": 100}, {"name": "UR服飾魔法書轉移工具", "qty": 1}, {"name": "S服飾魔法書盒(指定)", "qty": 3}, {"name": "S評級升級券", "qty": 5}, {"name": "紅利點數", "qty": 1000}]}, {"amount": 65000, "fixed": [{"name": "進階精煉能力+18券", "qty": 6}, {"name": "影子昇華結晶", "qty": 25}, {"name": "高密度乙太神工匠的鐵鎚", "qty": 30}, {"name": "高密度極限乙太神工匠的鐵鎚", "qty": 30}, {"name": "(JRO)老舊自選冊", "qty": 1}, {"name": "UR寶石箱子(2)", "qty": 1}, {"name": "商城點數", "qty": 135000}, {"name": "紅利點數", "qty": 15000}], "choices": [{"name": "科技研發加速器(1小時)", "qty": 150}, {"name": "地獄副本掃蕩券", "qty": 150}, {"name": "影子昇華結晶", "qty": 150}, {"name": "紅利轉蛋兌換券", "qty": 100}, {"name": "UR服飾魔法書盒(隨機)", "qty": 5}, {"name": "紅利點數", "qty": 2000}]}, {"amount": 80000, "fixed": [{"name": "(JRO)王室狩獵自選冊", "qty": 1}, {"name": "影子昇華結晶", "qty": 75}, {"name": "高密度乙太神工匠的鐵鎚", "qty": 30}, {"name": "高密度極限乙太神工匠的鐵鎚", "qty": 30}, {"name": "(JRO)UR裝備碎片", "qty": 10}, {"name": "競標服裝鑑定針", "qty": 30}, {"name": "商城點數", "qty": 135000}, {"name": "紅利點數", "qty": 15000}], "choices": [{"name": "UR寶石自選箱(2)", "qty": 1}, {"name": "SS評級升級券", "qty": 2}, {"name": "競標服裝鑑定針", "qty": 200}, {"name": "科技研發加速器(1小時)", "qty": 200}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "紅利點數", "qty": 2000}]}, {"amount": 100000, "fixed": [{"name": "(JRO)王卡自選冊", "qty": 1}, {"name": "高密度乙太神工匠的鐵鎚", "qty": 30}, {"name": "高密度極限乙太神工匠的鐵鎚", "qty": 30}, {"name": "神級材料寶箱", "qty": 20}, {"name": "(JRO)UR裝備碎片", "qty": 10}, {"name": "UR寶石箱子(2)", "qty": 1}, {"name": "VIP倉庫啟用券", "qty": 1}, {"name": "商城點數", "qty": 200000}, {"name": "紅利點數", "qty": 20000}], "choices": [{"name": "(JRO)王卡自選冊", "qty": 1}, {"name": "(JRO)UR裝備碎片", "qty": 40}, {"name": "SS評級升級券", "qty": 3}, {"name": "影子昇華結晶", "qty": 300}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "(特殊)裝備物法轉移卷軸(5)", "qty": 1}, {"name": "紅利點數", "qty": 3000}]}, {"amount": 125000, "fixed": [{"name": "SS評級升級券", "qty": 1}, {"name": "競標服裝鑑定針", "qty": 30}, {"name": "寶物兌換券", "qty": 50}, {"name": "影子昇華結晶", "qty": 100}, {"name": "(JRO)UR裝備碎片", "qty": 20}, {"name": "地獄副本掃蕩券", "qty": 50}, {"name": "商城點數", "qty": 250000}, {"name": "紅利點數", "qty": 25000}], "choices": [{"name": "UR寶石箱子(2)", "qty": 2}, {"name": "(JRO)王卡自選冊", "qty": 2}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "(JRO)UR裝備碎片", "qty": 50}, {"name": "寵物升級券Lv.10", "qty": 1}, {"name": "紅利點數", "qty": 3000}]}, {"amount": 150000, "fixed": [{"name": "UR寶石箱子(2)", "qty": 1}, {"name": "SS評級升級券", "qty": 1}, {"name": "(JRO)UR裝備碎片", "qty": 20}, {"name": "影子昇華結晶", "qty": 150}, {"name": "影子物理昇華石箱子", "qty": 50}, {"name": "影子魔法昇華石箱子", "qty": 50}, {"name": "商城點數", "qty": 250000}, {"name": "紅利點數", "qty": 25000}], "choices": [{"name": "UR寶石箱子(2)", "qty": 3}, {"name": "SS評級升級券", "qty": 4}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "神話服飾鑑定藥水(屬性終傷)", "qty": 1}, {"name": "神話服飾鑑定藥水(種族終傷)", "qty": 1}, {"name": "紅利點數", "qty": 4000}]}, {"amount": 175000, "fixed": [{"name": "UR寶石箱子(2)", "qty": 2}, {"name": "服裝特效石自選盒", "qty": 1}, {"name": "神級材料自選箱", "qty": 10}, {"name": "影子昇華石箱子(指定)", "qty": 20}, {"name": "影子昇華指定石(1)", "qty": 10}, {"name": "(JRO)UR裝備碎片", "qty": 40}, {"name": "商城點數", "qty": 250000}, {"name": "紅利點數", "qty": 25000}], "choices": [{"name": "鉭鈮石箱子(10入)", "qty": 3}, {"name": "神級材料自選箱", "qty": 80}, {"name": "科技研發加速器(1小時)", "qty": 500}, {"name": "影子昇華指定石(1)", "qty": 100}, {"name": "(JRO)UR裝備碎片", "qty": 75}, {"name": "紅利點數", "qty": 4000}]}, {"amount": 200000, "fixed": [{"name": "UR寶石箱子(2)", "qty": 2}, {"name": "足跡特效石自選箱", "qty": 1}, {"name": "神級材料自選箱", "qty": 10}, {"name": "寵物裝備激發指定器(1)", "qty": 10}, {"name": "庇佑冶煉秘粉", "qty": 100}, {"name": "影子昇華指定石(1)", "qty": 15}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "商城點數", "qty": 250000}, {"name": "紅利點數", "qty": 25000}], "choices": [{"name": "UR寶石箱子(2)", "qty": 3}, {"name": "影子昇華指定石(1)", "qty": 125}, {"name": "鉭鈮石箱子(10入)", "qty": 4}, {"name": "UR服飾魔法書盒(指定)", "qty": 2}, {"name": "神話服飾鑑定藥水(種族終傷)", "qty": 1}, {"name": "神話服飾鑑定藥水(體型終傷)", "qty": 1}, {"name": "紅利點數", "qty": 5000}]}, {"amount": 250000, "fixed": [{"name": "UR寶石箱子(2)", "qty": 3}, {"name": "神級材料自選箱", "qty": 20}, {"name": "寵物裝備激發指定器(1)", "qty": 20}, {"name": "寵物裝備激發指定器(2)", "qty": 10}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "鉭鈮石箱子(10入)", "qty": 1}, {"name": "商城點數", "qty": 500000}, {"name": "紅利點數", "qty": 25000}], "choices": [{"name": "UR寶石自選箱(2)", "qty": 2}, {"name": "寵物裝備激發指定器(1)", "qty": 200}, {"name": "寵物裝備激發指定器(2)", "qty": 100}, {"name": "神話服飾鑑定藥水(體型終傷)", "qty": 1}, {"name": "神話服飾鑑定藥水(階級終傷)", "qty": 1}, {"name": "紅利點數", "qty": 6000}]}, {"amount": 300000, "fixed": [{"name": "UR寶石箱子(2)", "qty": 3}, {"name": "寵物裝備激發指定器(1)", "qty": 30}, {"name": "寵物裝備激發指定器(2)", "qty": 20}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "庇佑冶煉秘粉", "qty": 200}, {"name": "鉭鈮石箱子(10入)", "qty": 2}, {"name": "商城點數", "qty": 500000}, {"name": "紅利點數", "qty": 50000}], "choices": [{"name": "UR寶石自選箱(2)", "qty": 3}, {"name": "UR服飾魔法書盒(指定)", "qty": 3}, {"name": "UR裝備自選箱", "qty": 2}, {"name": "神話服飾鑑定藥水(階級終傷)", "qty": 1}, {"name": "神話服飾鑑定藥水(屬性終傷)", "qty": 1}, {"name": "紅利點數", "qty": 6000}]}, {"amount": 350000, "fixed": [{"name": "影子昇華指定石(1)", "qty": 50}, {"name": "寵物裝備激發指定器(1)", "qty": 40}, {"name": "寵物裝備激發指定器(2)", "qty": 30}, {"name": "UR服飾魔法書盒(指定)", "qty": 1}, {"name": "庇佑冶煉秘粉", "qty": 300}, {"name": "鉭鈮石箱子(10入)", "qty": 3}, {"name": "商城點數", "qty": 500000}, {"name": "紅利點數", "qty": 50000}], "choices": [{"name": "神話服飾鑑定藥水(種族終傷)", "qty": 1}, {"name": "神話服飾鑑定藥水(體型終傷)", "qty": 1}, {"name": "神話服飾鑑定藥水(階級終傷)", "qty": 1}, {"name": "神話服飾鑑定藥水(屬性終傷)", "qty": 1}, {"name": "(特殊)裝備詞墜轉移工具", "qty": 1}, {"name": "紅利點數", "qty": 7000}]}];
 const CUMULATIVE_STATE_KEY="starro_recharge_cumulative_v4";
