@@ -168,6 +168,8 @@ a{color:#77a9ff}
 .starro-section-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;grid-column:1/-1}
 @media(max-width:600px){.starro-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.starro-navigation a{padding:9px 4px;font-size:13px}}
 </style>
+<script src="supabase-config.js"></script>
+<script src="starro-config.js"></script>
 </head>
 <body><div class="wrap">
 <h1>🔍 繁星洗詞鑑定區</h1>
@@ -183,7 +185,7 @@ a{color:#77a9ff}
 </nav>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div class="grid">
-<section class="card">
+<section class="card" data-starro-feature="huajinArmor">
 <h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
 <p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
 <div class="row"><span>每次洗詞花費</span><input id="huajinCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
@@ -204,7 +206,7 @@ a{color:#77a9ff}
 
 
 </section>
-<section class="card">
+<section class="card" data-starro-feature="huajinAccessory">
 <h2>💎 華金一條龍(耳環/飾品)</h2>
 <p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽「全技能傷害 +1%～+20%」。</p>
 <div class="row"><span>每次洗詞花費</span><input id="accessoryCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
@@ -227,7 +229,7 @@ a{color:#77a9ff}
 
 </section>
 
-<section class="card" id="auctionNeedleCard">
+<section class="card" id="auctionNeedleCard" data-starro-feature="auctionNeedle">
 <h2>🪡 競標針</h2>
 <p class="tiny">
 每次 <b>19 紅利</b>。固定取得第1詞；第2詞出現率 50%；只有出現第2詞後才判定第3詞 10%；第3詞出現後，兩個特殊詞再各自判定 0.1%。<br>
@@ -626,12 +628,12 @@ function weightedFinalDamage(){
 }
 function huajinTrial(show=true){
  hj.tries++;
- if(Math.random()>=0.50){
+ if(Math.random()>=((window.StarroConfig?.get("features.huajinArmor.stage1Rate",50)||0)/100)){
    if(show) huajinNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">❌ 50% 失敗</b></div>`;
    return;
  }
  hj.pass50++;
- if(Math.random()>=0.10){
+ if(Math.random()>=((window.StarroConfig?.get("features.huajinArmor.stage2Rate",10)||0)/100)){
    if(show) huajinNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">✅ 50% → ❌ 10% 失敗</b></div>`;
    return;
  }
@@ -688,12 +690,12 @@ function weightedSkillDamage(){
 }
 function accessoryTrial(show=true){
  acc.tries++;
- if(Math.random()>=0.50){
+ if(Math.random()>=((window.StarroConfig?.get("features.huajinAccessory.stage1Rate",50)||0)/100)){
    if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">❌ 50% 失敗</b></div>`;
    return;
  }
  acc.pass50++;
- if(Math.random()>=0.10){
+ if(Math.random()>=((window.StarroConfig?.get("features.huajinAccessory.stage2Rate",10)||0)/100)){
    if(show) accessoryNow.innerHTML=`<div class="stat"><span class="label">本次結果</span><b class="bad">✅ 50% → ❌ 10% 失敗</b></div>`;
    return;
  }
@@ -2320,9 +2322,9 @@ onSnapshot(q,snap=>{
 
 <script>
 /* ===== 競標針 ===== */
-const AUCTION_NEEDLE_COST=19;
+function auctionNeedleCost(){return Math.max(0,Number(window.StarroConfig?.get("features.auctionNeedle.cost",19)??19));}
 
-const auctionNeedlePool1=[
+const auctionNeedlePool1Default=[
   ["STR",1,10,""],["AGI",1,10,""],["VIT",1,10,""],["INT",1,10,""],["DEX",1,10,""],["LUK",1,10,""],
   ["MHP",5,25,"%"],["MSP",5,25,"%"],["ATK",5,15,"%"],["MATK",5,15,"%"],
   ["DEF",5,50,""],["MDEF",5,50,""],["CRI",1,30,""],["完全迴避",1,10,""],
@@ -2331,7 +2333,7 @@ const auctionNeedlePool1=[
   ["首領類怪物的物理防禦忽視",35,65,"%"],["首領類怪物的魔法防禦忽視",35,65,"%"]
 ];
 
-const auctionNeedlePool2=[
+const auctionNeedlePool2Default=[
   ["POW",1,10,""],["SPL",1,10,""],["STA",1,10,""],["WIS",1,10,""],["CON",1,10,""],["CRT",1,10,""],
   ["P.ATK",1,10,""],["S.MATK",1,10,""],["H.PLUS",1,10,""],["C.RATE",1,10,""],
   ["受到遠距離攻擊傷害減少",1,5,"%"],["受到近距離物理傷害減少",1,5,"%"],["對所有屬性攻擊的抗性",1,5,"%"],
@@ -2348,7 +2350,7 @@ const auctionNeedlePool2=[
 // 第3詞普通池：特殊兩詞不放在等機率池內。
 // 規則：先判定第3詞是否出現（10%），若出現，再各自以0.01%判定兩個特殊詞。
 // 若兩個特殊詞都沒中，再從普通第3詞池等機率抽一條。
-const auctionNeedlePool3Normal=[
+const auctionNeedlePool3NormalDefault=[
   ["對首領類魔物的物理攻擊增加",1,15,"%"],
   ["對首領類魔物的魔法攻擊增加",1,15,"%"],
   ["對全體型魔物的物理攻擊增加",1,15,"%"],
@@ -2372,6 +2374,10 @@ const auctionNeedlePool3Normal=[
   ["抗性/減傷類效果上限",1,9,"%（不可疊加）"],
   ["反射單體魔法機率",10,50,"%"]
 ];
+
+function auctionNeedlePool1(){return window.StarroConfig?.get("features.auctionNeedle.pool1",null)||auctionNeedlePool1Default;}
+function auctionNeedlePool2(){return window.StarroConfig?.get("features.auctionNeedle.pool2",null)||auctionNeedlePool2Default;}
+function auctionNeedlePool3Normal(){return window.StarroConfig?.get("features.auctionNeedle.pool3",null)||auctionNeedlePool3NormalDefault;}
 
 const AUCTION_SPECIAL_MAGIC="無視魔法效果解除";
 const AUCTION_SPECIAL_BUFF="死亡時身上的技能BUFF效果不會被清除";
@@ -2399,8 +2405,8 @@ function auctionNeedlePick(pool){
 function auctionNeedleThird(){
   // 第3詞已經通過10%出現判定後：
   // 特殊詞各自0.1%，以獨立判定處理；若同時中，隨機取其中一條，確保第3詞仍只有一條。
-  const magic=Math.random()<0.001;
-  const buff=Math.random()<0.001;
+  const magic=Math.random()<((window.StarroConfig?.get("features.auctionNeedle.specialMagicRate",0.1)||0)/100);
+  const buff=Math.random()<((window.StarroConfig?.get("features.auctionNeedle.specialBuffRate",0.1)||0)/100);
 
   if(magic && buff){
     if(Math.random()<0.5){
@@ -2420,17 +2426,17 @@ function auctionNeedleThird(){
     return {text:AUCTION_SPECIAL_BUFF,special:true,rank:3};
   }
 
-  return {text:auctionNeedlePick(auctionNeedlePool3Normal),special:false,rank:1};
+  return {text:auctionNeedlePick(auctionNeedlePool3Normal()),special:false,rank:1};
 }
 function auctionNeedleOnce(){
-  const lines=[auctionNeedlePick(auctionNeedlePool1)];
+  const lines=[auctionNeedlePick(auctionNeedlePool1())];
   let special=false;
 
-  if(Math.random()<0.50){
-    lines.push(auctionNeedlePick(auctionNeedlePool2));
+  if(Math.random()<((window.StarroConfig?.get("features.auctionNeedle.secondRate",50)||0)/100)){
+    lines.push(auctionNeedlePick(auctionNeedlePool2()));
     auctionNeedleState.second++;
 
-    if(Math.random()<0.10){
+    if(Math.random()<((window.StarroConfig?.get("features.auctionNeedle.thirdRate",10)||0)/100)){
       const third=auctionNeedleThird();
       lines.push(third.text);
       auctionNeedleState.third++;
@@ -2466,7 +2472,7 @@ function auctionNeedleBatch(n){
 
   const now=document.getElementById("auctionNeedleNow");
   now.innerHTML=
-    `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次｜花費 ${(n*AUCTION_NEEDLE_COST).toLocaleString()} 紅利</span>`+
+    `<div class="stat"><span class="label">本次 ${n.toLocaleString()} 次｜花費 ${(n*auctionNeedleCost()).toLocaleString()} 紅利</span>`+
     `<div style="line-height:1.9;margin-top:8px"><b>最後一次</b><br>`+
     last.lines.map((x,i)=>`${i+1}. ${x}`).join("<br>")+
     `${three.length?`<br><br><b class="ok">本批出現 3 詞：${three.length} 次</b>`:""}`+
@@ -2484,16 +2490,16 @@ function auctionNeedleUntilSpecial(){
   }while(!rec.special);
 
   const hit=rec.lines[2] || "";
-  const effectiveRate=0.5*0.1*0.002;
+  const effectiveRate=(window.StarroConfig?.get("features.auctionNeedle.secondRate",50)/100)*(window.StarroConfig?.get("features.auctionNeedle.thirdRate",10)/100)*((window.StarroConfig?.get("features.auctionNeedle.specialMagicRate",0.1)+window.StarroConfig?.get("features.auctionNeedle.specialBuffRate",0.1))/100);
 
   document.getElementById("auctionNeedleNow").innerHTML=
     `<div class="stat"><span class="label">洗到特殊詞｜依原始機率實際模擬</span>`+
     `<div style="line-height:1.9;margin-top:8px">`+
     `<b class="ok">第 ${tries.toLocaleString()} 抽洗到：${hit}</b><br>`+
     rec.lines.map((x,i)=>`${i+1}. ${x}`).join("<br>")+
-    `<br><br>本次花費 ${(tries*AUCTION_NEEDLE_COST).toLocaleString()} 紅利`+
+    `<br><br>本次花費 ${(tries*auctionNeedleCost()).toLocaleString()} 紅利`+
     `<br>任一特殊詞單抽總機率約 ${(effectiveRate*100).toFixed(4)}%`+
-    `<br>10,000 抽成本 ${(10000*AUCTION_NEEDLE_COST).toLocaleString()} 紅利`+
+    `<br>10,000 抽成本 ${(10000*auctionNeedleCost()).toLocaleString()} 紅利`+
     `</div></div>`;
 
   auctionNeedleRender();
@@ -2503,7 +2509,7 @@ function auctionNeedleRender(){
 
   document.getElementById("auctionNeedleStats").innerHTML=
     card("累計洗詞",s.draws.toLocaleString())+
-    card("累計花費",(s.draws*AUCTION_NEEDLE_COST).toLocaleString()+" 紅利")+
+    card("累計花費",(s.draws*auctionNeedleCost()).toLocaleString()+" 紅利")+
     card("第2詞出現",s.second.toLocaleString())+
     card("第3詞出現",s.third.toLocaleString(),"ok")+
     card("無視魔法效果解除",s.specialMagic.toLocaleString())+
@@ -2546,5 +2552,15 @@ function jumpIdentify(keyword){
   const t=[...document.querySelectorAll("section.card")].find(x=>x.innerText.includes(keyword));
   if(t)t.scrollIntoView({behavior:"smooth",block:"start"});
 }
+</script>
+
+<script>
+document.addEventListener("starro-config-applied",()=>{
+  const h=document.getElementById("huajinCost"),a=document.getElementById("accessoryCost");
+  if(h)h.value=StarroConfig.get("features.huajinArmor.cost",49);
+  if(a)a.value=StarroConfig.get("features.huajinAccessory.cost",49);
+  const card=document.getElementById("auctionNeedleCard");
+  if(card){const p=card.querySelector("p.tiny");if(p)p.innerHTML=`每次 <b>${StarroConfig.get("features.auctionNeedle.cost",19)} 紅利</b>。固定取得第1詞；第2詞出現率 ${StarroConfig.get("features.auctionNeedle.secondRate",50)}%；只有出現第2詞後才判定第3詞 ${StarroConfig.get("features.auctionNeedle.thirdRate",10)}%；第3詞出現後，兩個特殊詞再各自判定 ${StarroConfig.get("features.auctionNeedle.specialMagicRate",0.1)}% / ${StarroConfig.get("features.auctionNeedle.specialBuffRate",0.1)}%。<br>同一詞池內所有能力皆為等機率，數值於該能力範圍內等機率隨機。`; }
+});
 </script>
 </body></html>

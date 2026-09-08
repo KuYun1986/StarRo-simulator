@@ -43,6 +43,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 .starro-section-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;grid-column:1/-1}
 @media(max-width:600px){.starro-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.starro-navigation a{padding:9px 4px;font-size:13px}}
 </style>
+<script src="supabase-config.js"></script>
+<script src="starro-config.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -59,7 +61,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 </nav>
 <div class="sub">裝備製作模擬｜所有 P 點價格都可以自行修改。</div>
 
-<section class="card">
+<section class="card" data-starro-feature="equipment">
 <h2>🧰 裝備製作模擬</h2>
 <div class="tabs" id="equipTabs"></div>
 <div class="tiny">
@@ -82,7 +84,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 「現價」為 2026.09.04 更新；預設收合，點「顯示裝備現價」才展開。彙整全部裝備材料，同名道具只列一次，價格與價格單位會同步到所有裝備頁。修改後會儲存在你的瀏覽器。
 </div>
 </section>
-<section class="card" id="serviceMaterialPrices">
+<section class="card" id="serviceMaterialPrices" data-starro-feature="equipment">
   <h2>💲 代敲材料預設價格 (P)</h2>
   <div class="tiny" style="margin-bottom:12px">
     預設收合；點下方按鈕才顯示。價格可自行修改並儲存在目前瀏覽器。
@@ -116,7 +118,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   </div>
 </section>
 
-<section class="card" id="serviceFeeSimulator">
+<section class="card" id="serviceFeeSimulator" data-starro-feature="equipment">
   <h2>🔨 古雲代敲／代評費用試算</h2>
   <div class="tiny">以下皆為單件規則，可輸入件數自動放大需求量。</div>
 
@@ -226,11 +228,15 @@ function defaultMasterItem(name){
   return MASTER_ITEMS.find(x=>x.name===name);
 }
 function masterPrice(name){
+  const cloud=window.StarroConfig?.get("features.equipment.priceOverrides."+name,null);
+  if(cloud && cloud.price!==undefined) return Number(cloud.price);
   const saved=localStorage.getItem(MASTER_PRICE_KEY(name));
   if(saved!==null) return Number(saved);
   return Number(defaultMasterItem(name)?.price||0);
 }
 function masterPack(name){
+  const cloud=window.StarroConfig?.get("features.equipment.priceOverrides."+name,null);
+  if(cloud && cloud.pack!==undefined) return Math.max(0.000001,Number(cloud.pack)||1);
   const saved=localStorage.getItem(MASTER_PACK_KEY(name));
   if(saved!==null) return Math.max(0.000001,Number(saved)||1);
   return Math.max(0.000001,Number(defaultMasterItem(name)?.pack||1));
@@ -591,4 +597,12 @@ renderTabs();renderTable();
 
 
 
+
+<script>
+document.addEventListener("starro-config-applied",()=>{
+ const ids={bless:"svcPriceBless",check:"svcPriceCheck",bigGold:"svcPriceBigGold",smallGold:"svcPriceSmallGold",bigGray:"svcPriceBigGray",smallGray:"svcPriceSmallGray",taffy:"svcPriceTaffy",dust:"svcPriceDust",red:"svcPriceRed"};
+ for(const [k,id] of Object.entries(ids)){const el=document.getElementById(id);const v=StarroConfig.get("features.equipment.servicePrices."+k,null);if(el&&v!==null)el.value=v;}
+ if(typeof recalc==='function')try{recalc()}catch(e){}
+});
+</script>
 </body></html>
