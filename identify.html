@@ -148,7 +148,19 @@ a{color:#77a9ff}
 .refine-green{color:#52d273;font-weight:700}
 .refine-legendary-gold{color:#ffd84d;font-weight:900;text-shadow:0 0 8px rgba(255,216,77,.22)}
 </style>
-<style>.grid{display:block!important}.grid section.card{margin-bottom:16px}</style><style id="starroNavigationStyle">
+<style id="starroFeatureGridStyle">
+.grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+  grid-column:1/-1;
+}
+.grid section.card{margin:0!important;min-width:0}
+@media(max-width:899px){
+  .grid{grid-template-columns:1fr;gap:12px}
+}
+</style><style id="starroNavigationStyle">
 .starro-navigation{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px;grid-column:1/-1}
 .starro-navigation a{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid #3a4654;border-radius:9px;background:#141b25;color:#f5f7fb;text-decoration:none;font-size:14px;font-weight:700;line-height:1.4}
 .starro-navigation a:hover,.starro-navigation a:focus-visible{border-color:#67a0ff;background:#1b2838}
