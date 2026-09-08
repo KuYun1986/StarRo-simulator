@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="繁星機率">
-<title>繁星仙境模擬器</title>
+<title>繁星洗詞鑑定區｜繁星仙境模擬器</title>
 <style>
 :root{--bg:#0d1020;--card:#171b31;--card2:#202641;--text:#f5f7ff;--muted:#aab2d5;--accent:#ffd76a;--ok:#7ee0a1;--bad:#ff8b91;--line:#323a61}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b0e1b,#11162a);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
@@ -158,13 +158,12 @@ a{color:#77a9ff}
 </style>
 </head>
 <body><div class="wrap">
-<h1>🔍 繁星鑑定區</h1>
+<h1>🔍 繁星洗詞鑑定區</h1>
 <nav class="starro-navigation" aria-label="網站導覽">
 <a href="index.html">🏠 主頁</a>
 <a href="game.html">🎮 遊戲區</a>
-<a href="wash.html">🧪 洗詞區</a>
 <a href="enchant.html">✨ 附魔區</a>
-<a href="identify.html" aria-current="page">🔍 鑑定區</a>
+<a href="identify.html" aria-current="page">🔍 洗詞鑑定區</a>
 <a href="collection.html">📚 收藏區</a>
 <a href="equipment.html">💰 裝備成本區</a>
 <a href="CASH.html">💳 現金區</a>
@@ -172,6 +171,49 @@ a{color:#77a9ff}
 </nav>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div class="grid">
+<section class="card">
+<h2>🔥 華金一條龍(鎧甲/戰靴)</h2>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽終傷 +1%～+15%。</p>
+<div class="row"><span>每次洗詞花費</span><input id="huajinCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="runHuajinOnce()">🎲 洗一次華金</button>
+<button onclick="runHuajinBatch(10)">連洗 10 次</button>
+<button onclick="runHuajinBatch(100)">連洗 100 次</button>
+<button onclick="resetHuajin()">清除紀錄</button>
+</div>
+<div id="huajinNow" style="margin-top:14px"></div>
+<div id="huajinDist" style="margin-top:10px"></div>
+<div id="huajinStats" class="statgrid"></div>
+
+
+
+
+
+
+
+</section>
+<section class="card">
+<h2>💎 華金一條龍(耳環/飾品)</h2>
+<p class="tiny">每次按一次：先判定 50% → 成功再判定 10% → 再依四區間機率抽「全技能傷害 +1%～+20%」。</p>
+<div class="row"><span>每次洗詞花費</span><input id="accessoryCost" type="number" min="0" step="1" value="49"><span>紅利</span></div>
+<div class="actions">
+<button class="primary" onclick="runAccessoryOnce()">🎲 洗一次華金</button>
+<button onclick="runAccessoryBatch(10)">連洗 10 次</button>
+<button onclick="runAccessoryBatch(100)">連洗 100 次</button>
+<button onclick="resetAccessory()">清除紀錄</button>
+</div>
+<div id="accessoryNow" style="margin-top:14px"></div>
+<div id="accessoryDist" style="margin-top:10px"></div>
+<div id="accessoryStats" class="statgrid"></div>
+
+
+
+
+
+
+
+
+</section>
 <section class="card">
 <h2>🗡️ 進階武器鑑定</h2>
 <p class="tiny">
