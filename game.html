@@ -245,19 +245,28 @@ a{color:#77a9ff}
 }
 .game-nav-link:hover{filter:brightness(1.08)}
 </style>
+<style id="starroNavigationStyle">
+.starro-navigation{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px;grid-column:1/-1}
+.starro-navigation a{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid #3a4654;border-radius:9px;background:#141b25;color:#f5f7fb;text-decoration:none;font-size:14px;font-weight:700;line-height:1.4}
+.starro-navigation a:hover,.starro-navigation a:focus-visible{border-color:#67a0ff;background:#1b2838}
+.starro-navigation a[aria-current="page"]{border-color:#55d35a;background:#163922;color:#9ef0aa}
+.starro-section-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;grid-column:1/-1}
+@media(max-width:600px){.starro-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.starro-navigation a{padding:9px 4px;font-size:13px}}
+</style>
 </head>
 <body class="game-only-page"><div class="wrap">
 <h1>🎮 繁星遊戲區</h1>
-<div class="topnav">
-  <a href="index.html" class="game-page-link">🏠 主頁</a>
-  <a href="game.html" class="game-page-link">🎮 遊戲區</a>
-  <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
-  <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
-  <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
-  <a href="collection.html" class="game-page-link">📚 收藏區</a>
-  <a href="equipment.html" class="game-page-link">💰 裝備成本區</a>
-  <a href="shadow.html" class="game-page-link">💎 影子區</a>
-</div>
+<nav class="starro-navigation" aria-label="網站導覽">
+<a href="index.html">🏠 主頁</a>
+<a href="game.html" aria-current="page">🎮 遊戲區</a>
+<a href="wash.html">🧪 洗詞區</a>
+<a href="enchant.html">✨ 附魔區</a>
+<a href="identify.html">🔍 鑑定區</a>
+<a href="collection.html">📚 收藏區</a>
+<a href="equipment.html">💰 裝備成本區</a>
+<a href="CASH.html">💳 現金區</a>
+<a href="shadow.html">💎 影子區</a>
+</nav>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -360,8 +369,8 @@ a{color:#77a9ff}
 <p class="tiny">⭐ 使用「洗到特級」時，若全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
 
 <div class="stat">
-<span class="label">第四洞附魔｜期望值：約 6 次</span>
-<div class="tiny">LV2 → LV3：50%（期望 2 次）　｜　LV3 → 特級：25%（期望 4 次）　｜　<b>全程期望：約 6 次</b></div>
+<span class="label">第四洞附魔｜期望值：約 6.00 次</span>
+<div class="tiny">LV2 → LV3：50%（期望 2.00 次）　｜　LV3 → 特級：25%（期望 4.00 次）　｜　<b>全程期望：約 6.00 次</b></div>
 <div class="actions">
 <button class="primary" onclick="dragon4Once()">附魔一次</button>
 <button onclick="dragon4ToSpecial()">洗到特級</button>
@@ -372,8 +381,8 @@ a{color:#77a9ff}
 </div>
 
 <div class="stat" style="margin-top:12px">
-<span class="label">第三洞附魔｜期望值：約 8 次</span>
-<div class="tiny">LV3 → LV4：75%（期望 2 次）　｜　LV4 → LV5：50%（期望 2 次）　｜　LV5 → 特級：25%（期望 4 次）　｜　<b>全程期望：約 8 次</b></div>
+<span class="label">第三洞附魔｜期望值：約 7.33 次</span>
+<div class="tiny">LV3 → LV4：75%（期望 1.33 次）　｜　LV4 → LV5：50%（期望 2.00 次）　｜　LV5 → 特級：25%（期望 4.00 次）　｜　<b>全程期望：約 7.33 次</b></div>
 <div class="actions">
 <button class="primary" onclick="dragon3Once()">附魔一次</button>
 <button onclick="dragon3ToSpecial()">洗到特級</button>
@@ -387,8 +396,8 @@ a{color:#77a9ff}
 <section class="card">
 <h2>⚔️ 善惡武器附魔</h2>
 <p class="tiny">⭐ 使用「洗到 LV5」時，若 LV1→LV5 全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
-<div class="tiny"><b>洗到 LV5 期望值：約 14 次</b></div>
-<div class="tiny">LV1 → LV2：60%（期望 2 次）　｜　LV2 → LV3：45%（期望 3 次）　｜　LV3 → LV4：30%（期望 4 次）　｜　LV4 → LV5：15%（期望 7 次）　｜　<b>全程期望：約 14 次</b></div>
+<div class="tiny"><b>洗到 LV5 期望值：約 13.89 次</b></div>
+<div class="tiny">LV1 → LV2：60%（期望 1.67 次）　｜　LV2 → LV3：45%（期望 2.22 次）　｜　LV3 → LV4：30%（期望 3.33 次）　｜　LV4 → LV5：15%（期望 6.67 次）　｜　<b>全程期望：約 13.89 次</b></div>
 <div class="actions">
 <button class="primary" onclick="weaponOnce()">附魔一次</button>
 <button onclick="weaponTo5()">洗到 LV5</button>
@@ -658,7 +667,7 @@ a{color:#77a9ff}
     +20→+21：75%　｜　+21→+22：50%　｜　+22→+23：25%　｜　+23→+24：10%　｜　+24→+25：5%<br>
     +25→+26：3%　｜　+26→+27：2%　｜　+27→+28：1%　｜　+28→+29：1%　｜　+29→+30：1%
   </div>
-  <div class="tiny" style="margin-top:5px">理論平均：約 <b>420.7 把精煉槌／武器</b>，約 <b>6,310,500 P</b> 才能從 +20 到 +30。</div>
+  <div class="tiny" style="margin-top:5px">理論平均：約 <b>420.67 把精煉槌／武器</b>，約 <b>6,310,000.00 P</b> 才能從 +20 到 +30。</div>
 </div>
 
 <div class="actions" style="margin-top:10px">
@@ -680,7 +689,7 @@ a{color:#77a9ff}
 <div class="stat" style="margin-top:10px">
   <span class="label">💧 清澈石</span>
   <b>成功率 0.033%｜每次 500 P</b>
-  <div class="tiny">期望：約 3,031 次｜約 1,515,500 P</div>
+  <div class="tiny">期望：約 3,030.30 次｜約 1,515,151.52 P</div>
   <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成腐朽；抽到腐朽後仍可繼續洗。</div>
   <div class="actions" style="margin-top:8px">
     <button class="primary" onclick="shieldClearBatch(1)">抽 1 次</button>
@@ -696,7 +705,7 @@ a{color:#77a9ff}
 <div class="stat" style="margin-top:12px">
   <span class="label">🎉 活動石</span>
   <b>0.1% 直接變成「光芒」｜每次 999 P</b>
-  <div class="tiny">期望：約 1,000 次｜約 999,000 P</div>
+  <div class="tiny">期望：約 1,000.00 次｜約 999,000.00 P</div>
   <div class="actions" style="margin-top:8px">
     <button class="primary" onclick="shieldEventBatch(1)">抽 1 次</button>
     <button onclick="shieldEventBatch(10)">抽 10 次</button>
@@ -715,7 +724,7 @@ a{color:#77a9ff}
 <div class="stat">
   <span class="label">✨ 純潔石</span>
   <b>成功率 0.33%｜每次 500 P</b>
-  <div class="tiny">期望：約 304 次｜約 152,000 P</div>
+  <div class="tiny">期望：約 303.03 次｜約 151,515.15 P</div>
   <div class="tiny" style="margin-top:5px">每次另有 10% 機率變成雜念；抽到雜念後仍可繼續洗。</div>
   <div class="actions" style="margin-top:8px">
     <button class="primary" onclick="glovePureBatch(1)">抽 1 次</button>
@@ -991,12 +1000,12 @@ function syncSingle(){let x=allItems()[+singleItem.value]||defaults[0];singleRat
 function setTrials(n){singleTrials.value=n}
 function pct(x){return x.toLocaleString(undefined,{maximumFractionDigits:6})+"%"}
 function card(l,v,c=""){return `<div class="stat"><span class="label">${l}</span><b class="${c}">${v}</b></div>`}
-function runSingle(){let p=Math.max(0,Math.min(100,+singleRate.value))/100,n=Math.max(1,Math.min(1000000,+singleTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){if(Math.random()<p){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}singleResult.innerHTML=card("成功",s.toLocaleString(),"ok")+card("失敗",(n-s).toLocaleString(),"bad")+card("實際成功率",pct(s/n*100))+card("理論成功率",pct(p*100))+card("第一次成功",first?`第 ${first.toLocaleString()} 次`:"未成功")+card("最長連敗",max+" 次")+card("理論平均",p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2})+" 次":"∞")}
+function runSingle(){let p=Math.max(0,Math.min(100,+singleRate.value))/100,n=Math.max(1,Math.min(1000000,+singleTrials.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){if(Math.random()<p){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}singleResult.innerHTML=card("成功",s.toLocaleString(),"ok")+card("失敗",(n-s).toLocaleString(),"bad")+card("實際成功率",pct(s/n*100))+card("理論成功率",pct(p*100))+card("第一次成功",first?`第 ${first.toLocaleString()} 次`:"未成功")+card("最長連敗",max+" 次")+card("理論平均",p?(1/p).toLocaleString("zh-TW",{minimumFractionDigits:2,maximumFractionDigits:2})+" 次":"∞")}
 function esc(s){return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
 function renderSteps(){stepsDiv=document.getElementById("steps");if(!stepsDiv)return;stepsDiv.innerHTML="";steps.forEach((x,i)=>{let d=document.createElement("div");d.className="row flow";d.innerHTML=`<input value="${esc(x.name)}" oninput="steps[${i}].name=this.value"><input type="number" min="0" max="100" step="0.0001" value="${x.rate}" oninput="steps[${i}].rate=+this.value;updateTheory()"><button class="danger" onclick="removeStep(${i})">刪除</button>`;stepsDiv.appendChild(d)});updateTheory()}
 function addPreset(n,r){steps.push({name:n,rate:r});renderSteps()} function removeStep(i){steps.splice(i,1);renderSteps()} function clearSteps(){steps=[];renderSteps();let e=document.getElementById("flowResult");if(e)e.innerHTML=""}
 function theoryRate(){return steps.reduce((a,x)=>a*Math.max(0,Math.min(100,+x.rate))/100,1)}
-function updateTheory(){let p=theoryRate();let theoryEl=document.getElementById("theory");if(!theoryEl)return;theoryEl.innerHTML=steps.length?`<span class="badge">理論全過 ${pct(p*100)}</span> <span class="tiny">平均約 ${p?(1/p).toLocaleString(undefined,{maximumFractionDigits:2}):"∞"} 次流程 / 1件</span>`:"<span class='tiny'>請新增階段</span>"}
+function updateTheory(){let p=theoryRate();let theoryEl=document.getElementById("theory");if(!theoryEl)return;theoryEl.innerHTML=steps.length?`<span class="badge">理論全過 ${pct(p*100)}</span> <span class="tiny">平均約 ${p?(1/p).toLocaleString("zh-TW",{minimumFractionDigits:2,maximumFractionDigits:2}):"∞"} 次流程 / 1件</span>`:"<span class='tiny'>請新增階段</span>"}
 function runFlow(){if(!steps.length)return alert("請先新增階段");let flowTrialsEl=document.getElementById("flowTrials"),flowResultEl=document.getElementById("flowResult");if(!flowTrialsEl||!flowResultEl)return;let n=Math.max(1,Math.min(1000000,+flowTrialsEl.value||1)),s=0,first=0,st=0,max=0;for(let i=1;i<=n;i++){let ok=true;for(const x of steps){if(Math.random()>=Math.max(0,Math.min(100,+x.rate))/100){ok=false;break}}if(ok){s++;if(!first)first=i;st=0}else{st++;max=Math.max(max,st)}}let p=theoryRate();flowResultEl.innerHTML=card("全過成品",s.toLocaleString(),"ok")+card("失敗流程",(n-s).toLocaleString(),"bad")+card("實際全過率",pct(s/n*100))+card("理論全過率",pct(p*100))+card("第一次全過",first?`第 ${first.toLocaleString()} 次`:"未出現")+card("最長連敗",max+" 次")}
 function saveCustom(){let n=newName.value.trim(),r=+newRate.value;if(!n||isNaN(r)||r<0||r>100)return alert("請輸入名稱與 0～100% 機率");let a=custom();a.push({name:n,rate:r});localStorage.setItem("starChanceCustom",JSON.stringify(a));newName.value="";newRate.value="";refreshSelect();alert("已儲存")}
 function resetCustom(){if(confirm("確定清除自訂項目？")){localStorage.removeItem("starChanceCustom");refreshSelect()}}
@@ -1093,7 +1102,7 @@ function renderHuajin(){
  card("理論進入抽值率","5%")+
  card("每次洗詞",Math.max(0,+huajinCost.value||0).toLocaleString()+" 紅利")+
  card("每次成功平均花費",hj.pass10?Math.round(hj.tries*Math.max(0,+huajinCost.value||0)/hj.pass10).toLocaleString()+" 紅利":"—")+
- card("理論平均成功成本",(Math.max(0,+huajinCost.value||0)/0.05).toLocaleString()+" 紅利");
+ card("理論平均成功成本",(Math.max(0,+huajinCost.value||0)/0.05).toLocaleString("zh-TW",{minimumFractionDigits:2,maximumFractionDigits:2})+" 紅利");
  let parts=[];
  for(let v=1;v<=15;v++) if(hj.values[v]) parts.push(`+${v}%：${hj.values[v]} 次`);
  let top10=(hj.top3||[]).slice().sort((a,b)=>b.value-a.value).slice(0,10);
@@ -1154,7 +1163,7 @@ function renderAccessory(){
  card("理論進入抽值率","5%")+
  card("每次洗詞",c.toLocaleString()+" 紅利")+
  card("每次成功平均花費",acc.pass10?Math.round(acc.tries*c/acc.pass10).toLocaleString()+" 紅利":"—")+
- card("理論平均成功成本",(c/0.05).toLocaleString()+" 紅利");
+ card("理論平均成功成本",(c/0.05).toLocaleString("zh-TW",{minimumFractionDigits:2,maximumFractionDigits:2})+" 紅利");
  let parts=[];
  for(let v=1;v<=20;v++) if(acc.values[v]) parts.push(`+${v}%：${acc.values[v]} 次`);
  let top10=(acc.top3||[]).slice().sort((a,b)=>b.value-a.value).slice(0,10);
