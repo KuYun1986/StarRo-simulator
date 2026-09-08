@@ -1,20 +1,19 @@
-StarRo Simulator Admin + Supabase (GAME + CASH included)
+StarRo Simulator - Admin + Supabase + GAME + CASH + Diagnostics
 
-Upload ALL files in this folder to the ROOT of your GitHub Pages repository.
-Admin page: admin.html
+This package includes:
+- admin.html: 10-section admin dashboard
+- 🔧 Connection Diagnostics on the login screen
+- GAME and CASH admin settings
+- Supabase project URL + publishable key already configured
 
-Admin now contains 10 sections:
-1. Huajin Armor/Shoes
-2. Huajin Accessory
-3. Auction Needle
-4. Dragon Armor
-5. Good/Evil Weapon
-6. Time Boots
-7. Collection
-8. Equipment Prices
-9. GAME (Wheel / Baccarat / Blackjack / Tongzi)
-10. CASH (Recharge tiers / valuation ratios / UR Box 2 / cumulative rewards)
+Diagnostics checks:
+1. Browser online state
+2. Current protocol (https/file)
+3. Supabase Project URL
+4. Publishable key loaded
+5. Auth service health
+6. REST site_config public read
+7. Email/password credential check (only when both are entered)
 
-The package includes game.html and CASH.html and both read the same cloud configuration.
-Supabase project URL and publishable key are already configured in supabase-config.js.
-Do NOT put any secret key / service_role key / database password in this folder.
+If diagnosis reports Failed to fetch while opened with file://, upload to GitHub Pages and test via https://.../admin.html first.
+Never place service_role / sb_secret keys in these frontend files.

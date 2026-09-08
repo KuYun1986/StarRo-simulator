@@ -10,6 +10,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 .login-screen{min-height:100vh;display:grid;place-items:center;padding:20px}.login-card{width:min(460px,100%);padding:28px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#141b24,#0c1118);box-shadow:0 30px 80px rgba(0,0,0,.35)}
 .logo{display:flex;gap:12px;align-items:center}.logo-mark{width:44px;height:44px;border:1px solid #d83b32;border-radius:10px;display:grid;place-items:center;font-size:22px}.login-card h1{font-size:24px;margin:0}.field{display:grid;gap:6px;margin:14px 0}.field label{font-size:13px;color:#aab5c4;font-weight:800}.field input,.field textarea,.field select{width:100%;background:#0b1119;color:#fff;border:1px solid #34404e;border-radius:9px;padding:10px 12px;min-height:42px}.field textarea{min-height:100px;resize:vertical}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:9px 14px;border-radius:9px;border:1px solid #3a4654;background:#141b25;color:#fff;font-weight:800}.btn.primary{background:linear-gradient(180deg,#268d34,#176c26);border-color:#319842}.btn.blue{background:#18335d;border-color:#315c94}.btn.danger{background:#3b1715;border-color:#7a332e}.btn.ghost{background:transparent}.btn:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.diag-panel{margin-top:12px;padding:12px;border:1px solid #34485d;border-radius:10px;background:#09121b}.diag-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}.diag-head b{font-size:14px}.diag-head .spacer{flex:1}.diag-row{display:grid;grid-template-columns:22px minmax(120px,.8fr) minmax(0,2fr);gap:8px;padding:7px 0;border-bottom:1px solid #21303e;font-size:12px;align-items:start}.diag-row:last-child{border-bottom:0}.diag-icon{font-weight:900}.diag-ok{color:#72e47b}.diag-warn{color:#ffd76a}.diag-bad{color:#ff7f70}.diag-info{color:#83b6ff}.diag-detail{color:#b9c6d5;overflow-wrap:anywhere;white-space:pre-wrap}.diag-summary{margin-top:9px;padding:9px 10px;border-radius:8px;background:#0d1924;border:1px solid #263b4d;font-size:12px;line-height:1.7}
 .app{min-height:100vh;display:grid;grid-template-columns:270px minmax(0,1fr)}.sidebar{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);background:#0b1017;padding:18px;overflow:auto}.sidebar .brand{margin-bottom:18px}.brand h2{font-size:18px;margin:8px 0 2px}.status{display:flex;gap:7px;align-items:center;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:#888}.dot.ok{background:var(--green)}.dot.warn{background:var(--gold)}
 .nav{display:grid;gap:6px}.nav button{width:100%;text-align:left;border:1px solid transparent;border-radius:9px;background:transparent;color:#c8d0dc;padding:10px 11px;font-weight:700}.nav button:hover,.nav button.active{background:#141d28;border-color:#2c3a49;color:#fff}.side-footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:grid;gap:8px}
 .main{min-width:0}.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(8,12,18,.92);backdrop-filter:blur(10px)}.topbar h1{font-size:20px;margin:0}.topbar .spacer{flex:1}.content{max-width:1280px;margin:auto;padding:22px}.overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}.metric{border:1px solid var(--line);border-radius:12px;background:#10161e;padding:13px}.metric span{font-size:12px;color:var(--muted)}.metric b{display:block;font-size:19px;margin-top:4px}
@@ -31,8 +32,13 @@ details.admin-details{margin-top:12px;border:1px solid #28323e;border-radius:11p
     <div id="cloudSetupWarn" class="section" style="margin-top:18px"><b>尚未設定雲端登入</b><div class="tiny" style="margin-top:5px">先填寫 supabase-config.js 並執行附帶的 supabase_setup.sql。也可以先用「本機預覽」查看完整後台。</div></div>
     <div class="field"><label>管理員 Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="admin@example.com"></div>
     <div class="field"><label>密碼</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-    <div class="actions"><button class="btn primary" id="loginBtn">登入管理後台</button><button class="btn ghost" id="previewBtn">本機預覽</button><a class="btn ghost" href="index.html">返回網站</a></div>
+    <div class="actions"><button class="btn primary" id="loginBtn">登入管理後台</button><button class="btn blue" id="diagnoseBtn">🔧 連線診斷</button><button class="btn ghost" id="previewBtn">本機預覽</button><a class="btn ghost" href="index.html">返回網站</a></div>
     <div id="loginMsg" class="tiny" style="margin-top:10px"></div>
+    <div id="diagPanel" class="diag-panel hidden">
+      <div class="diag-head"><b>🔧 Supabase 連線診斷</b><span class="spacer"></span><button class="btn ghost" id="copyDiagBtn" type="button" style="min-height:30px;padding:4px 8px;font-size:11px">複製結果</button></div>
+      <div id="diagResults"></div>
+      <div id="diagSummary" class="diag-summary"></div>
+    </div>
   </div>
 </div>
 
@@ -141,6 +147,83 @@ function captureAll(){FEATURES.forEach(f=>capturePanel(f.key));cfg.meta.updatedA
 function updateMetrics(){const n=FEATURES.filter(f=>getFeature(f.key).enabled!==false).length;$('#managedCount').textContent=FEATURES.length;$('#enabledCount').textContent=n;$('#updatedAt').textContent=cfg.meta.updatedAt?new Date(cfg.meta.updatedAt).toLocaleString('zh-TW'):'—';}
 async function saveAll(){try{captureAll();StarroConfig.replace(cfg);if(cloudSession){await saveRemote(cfg);$('#sourceMode').textContent='雲端';toast('已儲存到雲端，前台重新整理後會套用');}else{toast('已儲存在這台瀏覽器（本機預覽）');}setDirty(false);renderShell();}catch(e){toast(e.message||String(e),true)}}
 function sb(){return window.STARRO_SUPABASE||{}}
+let lastDiagText='';
+function diagAdd(rows,level,title,detail){rows.push({level,title,detail:String(detail??'')})}
+function diagRender(rows,summary){
+  const icon={ok:'✓',warn:'!',bad:'×',info:'i'}, cls={ok:'diag-ok',warn:'diag-warn',bad:'diag-bad',info:'diag-info'};
+  $('#diagResults').innerHTML=rows.map(r=>`<div class="diag-row"><div class="diag-icon ${cls[r.level]||''}">${icon[r.level]||'•'}</div><b>${esc(r.title)}</b><div class="diag-detail">${esc(r.detail)}</div></div>`).join('');
+  $('#diagSummary').innerHTML=summary;
+  $('#diagPanel').classList.remove('hidden');
+  lastDiagText='繁星仙境模擬器｜Supabase 連線診斷\n'+rows.map(r=>`[${r.level.toUpperCase()}] ${r.title}: ${r.detail}`).join('\n')+'\n結論: '+summary.replace(/<[^>]+>/g,'');
+}
+async function diagFetch(url,opt={},timeout=8000){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout),started=performance.now();
+  try{
+    const r=await fetch(url,{...opt,signal:controller.signal,cache:'no-store'});
+    let text=''; try{text=await r.text()}catch(_){ }
+    return {ok:r.ok,status:r.status,statusText:r.statusText,text,ms:Math.round(performance.now()-started)};
+  }finally{clearTimeout(timer)}
+}
+async function runDiagnostics(){
+  const btn=$('#diagnoseBtn'),rows=[],s=sb(),base=(s.url||'').replace(/\/$/,'');
+  btn.disabled=true;btn.textContent='診斷中…';$('#loginMsg').textContent='';$('#diagPanel').classList.remove('hidden');$('#diagResults').innerHTML='<div class="tiny">正在檢查瀏覽器、Supabase Auth、REST API 與登入憑證…</div>';$('#diagSummary').textContent='請稍候';
+  try{
+    diagAdd(rows,navigator.onLine?'ok':'bad','瀏覽器網路',navigator.onLine?'navigator.onLine = true':'目前顯示離線');
+    const proto=location.protocol;
+    diagAdd(rows,proto==='https:'?'ok':(proto==='file:'?'warn':'info'),'目前開啟方式',`${proto}//${location.host||'(本機檔案)'}`+(proto==='file:'?'；若登入失敗，請優先改用 GitHub Pages 的 https:// 網址測試':''));
+    let validUrl=false;
+    try{const u=new URL(s.url);validUrl=u.protocol==='https:';diagAdd(rows,validUrl?'ok':'bad','Project URL',validUrl?s.url:'URL 必須是 https://');}catch(e){diagAdd(rows,'bad','Project URL','格式錯誤：'+e.message)}
+    const keyOk=typeof s.anonKey==='string'&&(s.anonKey.startsWith('sb_publishable_')||s.anonKey.length>20);
+    diagAdd(rows,keyOk?'ok':'bad','Publishable key',keyOk?`${s.anonKey.slice(0,15)}…（已載入，不顯示完整金鑰）`:'未載入或格式異常');
+    if(!validUrl||!keyOk){diagRender(rows,'<b class="diag-bad">設定檔尚未正確載入。</b> 請先確認 supabase-config.js。');return}
+
+    // Auth service health
+    try{
+      const r=await diagFetch(base+'/auth/v1/health',{headers:{apikey:s.anonKey}});
+      diagAdd(rows,r.ok?'ok':'bad','Auth 服務',`HTTP ${r.status} ${r.statusText||''}｜${r.ms} ms${r.ok?'':'｜'+r.text.slice(0,180)}`);
+    }catch(e){
+      const msg=e.name==='AbortError'?'逾時（8 秒）':`${e.name}: ${e.message}`;
+      diagAdd(rows,'bad','Auth 服務',msg);
+    }
+
+    // REST / public read test
+    try{
+      const r=await diagFetch(base+'/rest/v1/site_config?select=id,updated_at&limit=1',{headers:{apikey:s.anonKey}});
+      diagAdd(rows,r.ok?'ok':'bad','REST / site_config',`HTTP ${r.status} ${r.statusText||''}｜${r.ms} ms${r.ok?'｜公開讀取正常':'｜'+r.text.slice(0,220)}`);
+    }catch(e){
+      const msg=e.name==='AbortError'?'逾時（8 秒）':`${e.name}: ${e.message}`;
+      diagAdd(rows,'bad','REST / site_config',msg);
+    }
+
+    // Optional real credential check, never display token/password
+    const email=$('#loginEmail').value.trim(),password=$('#loginPassword').value;
+    if(email&&password){
+      try{
+        const r=await diagFetch(base+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:s.anonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+        let detail=`HTTP ${r.status} ${r.statusText||''}｜${r.ms} ms`;
+        if(r.ok){detail+='｜Email / 密碼有效';diagAdd(rows,'ok','登入憑證',detail)}
+        else{
+          let msg='';try{const j=JSON.parse(r.text);msg=j.error_description||j.msg||j.message||j.error||''}catch(_){msg=r.text.slice(0,180)}
+          diagAdd(rows,'bad','登入憑證',detail+(msg?'｜'+msg:''));
+        }
+      }catch(e){
+        const msg=e.name==='AbortError'?'逾時（8 秒）':`${e.name}: ${e.message}`;
+        diagAdd(rows,'bad','登入憑證',msg);
+      }
+    }else diagAdd(rows,'info','登入憑證','尚未同時輸入 Email 與密碼，因此跳過帳密測試');
+
+    const bad=rows.filter(r=>r.level==='bad'), fileWarn=proto==='file:';
+    let summary='';
+    if(!bad.length) summary='<b class="diag-ok">全部主要檢查通過。</b> 可以直接按「登入管理後台」。';
+    else if(fileWarn&&bad.some(r=>/Failed to fetch|TypeError|逾時/.test(r.detail))) summary='<b class="diag-warn">很可能是用 file:// 本機開啟造成跨網域請求失敗。</b> 請把檔案上傳 GitHub Pages 後，從 <b>https://你的網址/admin.html</b> 再測一次。';
+    else if(bad.every(r=>r.title==='登入憑證')) summary='<b class="diag-warn">Supabase 連線正常，但帳號登入失敗。</b> 請檢查 Authentication → Users 的 Email、密碼與是否已確認。';
+    else if(bad.some(r=>r.title==='Auth 服務'||r.title==='REST / site_config')) summary='<b class="diag-bad">瀏覽器到 Supabase 的網路請求失敗。</b> 若顯示 Failed to fetch，請用無痕模式/停用阻擋型擴充套件，並確認不是公司、防毒或 DNS 擋住 supabase.co。';
+    else summary='<b class="diag-warn">有項目未通過。</b> 請按「複製結果」貼給我，我可以直接判斷卡在哪一層。';
+    diagRender(rows,summary);
+  }catch(e){
+    diagAdd(rows,'bad','診斷程式',`${e.name}: ${e.message}`);diagRender(rows,'<b class="diag-bad">診斷本身發生錯誤。</b> 請複製結果給我。');
+  }finally{btn.disabled=false;btn.textContent='🔧 連線診斷'}
+}
 async function login(){const s=sb();if(!s.url||!s.anonKey){$('#loginMsg').textContent='尚未設定 Supabase，請先完成 supabase-config.js。';return}const email=$('#loginEmail').value.trim(),password=$('#loginPassword').value;if(!email||!password){$('#loginMsg').textContent='請輸入 Email 與密碼';return}$('#loginBtn').disabled=true;try{const r=await fetch(s.url.replace(/\/$/,'')+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:s.anonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password})});const d=await r.json();if(!r.ok)throw new Error(d.error_description||d.msg||'登入失敗');cloudSession=d;sessionStorage.setItem('starro_admin_session',JSON.stringify(d));await loadRemoteForAdmin();showApp(true)}catch(e){$('#loginMsg').textContent=e.message}finally{$('#loginBtn').disabled=false}}
 async function loadRemoteForAdmin(){const s=sb(),row=encodeURIComponent(s.configRow||'main');const r=await fetch(s.url.replace(/\/$/,'')+`/rest/v1/site_config?id=eq.${row}&select=config,updated_at`,{headers:{apikey:s.anonKey,Authorization:'Bearer '+cloudSession.access_token}});if(!r.ok)throw new Error('讀取雲端設定失敗');const d=await r.json();if(d[0]?.config){cfg=deepMerge(StarroConfig.defaults,d[0].config);StarroConfig.replace(cfg)}}
 function deepMerge(a,b){if(Array.isArray(b))return JSON.parse(JSON.stringify(b));if(!b||typeof b!=='object')return b===undefined?JSON.parse(JSON.stringify(a)):b;const o=(a&&typeof a==='object'&&!Array.isArray(a))?JSON.parse(JSON.stringify(a)):{};Object.keys(b).forEach(k=>o[k]=deepMerge(o[k],b[k]));return o}
@@ -160,7 +243,7 @@ function updatePriceCount(){const el=$('#priceOverrideCount');if(el)el.textConte
 async function loadAuctionDefaults(){try{const r=await fetch('identify.html',{cache:'no-store'}),text=await r.text();const grab=(marker)=>{const at=text.indexOf(marker);if(at<0)return null;let i=text.indexOf('[',at),depth=0,str=false,escp=false;for(let j=i;j<text.length;j++){const ch=text[j];if(str){if(escp)escp=false;else if(ch==='\\')escp=true;else if(ch==='"')str=false;continue}if(ch==='"'){str=true;continue}if(ch==='[')depth++;else if(ch===']'){depth--;if(depth===0)return JSON.parse(text.slice(i,j+1))}}return null};const p1=grab('auctionNeedlePool1Default='),p2=grab('auctionNeedlePool2Default='),p3=grab('auctionNeedlePool3NormalDefault=');if(p1)$('#auctionPool1').value=JSON.stringify(p1,null,2);if(p2)$('#auctionPool2').value=JSON.stringify(p2,null,2);if(p3)$('#auctionPool3').value=JSON.stringify(p3,null,2);setDirty();toast('已載入競標針詞池')}catch(e){toast('詞池載入失敗：'+e.message,true)}}
 async function loadCashCumulative(){try{const r=await fetch('CASH.html',{cache:'no-store'}),text=await r.text();const data=extractAssigned(text,'CUMULATIVE_REWARD_TIERS=');$('#cashCumulativeJson').value=JSON.stringify(data,null,2);getFeature('cash').cumulativeRewardTiers=data;setDirty();toast('已載入 CASH 累積儲值獎勵')}catch(e){toast('CASH 獎勵資料載入失敗：'+e.message,true)}}
 function exportConfig(){captureAll();const blob=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='starro-config-backup.json';a.click();URL.revokeObjectURL(a.href)}
-$('#loginBtn').onclick=login;$('#previewBtn').onclick=()=>{previewMode=true;showApp(false)};$('#saveAllBtn').onclick=saveAll;$('#exportBtn').onclick=exportConfig;$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('starro_admin_session');location.reload()};$('#importFile').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());cfg=deepMerge(StarroConfig.defaults,o);StarroConfig.replace(cfg);setDirty();renderShell();toast('設定已匯入，請按儲存全部')}catch(err){toast('匯入失敗：'+err.message,true)}};
+$('#loginBtn').onclick=login;$('#diagnoseBtn').onclick=runDiagnostics;$('#copyDiagBtn').onclick=async()=>{try{await navigator.clipboard.writeText(lastDiagText);$('#loginMsg').textContent='診斷結果已複製';}catch(e){$('#loginMsg').textContent='無法自動複製，請手動選取診斷結果';}};$('#previewBtn').onclick=()=>{previewMode=true;showApp(false)};$('#saveAllBtn').onclick=saveAll;$('#exportBtn').onclick=exportConfig;$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('starro_admin_session');location.reload()};$('#importFile').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());cfg=deepMerge(StarroConfig.defaults,o);StarroConfig.replace(cfg);setDirty();renderShell();toast('設定已匯入，請按儲存全部')}catch(err){toast('匯入失敗：'+err.message,true)}};
 const s=sb();if(s.url&&s.anonKey)$('#cloudSetupWarn').classList.add('hidden');
 try{const saved=JSON.parse(sessionStorage.getItem('starro_admin_session')||'null');if(saved?.access_token&&s.url&&s.anonKey){cloudSession=saved;loadRemoteForAdmin().then(()=>showApp(true)).catch(()=>sessionStorage.removeItem('starro_admin_session'));}}catch(e){}
 </script>
