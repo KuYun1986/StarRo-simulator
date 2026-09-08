@@ -35,19 +35,29 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 .zero{color:#ffb36a}
 @media(max-width:720px){.wrap{padding:12px}h1{font-size:23px}.card{padding:14px}.summary{grid-template-columns:1fr}.tabs button{flex:1 1 145px}}
 </style>
+<style id="starroNavigationStyle">
+.starro-navigation{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px;grid-column:1/-1}
+.starro-navigation a{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid #3a4654;border-radius:9px;background:#141b25;color:#f5f7fb;text-decoration:none;font-size:14px;font-weight:700;line-height:1.4}
+.starro-navigation a:hover,.starro-navigation a:focus-visible{border-color:#67a0ff;background:#1b2838}
+.starro-navigation a[aria-current="page"]{border-color:#55d35a;background:#163922;color:#9ef0aa}
+.starro-section-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;grid-column:1/-1}
+@media(max-width:600px){.starro-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.starro-navigation a{padding:9px 4px;font-size:13px}}
+</style>
 </head>
 <body>
 <div class="wrap">
 <h1>💰 裝備成本區</h1>
-<div class="topnav">
-  <a href="index.html" class="game-page-link">🏠 主頁</a>
-  <a href="game.html" class="game-page-link">🎮 遊戲區</a>
-  <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
-  <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
-  <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
-  <a href="collection.html" class="game-page-link">📚 收藏區</a>
-  <a href="shadow.html" class="game-page-link">💎 影子區</a>
-</div>
+<nav class="starro-navigation" aria-label="網站導覽">
+<a href="index.html">🏠 主頁</a>
+<a href="game.html">🎮 遊戲區</a>
+<a href="wash.html">🧪 洗詞區</a>
+<a href="enchant.html">✨ 附魔區</a>
+<a href="identify.html">🔍 鑑定區</a>
+<a href="collection.html">📚 收藏區</a>
+<a href="equipment.html" aria-current="page">💰 裝備成本區</a>
+<a href="CASH.html">💳 現金區</a>
+<a href="shadow.html">💎 影子區</a>
+</nav>
 <div class="sub">裝備製作模擬｜所有 P 點價格都可以自行修改。</div>
 
 <section class="card">
