@@ -253,6 +253,8 @@ a{color:#77a9ff}
 .starro-section-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;grid-column:1/-1}
 @media(max-width:600px){.starro-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.starro-navigation a{padding:9px 4px;font-size:13px}}
 </style>
+<script src="supabase-config.js"></script>
+<script src="starro-config.js"></script>
 </head>
 <body class="game-only-page"><div class="wrap">
 <h1>🎮 繁星遊戲區</h1>
@@ -265,6 +267,7 @@ a{color:#77a9ff}
 <a href="equipment.html">💰 裝備成本區</a>
 <a href="CASH.html">💳 現金區</a>
 <a href="shadow.html">💎 影子區</a>
+<a href="admin.html">🔐 管理後台</a>
 </nav>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
@@ -740,13 +743,13 @@ a{color:#77a9ff}
 
 
 
-<section class="card event-game">
+<section class="card event-game" data-starro-game="wheel">
 <h2>🎡 繁星大輪盤</h2>
-<p class="tiny">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。可先預覽 100 次牌路，不下注也不計入正式累計。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
+<p class="tiny" id="starroWheelDesc">依照設定機率抽出顏色；每局最多下注 5,000 紅，最多同時下注 4 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。可先預覽 100 次牌路，不下注也不計入正式累計。轉 10 次／100 次時，只要任一局中獎就立即停止。</p>
 
 <div class="stat" style="margin-top:10px">
   <span class="label">顏色 / 賠率 / 機率</span>
-  <div class="tiny" style="line-height:1.9;margin-top:6px">
+  <div id="starroWheelRules" class="tiny" style="line-height:1.9;margin-top:6px">
     🔴 紅色｜1:1｜46.15%<br>
     🟡 黃色｜1:3｜23.08%<br>
     🟢 綠色｜1:5｜15.38%<br>
@@ -757,7 +760,7 @@ a{color:#77a9ff}
 </div>
 
 <div class="stat" style="margin-top:10px">
-  <span class="label">下注設定｜每次最多 5,000 紅｜最多同時 4 種顏色</span>
+  <span class="label" id="starroWheelBetLabel">下注設定｜每次最多 5,000 紅｜最多同時 4 種顏色</span>
 
   <div class="row" style="margin-top:8px">
     <span>第 1 色</span>
@@ -885,15 +888,15 @@ a{color:#77a9ff}
 </section>
 
 
-<section class="card event-game" id="baccaratCard">
+<section class="card event-game" id="baccaratCard" data-starro-game="baccarat">
   <h2>🎴 百家樂</h2>
-  <div class="tiny" style="line-height:1.8">
+  <div class="tiny" id="starroBaccaratDesc" style="line-height:1.8">
     每局所有下注合計最高 <b>30,000 紅利</b>。A=1，10/J/Q/K=0，其餘照牌面點數；總點數只看個位數。
     自動依標準百家樂規則補第三張牌。和局時「閒贏／莊贏」退回本金。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。
   </div>
 
   <div class="stat" style="margin-top:10px">
-    <span class="label">下注金額（可同時下注多種，總額 ≤ 30,000 紅利）</span>
+    <span class="label" id="starroBaccaratBetLabel">下注金額（可同時下注多種，總額 ≤ 30,000 紅利）</span>
     <div class="baccarat-bets" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
       <label>閒贏 1:1.0<input id="bacBetPlayer" type="number" min="0" max="30000" step="100" value="0"></label>
       <label>莊贏 1:0.95<input id="bacBetBanker" type="number" min="0" max="30000" step="100" value="0"></label>
@@ -922,13 +925,13 @@ a{color:#77a9ff}
   <div id="baccaratPreview" style="margin-top:10px"></div>
 </section>
 
-<section class="card event-game">
+<section class="card event-game" data-starro-game="blackjack">
 <h2>🃏 21點</h2>
-<p class="tiny">娛樂模擬：6副牌、莊家17點停牌、Blackjack 勝利 +20,000 P、一般勝利 +10,000 P、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。使用虛擬籌碼。</p>
+<p class="tiny" id="starroBjDesc">娛樂模擬：6副牌、莊家17點停牌、Blackjack 勝利 +20,000 P、一般勝利 +10,000 P、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。使用虛擬籌碼。</p>
 
 <div class="row">
 <span>每局固定下注</span>
-<b>10,000 P</b>
+<b id="starroBjBetLabel">10,000 P</b>
 </div>
 
 <div class="actions">
@@ -946,9 +949,9 @@ a{color:#77a9ff}
 <div id="bjLog" style="margin-top:10px"></div>
 </section>
 
-<section class="card event-game">
+<section class="card event-game" data-starro-game="tongzi">
 <h2>🀙 推筒子</h2>
-<p class="tiny">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。</p>
+<p class="tiny" id="starroTtDesc">最多同時下注 10 手；所有玩家手共用同一組莊家點數。每手固定下注 <b>100,000 P</b>。莊家拿到對子的機率比一般玩家高 <b>5 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。</p>
 
 <div class="row">
 <span>同時下注</span>
@@ -2149,6 +2152,8 @@ function sssReset(){
 
 
 /* ===== 跑馬燈遊戲 ===== */
+function starroGameGet(path,fallback){try{return window.StarroConfig?StarroConfig.get('features.game.'+path,fallback):fallback}catch(e){return fallback}}
+function starroGameNum(path,fallback){const n=Number(starroGameGet(path,fallback));return Number.isFinite(n)?n:fallback}
 const marqueeOptions=[
   {key:"red",name:"紅色",icon:"🔴",p:46.15,pay:1},
   {key:"yellow",name:"黃色",icon:"🟡",p:23.08,pay:3},
@@ -2259,10 +2264,13 @@ function marqueePlay(n){
   if(!bets.length) return alert("請至少下注一種顏色");
 
   const totalPerRound=bets.reduce((s,b)=>s+b.amount,0);
-  if(totalPerRound>5000) return alert("每局最多只能下注 5,000 紅");
+  const maxBet=Math.max(0,Math.floor(starroGameNum('wheel.maxBet',5000)));
+  if(totalPerRound>maxBet) return alert(`每局最多只能下注 ${maxBet.toLocaleString()} 紅`);
 
   const uniqueColors=new Set(bets.map(b=>b.opt.key));
   if(uniqueColors.size!==bets.length) return alert("下注顏色不能重複");
+  const maxColors=Math.max(1,Math.min(4,Math.floor(starroGameNum('wheel.maxColors',4))));
+  if(bets.length>maxColors) return alert(`最多同時下注 ${maxColors} 種顏色`);
 
   let last=null;
   let roundNet=0;
@@ -2379,7 +2387,7 @@ function marqueeReset(){
 }
 
 /* ===== 21點 ===== */
-let bjState={chips:2000000,deck:[],player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
+let bjState={chips:500000,deck:[],player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
 
 function bjBuildDeck(){
  const ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
@@ -2422,7 +2430,7 @@ function bjRender(hideDealer=true,msg=""){
 }
 function bjNewRound(){
  if(bjState.active)return;
- let bet=10000;
+ let bet=Math.max(1,Math.floor(starroGameNum('blackjack.bet',10000)));
  if(bet>bjState.chips)return alert("籌碼不足");
  if(!bjState.deck.length)bjState.deck=bjBuildDeck();
  bjState.bet=bet;bjState.chips-=bet;bjState.player=[bjDraw(),bjDraw()];bjState.dealer=[bjDraw(),bjDraw()];bjState.active=true;bjState.rounds++;
@@ -2439,7 +2447,7 @@ function bjHit(){
 }
 function bjStand(){
  if(!bjState.active)return;
- while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
+ while(bjValue(bjState.dealer)<starroGameNum('blackjack.dealerStand',17))bjState.dealer.push(bjDraw());
  bjFinish();
 }
 function bjDouble(){
@@ -2447,7 +2455,7 @@ function bjDouble(){
  if(bjState.chips<bjState.bet)return alert("籌碼不足以加倍");
  bjState.chips-=bjState.bet;bjState.bet*=2;
  bjState.player.push(bjDraw());
- if(bjValue(bjState.player)<=21)while(bjValue(bjState.dealer)<17)bjState.dealer.push(bjDraw());
+ if(bjValue(bjState.player)<=21)while(bjValue(bjState.dealer)<starroGameNum('blackjack.dealerStand',17))bjState.dealer.push(bjDraw());
  bjFinish();
 }
 function bjFinish(force=""){
@@ -2457,24 +2465,25 @@ function bjFinish(force=""){
  let result="",pay=0;
  if(force==="玩家爆牌"||p>21){result="玩家爆牌｜莊家勝";bjState.l++}
  else if(d>21){result="莊家爆牌｜玩家勝";pay=bjState.bet*2;bjState.w++}
- else if(pb&&!db){result="Blackjack！玩家勝｜+20,000 P";pay=bjState.bet*3;bjState.w++}
- else if(db&&!pb){result="莊家 Blackjack｜-10,000 P";bjState.l++}
+ else if(pb&&!db){const mult=Math.max(0,starroGameNum('blackjack.blackjackPayout',2));const profit=Math.floor(bjState.bet*mult);result=`Blackjack！玩家勝｜+${profit.toLocaleString()} P`;pay=bjState.bet+profit;bjState.w++}
+ else if(db&&!pb){result=`莊家 Blackjack｜-${bjState.bet.toLocaleString()} P`;bjState.l++}
  else if(p>d){result="玩家勝";pay=bjState.bet*2;bjState.w++}
- else if(p<d){result=`莊家勝${d===21?"（21點）":""}｜-10,000 P`;bjState.l++}
+ else if(p<d){result=`莊家勝${d===21?"（21點）":""}｜-${bjState.bet.toLocaleString()} P`;bjState.l++}
  else{result="平手｜退回下注";pay=bjState.bet;bjState.p++}
  bjState.chips+=Math.floor(pay);bjState.active=false;bjButtons(false);bjRender(false,result);
  document.getElementById("bjLog").innerHTML=`<div class="tiny">局數 ${bjState.rounds}｜勝 ${bjState.w}｜負 ${bjState.l}｜和 ${bjState.p}</div>`;
 }
 function bjReset(){
- bjState={chips:500000,deck:bjBuildDeck(),player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
- bjButtons(false);document.getElementById("bjChips").textContent="500,000 P";document.getElementById("bjTable").innerHTML="";document.getElementById("bjLog").innerHTML="";
+ const start=Math.max(0,Math.floor(starroGameNum('blackjack.startChips',500000)));
+ bjState={chips:start,deck:bjBuildDeck(),player:[],dealer:[],bet:0,active:false,rounds:0,w:0,l:0,p:0};
+ bjButtons(false);document.getElementById("bjChips").textContent=start.toLocaleString()+" P";document.getElementById("bjTable").innerHTML="";document.getElementById("bjLog").innerHTML="";
 }
 
 /* ===== 推筒子 ===== */
 let ttState={rounds:0,w:0,l:0,net:0};
 let ttRoad=[];
 let ttPreviewBase=0;
-const TT_BET=100000;
+let TT_BET=100000;
 
 function ttDeck(){
  let d=[];
@@ -2497,7 +2506,7 @@ function ttDeck(){
 function ttDealerHand(deck){
  // 一般兩張同牌對子機率：3/39 ≈ 7.69%
  // 莊家設定比一般玩家高 5 個百分點 → 約 12.69%
- const dealerPairRate=(3/39)+0.05;
+ const dealerPairRate=(3/39)+(starroGameNum('tongzi.dealerPairBonus',5)/100);
 
  const firstIndex=Math.floor(Math.random()*deck.length);
  const first=deck.splice(firstIndex,1)[0];
@@ -2543,7 +2552,7 @@ function ttCompare(player,dealer){
 }
 
 function ttPlay(){
- let handCount=Math.max(1,Math.min(10,+document.getElementById("ttHands").value||1));
+ let handCount=Math.max(1,Math.min(starroGameNum('tongzi.maxHands',10),+document.getElementById("ttHands").value||1));
  let d=ttDeck();
 
  // One shared dealer hand for all simultaneous player bets.
@@ -3032,7 +3041,8 @@ function baccaratGetBets(){
   }
   const total=bets.reduce((s,b)=>s+b.amount,0);
   if(total<=0){ alert("請至少下注一項"); return null; }
-  if(total>30000){ alert("每局下注總額最高 30,000 紅利"); return null; }
+  const maxBet=Math.max(0,Math.floor(starroGameNum('baccarat.maxBet',30000)));
+  if(total>maxBet){ alert(`每局下注總額最高 ${maxBet.toLocaleString()} 紅利`); return null; }
   return {bets,total};
 }
 function baccaratBetWon(key,r){
@@ -3487,4 +3497,40 @@ onSnapshot(q,snap=>{
 });
 </script>
 
+
+<script>
+(function(){
+ function applyGameConfig(){
+  const c=window.StarroConfig?.get('features.game',{})||{};
+  document.querySelectorAll('[data-starro-game]').forEach(el=>{const sub=el.dataset.starroGame;el.style.display=(c.enabled===false||c[sub]?.enabled===false)?'none':'';});
+  const w=c.wheel||{};
+  if(Array.isArray(w.options)){
+    w.options.forEach((o,i)=>{if(marqueeOptions[i])Object.assign(marqueeOptions[i],o)});
+  }
+  const wr=document.getElementById('starroWheelRules');
+  if(wr)wr.innerHTML=marqueeOptions.map(x=>`${x.icon} ${x.name}｜1:${x.pay}｜${Number(x.p).toFixed(2)}%`).join('<br>');
+  const wheelMax=Math.max(0,Math.floor(Number(w.maxBet)||5000)),wheelStep=Math.max(1,Math.floor(Number(w.betStep)||100));
+  const wheelColors=Math.max(1,Math.min(4,Math.floor(Number(w.maxColors)||4)));const wd=document.getElementById('starroWheelDesc');if(wd)wd.innerHTML=`依照設定機率抽出顏色；每局最多下注 <b>${wheelMax.toLocaleString()} 紅</b>，最多同時下注 <b>${wheelColors}</b> 種顏色。每轉 1 次約 2 分鐘；轉 10 次約 20 分鐘、100 次約 3 小時 20 分鐘。可先預覽 100 次牌路，不下注也不計入正式累計。轉 10 次／100 次時，只要任一局中獎就立即停止。`;const wbl=document.getElementById('starroWheelBetLabel');if(wbl)wbl.textContent=`下注設定｜每次最多 ${wheelMax.toLocaleString()} 紅｜最多同時 ${wheelColors} 種顏色`;
+  document.querySelectorAll('[id^="marqueeBetAmount"],#wlRed,#wlYellow,#wlGreen,#wlPurple,#wlBlue,#wlOrange,#wlHeavyThreshold').forEach(el=>{el.max=wheelMax;el.step=wheelStep});
+  for(let i=1;i<=4;i++){
+    const sel=document.getElementById('marqueeBetColor'+i); if(!sel)continue;
+    [...sel.options].forEach(op=>{const x=marqueeOptions.find(z=>z.key===op.value);if(x)op.textContent=`${x.icon} ${x.name} 1:${x.pay}`});
+  }
+  const b=c.baccarat||{},maxB=Math.max(0,Math.floor(Number(b.maxBet)||30000)),stepB=Math.max(1,Math.floor(Number(b.betStep)||100));
+  const bd=document.getElementById('starroBaccaratDesc');if(bd)bd.innerHTML=`每局所有下注合計最高 <b>${maxB.toLocaleString()} 紅利</b>。A=1，10/J/Q/K=0，其餘照牌面點數；總點數只看個位數。自動依標準百家樂規則補第三張牌。和局時「閒贏／莊贏」退回本金。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。`;const bbl=document.getElementById('starroBaccaratBetLabel');if(bbl)bbl.textContent=`下注金額（可同時下注多種，總額 ≤ ${maxB.toLocaleString()} 紅利）`;
+  document.querySelectorAll('[id^="bacBet"]').forEach(el=>{el.max=maxB;el.step=stepB});
+  if(b.payouts) baccaratBetDefs.forEach(d=>{if(b.payouts[d.key]!=null)d.pay=Number(b.payouts[d.key])});
+  baccaratBetDefs.forEach(d=>{const el=document.getElementById(d.id);if(el&&el.parentElement){for(const n of el.parentElement.childNodes){if(n.nodeType===3){n.nodeValue=`${d.name} 1:${d.pay}`;break}}}});
+  const bj=c.blackjack||{};const bet=Math.max(1,Math.floor(Number(bj.bet)||10000)),chips=Math.max(0,Math.floor(Number(bj.startChips)||500000));
+  const stand=Math.max(1,Math.floor(Number(bj.dealerStand)||17)),bjMult=Math.max(0,Number(bj.blackjackPayout)||2);const bjd=document.getElementById('starroBjDesc');if(bjd)bjd.textContent=`娛樂模擬：6副牌、莊家${stand}點停牌、Blackjack 勝利 +${Math.floor(bet*bjMult).toLocaleString()} P、一般勝利 +${bet.toLocaleString()} P、平手退回，可加倍；玩家拿滿5張未爆牌會自動停牌並與莊家正常比點數。使用虛擬籌碼。`;
+  const betLabel=document.getElementById('starroBjBetLabel');if(betLabel)betLabel.textContent=bet.toLocaleString()+' P';
+  if(!bjState.active&&bjState.rounds===0){bjState.chips=chips;const ce=document.getElementById('bjChips');if(ce)ce.textContent=chips.toLocaleString()+' P'}
+  const tt=c.tongzi||{};TT_BET=Math.max(1,Math.floor(Number(tt.bet)||100000));
+  const ttMax=Math.max(1,Math.min(10,Math.floor(Number(tt.maxHands)||10))),ttBonus=Math.max(0,Number(tt.dealerPairBonus)||5);const ttd=document.getElementById('starroTtDesc');if(ttd)ttd.innerHTML=`最多同時下注 <b>${ttMax} 手</b>；所有玩家手共用同一組莊家點數。每手固定下注 <b>${TT_BET.toLocaleString()} P</b>。莊家拿到對子的機率比一般玩家高 <b>${ttBonus} 個百分點</b>。每 1 把約 2 分鐘；10 把約 20 分鐘、100 把約 3 小時 20 分鐘。可先預覽 100 把牌路，不下注也不計入正式累計。`;
+  const hands=document.getElementById('ttHands');if(hands){const max=Math.max(1,Math.min(10,Math.floor(Number(tt.maxHands)||10)));[...hands.options].forEach(op=>op.hidden=Number(op.value)>max);if(Number(hands.value)>max)hands.value=String(max)}
+ }
+ document.addEventListener('starro-config-applied',applyGameConfig);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyGameConfig,{once:true});else applyGameConfig();
+})();
+</script>
 </body></html>

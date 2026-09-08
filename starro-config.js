@@ -17,7 +17,31 @@
       evilWeapon:{enabled:true,rates:{lv1to2:60,lv2to3:45,lv3to4:30,lv4to5:15}},
       timeBoot:{enabled:true,series:[{name:"墮落根莖",weight:70},{name:"闇答萊屍",weight:20},{name:"希梅爾茲",weight:10}],thirdPool:["變異餓熊威力","變異光速瞬移","變異無感肌肉","變異暴走魔法","變異犀利鷹眼","變異幸運之日"],types:["鬥志","魔力","尖銳","名弓"]},
       collection:{enabled:true,items:null,notice:""},
-      equipment:{enabled:true,priceOverrides:{},servicePrices:{bless:6,check:18,bigGold:950,smallGold:120,bigGray:148,smallGray:1,taffy:40,dust:1,red:220}}
+      equipment:{enabled:true,priceOverrides:{},servicePrices:{bless:6,check:18,bigGold:950,smallGold:120,bigGray:148,smallGray:1,taffy:40,dust:1,red:220}},
+      game:{enabled:true,
+        wheel:{enabled:true,maxBet:5000,maxColors:4,betStep:100,options:[
+          {key:"red",name:"紅色",icon:"🔴",p:46.15,pay:1},{key:"yellow",name:"黃色",icon:"🟡",p:23.08,pay:3},
+          {key:"green",name:"綠色",icon:"🟢",p:15.38,pay:5},{key:"purple",name:"紫色",icon:"🟣",p:7.69,pay:11},
+          {key:"blue",name:"藍色",icon:"🔵",p:3.85,pay:23},{key:"orange",name:"橘色",icon:"🟠",p:3.85,pay:23}
+        ]},
+        baccarat:{enabled:true,maxBet:30000,betStep:100,payouts:{player:1,banker:0.95,tie:8,playerPair:11,bankerPair:11,big:0.53,small:1.45,playerOdd:0.95,playerEven:0.88,bankerOdd:0.92,bankerEven:0.92}},
+        blackjack:{enabled:true,bet:10000,startChips:500000,dealerStand:17,blackjackPayout:2},
+        tongzi:{enabled:true,bet:100000,maxHands:10,dealerPairBonus:5}
+      },
+      cash:{enabled:true,redPerT:1,defaultAmount:1000,shopRatio:280,bonusRatio:1.6,
+        tiers:[
+          {min:100,max:999,rate:5,label:"100～999 元"},{min:1000,max:4999,rate:6,label:"1,000～4,999 元"},
+          {min:5000,max:9999,rate:7,label:"5,000～9,999 元"},{min:10000,max:14999,rate:8,label:"10,000～14,999 元"},
+          {min:15000,max:19999,rate:9,label:"15,000～19,999 元"},{min:20000,max:null,rate:10,label:"20,000 元以上"}
+        ],
+        urBox2:[
+          {name:"解除石",price:1500},{name:"屬性克制石",price:1400},{name:"再次施放石",price:1000},{name:"再次追加石",price:1000},
+          {name:"魔法滲透石",price:800},{name:"全屬性魔法終傷石",price:500},{name:"爆擊連擊石",price:500},{name:"物理連擊石",price:500},
+          {name:"莎拉石",price:500},{name:"近距離物理終傷石",price:500},{name:"遠距離物理終傷石",price:500},{name:"魔法連擊石",price:500},
+          {name:"無敵石",price:300},{name:"物理素質爆發石",price:300},{name:"精煉石",price:300},{name:"魔法素質爆發石",price:300}
+        ],
+        cumulativeRewardTiers:null
+      }
     }
   };
 
