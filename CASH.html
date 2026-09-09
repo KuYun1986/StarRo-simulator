@@ -1022,33 +1022,55 @@ function saveCumulativeState(){
   try{localStorage.setItem(CUMULATIVE_STATE_KEY,JSON.stringify(cumulativeState));}catch(e){}
 }
 
+function normalizePriceName(name){
+  return String(name||"")
+    .trim()
+    .replace(/#\d+\s*$/g,"")
+    .replace(/#\s*$/g,"")
+    .replace(/\s+/g,"");
+}
+
 function priceLookupMap(){
   const map=new Map();
   document.querySelectorAll("#priceTableBody tr").forEach(tr=>{
     const name=(tr.children[0]?.textContent||"").trim();
     if(!name)return;
-    const shop=Number(tr.querySelector(".shop-price")?.value);
-    const bonus=Number(tr.querySelector(".bonus-price")?.value);
-    const manual=Number(tr.querySelector(".direct-nt")?.value);
+    const shopRaw=tr.querySelector(".shop-price")?.value?.trim()||"";
+    const bonusRaw=tr.querySelector(".bonus-price")?.value?.trim()||"";
+    const manualRaw=tr.querySelector(".direct-nt")?.value?.trim()||"";
+    const shop=Number(shopRaw);
+    const bonus=Number(bonusRaw);
+    const manual=Number(manualRaw);
     const shopRatio=Math.max(0.000001,Number(document.getElementById("shopRatio")?.value)||280);
     const bonusRatio=Math.max(0.000001,Number(document.getElementById("bonusRatio")?.value)||1.6);
     let nt=null;
-    if(shop>0) nt=shop/shopRatio;
-    else if(bonus>0) nt=bonus/bonusRatio;
-    else if(Number.isFinite(manual)) nt=manual;
-    if(nt!==null) map.set(name,nt);
+    if(shopRaw!=="" && shop>0) nt=shop/shopRatio;
+    else if(bonusRaw!=="" && bonus>0) nt=bonus/bonusRatio;
+    else if(manualRaw!=="" && Number.isFinite(manual)) nt=manual;
+    if(nt!==null){
+      map.set(name,nt);
+      map.set(normalizePriceName(name),nt);
+    }
   });
   return map;
 }
 
 function rewardUnitValue(name,map){
   if(map.has(name)) return map.get(name);
-  // 名稱小差異對應
+  const normalized=normalizePriceName(name);
+  if(map.has(normalized)) return map.get(normalized);
+
+  // 累積儲值獎勵名稱與物價表名稱的小差異對應
   const aliases={
     "王卡自選冊":"副本王卡自選冊",
     "副本入場券":"副本入場券盒子"
   };
-  if(aliases[name] && map.has(aliases[name])) return map.get(aliases[name]);
+  const alias=aliases[name]||aliases[normalized];
+  if(alias){
+    if(map.has(alias)) return map.get(alias);
+    const aliasNormalized=normalizePriceName(alias);
+    if(map.has(aliasNormalized)) return map.get(aliasNormalized);
+  }
   return null;
 }
 
@@ -1218,7 +1240,7 @@ function rewardRowsHtml(list,map,tier=null){
     return `<tr>
       <td>${r.name}${note}</td>
       <td>× ${Number(shownQty||0).toLocaleString("zh-TW")}</td>
-      <td class="${total===null?"cum-price-missing":"cum-tier-value"}">${total===null?"—":money(total)}</td>
+      <td class="${total===null?"cum-price-missing":"cum-tier-value"}">${total===null?"物價表未設定":money(total)}</td>
     </tr>`;
   }).join("");
 }
@@ -1266,7 +1288,7 @@ function renderCumulativeRewards(){
             <input type="radio" name="cum-choice-${tier.amount}" data-tier="${tier.amount}" data-choice="${i}" ${i===selected?"checked":""}>
             <span>${r.name}${highest?'<b style="color:#70dfa9">（最高價）</b>':""}</span>
             <span>× ${Number(r.qty||0).toLocaleString("zh-TW")}</span>
-            <span class="${total===null?"cum-price-missing":"cum-tier-value"}">${total===null?"—":money(total)}</span>
+            <span class="${total===null?"cum-price-missing":"cum-tier-value"}">${total===null?"物價表未設定":money(total)}</span>
           </label>`;
         }).join("")}
       </div>`:"";
@@ -1274,12 +1296,12 @@ function renderCumulativeRewards(){
     return `<details class="cum-tier ${reachedNow?"reached":""} ${nextNow?"next":""}">
       <summary>
         <span>NT${Number(tier.amount).toLocaleString("zh-TW")}</span>
-        <span class="cum-tier-value">本階估值 ${money(tierValue(tier,map))}</span>
+        <span class="cum-tier-value">本階台價值 ${money(tierValue(tier,map))}</span>
       </summary>
       <div class="cum-body">
         <div style="font-weight:900;margin-bottom:6px">固定獎勵</div>
         <table class="cum-reward-table">
-          <thead><tr><th>道具</th><th>數量</th><th>估值</th></tr></thead>
+          <thead><tr><th>道具</th><th>數量</th><th>台價值</th></tr></thead>
           <tbody>${fixed}</tbody>
         </table>
         ${choice}
