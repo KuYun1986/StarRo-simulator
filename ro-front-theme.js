@@ -37,24 +37,7 @@
     const topnav = $('.topnav');
     if(topnav && !topnav.classList.contains('starro-navigation')) topnav.classList.add('starro-navigation');
   }
-  function injectHero(){
-    const wrap = $('.wrap'); if(!wrap || $('.ro-page-hero')) return;
-    if(path === 'index.html') return;
-    const nav = $('.starro-navigation') || $('.topnav') || $('.page-links');
-    const sub = $('.sub');
-    const meta = pageMeta();
-    const hero = document.createElement('section');
-    hero.className = 'ro-page-hero';
-    hero.innerHTML = `<div class="ro-page-hero-inner"><div><div class="ro-page-hero-title"><div class="ro-page-icon">${meta.icon}</div><div><h2>${meta.title}</h2></div></div><p>${meta.desc}</p><div class="ro-page-badges">${(meta.badges||[]).map(t=>`<span class="ro-page-badge">${t}</span>`).join('')}</div><div class="ro-rarity-legend"><span class="ro-rarity-chip xr"><span class="dot"></span>XR 光效</span><span class="ro-rarity-chip ur"><span class="dot"></span>UR 光效</span><span class="ro-rarity-chip sss"><span class="dot"></span>SSS 光效</span><span class="ro-rarity-chip special"><span class="dot"></span>特殊 / 頂級</span></div><div class="ro-page-actions">${(meta.actions||[]).map(([txt,href,primary])=>`<a class="${primary?'primary-link':''}" href="${href}">${txt}</a>`).join('')}</div></div><aside class="ro-page-side"><b>GM 提示</b><br>${String(meta.side||'').replace(/\n/g,'<br>')}</aside></div>`;
-    if(nav) nav.insertAdjacentElement('afterend', hero);
-    else wrap.insertBefore(hero, wrap.firstChild.nextSibling);
-    if(sub && !$('.ro-gm-banner')){
-      const banner = document.createElement('div');
-      banner.className = 'ro-gm-banner';
-      banner.innerHTML = `<div class="icon">📢</div><div><b>頁面提示：</b> 目前這個分頁已套用統一的 RO 風格，並加入稀有度發光效果與分頁切換框。之後你更新後台內容時，只要到「資料同步 / 匯出中心」匯出最新 JSON，就能同步給我。</div>`;
-      sub.insertAdjacentElement('beforebegin', banner);
-    }
-  }
+  function injectHero(){ /* intentionally disabled: keep front-end compact */ }
   function decorateHeadings(){
     $$('section.card h2, .card h2').forEach(h=>{
       if($('.ro-title-icon', h)) return;
@@ -87,7 +70,7 @@
     shell.className = 'ro-tabs-shell';
     const btns = [`<button type="button" class="ro-tab-btn all active" data-ro-tab-target="all">全部顯示 <span class="ro-tab-indicator">${cards.length}</span></button>`]
       .concat(cards.map((card,idx)=>`<button type="button" class="ro-tab-btn" data-ro-tab-target="${card.dataset.roTabId}">${card.dataset.roTabLabel.length>15?card.dataset.roTabLabel.slice(0,15)+'…':card.dataset.roTabLabel}<span class="ro-tab-indicator">${idx+1}</span></button>`));
-    shell.innerHTML = `<div class="ro-tabs-head"><h3>功能分頁切換框</h3><div class="tiny">像遊戲 UI 一樣點按切換主要區塊；再按「全部顯示」可恢復完整頁面。</div></div><div class="ro-tabs-grid">${btns.join('')}</div>`;
+    shell.innerHTML = `<div class="ro-tabs-head"><h3>功能分頁</h3></div><div class="ro-tabs-grid">${btns.join('')}</div>`;
     const hero = $('.ro-page-hero') || $('.ro-lobby') || $('.starro-navigation') || $('.topnav');
     if(hero) hero.insertAdjacentElement('afterend', shell); else wrap.insertBefore(shell, wrap.children[1] || null);
     shell.querySelectorAll('.ro-tab-btn').forEach(btn=>btn.addEventListener('click',()=>activateSectionTab(btn.dataset.roTabTarget)));
