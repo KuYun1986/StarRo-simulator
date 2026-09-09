@@ -1281,6 +1281,19 @@ function calcPriceTable(){
   });
 }
 
+function escapePriceHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function bindPriceTableInputs(){
+  document.querySelectorAll("#priceTableBody input,#shopRatio,#bonusRatio").forEach(el=>{
+    el.oninput=()=>{calcPriceTable();savePriceTableState();renderCumulativeRewards();};
+  });
+}
+function applyCloudPriceTableRows(rows){
+  if(!Array.isArray(rows)||!rows.length)return;
+  const tbody=document.getElementById("priceTableBody");if(!tbody)return;
+  tbody.innerHTML=rows.map((x,i)=>`<tr data-idx="${i}"><td>${escapePriceHtml(x.name||"")}</td><td><input class="price-input shop-price" type="number" step="0.01" value="${escapePriceHtml(x.shop??"")}"></td><td><input class="price-input bonus-price" type="number" step="0.01" value="${escapePriceHtml(x.bonus??"")}"></td><td><input class="price-input direct-nt" type="number" step="0.01" value="${escapePriceHtml(x.nt??"")}"></td><td class="price-nt calc-nt">0.00</td></tr>`).join("");
+  bindPriceTableInputs();
+}
+
 function initPriceTable(){
   const saved=loadPriceTableState();
   if(saved){
@@ -1297,13 +1310,7 @@ function initPriceTable(){
     }
   }
 
-  document.querySelectorAll("#priceTableBody input,#shopRatio,#bonusRatio").forEach(el=>{
-    el.addEventListener("input",()=>{
-      calcPriceTable();
-      savePriceTableState();
-      renderCumulativeRewards();
-    });
-  });
+  bindPriceTableInputs();
 
   document.getElementById("resetPriceTable").addEventListener("click",()=>{
     if(!confirm("恢復 2026.08 預設價格？")) return;
@@ -1339,6 +1346,7 @@ function applyStarroCashConfig(){
     if(typeof renderURBox2==='function')renderURBox2();
   }
   if(Array.isArray(c.cumulativeRewardTiers))CUMULATIVE_REWARD_TIERS=JSON.parse(JSON.stringify(c.cumulativeRewardTiers));
+  if(Array.isArray(c.priceTable)&&c.priceTable.length)applyCloudPriceTableRows(c.priceTable);
   if(typeof calcPriceTable==='function')calcPriceTable();
   if(typeof renderCumulativeRewards==='function')renderCumulativeRewards();
   render();
