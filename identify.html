@@ -170,6 +170,7 @@ a{color:#77a9ff}
 </style>
 <script src="supabase-config.js"></script>
 <script src="starro-config.js"></script>
+<link rel="stylesheet" href="ro-front-theme.css">
 </head>
 <body><div class="wrap">
 <h1>🔍 繁星洗詞鑑定區</h1>
@@ -2563,4 +2564,5 @@ document.addEventListener("starro-config-applied",()=>{
   if(card){const p=card.querySelector("p.tiny");if(p)p.innerHTML=`每次 <b>${StarroConfig.get("features.auctionNeedle.cost",19)} 紅利</b>。固定取得第1詞；第2詞出現率 ${StarroConfig.get("features.auctionNeedle.secondRate",50)}%；只有出現第2詞後才判定第3詞 ${StarroConfig.get("features.auctionNeedle.thirdRate",10)}%；第3詞出現後，兩個特殊詞再各自判定 ${StarroConfig.get("features.auctionNeedle.specialMagicRate",0.1)}% / ${StarroConfig.get("features.auctionNeedle.specialBuffRate",0.1)}%。<br>同一詞池內所有能力皆為等機率，數值於該能力範圍內等機率隨機。`; }
 });
 </script>
+<script src="ro-front-theme.js"></script>
 </body></html>

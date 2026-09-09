@@ -184,6 +184,8 @@ a{color:#77a9ff}
 </style>
 <script src="supabase-config.js"></script>
 <script src="starro-config.js"></script>
+<link rel="stylesheet" href="index-ro-ui.css">
+<link rel="stylesheet" href="ro-front-theme.css">
 </head>
 <body><div class="wrap">
 <h1>🌟 繁星仙境模擬器</h1>
@@ -2776,4 +2778,6 @@ function simulate(){let attempts=0,failures=0,levels=[];for(let lv=1;lv<=level;l
 $('rmSeries').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b){series=b.dataset.s;result=null;render()}});$('rmSet').addEventListener('change',e=>{chosen[series]=e.target.value;result=null;render()});$('rmLevel').addEventListener('input',e=>{level=+e.target.value;result=null;render()});$('rmBonus').addEventListener('change',e=>{bonus=+e.target.value;result=null;render()});$('rmRun').addEventListener('click',simulate);render();
 })();
 </script>
+<script src="index-ro-ui.js"></script>
+<script src="ro-front-theme.js"></script>
 </body></html>
