@@ -14,114 +14,56 @@
     'equipment.html': {icon:'💰', title:'裝備成本試算台', desc:'統一整理材料價格、代敲材料與裝備製作成本，頁面像遊戲內打造與估價工作台。', badges:['🧮 成本試算','📦 材料單價','💲 代敲價格'], side:'這區的價格最常更新，之後只要在後台更新並匯出 JSON，就能把最新物價同步給我。', actions:[['📚 前往收藏區','collection.html'],['💎 前往影子區','shadow.html']]},
     'shadow.html': {icon:'💎', title:'影子裝備實驗室', desc:'影子結晶、升級素質與測傷區統一成實驗室風格，像遊戲內專門研究傷害與結晶的介面。', badges:['💎 結晶計算','🧪 測傷區','📉 倍率比較'], side:'影子區適合後續再加更多圖表或職業預設模板，現在先把整體視覺統一成同一套 RO 風。', actions:[['💰 前往裝備成本區','equipment.html'],['🔐 管理後台','admin.html',true]]}
   };
-  const HEAD_ICON_MAP = [
-    ['掉落','🎁'],['龍甲','🐉'],['善惡','⚔️'],['符文','🗿'],['華金','🔥'],['競標','🪡'],['時光','💎'],['收藏','📚'],['裝備','💰'],['現金','💳'],['遊戲','🎮'],['自訂流程','⚙️'],['影子','💎'],['測傷','🧪'],['百家樂','🎴'],['輪盤','🎡'],['21點','🃏'],['推筒子','🀙'],['儲值','💳'],['鑑定','🔍'],['價格','💰']
+  const DEFAULT_NAV = [
+    {key:'index', icon:'🏠', label:'主頁', href:'index.html', visible:true},
+    {key:'game', icon:'🎮', label:'遊戲區', href:'game.html', visible:true},
+    {key:'enchant', icon:'✨', label:'附魔區', href:'enchant.html', visible:true},
+    {key:'identify', icon:'🔍', label:'洗詞鑑定區', href:'identify.html', visible:true},
+    {key:'collection', icon:'📚', label:'收藏區', href:'collection.html', visible:true},
+    {key:'equipment', icon:'💰', label:'裝備成本區', href:'equipment.html', visible:true},
+    {key:'cash', icon:'💳', label:'現金區', href:'CASH.html', visible:true},
+    {key:'shadow', icon:'💎', label:'影子區', href:'shadow.html', visible:true}
   ];
-  const RARITY_PATTERNS = [
-    {key:'sss', label:'SSS', className:'rarity-sss', tests:['SSS','評級SSS']},
-    {key:'xr', label:'XR', className:'rarity-xr', tests:['XR']},
-    {key:'ur', label:'UR', className:'rarity-ur', tests:['UR']},
-    {key:'special', label:'SPECIAL', className:'rarity-special', tests:['特殊','頂級','傳說','神話']}
-  ];
-
-  function pageMeta(){ return PAGE_META[path] || {icon:'✦', title:document.title || '繁星仙境模擬器', desc:'RO 風格前台頁面。', badges:['🌟 StarRo'], side:'你可以透過上方導覽切換各區。', actions:[['🏠 回主頁','index.html']]}; }
-  function currentPageName(){ return path === '' ? 'index.html' : path; }
-  function markCurrentLinks(){
-    const normalized = currentPageName();
-    $$('a[href]').forEach(a=>{
-      const href = (a.getAttribute('href') || '').split('/').pop().toLowerCase();
-      if(href && href === normalized){ a.setAttribute('aria-current','page'); a.classList.add('is-current'); }
-    });
-  }
-  function normalizeCollectionNav(){
-    const topnav = $('.topnav');
-    if(topnav && !topnav.classList.contains('starro-navigation')) topnav.classList.add('starro-navigation');
-  }
-  function injectHero(){ /* intentionally disabled: keep front-end compact */ }
-  function decorateHeadings(){
-    $$('section.card h2, .card h2').forEach(h=>{
-      if($('.ro-title-icon', h)) return;
-      const text = h.textContent.trim();
-      let icon = '✦';
-      for(const [k,v] of HEAD_ICON_MAP){ if(text.includes(k)){ icon = v; break; } }
-      const badge = document.createElement('span');
-      badge.className = 'ro-title-icon';
-      badge.textContent = icon;
-      h.prepend(badge);
-    });
-  }
-  function widenMainCards(){
-    const wideKeywords = ['收藏','影子','裝備','符文','遊戲區','龍甲','善惡','累積儲值','倍率比較','現價'];
-    $$('.card').forEach(card=>{
-      const h = $('h2', card); if(!h) return;
-      if(wideKeywords.some(k=>h.textContent.includes(k))) card.classList.add('ro-full');
-    });
-  }
-  function buildSectionTabs(){
-    const wrap = $('.wrap'); if(!wrap || $('.ro-tabs-shell')) return;
-    const cards = $$('.wrap > .card, .wrap > section.card').filter(card=> $('h2',card) && card.id !== 'onlineBar');
-    if(cards.length < 2) return;
-    cards.forEach((card,idx)=>{
-      if(!card.dataset.roTabId) card.dataset.roTabId = card.id || `ro-tab-${idx+1}`;
-      const h = $('h2', card);
-      card.dataset.roTabLabel = (h?.textContent || `區塊 ${idx+1}`).trim().replace(/\s+/g,' ');
-    });
-    const shell = document.createElement('section');
-    shell.className = 'ro-tabs-shell';
-    const btns = [`<button type="button" class="ro-tab-btn all active" data-ro-tab-target="all">全部顯示 <span class="ro-tab-indicator">${cards.length}</span></button>`]
-      .concat(cards.map((card,idx)=>`<button type="button" class="ro-tab-btn" data-ro-tab-target="${card.dataset.roTabId}">${card.dataset.roTabLabel.length>15?card.dataset.roTabLabel.slice(0,15)+'…':card.dataset.roTabLabel}<span class="ro-tab-indicator">${idx+1}</span></button>`));
-    shell.innerHTML = `<div class="ro-tabs-head"><h3>功能分頁</h3></div><div class="ro-tabs-grid">${btns.join('')}</div>`;
-    const hero = $('.ro-page-hero') || $('.ro-lobby') || $('.starro-navigation') || $('.topnav');
-    if(hero) hero.insertAdjacentElement('afterend', shell); else wrap.insertBefore(shell, wrap.children[1] || null);
-    shell.querySelectorAll('.ro-tab-btn').forEach(btn=>btn.addEventListener('click',()=>activateSectionTab(btn.dataset.roTabTarget)));
-  }
-  function activateSectionTab(target){
-    const cards = $$('.wrap > .card, .wrap > section.card').filter(card=> $('h2',card) && card.id !== 'onlineBar');
-    const buttons = $$('.ro-tab-btn');
-    buttons.forEach(btn=>btn.classList.toggle('active', btn.dataset.roTabTarget === target));
-    cards.forEach(card=>{
-      const show = target === 'all' || card.dataset.roTabId === target;
-      card.classList.toggle('ro-tabbed-hidden', !show);
-      card.classList.toggle('ro-tabbed-active', show && target !== 'all');
-    });
-    if(target !== 'all'){
-      const hit = cards.find(c=>c.dataset.roTabId === target);
-      hit?.scrollIntoView({behavior:'smooth', block:'start'});
-    }
-  }
-  function getRarityRule(text){
-    const t = String(text || '').toUpperCase();
-    for(const rule of RARITY_PATTERNS){
-      if(rule.tests.some(x => t.includes(String(x).toUpperCase()))) return rule;
-    }
-    return null;
-  }
-  function applyRarityGlow(){
-    $$('.card').forEach(card=>{
-      const text = card.textContent || '';
-      const rule = getRarityRule(text);
-      if(rule) card.classList.add(rule.className);
-      const heading = $('h2', card);
-      if(heading && rule && !$('.ro-rarity-tag', heading)){
-        const tag = document.createElement('span');
-        tag.className = `ro-rarity-tag ${rule.key}`;
-        tag.textContent = rule.label;
-        heading.appendChild(tag);
+  const HEAD_ICON_MAP = [['掉落','🎁'],['龍甲','🐉'],['善惡','⚔️'],['符文','🗿'],['華金','🔥'],['競標','🪡'],['時光','💎'],['收藏','📚'],['裝備','💰'],['現金','💳'],['遊戲','🎮'],['自訂流程','⚙️'],['影子','💎'],['測傷','🧪']];
+  function cfgGet(path, fb){ try{return window.StarroConfig?window.StarroConfig.get(path, fb):fb}catch(e){return fb} }
+  function pageMeta(){
+    const base = {...(PAGE_META[path] || {icon:'✦', title:document.title || '繁星仙境模擬器', desc:'RO 風格前台頁面。', badges:['🌟 StarRo'], side:'你可以透過上方導覽切換各區。', actions:[['🏠 回主頁','index.html']]})};
+    if(path === 'shadow.html'){
+      const s = cfgGet('ui.shadowPage', null) || {};
+      base.title = s.title || base.title;
+      base.desc = s.desc || base.desc;
+      base.side = s.side || base.side;
+      if(s.action1Text && s.action1Href && s.action2Text && s.action2Href){
+        base.actions = [[s.action1Text, s.action1Href],[s.action2Text, s.action2Href, s.action2Href==='admin.html']];
       }
-    });
-    $$('button, .badge, .chip, .subcat-chip, .special-chip, .page-link, .game-page-link').forEach(el=>{
-      const rule = getRarityRule(el.textContent || '');
-      if(rule) el.classList.add(rule.className);
-    });
+    }
+    return base;
   }
-  function boot(){
-    normalizeCollectionNav();
-    markCurrentLinks();
-    injectHero();
-    decorateHeadings();
-    widenMainCards();
-    buildSectionTabs();
-    applyRarityGlow();
+  function navConfig(){ const arr = cfgGet('ui.navigation', null); return Array.isArray(arr) && arr.length ? arr : DEFAULT_NAV; }
+  function applyNavigationConfig(){
+    const nav = $('.starro-navigation') || $('.topnav') || $('.page-links'); if(!nav) return;
+    const adminLink = $('a[href$="admin.html"]', nav) || $('a.game-page-link', nav);
+    const currentPage = path === '' ? 'index.html' : path;
+    const linksMap = {};
+    $$('a[href]', nav).forEach(a=>{ linksMap[(a.getAttribute('href')||'').split('/').pop().toLowerCase()] = a; });
+    nav.querySelectorAll('a[href]').forEach(a=>{ const href=(a.getAttribute('href')||'').split('/').pop().toLowerCase(); if(href!=='admin.html') a.remove(); });
+    const items = navConfig().filter(x=>x.visible!==false);
+    items.forEach(item=>{
+      const href = String(item.href || '').split('/').pop();
+      const a = document.createElement('a');
+      a.href = item.href || '#';
+      a.textContent = `${item.icon || '✦'} ${item.label || href}`;
+      if(href.toLowerCase() === currentPage) a.setAttribute('aria-current','page');
+      if(adminLink) nav.insertBefore(a, adminLink); else nav.appendChild(a);
+    });
+    if(adminLink){ nav.appendChild(adminLink); if(!adminLink.textContent.includes('管理後台')) adminLink.textContent='🔐 管理後台'; }
   }
+  function markCurrentLinks(){ const normalized = currentPageName(); $$('a[href]').forEach(a=>{ const href = (a.getAttribute('href') || '').split('/').pop().toLowerCase(); if(href && href === normalized){ a.setAttribute('aria-current','page'); a.classList.add('is-current'); } else if(a.getAttribute('aria-current')==='page' && href!==normalized) a.removeAttribute('aria-current'); }); }
+  function currentPageName(){ return path === '' ? 'index.html' : path; }
+  function injectHero(){ const wrap = $('.wrap'); if(!wrap || $('.ro-page-hero')) return; const nav = $('.starro-navigation') || $('.topnav') || $('.page-links'); const sub = $('.sub'); const meta = pageMeta(); const hero = document.createElement('section'); hero.className='ro-page-hero'; hero.innerHTML=`<div class="ro-page-hero-inner"><div><div class="ro-page-hero-title"><div class="ro-page-icon">${meta.icon}</div><div><h2>${meta.title}</h2></div></div><p>${meta.desc}</p><div class="ro-page-badges">${(meta.badges||[]).map(t=>`<span class="ro-page-badge">${t}</span>`).join('')}</div><div class="ro-page-actions">${(meta.actions||[]).map(([txt,href,primary])=>`<a class="${primary?'primary-link':''}" href="${href}">${txt}</a>`).join('')}</div></div><aside class="ro-page-side"><b>GM 提示</b><br>${String(meta.side||'').replace(/\n/g,'<br>')}</aside></div>`; if(nav) nav.insertAdjacentElement('afterend', hero); else wrap.insertBefore(hero, wrap.firstChild.nextSibling); }
+  function decorateHeadings(){ $$('section.card h2, .card h2').forEach(h=>{ if($('.ro-title-icon', h)) return; const text=h.textContent.trim(); let icon='✦'; for(const [k,v] of HEAD_ICON_MAP){ if(text.includes(k)){ icon=v; break; } } const badge=document.createElement('span'); badge.className='ro-title-icon'; badge.textContent=icon; h.prepend(badge); }); }
+  function widenMainCards(){ const wideKeywords=['收藏','影子','裝備','符文','遊戲區','龍甲','善惡']; $$('.card').forEach(card=>{ const h=$('h2', card); if(!h) return; if(wideKeywords.some(k=>h.textContent.includes(k))) card.classList.add('ro-full'); }); }
+  function normalizeCollectionNav(){ const topnav = $('.topnav'); if(topnav && !topnav.classList.contains('starro-navigation')) topnav.classList.add('starro-navigation'); }
+  function boot(){ normalizeCollectionNav(); applyNavigationConfig(); markCurrentLinks(); injectHero(); decorateHeadings(); widenMainCards(); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
 })();

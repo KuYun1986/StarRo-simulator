@@ -1165,6 +1165,7 @@ th{background:#ddebf7}
 </thead>
 <tbody>${rows}</tbody>
 </table>
+<script src="ro-front-theme.js"></script>
 </body>
 </html>`;
 
@@ -1400,5 +1401,6 @@ document.addEventListener("starro-config-applied",()=>{
  if(n){if(!box){box=document.createElement('div');box.id='adminCollectionNotice';box.className='stat';box.style.marginBottom='12px';document.querySelector('.wrap')?.insertBefore(box,document.querySelector('.wrap')?.children[2]||null);}box.innerHTML='<b>📢 收藏區公告</b><div class="tiny" style="margin-top:6px">'+String(n).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))+'</div>'; } else if(box) box.remove();
 });
 </script>
+<script src="ro-front-theme.js"></script>
 </body>
 </html>
