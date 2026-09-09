@@ -39,7 +39,7 @@
   }
   function injectHero(){
     const wrap = $('.wrap'); if(!wrap || $('.ro-page-hero')) return;
-    if(path === 'index.html' && $('.ro-lobby')) return;
+    if(path === 'index.html') return;
     const nav = $('.starro-navigation') || $('.topnav') || $('.page-links');
     const sub = $('.sub');
     const meta = pageMeta();
