@@ -387,19 +387,19 @@ h1{margin:0 0 6px;font-size:28px}
 
 <section class="card">
   <details id="priceTableDetails">
-    <summary style="cursor:pointer;font-weight:900;font-size:20px">2026.08 儲值物價表</summary>
+    <summary style="cursor:pointer;font-weight:900;font-size:20px">儲值物價表</summary>
 
     <div class="price-controls">
       <label class="price-control">商城比值
         <input id="shopRatio" type="number" step="0.01" value="280">
       </label>
       <label class="price-control">紅利比值
-        <input id="bonusRatio" type="number" step="0.01" value="1.6">
+        <input id="bonusRatio" type="number" step="0.01" value="1.65">
       </label>
     </div>
 
     <div class="price-actions">
-      <button id="resetPriceTable">恢復 2026.08 預設價格</button>
+      <button id="resetPriceTable">恢復預設價格</button>
     </div>
 
     <div class="price-table-wrap">
@@ -414,428 +414,497 @@ h1{margin:0 0 6px;font-size:28px}
           </tr>
         </thead>
         <tbody id="priceTableBody">
-          <tr data-idx="0">
-<td>商城點數</td>
+<tr data-idx="0">
+<td>商城點數(P)</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value="1"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="1">
-<td>紅利點數</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.63"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="2">
-<td>進階精煉能力+20券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="20000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="71.43"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="3">
-<td>進階精煉能力+18券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="10000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="35.71"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="4">
-<td>進階精煉能力+16券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="5000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="17.86"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="5">
-<td>特殊強化石自選箱</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="8000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="28.57"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="6">
-<td>物理能力偵測器箱子(10入)</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="5000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="17.86"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="7">
-<td>魔法能力偵測器箱子(10入)</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="5000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="17.86"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="8">
-<td>副本王卡自選冊</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="10000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="35.71"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="9">
-<td>寵物裝備自選箱</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="3500"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="12.50"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="10">
-<td>特殊寵物自選箱</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="3000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="10.71"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="11">
-<td>寶物兌換券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="1300"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="4.64"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="12">
-<td>地獄副本掃蕩券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="1000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3.57"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="13">
-<td>UR寶石自選箱(1)</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="1050"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3.75"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="14">
-<td>高密度極限乙太神工匠的鐵鎚</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="1000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3.57"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="15">
-<td>VIP銅箱子</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="900"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3.21"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="16">
-<td>評級升級券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="1000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3.57"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="17">
-<td>神級材料寶箱</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="750"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="2.68"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="18">
-<td>武器鑑定晶片</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="1000"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3.57"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="19">
-<td>副本入場券盒子</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="600"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="2.14"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="20">
-<td>高級副本掃蕩券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="500"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="1.79"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="21">
-<td>天使波利祝福卷軸</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="760"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="2.71"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="22">
-<td>惡魔波利祝福卷軸</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="450"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="1.61"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="23">
-<td>庇佑冶煉秘粉</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="500"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="1.79"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="24">
-<td>高密度乙太神工匠的鐵鎚</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="135"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.48"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="25">
-<td>副本掃蕩卷</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="99"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.35"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="26">
-<td>限量服裝鑑定針</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="280"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="1.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="27">
-<td>稀有地質探測器工具箱</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="200"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.71"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="28">
-<td>UR寶石碎片</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="20"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.07"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="29">
-<td>1億元支票</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="16"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.06"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="30">
-<td>轉蛋兌換券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="15"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.05"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="31">
-<td>祝福寶石兌換券</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="15"></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="0.05"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="32">
-<td>王卡硬幣</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value="4"></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="33">
-<td>(服飾)繁星二周年氣球</td>
+</tr>
+<tr data-idx="1">
+<td>紅利點數(紅)#60101</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="0.606"></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="2">
+<td>進階精煉能力+20券#60057</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="20000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="3">
+<td>進階精煉能力+18券#64055</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="10000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="4">
+<td>進階精煉能力+16券#64053</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="5000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="5">
+<td>特殊強化石自選箱#60715</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="8000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="6">
+<td>物理能力偵測器箱子(10入)#60632</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="5000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="7">
+<td>魔法能力偵測器箱子(10入)#60633</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="5000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="8">
+<td>副本王卡自選冊#60791</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="10000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="9">
+<td>寵物裝備自選箱#60717</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="3500"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="10">
+<td>特殊寵物自選箱#60716</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="3000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="11">
+<td>寶物兌換券#60483</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="1300"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="12">
+<td>地獄副本掃蕩券#67238</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="800"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="13">
+<td>UR寶石自選箱(1)#60764</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="1800"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="14">
+<td>高密度極限乙太神工匠的鐵鎚#60687</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="900"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="15">
+<td>VIP銅箱子#60197</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="900"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="16">
+<td>評級升級券#60673</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="800"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="17">
+<td>神級材料寶箱#12674</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="750"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="18">
+<td>武器鑑定晶片#67310</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="650"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="19">
+<td>副本入場券盒子#60657</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="700"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="20">
+<td>高級副本掃蕩券#60683</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="300"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="21">
+<td>天使波利祝福卷軸#61622</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="730"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="22">
+<td>惡魔波利祝福卷軸#61623</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="450"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="23">
+<td>庇佑冶煉秘粉#69042</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="200"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="24">
+<td>高密度乙太神工匠的鐵鎚#60360</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="100"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="25">
+<td>副本掃蕩卷#60152</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="75"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="26">
+<td>限量服裝鑑定針#67237</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="280"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="27">
+<td>稀有地質探測器工具箱#60740</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="200"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="28">
+<td>UR寶石碎片#60793</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="20"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="29">
+<td>1億元支票#60332</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="14"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="30">
+<td>轉蛋兌換券#60204</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="10"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="31">
+<td>祝福寶石兌換券#60656</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="12"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="32">
+<td>王卡硬幣#60132</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="3"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="33">
+<td>(服飾)繁星二周年氣球#78562</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value="500"></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="312.50"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="34">
-<td>UR服飾魔法書轉移工具</td>
+</tr>
+<tr data-idx="34">
+<td>UR服飾魔法書轉移工具#67486</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value="2499"></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="1561.88"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="35">
-<td>S評級升級券</td>
+</tr>
+<tr data-idx="35">
+<td>S評級升級券#60684</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value="300"></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="187.50"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="36">
-<td>限量服飾自選盒(披肩)</td>
+</tr>
+<tr data-idx="36">
+<td>限量服飾自選盒(披肩)#69083</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value="300"></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="187.50"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="37">
-<td>限量服飾自選盒(頭飾)</td>
+</tr>
+<tr data-idx="37">
+<td>限量服飾自選盒(頭飾)#69082</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value="200"></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="125.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="38">
-<td>無限熊皮軟糖(30日)</td>
+</tr>
+<tr data-idx="38">
+<td>無限熊皮軟糖(30日)#60128</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value="79.2"></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="49.50"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="39">
-<td>(特殊)裝備詞墜轉移工具</td>
+</tr>
+<tr data-idx="39">
+<td>(特殊)裝備詞墜轉移工具#69089</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="6000.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="40">
-<td>UR裝備自選箱</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="4500.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="41">
-<td>神話服飾鑑定藥水(屬性終傷)</td>
+</tr>
+<tr data-idx="40">
+<td>UR裝備自選箱#67985</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="3500.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="42">
-<td>神話服飾鑑定藥水(種族終傷)</td>
+</tr>
+<tr data-idx="41">
+<td>神話服飾鑑定藥水(屬性終傷)#69088</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3500.00"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="3000.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="43">
-<td>神話服飾鑑定藥水(體型終傷)</td>
+</tr>
+<tr data-idx="42">
+<td>神話服飾鑑定藥水(種族終傷)#69085</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3500.00"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="3000.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="44">
-<td>神話服飾鑑定藥水(階級終傷)</td>
+</tr>
+<tr data-idx="43">
+<td>神話服飾鑑定藥水(體型終傷)#69086</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="3500.00"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="3000"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="45">
-<td>(特殊)裝備物法轉移卷軸(5)</td>
+</tr>
+<tr data-idx="44">
+<td>神話服飾鑑定藥水(階級終傷)#69087</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="3000.00"></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="45">
+<td>(特殊)裝備物法轉移卷軸(5)#69084</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="2500.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="46">
-<td>UR服飾魔法書盒(指定)</td>
+</tr>
+<tr data-idx="46">
+<td>UR服飾魔法書盒(指定)#67309</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="1000.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="47">
-<td>UR寶石自選箱(2)</td>
+</tr>
+<tr data-idx="47">
+<td>UR寶石自選箱(2)#68599</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="1500.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="48">
-<td>(JRO)王卡自選冊</td>
+</tr>
+<tr data-idx="48">
+<td>(JRO)王卡自選冊#60800</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="1000.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="49">
-<td>SS評級升級券</td>
+</tr>
+<tr data-idx="49">
+<td>SS評級升級券#67838</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="350.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="50">
-<td>工廠經營許可證</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="540.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="51">
-<td>足跡特效石自選箱</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="150.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="52">
-<td>一周年手推車改裝券</td>
+</tr>
+<tr data-idx="50">
+<td>工廠經營許可證#67516</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="500.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="53">
-<td>UR寶石箱子(2)</td>
+</tr>
+<tr data-idx="51">
+<td>足跡特效石自選箱#68602</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="656.25"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="150.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="54">
-<td>鉭鈮石箱子(10入)</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="550.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="55">
-<td>UR服飾魔法書盒(隨機)</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="305.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="56">
-<td>(JRO)王室狩獵自選冊</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="400.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="57">
-<td>(JRO)老舊自選冊</td>
+</tr>
+<tr data-idx="52">
+<td>一周年手推車改裝券#67988</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="300.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="58">
-<td>S服飾魔法書盒(指定)</td>
+</tr>
+<tr data-idx="53">
+<td>UR寶石箱子(2)#68600</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="656.25"></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="54">
+<td>鉭鈮石箱子(10入)#69043</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value="150000"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="55">
+<td>UR服飾魔法書盒(隨機)#67308</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="305.00"></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="56">
+<td>(JRO)王室狩獵自選冊#69090</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="400.00"></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="57">
+<td>(JRO)老舊自選冊#60799</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="300.00"></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="58">
+<td>S服飾魔法書盒(指定)#69076</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="50.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="59">
-<td>VIP倉庫啟用券</td>
+</tr>
+<tr data-idx="59">
+<td>VIP倉庫啟用券#67837</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="100.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="60">
-<td>神級材料自選箱</td>
+</tr>
+<tr data-idx="60">
+<td>神級材料自選箱#68605</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value="50"></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="61">
-<td>(JRO)UR裝備碎片</td>
+</tr>
+<tr data-idx="61">
+<td>(JRO)UR裝備碎片#68005</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="30"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="62">
-<td>寵物裝備激發指定器(2)</td>
+</tr>
+<tr data-idx="62">
+<td>寵物裝備激發指定器(2)#69081</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="25.00"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value="30"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="63">
-<td>寵物裝備激發指定器(1)</td>
+</tr>
+<tr data-idx="63">
+<td>寵物裝備激發指定器(1)#69080</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="10.00"></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value="20"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value=""></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="64">
-<td>競標服裝鑑定針</td>
-<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="8.00"></td>
-<td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="65">
-<td>寵物裝備鑑定針</td>
+</tr>
+<tr data-idx="64">
+<td>競標服裝鑑定針#67236</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="8.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="66">
-<td>紅利轉蛋兌換券</td>
+</tr>
+<tr data-idx="65">
+<td>寵物裝備鑑定針#68732</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
-<td><input class="price-input direct-nt" type="number" step="0.01" value="10.00"></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="8.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="67">
-<td>影子昇華結晶</td>
+</tr>
+<tr data-idx="66">
+<td>紅利轉蛋兌換券#60760</td>
+<td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
+<td><input class="price-input direct-nt" type="number" step="0.01" value="11.00"></td>
+<td class="price-nt calc-nt">0.00</td>
+</tr>
+<tr data-idx="67">
+<td>影子昇華結晶#67787</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="4.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="68">
-<td>科技研發加速器(1小時)</td>
+</tr>
+<tr data-idx="68">
+<td>科技研發加速器(1小時)#</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="1.00"></td>
 <td class="price-nt calc-nt">0.00</td>
-</tr><tr data-idx="69">
-<td>S服飾魔法書盒(隨機)</td>
+</tr>
+<tr data-idx="69">
+<td>S服飾魔法書盒(隨機)#</td>
 <td><input class="price-input shop-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input bonus-price" type="number" step="0.01" value=""></td>
 <td><input class="price-input direct-nt" type="number" step="0.01" value="0.00"></td>
 <td class="price-nt calc-nt">0.00</td>
 </tr>
-        </tbody>
+</tbody>
       </table>
     </div>
 
@@ -1241,7 +1310,7 @@ document.addEventListener("input",e=>{
 });
 
 const PRICE_TABLE_KEY="starro_recharge_price_table_v3";
-const PRICE_TABLE_DEFAULTS=[{"name": "商城點數", "shop": "1", "bonus": "", "nt": "0.00"}, {"name": "紅利點數", "shop": "", "bonus": "", "nt": "0.63"}, {"name": "進階精煉能力+20券", "shop": "20000", "bonus": "", "nt": "71.43"}, {"name": "進階精煉能力+18券", "shop": "10000", "bonus": "", "nt": "35.71"}, {"name": "進階精煉能力+16券", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "特殊強化石自選箱", "shop": "8000", "bonus": "", "nt": "28.57"}, {"name": "物理能力偵測器箱子(10入)", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "魔法能力偵測器箱子(10入)", "shop": "5000", "bonus": "", "nt": "17.86"}, {"name": "副本王卡自選冊", "shop": "10000", "bonus": "", "nt": "35.71"}, {"name": "寵物裝備自選箱", "shop": "3500", "bonus": "", "nt": "12.50"}, {"name": "特殊寵物自選箱", "shop": "3000", "bonus": "", "nt": "10.71"}, {"name": "寶物兌換券", "shop": "1300", "bonus": "", "nt": "4.64"}, {"name": "地獄副本掃蕩券", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "UR寶石自選箱(1)", "shop": "1050", "bonus": "", "nt": "3.75"}, {"name": "高密度極限乙太神工匠的鐵鎚", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "VIP銅箱子", "shop": "900", "bonus": "", "nt": "3.21"}, {"name": "評級升級券", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "神級材料寶箱", "shop": "750", "bonus": "", "nt": "2.68"}, {"name": "武器鑑定晶片", "shop": "1000", "bonus": "", "nt": "3.57"}, {"name": "副本入場券盒子", "shop": "600", "bonus": "", "nt": "2.14"}, {"name": "高級副本掃蕩券", "shop": "500", "bonus": "", "nt": "1.79"}, {"name": "天使波利祝福卷軸", "shop": "760", "bonus": "", "nt": "2.71"}, {"name": "惡魔波利祝福卷軸", "shop": "450", "bonus": "", "nt": "1.61"}, {"name": "庇佑冶煉秘粉", "shop": "500", "bonus": "", "nt": "1.79"}, {"name": "高密度乙太神工匠的鐵鎚", "shop": "135", "bonus": "", "nt": "0.48"}, {"name": "副本掃蕩卷", "shop": "99", "bonus": "", "nt": "0.35"}, {"name": "限量服裝鑑定針", "shop": "280", "bonus": "", "nt": "1.00"}, {"name": "稀有地質探測器工具箱", "shop": "200", "bonus": "", "nt": "0.71"}, {"name": "UR寶石碎片", "shop": "20", "bonus": "", "nt": "0.07"}, {"name": "1億元支票", "shop": "16", "bonus": "", "nt": "0.06"}, {"name": "轉蛋兌換券", "shop": "15", "bonus": "", "nt": "0.05"}, {"name": "祝福寶石兌換券", "shop": "15", "bonus": "", "nt": "0.05"}, {"name": "王卡硬幣", "shop": "4", "bonus": "", "nt": ""}, {"name": "(服飾)繁星二周年氣球", "shop": "", "bonus": "500", "nt": "312.50"}, {"name": "UR服飾魔法書轉移工具", "shop": "", "bonus": "2499", "nt": "1561.88"}, {"name": "S評級升級券", "shop": "", "bonus": "300", "nt": "187.50"}, {"name": "限量服飾自選盒(披肩)", "shop": "", "bonus": "300", "nt": "187.50"}, {"name": "限量服飾自選盒(頭飾)", "shop": "", "bonus": "200", "nt": "125.00"}, {"name": "無限熊皮軟糖(30日)", "shop": "", "bonus": "79.2", "nt": "49.50"}, {"name": "(特殊)裝備詞墜轉移工具", "shop": "", "bonus": "", "nt": "6000.00"}, {"name": "UR裝備自選箱", "shop": "", "bonus": "", "nt": "4500.00"}, {"name": "神話服飾鑑定藥水(屬性終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(種族終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(體型終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "神話服飾鑑定藥水(階級終傷)", "shop": "", "bonus": "", "nt": "3500.00"}, {"name": "(特殊)裝備物法轉移卷軸(5)", "shop": "", "bonus": "", "nt": "2500.00"}, {"name": "UR服飾魔法書盒(指定)", "shop": "", "bonus": "", "nt": "1000.00"}, {"name": "UR寶石自選箱(2)", "shop": "", "bonus": "", "nt": "1500.00"}, {"name": "(JRO)王卡自選冊", "shop": "", "bonus": "", "nt": "1000.00"}, {"name": "SS評級升級券", "shop": "", "bonus": "", "nt": "350.00"}, {"name": "工廠經營許可證", "shop": "", "bonus": "", "nt": "540.00"}, {"name": "足跡特效石自選箱", "shop": "", "bonus": "", "nt": "150.00"}, {"name": "一周年手推車改裝券", "shop": "", "bonus": "", "nt": "500.00"}, {"name": "UR寶石箱子(2)", "shop": "", "bonus": "", "nt": "656.25"}, {"name": "鉭鈮石箱子(10入)", "shop": "", "bonus": "", "nt": "550.00"}, {"name": "UR服飾魔法書盒(隨機)", "shop": "", "bonus": "", "nt": "305.00"}, {"name": "(JRO)王室狩獵自選冊", "shop": "", "bonus": "", "nt": "400.00"}, {"name": "(JRO)老舊自選冊", "shop": "", "bonus": "", "nt": "300.00"}, {"name": "S服飾魔法書盒(指定)", "shop": "", "bonus": "", "nt": "50.00"}, {"name": "VIP倉庫啟用券", "shop": "", "bonus": "", "nt": "100.00"}, {"name": "神級材料自選箱", "shop": "", "bonus": "50", "nt": ""}, {"name": "(JRO)UR裝備碎片", "shop": "", "bonus": "", "nt": "30"}, {"name": "寵物裝備激發指定器(2)", "shop": "", "bonus": "", "nt": "25.00"}, {"name": "寵物裝備激發指定器(1)", "shop": "", "bonus": "", "nt": "10.00"}, {"name": "競標服裝鑑定針", "shop": "", "bonus": "", "nt": "8.00"}, {"name": "寵物裝備鑑定針", "shop": "", "bonus": "", "nt": "8.00"}, {"name": "紅利轉蛋兌換券", "shop": "", "bonus": "", "nt": "10.00"}, {"name": "影子昇華結晶", "shop": "", "bonus": "", "nt": "4.00"}, {"name": "科技研發加速器(1小時)", "shop": "", "bonus": "", "nt": "1.00"}, {"name": "S服飾魔法書盒(隨機)", "shop": "", "bonus": "", "nt": "0.00"}];
+const PRICE_TABLE_DEFAULTS=[{"name":"商城點數(P)","shop":"1","bonus":"","nt":""},{"name":"紅利點數(紅)#60101","shop":"","bonus":"","nt":"0.606"},{"name":"進階精煉能力+20券#60057","shop":"20000","bonus":"","nt":""},{"name":"進階精煉能力+18券#64055","shop":"10000","bonus":"","nt":""},{"name":"進階精煉能力+16券#64053","shop":"5000","bonus":"","nt":""},{"name":"特殊強化石自選箱#60715","shop":"8000","bonus":"","nt":""},{"name":"物理能力偵測器箱子(10入)#60632","shop":"5000","bonus":"","nt":""},{"name":"魔法能力偵測器箱子(10入)#60633","shop":"5000","bonus":"","nt":""},{"name":"副本王卡自選冊#60791","shop":"10000","bonus":"","nt":""},{"name":"寵物裝備自選箱#60717","shop":"3500","bonus":"","nt":""},{"name":"特殊寵物自選箱#60716","shop":"3000","bonus":"","nt":""},{"name":"寶物兌換券#60483","shop":"1300","bonus":"","nt":""},{"name":"地獄副本掃蕩券#67238","shop":"800","bonus":"","nt":""},{"name":"UR寶石自選箱(1)#60764","shop":"1800","bonus":"","nt":""},{"name":"高密度極限乙太神工匠的鐵鎚#60687","shop":"900","bonus":"","nt":""},{"name":"VIP銅箱子#60197","shop":"900","bonus":"","nt":""},{"name":"評級升級券#60673","shop":"800","bonus":"","nt":""},{"name":"神級材料寶箱#12674","shop":"750","bonus":"","nt":""},{"name":"武器鑑定晶片#67310","shop":"650","bonus":"","nt":""},{"name":"副本入場券盒子#60657","shop":"700","bonus":"","nt":""},{"name":"高級副本掃蕩券#60683","shop":"300","bonus":"","nt":""},{"name":"天使波利祝福卷軸#61622","shop":"730","bonus":"","nt":""},{"name":"惡魔波利祝福卷軸#61623","shop":"450","bonus":"","nt":""},{"name":"庇佑冶煉秘粉#69042","shop":"200","bonus":"","nt":""},{"name":"高密度乙太神工匠的鐵鎚#60360","shop":"100","bonus":"","nt":""},{"name":"副本掃蕩卷#60152","shop":"75","bonus":"","nt":""},{"name":"限量服裝鑑定針#67237","shop":"280","bonus":"","nt":""},{"name":"稀有地質探測器工具箱#60740","shop":"200","bonus":"","nt":""},{"name":"UR寶石碎片#60793","shop":"20","bonus":"","nt":""},{"name":"1億元支票#60332","shop":"14","bonus":"","nt":""},{"name":"轉蛋兌換券#60204","shop":"10","bonus":"","nt":""},{"name":"祝福寶石兌換券#60656","shop":"12","bonus":"","nt":""},{"name":"王卡硬幣#60132","shop":"3","bonus":"","nt":""},{"name":"(服飾)繁星二周年氣球#78562","shop":"","bonus":"500","nt":""},{"name":"UR服飾魔法書轉移工具#67486","shop":"","bonus":"2499","nt":""},{"name":"S評級升級券#60684","shop":"","bonus":"300","nt":""},{"name":"限量服飾自選盒(披肩)#69083","shop":"","bonus":"300","nt":""},{"name":"限量服飾自選盒(頭飾)#69082","shop":"","bonus":"200","nt":""},{"name":"無限熊皮軟糖(30日)#60128","shop":"","bonus":"79.2","nt":""},{"name":"(特殊)裝備詞墜轉移工具#69089","shop":"","bonus":"","nt":"6000.00"},{"name":"UR裝備自選箱#67985","shop":"","bonus":"","nt":"3500.00"},{"name":"神話服飾鑑定藥水(屬性終傷)#69088","shop":"","bonus":"","nt":"3000.00"},{"name":"神話服飾鑑定藥水(種族終傷)#69085","shop":"","bonus":"","nt":"3000.00"},{"name":"神話服飾鑑定藥水(體型終傷)#69086","shop":"","bonus":"","nt":"3000"},{"name":"神話服飾鑑定藥水(階級終傷)#69087","shop":"","bonus":"","nt":"3000.00"},{"name":"(特殊)裝備物法轉移卷軸(5)#69084","shop":"","bonus":"","nt":"2500.00"},{"name":"UR服飾魔法書盒(指定)#67309","shop":"","bonus":"","nt":"1000.00"},{"name":"UR寶石自選箱(2)#68599","shop":"","bonus":"","nt":"1500.00"},{"name":"(JRO)王卡自選冊#60800","shop":"","bonus":"","nt":"1000.00"},{"name":"SS評級升級券#67838","shop":"","bonus":"","nt":"350.00"},{"name":"工廠經營許可證#67516","shop":"","bonus":"","nt":"500.00"},{"name":"足跡特效石自選箱#68602","shop":"","bonus":"","nt":"150.00"},{"name":"一周年手推車改裝券#67988","shop":"","bonus":"","nt":"300.00"},{"name":"UR寶石箱子(2)#68600","shop":"","bonus":"","nt":"656.25"},{"name":"鉭鈮石箱子(10入)#69043","shop":"150000","bonus":"","nt":""},{"name":"UR服飾魔法書盒(隨機)#67308","shop":"","bonus":"","nt":"305.00"},{"name":"(JRO)王室狩獵自選冊#69090","shop":"","bonus":"","nt":"400.00"},{"name":"(JRO)老舊自選冊#60799","shop":"","bonus":"","nt":"300.00"},{"name":"S服飾魔法書盒(指定)#69076","shop":"","bonus":"","nt":"50.00"},{"name":"VIP倉庫啟用券#67837","shop":"","bonus":"","nt":"100.00"},{"name":"神級材料自選箱#68605","shop":"","bonus":"50","nt":""},{"name":"(JRO)UR裝備碎片#68005","shop":"","bonus":"","nt":"30"},{"name":"寵物裝備激發指定器(2)#69081","shop":"","bonus":"30","nt":""},{"name":"寵物裝備激發指定器(1)#69080","shop":"","bonus":"20","nt":""},{"name":"競標服裝鑑定針#67236","shop":"","bonus":"","nt":"8.00"},{"name":"寵物裝備鑑定針#68732","shop":"","bonus":"","nt":"8.00"},{"name":"紅利轉蛋兌換券#60760","shop":"","bonus":"","nt":"11.00"},{"name":"影子昇華結晶#67787","shop":"","bonus":"","nt":"4.00"},{"name":"科技研發加速器(1小時)#","shop":"","bonus":"","nt":"1.00"},{"name":"S服飾魔法書盒(隨機)#","shop":"","bonus":"","nt":"0.00"}];
 
 function loadPriceTableState(){
   try{
@@ -1251,12 +1320,15 @@ function loadPriceTableState(){
   return null;
 }
 
+function priceRowUsesAuto(shop,bonus){return Number(shop)>0||Number(bonus)>0}
+function syncPriceManualInputs(){document.querySelectorAll("#priceTableBody tr").forEach(tr=>{const shop=tr.querySelector(".shop-price")?.value??"",bonus=tr.querySelector(".bonus-price")?.value??"",manual=tr.querySelector(".direct-nt");if(!manual)return;const auto=priceRowUsesAuto(shop,bonus);if(auto){manual.value="";manual.disabled=true;manual.placeholder="自動換算";}else{manual.disabled=false;manual.placeholder="手動台價值";}})}
+
 function savePriceTableState(){
-  const rows=[...document.querySelectorAll("#priceTableBody tr")].map(tr=>({
-    shop:tr.querySelector(".shop-price").value,
-    bonus:tr.querySelector(".bonus-price").value,
-    nt:tr.querySelector(".direct-nt").value
-  }));
+  const rows=[...document.querySelectorAll("#priceTableBody tr")].map(tr=>{const shop=tr.querySelector(".shop-price").value,bonus=tr.querySelector(".bonus-price").value;return {
+    shop,
+    bonus,
+    nt:priceRowUsesAuto(shop,bonus)?"":tr.querySelector(".direct-nt").value
+  }});
   const state={
     shopRatio:document.getElementById("shopRatio").value,
     bonusRatio:document.getElementById("bonusRatio").value,
@@ -1266,8 +1338,9 @@ function savePriceTableState(){
 }
 
 function calcPriceTable(){
+  syncPriceManualInputs();
   const shopRatio=Math.max(0.000001,Number(document.getElementById("shopRatio").value)||280);
-  const bonusRatio=Math.max(0.000001,Number(document.getElementById("bonusRatio").value)||1.6);
+  const bonusRatio=Math.max(0.000001,Number(document.getElementById("bonusRatio").value)||1.65);
 
   document.querySelectorAll("#priceTableBody tr").forEach(tr=>{
     const shop=Number(tr.querySelector(".shop-price").value);
@@ -1284,14 +1357,14 @@ function calcPriceTable(){
 function escapePriceHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 function bindPriceTableInputs(){
   document.querySelectorAll("#priceTableBody input,#shopRatio,#bonusRatio").forEach(el=>{
-    el.oninput=()=>{calcPriceTable();savePriceTableState();renderCumulativeRewards();};
+    el.oninput=()=>{syncPriceManualInputs();calcPriceTable();savePriceTableState();renderCumulativeRewards();};
   });
 }
 function applyCloudPriceTableRows(rows){
   if(!Array.isArray(rows)||!rows.length)return;
   const tbody=document.getElementById("priceTableBody");if(!tbody)return;
-  tbody.innerHTML=rows.map((x,i)=>`<tr data-idx="${i}"><td>${escapePriceHtml(x.name||"")}</td><td><input class="price-input shop-price" type="number" step="0.01" value="${escapePriceHtml(x.shop??"")}"></td><td><input class="price-input bonus-price" type="number" step="0.01" value="${escapePriceHtml(x.bonus??"")}"></td><td><input class="price-input direct-nt" type="number" step="0.01" value="${escapePriceHtml(x.nt??"")}"></td><td class="price-nt calc-nt">0.00</td></tr>`).join("");
-  bindPriceTableInputs();
+  tbody.innerHTML=rows.map((x,i)=>{const auto=priceRowUsesAuto(x.shop,x.bonus),nt=auto?"":(x.nt??"");return `<tr data-idx="${i}"><td>${escapePriceHtml(x.name||"")}</td><td><input class="price-input shop-price" type="number" step="0.01" value="${escapePriceHtml(x.shop??"")}"></td><td><input class="price-input bonus-price" type="number" step="0.01" value="${escapePriceHtml(x.bonus??"")}"></td><td><input class="price-input direct-nt" type="number" step="0.01" value="${escapePriceHtml(nt)}" ${auto?'disabled placeholder="自動換算"':'placeholder="手動台價值"'}></td><td class="price-nt calc-nt">0.00</td></tr>`}).join("");
+  bindPriceTableInputs();syncPriceManualInputs();
 }
 
 function initPriceTable(){
@@ -1305,22 +1378,23 @@ function initPriceTable(){
         if(!x) return;
         tr.querySelector(".shop-price").value=x.shop??"";
         tr.querySelector(".bonus-price").value=x.bonus??"";
-        tr.querySelector(".direct-nt").value=x.nt??"";
+        tr.querySelector(".direct-nt").value=priceRowUsesAuto(x.shop,x.bonus)?"":(x.nt??"");
       });
     }
   }
 
   bindPriceTableInputs();
+  syncPriceManualInputs();
 
   document.getElementById("resetPriceTable").addEventListener("click",()=>{
-    if(!confirm("恢復 2026.08 預設價格？")) return;
+    if(!confirm("恢復預設價格？")) return;
     document.getElementById("shopRatio").value="280";
-    document.getElementById("bonusRatio").value="1.6";
+    document.getElementById("bonusRatio").value="1.65";
     document.querySelectorAll("#priceTableBody tr").forEach((tr,i)=>{
       const x=PRICE_TABLE_DEFAULTS[i];
       tr.querySelector(".shop-price").value=x?.shop??"";
       tr.querySelector(".bonus-price").value=x?.bonus??"";
-      tr.querySelector(".direct-nt").value=x?.nt??"";
+      tr.querySelector(".direct-nt").value=priceRowUsesAuto(x?.shop,x?.bonus)?"":(x?.nt??"");
     });
     calcPriceTable();
     savePriceTableState();
