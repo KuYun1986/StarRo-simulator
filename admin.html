@@ -23,8 +23,9 @@ details.admin-details{margin-top:12px;border:1px solid #28323e;border-radius:11p
 @media(max-width:1000px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}.nav{grid-template-columns:repeat(4,1fr)}.overview{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.content{padding:12px}.topbar{padding:12px}.nav{grid-template-columns:repeat(2,1fr)}.feature-row{grid-template-columns:1fr auto}.feature-row .pill{display:none}.grid2,.grid3,.grid4{grid-template-columns:1fr}.range-row{grid-template-columns:1fr 1fr}.range-row .field:first-child{grid-column:1/-1}.material-row{grid-template-columns:1fr 100px 100px}.overview{grid-template-columns:1fr 1fr}}
 </style>
-<script src="supabase-config.js"></script><script src="starro-config.js"></script>
-<link rel="stylesheet" href="admin-enhancements.css"></head>
+<script src="supabase-config.js"></script><script src="starro-config.js"></script><script src="cms-definitions.js"></script>
+<link rel="stylesheet" href="admin-enhancements.css"><link rel="stylesheet" href="admin-fullcms.css">
+</head>
 <body>
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
@@ -247,4 +248,5 @@ $('#loginBtn').onclick=login;$('#diagnoseBtn').onclick=runDiagnostics;$('#copyDi
 const s=sb();if(s.url&&s.anonKey)$('#cloudSetupWarn').classList.add('hidden');
 try{const saved=JSON.parse(sessionStorage.getItem('starro_admin_session')||'null');if(saved?.access_token&&s.url&&s.anonKey){cloudSession=saved;loadRemoteForAdmin().then(()=>showApp(true)).catch(()=>sessionStorage.removeItem('starro_admin_session'));}}catch(e){}
 </script>
-<script src="admin-enhancements.js"></script></body></html>
+<script src="admin-enhancements.js"></script><script src="admin-fullcms.js"></script>
+</body></html>
