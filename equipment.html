@@ -35,36 +35,40 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 .zero{color:#ffb36a}
 @media(max-width:720px){.wrap{padding:12px}h1{font-size:23px}.card{padding:14px}.summary{grid-template-columns:1fr}.tabs button{flex:1 1 145px}}
 </style>
-<style id="starroNavigationStyle">
-.starro-navigation{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px;grid-column:1/-1}
-.starro-navigation a{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border:1px solid #3a4654;border-radius:9px;background:#141b25;color:#f5f7fb;text-decoration:none;font-size:14px;font-weight:700;line-height:1.4}
-.starro-navigation a:hover,.starro-navigation a:focus-visible{border-color:#67a0ff;background:#1b2838}
-.starro-navigation a[aria-current="page"]{border-color:#55d35a;background:#163922;color:#9ef0aa}
-.starro-section-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;grid-column:1/-1}
-@media(max-width:600px){.starro-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.starro-navigation a{padding:9px 4px;font-size:13px}}
+
+<style>
+.quick-calc{
+  margin-top:14px;border:1px solid #2d405e;border-radius:14px;background:#101824;padding:14px
+}
+.quick-calc h2{margin:0 0 10px;font-size:20px}
+.quick-calc-grid{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:8px;align-items:end}
+.quick-calc label{font-size:12px;color:#9fb0c8;font-weight:800}
+.quick-calc input,.quick-calc select{
+  width:100%;height:38px;border-radius:8px;border:1px solid #354762;
+  background:#0b1421;color:#eef4ff;padding:0 9px;font-size:15px
+}
+.quick-calc-result{margin-top:10px;padding:12px;border:1px solid #2e4869;border-radius:10px;background:#0c1524}
+.quick-calc-result .big{font-size:24px;font-weight:900}
+.quick-calc-note{font-size:12px;color:#8fa0ba;margin-top:7px;line-height:1.6}
+@media(max-width:760px){.quick-calc-grid{grid-template-columns:1fr 1fr}}
 </style>
-<script src="supabase-config.js"></script>
-<script src="starro-config.js"></script>
-<script src="cms-definitions.js"></script>
-<link rel="stylesheet" href="ro-front-theme.css">
-<link rel="stylesheet" href="front-cms.css">
+
 </head>
 <body>
 <div class="wrap">
 <h1>💰 裝備成本區</h1>
-<nav class="starro-navigation" aria-label="網站導覽">
-<a href="index.html">🏠 主頁</a>
-<a href="game.html">🎮 遊戲區</a>
-<a href="enchant.html">✨ 附魔區</a>
-<a href="identify.html">🔍 洗詞鑑定區</a>
-<a href="collection.html">📚 收藏區</a>
-<a href="equipment.html" aria-current="page">💰 裝備成本區</a>
-<a href="CASH.html">💳 現金區</a>
-<a href="shadow.html">💎 影子區</a>
-</nav>
+<div class="topnav">
+  <a href="index.html" class="game-page-link">🏠 主頁</a>
+  <a href="game.html" class="game-page-link">🎮 遊戲區</a>
+  <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
+  <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
+  <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
+  <a href="collection.html" class="game-page-link">📚 收藏區</a>
+  <a href="shadow.html" class="game-page-link">💎 影子區</a>
+</div>
 <div class="sub">裝備製作模擬｜所有 P 點價格都可以自行修改。</div>
 
-<section class="card" data-starro-feature="equipment">
+<section class="card">
 <h2>🧰 裝備製作模擬</h2>
 <div class="tabs" id="equipTabs"></div>
 <div class="tiny">
@@ -87,7 +91,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 「現價」為 2026.09.04 更新；預設收合，點「顯示裝備現價」才展開。彙整全部裝備材料，同名道具只列一次，價格與價格單位會同步到所有裝備頁。修改後會儲存在你的瀏覽器。
 </div>
 </section>
-<section class="card" id="serviceMaterialPrices" data-starro-feature="equipment">
+<section class="card" id="serviceMaterialPrices">
   <h2>💲 代敲材料預設價格 (P)</h2>
   <div class="tiny" style="margin-bottom:12px">
     預設收合；點下方按鈕才顯示。價格可自行修改並儲存在目前瀏覽器。
@@ -121,7 +125,40 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   </div>
 </section>
 
-<section class="card" id="serviceFeeSimulator" data-starro-feature="equipment">
+
+<section class="card quick-calc">
+  <h2>🧮 P➡️紅計算機</h2>
+  <div class="quick-calc-grid">
+    <label>道具數量
+      <input id="quickCalcA" type="number" step="any" value="8">
+    </label>
+    <label>運算
+      <select id="quickCalcOp">
+        <option value="*">× 乘</option>
+        <option value="+">＋ 加</option>
+        <option value="-">－ 減</option>
+        <option value="/">÷ 除</option>
+      </select>
+    </label>
+    <label>道具價格(P)
+      <input id="quickCalcB" type="number" step="any" value="800">
+    </label>
+    <label>1紅 = ? P
+      <input id="quickCalcRedRate" type="number" step="any" value="180">
+    </label>
+  </div>
+
+  <div class="quick-calc-result">
+    <div>算式：<b id="quickCalcFormula">8 × 800 = 6,400 P</b></div>
+    <div class="big" id="quickCalcRedResult">= 35.56 紅</div>
+    <div class="quick-calc-note" style="font-size:15px;line-height:1.9">
+      <div style="color:#ffd36a;font-weight:900">先算 數量 與 價格，結果自動換算成紅。</div>
+      <div style="color:#ff6b6f;font-weight:900">紅利可自行調整</div>
+      <div style="color:#68b1ff;font-weight:900">例：大金 8 把 × 800P ÷ 180P/紅 ＝ 35.56紅。</div>
+    </div>
+  </div>
+</section>
+<section class="card" id="serviceFeeSimulator">
   <h2>🔨 古雲代敲／代評費用試算</h2>
   <div class="tiny">以下皆為單件規則，可輸入件數自動放大需求量。</div>
 
@@ -231,15 +268,11 @@ function defaultMasterItem(name){
   return MASTER_ITEMS.find(x=>x.name===name);
 }
 function masterPrice(name){
-  const cloud=window.StarroConfig?.get("features.equipment.priceOverrides."+name,null);
-  if(cloud && cloud.price!==undefined) return Number(cloud.price);
   const saved=localStorage.getItem(MASTER_PRICE_KEY(name));
   if(saved!==null) return Number(saved);
   return Number(defaultMasterItem(name)?.price||0);
 }
 function masterPack(name){
-  const cloud=window.StarroConfig?.get("features.equipment.priceOverrides."+name,null);
-  if(cloud && cloud.pack!==undefined) return Math.max(0.000001,Number(cloud.pack)||1);
   const saved=localStorage.getItem(MASTER_PACK_KEY(name));
   if(saved!==null) return Math.max(0.000001,Number(saved)||1);
   return Math.max(0.000001,Number(defaultMasterItem(name)?.pack||1));
@@ -602,12 +635,49 @@ renderTabs();renderTable();
 
 
 <script>
-document.addEventListener("starro-config-applied",()=>{
- const ids={bless:"svcPriceBless",check:"svcPriceCheck",bigGold:"svcPriceBigGold",smallGold:"svcPriceSmallGold",bigGray:"svcPriceBigGray",smallGray:"svcPriceSmallGray",taffy:"svcPriceTaffy",dust:"svcPriceDust",red:"svcPriceRed"};
- for(const [k,id] of Object.entries(ids)){const el=document.getElementById(id);const v=StarroConfig.get("features.equipment.servicePrices."+k,null);if(el&&v!==null)el.value=v;}
- if(typeof recalc==='function')try{recalc()}catch(e){}
-});
+(function(){
+  const A=document.getElementById("quickCalcA");
+  const B=document.getElementById("quickCalcB");
+  const OP=document.getElementById("quickCalcOp");
+  const RATE=document.getElementById("quickCalcRedRate");
+  const F=document.getElementById("quickCalcFormula");
+  const R=document.getElementById("quickCalcRedResult");
+  if(!A||!B||!OP||!RATE||!F||!R) return;
+
+  const fmt=n=>Number.isFinite(n)
+    ? n.toLocaleString("zh-TW",{maximumFractionDigits:4})
+    : "—";
+
+  function calc(){
+    const a=Number(A.value)||0;
+    const b=Number(B.value)||0;
+    const rate=Number(RATE.value)||0;
+    let p=0;
+    const symbol=OP.value;
+
+    if(symbol==="+") p=a+b;
+    else if(symbol==="-") p=a-b;
+    else if(symbol==="*") p=a*b;
+    else if(symbol==="/") p=b===0?NaN:a/b;
+
+    const showSymbol=symbol==="*"?"×":symbol==="/"?"÷":symbol;
+    F.textContent=`${fmt(a)} ${showSymbol} ${fmt(b)} = ${fmt(p)} P`;
+
+    if(!Number.isFinite(p)){
+      R.textContent="= 無法計算";
+      return;
+    }
+    if(rate<=0){
+      R.textContent="= 請輸入有效紅利比值";
+      return;
+    }
+    R.textContent=`= ${fmt(p/rate)} 紅`;
+  }
+
+  [A,B,RATE].forEach(el=>el.addEventListener("input",calc));
+  OP.addEventListener("change",calc);
+  calc();
+})();
 </script>
-<script src="ro-front-theme.js"></script>
-<script src="front-cms.js"></script>
+
 </body></html>
