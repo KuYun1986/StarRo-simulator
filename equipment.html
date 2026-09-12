@@ -53,10 +53,27 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 @media(max-width:760px){.quick-calc-grid{grid-template-columns:1fr 1fr}}
 </style>
 
+
+<style>
+.page-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap
+}
+.admin-entry{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:38px;padding:8px 13px;border-radius:9px;
+  border:1px solid #56657a;background:linear-gradient(180deg,#202b39,#151d28);
+  color:#f4f7fb;text-decoration:none;font-weight:900;white-space:nowrap
+}
+.admin-entry:hover{filter:brightness(1.08)}
+</style>
+
 </head>
 <body>
 <div class="wrap">
-<h1>💰 裝備成本區</h1>
+<div class="page-head">
+  <h1>💰 裝備成本區</h1>
+  <a href="admin.html" class="admin-entry">⚙️ 後台管理</a>
+</div>
 <div class="topnav">
   <a href="index.html" class="game-page-link">🏠 主頁</a>
   <a href="game.html" class="game-page-link">🎮 遊戲區</a>
