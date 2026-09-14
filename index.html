@@ -187,6 +187,13 @@ a{color:#77a9ff}
 <script src="cms-definitions.js"></script>
 <link rel="stylesheet" href="ro-front-theme.css">
 <link rel="stylesheet" href="front-cms.css">
+
+<style id="homeDashboardCleanup">
+.home-game-duplicate{display:none!important}
+.home-game-hub{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0;padding:14px 16px;border:1px solid #33445f;border-radius:12px;background:linear-gradient(180deg,#111c2c,#0d1623)}
+.home-game-hub div{display:flex;flex-direction:column;gap:4px}.home-game-hub span{color:#98a9c3;font-size:13px;line-height:1.6}.home-game-hub a{flex:0 0 auto;padding:9px 13px;border:1px solid #4d78aa;border-radius:9px;color:#dcecff;text-decoration:none;font-weight:900;background:#17304d}
+@media(max-width:700px){.home-game-hub{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
 <body><div class="wrap">
 <h1>🌟 繁星仙境模擬器</h1>
@@ -215,7 +222,12 @@ a{color:#77a9ff}
 </div>
 
 
-<section class="card">
+
+<div class="home-game-hub" role="note">
+  <div><b>🎮 完整遊戲模擬已集中到遊戲區</b><span>轉蛋、SSS、+20→+30、盾牌石、手套石等完整模擬統一在遊戲區，首頁保留常用工具。</span></div>
+  <a href="game.html">前往遊戲區 →</a>
+</div>
+<section class="card" id="homeWorkflow">
 <h2>自訂流程</h2>
 <p class="tiny">目前只保留精煉 1% 流程。</p>
 <div id="steps"></div>
@@ -347,7 +359,7 @@ a{color:#77a9ff}
 
 
 
-<section class="card">
+<section class="card home-game-duplicate">
 <h2>💎 UR寶石箱(1)</h2>
 <div class="tiny">開啟 UR寶石箱(1)，有機會獲得 <b>UR寶石箱(2)</b>。</div>
 <div class="actions">
@@ -366,7 +378,7 @@ a{color:#77a9ff}
 </div>
 </section>
 
-<section class="card">
+<section class="card" id="homeRefineBox">
 <h2>🧰 精煉箱</h2>
 <p class="tiny">每抽消耗 <b>750 P</b>。隨機獲得一個精煉鎚，可一次開啟 10 / 100 / 1000 箱。</p>
 
@@ -395,7 +407,7 @@ a{color:#77a9ff}
 <div id="refineBoxStats" class="statgrid" style="margin-top:10px"></div>
 <div id="refineBoxDist" style="margin-top:10px"></div>
 </section>
-<section class="card">
+<section class="card home-game-duplicate">
 <h2>🎰 XR 轉蛋</h2>
 <div class="row"><span>每抽花費</span><b>19 紅利</b></div>
 <p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜連續 1001 抽未出大獎才觸發保底：XR大獎 / UR一獎 / UR二獎，3 抽 1；自然抽到任一大獎或觸發保底後，都重新從第 1 抽計算。</p>
@@ -410,7 +422,7 @@ a{color:#77a9ff}
 <div id="xrStats" class="statgrid"></div>
 <div id="xrDist" style="margin-top:10px"></div>
 </section>
-<section class="card">
+<section class="card home-game-duplicate">
 <h2>🎟️ UR 轉蛋</h2>
 <div class="row"><span>每抽花費</span><b>19 紅利</b></div>
 <p class="tiny">無保底｜UR：0.15%｜UR內容：UR服飾隨機書、華金自選箱；其中華金自選箱機率 0.05%。</p>
@@ -556,7 +568,7 @@ a{color:#77a9ff}
 </p>
 </section>
 
-<section class="card">
+<section class="card home-game-duplicate">
 <h2>🏆 SSS評級系統</h2>
 <p class="tiny">每次評級成功機率 <b>15%</b>，每次成本固定 <b>500 台幣</b>。</p>
 
@@ -571,7 +583,7 @@ a{color:#77a9ff}
 <div id="sssNow" style="margin-top:12px"></div>
 <div id="sssStats" style="margin-top:10px"></div>
 </section>
-<section class="card">
+<section class="card home-game-duplicate">
 <h2>🔨 +20 → +30 精煉模擬</h2>
 <p class="tiny">⭐ 若從 +20 開始累計 <b>200 把精煉槌內</b> 達成 +30，會送上全服即時戰報。</p>
 <p class="tiny">每把武器從 <b>+20</b> 開始；每次精煉都消耗 <b>1 把精煉槌</b>，每把精煉槌 <b>15,000 P</b>。失敗維持原精煉值，成功才進到下一階。每次按 10 / 100 把精煉槌都會從「目前精煉值」繼續往上敲，進度不會重置；可一路累積到 +30。</p>
@@ -596,7 +608,7 @@ a{color:#77a9ff}
 <div id="refine30Stats" style="margin-top:10px"></div>
 </section>
 
-<section class="card">
+<section class="card home-game-duplicate">
 <h2>🛡️ 盾牌石</h2>
 <p class="tiny">⭐ 100 次內抽中成功結果會送上「全服即時戰報」。</p>
 <p class="tiny">每次使用都會計算成本；抽到「腐朽」仍可繼續洗，並累計腐朽數量。</p>
@@ -633,7 +645,7 @@ a{color:#77a9ff}
 </div>
 </section>
 
-<section class="card">
+<section class="card home-game-duplicate">
 <h2>🧤 手套石</h2>
 <p class="tiny">⭐ 100 次內抽中純潔石成功會送上「全服即時戰報」。</p>
 <div class="stat">
