@@ -32,3 +32,11 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   document.addEventListener('starro-config-applied',()=>setTimeout(apply,0));
 })();
+
+
+/* STARRO_OFFLINE_SAFE_V1
+ * Remote CMS is optional. Never block local calculator/simulator UI on network state.
+ */
+window.addEventListener('offline',()=>document.documentElement.dataset.starroNetwork='offline');
+window.addEventListener('online',()=>document.documentElement.dataset.starroNetwork='online');
+document.documentElement.dataset.starroNetwork=navigator.onLine?'online':'offline';
