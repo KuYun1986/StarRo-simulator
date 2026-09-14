@@ -67,7 +67,12 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 .admin-entry:hover{filter:brightness(1.08)}
 </style>
 
-</head>
+<style>
+.auto-service-grid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px}
+.auto-service-grid label{font-size:12px;color:#aebdd0;font-weight:800}
+.auto-service-grid select{display:block;width:100%;margin-top:5px;min-height:40px;padding:7px;border-radius:8px;border:1px solid #34465f;background:#0b1119;color:#fff}
+@media(max-width:850px){.auto-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head>
 <body>
 <div class="wrap">
 <div class="page-head">
@@ -179,15 +184,32 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <h2>🔨 古雲代敲／代評費用試算</h2>
   <div class="tiny">以下皆為單件規則，可輸入件數自動放大需求量。</div>
 
+  <div style="margin-top:18px;padding:16px;border:1px solid #3d5878;border-radius:12px;background:#0d1623">
+    <h3 style="margin:0 0 12px">🎯 自動試算</h3>
+    <div class="auto-service-grid">
+      <label>裝備種類<select id="autoEquipType"><option value="normal">1級防具／4級武器</option><option value="high" selected>2級防具／5級武器</option><option value="lt20">上LT+20</option></select></label>
+      <label>目前精煉<select id="autoCurrentRefine"></select></label>
+      <label>目前評級<select id="autoCurrentGrade"><option value="A" selected>無～A</option><option>S</option><option>SS</option></select></label>
+      <label>目標精煉<select id="autoTargetRefine"></select></label>
+      <label>目標評級<select id="autoTargetGrade"><option value="A">無～A</option><option>S</option><option selected>SS</option></select></label>
+    </div>
+    <div id="autoServiceRoute" style="margin-top:12px;color:#ffd36a;font-size:16px;font-weight:900"></div>
+    <button id="autoApplyService" type="button" style="margin-top:10px;padding:9px 14px;border-radius:9px;border:1px solid #47658c;background:#17263a;color:#fff;font-weight:900;cursor:pointer">套用到下方試算</button>
+  </div>
+
   <div style="margin-top:18px;padding:16px;border:1px solid #28323e;border-radius:12px">
     <h3 style="margin:0 0 10px">複選總計</h3>
     <div class="tiny" style="margin-bottom:12px">
-      可同時勾選多個步驟。例如 +0 A 要做到 +20 SS，可依裝備需求複選「敲S、評S、敲SS、評SS」一次總計。
+      可同時勾選多個步驟。1級防具／4級武器由無～A起手需勾「敲 1級／4級」1次，升到 S 時還要再勾「敲 S」；2級防具／5級武器由無～A起手需把兩個「敲 S」都勾選。
     </div>
 
     <div id="serviceMultiOptions" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
       <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
-        <input type="checkbox" value="refine:A-D"> <span>敲 A~D<br><span class="tiny">1級防／4級武</span></span>
+        <input type="checkbox" value="refine:LT20">
+        <span>敲+20①<br><span class="tiny">上LT+20</span></span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
+        <input type="checkbox" value="refine:A-D"> <span>敲 1級／4級<br><span class="tiny">1級防／4級武</span></span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
         <input type="checkbox" value="refine:S"> 敲 S
@@ -481,6 +503,7 @@ renderTabs();renderTable();
     taffy:"svcPriceTaffy", dust:"svcPriceDust", red:"svcPriceRed"
   };
   const REFINE_RULES={
+    "LT20":{red:10,checks:10,bless:0,bigGold:5,smallGold:0,bigGray:15,smallGray:15,note:"上LT+20：10紅、支票10張、大小灰各15把＋大金5把。"},
     "A-D":{red:10,checks:10,bless:0,bigGold:0,smallGold:0,bigGray:15,smallGray:15,note:"A裝 +0~+20：大小灰各15把、支票10張、10紅。"},
     "S":{red:20,checks:20,bless:200,bigGold:15,smallGold:15,bigGray:0,smallGray:0,note:"2級防具／5級武器／S裝 +0~+20：鐵匠的祝福200個、支票20張、大小金各15把、20紅。"},
     "SS":{red:60,checks:35,bless:350,bigGold:35,smallGold:35,bigGray:0,smallGray:0,note:"SS裝 +0~+20：鐵匠的祝福350個、支票35張、大小金各35把、60紅。"}
@@ -578,7 +601,7 @@ renderTabs();renderTable();
         sum.red+=r.red; sum.checks+=r.checks; sum.bless+=r.bless;
         sum.bigGold+=r.bigGold; sum.smallGold+=r.smallGold;
         sum.bigGray+=r.bigGray; sum.smallGray+=r.smallGray;
-        labels.push(type==="A-D" ? "敲 A~D" : "敲 "+type);
+        labels.push(type==="A-D" ? "敲 1級／4級" : (type==="LT20" ? "敲+20①" : "敲 "+type));
       }else if(kind==="grade" && GRADE_RULES[type]){
         const r=GRADE_RULES[type];
         sum.red+=r.red; sum.checks+=r.checks;
@@ -697,4 +720,86 @@ renderTabs();renderTable();
 })();
 </script>
 
+<script>
+(function(){
+ const $=id=>document.getElementById(id), eq=$("autoEquipType"), cr=$("autoCurrentRefine"), cg=$("autoCurrentGrade"), tr=$("autoTargetRefine"), tg=$("autoTargetGrade"), route=$("autoServiceRoute"), btn=$("autoApplyService");
+ if(!eq||!cr||!cg||!tr||!tg||!route||!btn)return;
+ for(let i=0;i<=20;i++){cr.add(new Option("+"+i,i,i===0,i===0));tr.add(new Option("+"+i,i,i===20,i===20));}
+ const rank={D:0,C:1,B:2,A:3,S:4,SS:5};
+ function steps(){
+   if(+tr.value<+cr.value||rank[tg.value]<rank[cg.value]){
+     route.textContent="⚠️ 目標不可低於目前狀態";
+     return null;
+   }
+
+   let a=[];
+   const needsS = rank[cg.value] < 4 && rank[tg.value] >= 4;
+   const needsSS = rank[cg.value] < 5 && rank[tg.value] >= 5;
+   const needsRefine = +tr.value > +cr.value || needsS || needsSS;
+
+   if(eq.value==="lt20"){
+     if(needsRefine) a.push(["refine:LT20","敲+20①"]);
+     if(needsS){
+       a.push(["refine:S","敲 S","firstS"]);
+       a.push(["grade:S","評 S"]);
+     }
+     if(needsSS){
+       a.push(["grade:SS","評 SS"]);
+       a.push(["refine:SS","敲 SS"]);
+     }
+   }else if(eq.value==="high"){
+     if(rank[cg.value] <= 3 && needsRefine){
+       a.push(["refine:S","敲 2級／5級","firstS"]);
+       if(needsS) a.push(["grade:S","評 S"]);
+       if(needsS || needsSS) a.push(["refine:S","敲 S②","secondS"]);
+     }else if(needsS){
+       a.push(["grade:S","評 S"]);
+     }
+
+     if(needsSS){
+       a.push(["grade:SS","評 SS"]);
+       a.push(["refine:SS","敲 SS"]);
+     }
+   }else{
+     if(rank[cg.value] <= 3 && needsRefine){
+       a.push(["refine:A-D","敲 1級／4級"]);
+       if(needsS || needsSS) a.push(["refine:S","敲 S","firstS"]);
+       if(needsS) a.push(["grade:S","評 S"]);
+     }else if(needsS){
+       a.push(["grade:S","評 S"]);
+     }
+
+     if(needsSS){
+       a.push(["grade:SS","評 SS"]);
+       a.push(["refine:SS","敲 SS"]);
+     }
+   }
+
+   if(!a.length && +tr.value>+cr.value){
+     if(cg.value==="SS") a.push(["refine:SS","敲 SS"]);
+     else if(cg.value==="S") a.push(["refine:S","敲 S","firstS"]);
+   }
+
+   route.textContent=a.length
+     ? "自動路線："+a.map(x=>x[1]).join(" → ") + (eq.value==="lt20" ? "｜敲+20①材料：大小灰各 15 把＋大金 5 把" : "")
+     : "目前已達目標";
+   return a;
+ }
+ function apply(){
+   const a=steps(); if(!a)return;
+   const box=[...document.querySelectorAll("#serviceMultiOptions input[type=checkbox]")];
+   box.forEach(x=>x.checked=false);
+   a.forEach(([v,label,which])=>{
+     const hits=box.filter(x=>x.value===v);
+     if(v==="refine:S" && hits.length>1){
+       if(which==="firstS") hits[0].checked=true;
+       else if(which==="secondS") hits[1].checked=true;
+       else hits[0].checked=true;
+     }else if(hits[0]) hits[0].checked=true;
+   });
+   if(box[0]){box[0].dispatchEvent(new Event("change",{bubbles:true}));box[0].dispatchEvent(new Event("input",{bubbles:true}));}
+ }
+ [eq,cr,cg,tr,tg].forEach(x=>x.addEventListener("change",steps)); btn.addEventListener("click",apply); steps();
+})();
+</script>
 </body></html>
