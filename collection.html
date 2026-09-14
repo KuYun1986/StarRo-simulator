@@ -301,11 +301,13 @@ section{padding:12px;min-width:0}
   </div>
   <div class="note" style="margin:0 0 8px">可直接輸入「英雄的凱歌」、「烏龜將軍」、「MVP」、「封印」、「MaxHP」、「BOSS」等關鍵字。點上方附魔卡片可快速篩選。</div>
   <div style="display:flex;justify-content:flex-end;margin:6px 0 8px">
-    <button type="button" id="jroEnchantToggle" aria-expanded="true" aria-controls="jroMvpBase">▲ 收合附魔</button>
+    <button type="button" id="jroEnchantToggle" aria-expanded="true" aria-controls="jroMvpCollapseArea">▲ 收合附魔</button>
   </div>
-  <div class="jro-mvp-base" id="jroMvpBase"></div>
-  <div class="jro-meta" id="jroMvpMeta"></div>
-  <div class="jro-mvp-tablewrap"><table class="jro-mvp-table"><thead><tr><th>附魔</th><th>JRO卡片／裝備</th><th>套裝效果</th></tr></thead><tbody id="jroMvpRows"></tbody></table></div>
+  <div id="jroMvpCollapseArea">
+    <div class="jro-mvp-base" id="jroMvpBase"></div>
+    <div class="jro-meta" id="jroMvpMeta"></div>
+    <div class="jro-mvp-tablewrap"><table class="jro-mvp-table"><thead><tr><th>附魔</th><th>JRO卡片／裝備</th><th>套裝效果</th></tr></thead><tbody id="jroMvpRows"></tbody></table></div>
+  </div>
 </div>
 
 <div class="summary">
@@ -1621,7 +1623,7 @@ $("#clear").addEventListener("click",()=>{
 
 (function initJroEnchantToggle(){
   const btn = document.getElementById('jroEnchantToggle');
-  const content = document.getElementById('jroMvpBase');
+  const content = document.getElementById('jroMvpCollapseArea');
   if(!btn || !content) return;
 
   btn.addEventListener('click', function(){
