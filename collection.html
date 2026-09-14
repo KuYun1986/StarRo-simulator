@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>繁星收藏模擬器</title>
+<title>繁星收藏模擬</title>
 <style>
 :root{
   --bg:#080d18;--panel:#101827;--panel2:#151f31;--line:#26354d;
@@ -227,19 +227,6 @@ section{padding:12px;min-width:0}
 }
 </style>
 
-<style>
-.jro-mvp-box{margin:14px 0 18px;padding:14px;border:1px solid #2e4262;border-radius:14px;background:#0f1a2a}
-.jro-mvp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.jro-mvp-head h2{margin:0;font-size:20px}.jro-mvp-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.jro-mvp-controls input,.jro-mvp-controls select{height:38px;border-radius:9px;border:1px solid #33445f;background:#0b1421;color:#eef4ff;padding:0 10px}
-.jro-mvp-controls input{min-width:260px;flex:1}.jro-mvp-base{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:10px 0 12px}
-.jro-base-card{padding:10px;border:1px solid #2d405e;border-radius:10px;background:#101b2c;cursor:pointer}.jro-base-card.active{outline:2px solid #5aa9ff}
-.jro-base-card b{display:block;margin-bottom:4px}.jro-base-card small{color:#9eb0ca;line-height:1.45}.jro-mvp-tablewrap{overflow:auto;border:1px solid #2d405e;border-radius:10px;max-height:560px}
-.jro-mvp-table{width:100%;border-collapse:collapse;min-width:760px}.jro-mvp-table th,.jro-mvp-table td{padding:9px 10px;border-bottom:1px solid #24344d;vertical-align:top;text-align:left;line-height:1.45}
-.jro-mvp-table th{position:sticky;top:0;background:#142238;z-index:2}.jro-mvp-table tr:hover td{background:#132238}.jro-enchant{font-weight:800;white-space:nowrap}.jro-card{font-weight:700}.jro-sealed{color:#f6c76e}.jro-meta{color:#8fa2c1;font-size:12px}.jro-nores{padding:18px;text-align:center;color:#9eb0ca}.jro-with-icon{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}.jro-inline-icon{width:20px;height:20px;object-fit:contain;flex:0 0 20px;image-rendering:auto}.jro-inline-icon.lg{width:24px;height:24px;flex-basis:24px}.item-title-main{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.jro-base-card b .jro-with-icon{display:flex}.jro-enchant .jro-with-icon{white-space:nowrap}
-@media(max-width:650px){.jro-mvp-controls{display:grid;grid-template-columns:1fr}.jro-mvp-controls input{min-width:0;width:100%}}
-</style>
-
 </head>
 <body>
 <div class="wrap">
@@ -253,10 +240,10 @@ section{padding:12px;min-width:0}
   <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
   <a href="collection.html" class="game-page-link">📚 收藏區</a>
   <a href="equipment.html" class="game-page-link">💰 裝備成本區</a>
-  <a href="recharge.html" class="game-page-link">💳 儲值區</a>
+  <a href="CASH.html" class="game-page-link">💳 現金區</a>
   <a href="shadow.html" class="game-page-link">💎 影子區</a>
 </div>
-<div class="page-links"><a class="page-link" href="index.html">🏠 主頁</a><a class="page-link" href="collection.html">📚 收藏區</a><a class="page-link" href="recharge.html">💳 儲值區</a><a class="page-link" href="shadow.html">💎 影子區</a></div>
+<div class="page-links"><a class="page-link" href="index.html">🏠 主頁</a><a class="page-link" href="collection.html">📚 收藏區</a><a class="page-link" href="CASH.html">💳 現金區</a><a class="page-link" href="shadow.html">💎 影子區</a></div>
 </div>
 <div class="toolbar">
 <input id="search" placeholder="搜尋收藏名稱、效果、需求道具…" type="search"/>
@@ -289,25 +276,6 @@ section{padding:12px;min-width:0}
 <div class="note" style="margin:0 0 10px">可同時選多個分類；符合任一分類的收藏只顯示一次，不會重複。</div>
 <div class="chips" id="specialChips"></div>
 </div>
-
-<div class="jro-mvp-box" id="jroMvpBox">
-  <div class="jro-mvp-head">
-    <h2>🧿 JRO 附魔 × MVP 卡片查詢</h2>
-    <div class="jro-mvp-controls">
-      <input id="jroMvpSearch" type="search" placeholder="自行輸入：附魔、卡片、效果關鍵字…">
-      <select id="jroMvpEnchant"><option value="all">全部 8 種附魔</option></select>
-      <button id="jroMvpClear">清除搜尋</button>
-    </div>
-  </div>
-  <div class="note" style="margin:0 0 8px">可直接輸入「英雄的凱歌」、「烏龜將軍」、「MVP」、「封印」、「MaxHP」、「BOSS」等關鍵字。點上方附魔卡片可快速篩選。</div>
-  <div style="display:flex;justify-content:flex-end;margin:6px 0 8px">
-    <button type="button" id="jroEnchantToggle" aria-expanded="true" aria-controls="jroMvpBase">▲ 收合附魔</button>
-  </div>
-  <div class="jro-mvp-base" id="jroMvpBase"></div>
-  <div class="jro-meta" id="jroMvpMeta"></div>
-  <div class="jro-mvp-tablewrap"><table class="jro-mvp-table"><thead><tr><th>附魔</th><th>JRO卡片／裝備</th><th>套裝效果</th></tr></thead><tbody id="jroMvpRows"></tbody></table></div>
-</div>
-
 <div class="summary">
 <div class="kpi"><small>資料庫收藏</small><b id="totalCount">0</b></div>
 <div class="kpi"><small>已勾選收藏</small><b id="selectedCount">0</b></div>
@@ -903,7 +871,7 @@ function renderList(){
       <input type="checkbox" data-key="${esc(k)}" ${checked}>
       <div>
         <div class="item-title">
-          <span class="item-title-main">${jroIconHtml(it.name)}${JRO_NAME_PREFIX[k]?`<span class="item-prefix">${esc(JRO_NAME_PREFIX[k])}</span>`:""}<span>${esc(it.name)}</span></span>
+          <span>${JRO_NAME_PREFIX[k]?`<span class="item-prefix">${esc(JRO_NAME_PREFIX[k])}</span>`:""}${esc(it.name)}</span>
           <span class="badge ${it.group==="JRO收藏"?"jro":""}">${esc(it.group)}</span>
           <span class="badge">佔格 ${Number(it.slot||0)}</span>
           <span class="badge">${esc(SUBCAT_LABELS[subcatOf(it)]||subcatOf(it))}</span>
@@ -1195,30 +1163,6 @@ th{background:#ddebf7}
 </thead>
 <tbody>${rows}</tbody>
 </table>
-
-
-<script>
-(function(){
-  function initJroEnchantToggle(){
-    const btn = document.getElementById('jroEnchantToggle');
-    const content = document.getElementById('jroMvpBase');
-    if(!btn || !content) return;
-
-    btn.addEventListener('click', function(){
-      const isHidden = content.style.display === 'none';
-      content.style.display = isHidden ? '' : 'none';
-      btn.textContent = isHidden ? '▲ 收合附魔' : '▼ 展開附魔';
-      btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-    });
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initJroEnchantToggle, {once:true});
-  }else{
-    initJroEnchantToggle();
-  }
-})();
-</script>
-
 </body>
 </html>`;
 
@@ -1235,203 +1179,6 @@ th{background:#ddebf7}
   a.remove();
   URL.revokeObjectURL(url);
 }
-
-
-const JRO_MVP_ENCHANTS=[
- {id:'hero',name:'英雄的凱歌',jp:'英雄の凱歌',base:'ASPD +1',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAACXklEQVR4nN2WLXPbQBCGn3QKLkxiETx4ZTKroKFoYWBg+g8a6P6EQMMUhkWsgjKLWA4etJjEIqaCk05W9BGlk0ln+s54xppb33P77u3KZ03T8JH69KG0fwH8vDYwSZJZ7+M4Pns3oDGmoSoIqAHIzNGtaa27r81a8CLQGNNQ5FSlfU7TtF+r+7gkSRz4NejZ3C3tYP1zOVjPH/MBtFMcx4uZTgJNfmiqo7WubNOT6ku/rp/+Gjqy1OSHxugnfM+nrEoH8j0PfUhb+AYAXdYoBrUEnMWT9s7WsIP5nmc3P6Q87/fk5oinNmyur4hkYB1Qysa8AE9pYGmXnc3CwkoExSHheb+3MSJgc33lDtVJl/UQWpbEl5cja0eNf5/l7sfACLbd3eAFwfTxdeVgc1psC31IyW52eG3Ntrsbe6jbOxcTbkN7wBWwSaAU1pY611z9uEb93tp9qsrBjOhj88ccIdVoY3nuTwJnZ6kRsP95S1lVk7BO4SZE+QKU9ypsMkPA2uL7GDG07xQmhYWdSpdPi7BJoG4bXpxAlVLURiOxI+0U5m5nljmYUBFBIIFxPUeTJkmS5v7O3kqBQEUROsv6zALfwe4f+tkqz32EigAIAkmoQIZfR42/+D6sqcmzFBVF7iOk4teDHdYqiqipBzYGgUTize45OUtPs1xSGG2pc9vocntJdKE4Fkc8VU1mBzOXpp0OA6g6Hza7CNWbYbDwegKo66K5/b6zgLY+AN/CmKzo52Z0ocgKPVu31UCw8xUgSQ1Ae/usuloZqlWwVcCX4CmtAb0Z+F76//+XfjjwD961RYionKoZAAAAAElFTkSuQmCC'},
- {id:'calamity',name:'厄災的魔將',jp:'厄災の魔将',base:'每 10 秒 HP +1000、SP +100',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAADRUlEQVR4nL2WLVTkOhiGn7nniuBS18jI4IprZWVxgwPZdV0HciTrwDES2XXgQFZ2XZGVkcG1jrpcUeaHhQ6wew/fOTn9/568X94mmXnv+cr450tpfwN8eHj8o9JMAt9LqHX4R9C/KqnWIX2P73v8R+H/Tj1wrSWKQgD6Hl9e/1w/K06PZ9vvWvu4VhxF4Yxd4b1/1e7K2jeN8957ri5KP49SHxvppdg0o2PvvadpnD+NjS/SyF8cZ75pnO8679/K672fBm5fZ0XuMx16KaSPjfRGig04NL5pnBcab8IRXKTRJPRDwKZxPovjEfAMi430QuOlkD4/LdfnqzYFfdM02XE8u//5y8Po1rqqYE9T5AukEhgNgRQAKKmoy3PSLEdJBUCixedNkx3HM4C6qiivC1oLnbuntaDEQGtBIHE4kvwIe1MjAwcoOhx6Iu8rhStlq9Dq5adKDGgTYZTmZJ4BUF/foHVH340KWwvqSWDt4/tAGMu4AiuzAbYWkmyEHM4PsNZyVhyRRAalE2TgsHvthLYJYHYcz1xrUUav1e6LsedKKrQK6PqWUIQvjrE2nOVnnMRzBtV/HPgKWi5wfUeSLXC9w7knWgvffvygdwOXy0taC9e3S7ruaZ3DHKYfB25Du7rGdpseK7WHEgOxkbhB4IaNIx+s5ea2IhISnX3nrVln0qUwjt/lr3FMXFWOR/eEDiRigEQ/m2RwzOc5Z5dLkjQhyy8mc852LcAPD4/+4GBMKmUEgwXAaFCDwIkBNQjarn+h9DxLKG7u3pxT310tMh1ipECJYWzPP3fb9QRbMCWGF99NrSDvAm3Xg9Aw2HHMekffKdwgsFvK3CAoa0uSH6EXY/m1Dj+nsK4qrpZXY1KhSZKMs2K5Ua8MAKk5oMgXWOso8gsSLSdz7gQ66wjMIUd6gMGi5T539wUnJwsQmvtuLKMyISrN0M8m2hU7XboKoVPSoMbZiv0o5+72glQHKCVApDDA/fKc8qZ8N9dOl/Y9fjUfFkcZCEswCJQMEEqPYwsgOs6X5Xrlh3EX8NZ/uBO4DXWtXd9LsvjFxHy9yLFtg+16yspSV9WrbciHgb8rXcV271f2r6sKeL3n+TTw/4wv33n/B80AQe6zHG45AAAAAElFTkSuQmCC'},
- {id:'origin',name:'起源之王',jp:'起源の王',base:'MaxHP +2500、MaxSP +250',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAB/UlEQVR4nO2WIXCkMBSGf25OEMc6KpHIxe1JZNZd3VUiwd3KlSdX7knkyZVERrYudUVGBlcc694JJhTKAt2Zm05nrm8mMyQv7335yUvAISK8p315V9on8P8BMsZmS3nJvwjsJ2CMkSkSMMbINjtumzrGo5gp4NdLsNcJvPgOOT8N5uTc6/rBlgOZ7GKe9QGMMWqaxplVyBijZ33o+kUaok28cdY8gtE1ElEDAIyuYXSNHyfjuH6EnHso0rCLzbl3UelIYY0UgEDOPTzKEgBQVSAA2Jcv8+zzTzzQuVLdAvrKL9lk0RhdDxL3TR3jXm/j9OfZuCkbKXSfMgRbjnTLsQp2o4CmkThXCgpAlMmBb1+2+6cLMQmcVOj6EYBWje8/4CYIZlfeV/0o1HXA81PZJQmTfTduigTAxrk/5DClgSkS1DIjoK3UIg1n1Y2ATdM4N9u8hVZqpMqLj04tM6pWv1BpA6P1wB/xb526RNRYPBavoZcsFyHW6wgm2EP8Hu6hXcAUDLhQNBZqz1DT3A18PL5FyH0HuCUhX4pKF6IroikYMFM0NuhcKTDWFkQtMxLyhFJUJGR78yhxj1WwgynNIgwAnKVfDHtFWcXqGEOUHJC77uxZ/xIMAEBEVzXXdenPd59c16VrY4loWeGc6qsD8YZX+q/tY37xP4EfGvgXy/5OVnReJewAAAAASUVORK5CYII='},
- {id:'grudge',name:'殺意的怨念',jp:'殺意の怨念',base:'MaxHP +15%、MaxSP +15%',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABLklEQVR4nNWWLbLCMBSFT94gKlvXyuDANe7ZdhdY2A47AMsScHQJVD4Z2eeoxAXBhMkMzX/oDEd1cjP5eu7NTUKEEJhTP7PSUgL3y8opVUHAHSFvi9e0mhxPAtRpRUvrnGTA5nIlLi6/Y9OsaKl1YooFA2PkDXTZ/iaXUQ5d2iApMERewP2yEjWttPGeD9g2a5jmENfDW8J6PgAA/vj/K3YQgshvmWZ1TNXCB+YiHUjKmlIVJt3FyAjsWpYUZgR2LROMFpMwtX7JgK6y1cwJqLo7dX3sP9mBAJDREih/38Zj0glo2oLRAlnDgImeU+WbTsBSw3teYNPUvmuGA/MiA4BJaIg7LTA/XMh4PAN4phd4XjnyzRIKAyxn6bhrxZXf0PPhVccYmBX4Cc1+Hz4A9hV0lOH1CKIAAAAASUVORK5CYII='},
- {id:'goddess',name:'豐穰的女神',jp:'豊穣の女神',base:'接受治癒系技能時，HP 的恢復量 +15%；一部分的回復道具使用時，HP 的恢復量 +15%',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABWElEQVR4nO3VL3PCMBzG8S+7icngWtk55OJaCa514IbcS2Cyb2FychbH3HBDgitudUSmrn0Hndg1A66j4c+4247nrnfJtcknyeV3bZVlyTlzdVbtAl7AQ3J96MDeICgBtMr4SFatXwHjnjRFez8KAXiKx/tMQcum8Cso8iVviwRvFDJ+maFVBoDrObxP5la7bATjniwjX+K4Ai/oED8+sxA3Buu3BQCp0kxWuhHdCVZYJ/AQYUgxnTKbJiSpqv3eBm28pY4rEK4DywSAu4638T7yJZEvm6Yxsb40ap6a9kO/a9rT+dIaswIzXdDW2UYfIFH1x3o0+FOk93W0usjReXE6UBc5jhIsU4Ur2oeuz2TnpUmVBr6PURe5eap0Q8lw2K0bXpvGOhzcuuUwDEy/2qXjCgBeXmdmcUfX4ToKsA5XSVJljVmD2/B2bLG9wVPk//+AL+DfBz8Bh8mWeSi5vFkAAAAASUVORK5CYII='},
- {id:'ruler',name:'異界的統轄者',jp:'異境の統轄者',base:'ATK +50、MATK +50',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAACe0lEQVR4nL2WIZPiMBiGn96cCK51h/xwrAPXyp5DFnfIk8hDnrxzJ2/l/oRFIpHgWLe4jWRd46jLCdpuS1MKszf7zmRKwpc8fb+kSTxrLR+pTx9KAz7fEhwNIgsQSABAqlMANi8b79oxvK6UnkNcugV8MaXRILKBBAQSkOHT/zJ0xhUxd4PI/v65uOig1WEBU77w8GeO6gfMZr/IjEb5QqAU+vWAwtT6pTrF+K88716cbp0Oo0FkeyIAPD7+9XwZeg/3a4xJUb6QGc3zduOEAUgw5G48cDppOCycAShfmE1n7DYb9geNMSlHrZ0ZcckAz2fz2nBYpDHVKcak7DYbtvvdyd2Zo0ugIrLneTVHNYfRILL90bjmxAB+x+Bt0nqLjKQ2n02HSqEw9ETKwcyF4pJIgNbbE/SpPgUlMBpE1gDzxQLlC4cb5qpL1bSWKe15nhUJ6eer8z3Ak8MUkYD1egXA0VoPHFvbe0BlGjXE8QSdfyaTOCljGsCi09vbhs72Lq1yZ+qsvbZoqoPG8QSRsGwrwNdKOWAAWGux1qLAKrBDCW3xu1r//u1Hrb2rJHFSPkMJbcEpHRaTWrgpSlGfLxZlPcszMEnm7Rb9PpM44aAPtearD+D5NCEKIwCGEqJ8YbW8d8ZmAOYNVD22Gntp8Xk4Xxroj8YArJb3tTmuajKKIfBLd53ALHfhkmsRVaEiIcPRmMPTrgFrBR6t9TzPs21Q1wtkQCjhKQN6z8EcnTeAViCAC1p1k+XPYe4KvQdohTmBjYDKPpiM4tp/y6d1rZ7kO8pqvayt+qo6b2220tE7O9vOY6Zfp52X3E6Ht6g4Fdrc/XfgNfrwm/c/WjVmEQzs45wAAAAASUVORK5CYII='},
- {id:'knowledge',name:'知識的探求者',jp:'知識の探求者',base:'Def + 50、Mdef + 10',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAC60lEQVR4nL2WL1TjWhCHP955IrjU5cqLS13qigyuceCoBEccdYssDhyVla1rHXUbWVzrNm5HJi5x1OWJkNA/97XdsxzGJHeS3G9+c2fm5KQoCr7T/vlW2jHA8LZbhLfdL0vD/wIfH3rFcjmrQcFF8CXQf03OStFsEgHgvqd0POcreLsKm2fnhdduAjAazxHJGby9I0nKrPf3qTWmdDqeE0UCgEiG1o0d6HD4WFxdXP1xACemtmienRdaNxDJANC6gdY2IjkdZ4XfchnEGbbVAqD/cn/yVwp//Z6fXF6f4/u6hkGpdhALs4WweldMZxNaKmPYC49WalQY3naLKJINZSIZyiufJ0u4a5+imm1Gk7fPD7XLZPKyV61RoUheXrMYr91EshjslERSrLwBgKXcDVjnzqdzYx9sH6NCKPvQ0Q2m4/mGX1sfQa3KFLv2Kb4LN71rRolw4/sEwTOvP1+NSo3Aq9bFhlMpq76P4ox+/xntaibDEdPZhPsfAasoqqFNrWi7d0agsfGTPNtar8G1WyqM5WOtAZgrG57G+C2XXCseH3rFj/7TDnQHGAZBkdv5tru2XITFvEzzW7wgEQGahDc+i/4USTISSXB0w/j9TtEs4uQj8s9RprRTr5XWTGeTGuZdKmRVqtXKQZIUkRQ/cI8D7jPP90iyN7BTLp2Uu/YpodUgVBpvZZWTKLUQyXh4Ghn3MJ4hQCLpxr3SDqkkeL5HKglWt814GIEICykVDmKpnztaGffdqdLzs1YBYDrHKq2OViyjZe1zG5rMXgHg+y7PD2MAfi1+7xTNTkpb7mdk6+dYKU0kZRkt6XYuue9fA9QwU3AHFVYq91XqttL1zav0/5zMj+/DlqtYxGVaq822z9R0BbBzG3dlbgnYM9rCICiSZEWSvwNlynKseoCbQFWwL6/msbYXuA5dt/UAtu0Q7CAQYBYOCoA4K0t/Hi933qlm7SHYUcDKnrs944uSx0eB/hj4Vfbtf97/AXkbjpcROrGNAAAAAElFTkSuQmCC'},
- {id:'farthest',name:'最遠的統治者',jp:'最果ての支配者',base:'當殺死一個怪物時 HP + 100、SP + 10',icon:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABsUlEQVR4nL3WoXPiQBTH8S83J6g7eScjwUWC5FzqiCsSXHFXl0r4D4ojElzriIxMXHDEdeXiiLu6d4KDQpsEaEjezJtJJpn5zL797SQ1EaHK+lapVi64lF0n3ng/xpLApYBZ2/ZxlQDusN11iaCaPAjeIQyJq4kD9f6SiFylX5/+iCwi2d5HIhLJZrqQwOnL4XuVYlcB07DVaJqKiUixPVSTBzGMHljHe5b8DWmNpp8SCvD9Oti25rczDDPJxOCLKU3DElefxOALK0zD/KHPzY/4JAYXrjB8HBTCLgLDx4G02vdgwXJeByAeRxdhwHnHInD6/6MfSTRbnYx+Xmc+2DiOZGFZh/qcrmV9gL3ftgAow0YrzdqfMRUXPAiDyWVjPKhMEP9FJvM37DsLvdY8ux7N+nnRz6vM0CR+hFZ6jymlMduNQhjknMMgjPGVAheU0rx1LBpOpxAGKSO1B74AGI0mDfMnAPFyjYpXWHcd+h2KoR9TdN8dSRRsZJfSa/fRHg7tsZjtFr1ur9Ai8mo/0qE9FqU1Sikir0vd7Bfer1yw+etWAFZ6UQr0CayqKv/z/ge8tLVPx3E1tQAAAABJRU5ErkJggg=='}
-];
-const JRO_MVP_ROWS=[
-// 起源之王
-['origin','月夜貓卡片','絕對不會陷入詛咒狀態；可使用加速術 Lv10'],
-['origin','虎王卡片','當純粹的 Vit 每上升 10 時，追加 Def +20、Mdef +2；當純粹的 Vit 達 130 時，追加 MaxHP +50%；接受治癒系技能時，HP 的恢復量 +20%；一部分的回復道具使用時，HP 的恢復量 +20%'],
-['origin','獸人英雄卡片','完全迴避 +5；受到技能「致命攻擊」的傷害 -100%'],
-['origin','獸人酋長卡片','MaxHP +50%；可使用技能「反射盾」Lv10'],
-['origin','俄塞里斯卡片','攻擊命中時，SP +2；可使用技能「泥沼地」Lv5'],
-['origin','死靈卡片','近距離物理攻擊給予的傷害 +20%'],
-['origin','海盜之王卡片','物理攻擊時，對所有體型怪物的傷害 +20%'],
-['origin','巴風特卡片','物理攻擊命中時，一定機率在 5 秒內發動，給予敵人的傷害中 1% 會吸收為 HP'],
-['origin','皮里恩卡片','誘導攻擊 +50%；攻擊命中時，SP +5'],
-['origin','蟻后卡片','受到來自玩家的傷害 -30%；受到魔法攻擊時，一定機率在 2 秒內發動，每 1 秒 HP +25%'],
-['origin','蜂后卡片','受到風屬性攻擊的傷害 -15%；可使用技能「暗之障壁」Lv10'],
-['origin','(JRO)阿拉馬茲德的祝福','可使用技能「神祐之光」Lv3'],
-['origin','(JRO)昨日重現','對小型／中型／大型怪物的物理／魔法攻擊 +15%'],
-['origin','(JRO)黃金蟲','「火、水戰車」使用時，持續 10 秒進入「光盾狀態」'],
-['origin','(JRO)封印月夜貓卡片','MaxHP +20%；攻擊速度 +3%'],
-['origin','(JRO)封印虎王卡片','每 Vit +10 時，Def +10、Mdef +1；當 Vit 130 以上時，使用的治癒量 +10%；HP 自然恢復量 +10%'],
-['origin','(JRO)封印獸人英雄卡片','完全迴避 +2；「致命攻擊」的傷害 -30%'],
-['origin','(JRO)封印獸人酋長卡片','MaxHP +25%'],
-['origin','(JRO)封印俄塞里斯卡片','攻擊命中時 SP +1'],
-['origin','(JRO)封印死靈卡片','近距離物理攻擊的傷害 +10%'],
-['origin','(JRO)封印海盜之王卡片','對小型／中型／大型敵人的物理攻擊 +10%'],
-['origin','(JRO)封印巴風特卡片','當物理攻擊時，有機率在 3 秒內，給予敵人傷害的 1% 吸收為 HP'],
-['origin','(JRO)封印皮里恩卡片','必中攻擊 +15%；當攻擊時 SP +1'],
-['origin','(JRO)封印蟻后卡片','來自玩家受到的傷害 -30%；當受到魔法攻擊時，有機率在 2 秒內，每 1 秒 HP +15%'],
-['origin','(JRO)封印蜂后卡片','受到風屬性的傷害 -15%；道具編號：311072'],
-// 最遠的統治者
-['farthest','(JRO)大型蛋黃波利卡片','All Status + 10'],
-['farthest','變種腔棘魚卡片','MaxHP + 15%；魔法攻擊的傷害 + 10%'],
-['farthest','暴力腔棘魚卡片','MaxSP + 15%；物理攻擊的傷害 + 10%'],
-['farthest','黑暗腔棘魚卡片','Def + 150；MaxHP + 50%'],
-['farthest','古怪腔棘魚卡片','Def + 150；MaxHP + 50%'],
-['farthest','貪饕渦角魔卡片','MaxHP + 50%；可使用【隕石術】Lv.10'],
-['farthest','章魚大王卡片','MaxHP + 50%；可使用【水元素領域】Lv.5'],
-['farthest','夜勝魔卡片','MaxHP + 50%；【終極念力】冷卻時間 - 80 秒'],
-['farthest','魔鬼大烏賊卡片','受到水屬性攻擊的傷害 - 50%；可使用【潛遁】Lv.1；道具編號：312421'],
-// 知識的探求者
-['knowledge','(JRO)小可愛卡片','無屬性魔法攻擊給予的傷害 +10%'],
-['knowledge','(JRO)席琳基米卡片','暗、不死屬性魔法攻擊給予的傷害 +20%；【致命傷口】觸發機率上升'],
-['knowledge','(JRO)EL-A17T卡片','遠距離物理攻擊給予的傷害 +10%；BaseLv 每上升 1 時，追加【火焰噴射器】的傷害 +3%；【液體冷卻彈】的傷害 +3%'],
-['knowledge','(JRO)米古爾卡片','誘導攻擊 +10%；受到水屬性攻擊的傷害 -15%'],
-['knowledge','(JRO)紅椒卡片','MaxHP +15%；受到風屬性攻擊的傷害 -10%'],
-['knowledge','(JRO)劇毒凱美拉卡片','MaxHP +50%；可使用技能【雲殺】Lv5'],
-['knowledge','(JRO)邪心獵人伊芙美卡片','受到無屬性攻擊的傷害 -20%；可使用技能【黑暗瞬間】Lv10'],
-['knowledge','(JRO)席瓦伯奴利亞卡片','受到無屬性攻擊的傷害 -20%；可使用技能【吸血植物】Lv5'],
-['knowledge','(JRO)大王喵喵卡片','受到無屬性攻擊的傷害 -20%；有機率將給予敵人之物理傷害 3% 轉為 HP'],
-['knowledge','(JRO)斯威蒂卡片','物理攻擊給予的傷害 +10%；【天神憤怒】的再使用時間 -30 秒'],
-['knowledge','(JRO)查理斯頓卡片','BaseLv 每上升 1 時，追加【火神炮】的傷害 +3%；【噴射飛拳】的傷害 +3%'],
-['knowledge','(JRO)R48-85-BESTIA卡片','可使用技能【摧殘】Lv3'],
-['knowledge','(JRO)T W O卡片','固定詠唱時間 -70%；無視所有種族的 Def、Mdef 50%'],
-['knowledge','(JRO)R001-Bestia','MaxHP +50%；可以使用【凶砍】Lv.5'],
-['knowledge','(JRO)格蘭帕皮利亞卡片','MaxHP +50%；受到物理／魔法攻擊時，有一定機率讓敵人混亂、睡眠、沉默、詛咒'],
-['knowledge','(JRO)夢魘紅椒卡片','MaxHP +50%；可使用【碧血隕石】Lv.5'],
-['knowledge','(JRO)變異救世主凱美拉卡片','MaxHP +50%；可以使用【毒耐性弱化】Lv.3'],
-// 豐穰的女神
-['goddess','阿特羅斯卡片','物理攻擊給予的傷害 +25%；物理攻擊命中時，一定確率在 30 秒內發動，攻擊速度 +100%'],
-['goddess','伊夫利特卡片','物理攻擊命中時，一定機率對自己啟動怪物技能「地裂術」Lv6；JobLv 每上升 1，追加 Atk +1、Hit +1、Cri +1'],
-['goddess','貝雷傑卡片','當純粹的 Luk 每上升 10 時，追加魔法攻擊給予的傷害 +1%；當純粹的 Luk 為 130 時，追加魔法攻擊給予的傷害 +15%；可使用技能「HP轉換」Lv3'],
-['goddess','墮落大神官卡片','魔法攻擊時，對玩家人類型及杜蘭族玩家的傷害 +50%'],
-['goddess','墮落大神官卡片＋爆走魔法','一起裝備時，追加「墮落大神官卡片」與「(JRO)豐穰的女神」的套裝效果將不會變動'],
-['goddess','水晶龍卡片','MaxHP +50%；可使用技能「水屬性附加」Lv5'],
-['goddess','幽暗夢魘卡片','MaxHP +50%；可使用技能「威嚇」Lv1'],
-['goddess','(JRO)封印阿特羅斯卡片','物理攻擊給予的傷害 +15%；物理攻擊命中時，一定確率在 30 秒內發動，攻擊速度 +30%'],
-['goddess','(JRO)封印伊夫利特卡片','JobLv 每上升 2，追加 Atk +1、Hit +1、Cri +1'],
-['goddess','(JRO)封印貝雷傑卡片','當純粹的 Luk 每上升 20 時，追加魔法攻擊給予的傷害 +1%；當純粹的 Luk 為 130 時，追加魔法攻擊給予的傷害 +10%'],
-['goddess','(JRO)封印墮落大神官卡片','魔法攻擊時，對人型和天使型怪物的傷害 +20%；魔法攻擊時，對杜蘭族玩家的傷害 +20%'],
-['goddess','(JRO)封印墮落大神官卡片＋爆走魔法','一起裝備時，追加「封印墮落大神官卡片」與「(JRO)豐穰的女神」的套裝效果將不會變動'],
-['goddess','(JRO)封印水晶龍卡片','MaxHP +25%；一定機率對自己啟動技能「水屬性附加」Lv1'],
-['goddess','(JRO)封印幽暗夢魘卡片','MaxHP +25%；物理攻擊時，對惡魔型和天使型怪物的傷害 +10%；物理攻擊時，對聖、闇屬性怪物的傷害 +10%'],
-// 厄災的魔將
-['calamity','(JRO)滅絕古埃及王卡片','MaxHP +50%；可使用技能「祈禱文」Lv5'],
-['calamity','(JRO)憤怒月夜貓卡片','魔法攻擊給予的傷害 +10%；可使用技能「靜寂」Lv3'],
-['calamity','(JRO)憤怒德古拉伯爵卡片','Aspd +3'],
-['calamity','(JRO)古代伍坦防禦者卡片','【黑暗瞬間】、【心靈震波】的習得Lv 每上升1時，追加技能共通延遲 -1%'],
-['calamity','(JRO)古代塔奧群卡卡片','MaxHP +50%；可使用技能「挑釁」Lv10'],
-['calamity','(JRO)閃耀玩偶熊卡片','物理攻擊給予的傷害 +10%；可使用技能「撒水祈福」Lv5'],
-['calamity','(JRO)睡醒水晶龍卡片','MaxHP +50%；可使用技能「凍僵術」Lv3'],
-['calamity','(JRO)狂熱英雄卡片','【龍之氣息(火)】的再使用時間 -0.5秒；【龍之氣息(水)】的再使用時間 -0.5秒'],
-['calamity','(JRO)混沌服事卡片','當純粹的Int每上升10時，追加無屬性魔法攻擊給予的傷害 +1%；當純粹的Int為130時，追加魔法攻擊命中時，敵人會陷入沉默狀態'],
-['calamity','(JRO)混沌巴風特卡片','魔法攻擊給予的傷害 +10%；可使用技能「怒雷強擊」Lv10'],
-['calamity','(JRO)女王甲蟲卡片','物理攻擊時，對所有種族怪物的傷害 +20%'],
-['calamity','(JRO)黃金女王甲蟲卡片','絕對不會陷入混亂狀態；可使用技能「化學頭盔保護」Lv5；裝備解除時，解除【化學頭盔保護】狀態'],
-['calamity','(JRO)深海魔鬼大烏賊卡片','MaxHP +50%；可使用技能「寒冰濃霧」Lv3'],
-['calamity','(JRO)深海狄奧斯卡片','所有能力 +10；【屬性漩渦】的固定詠唱時間 -100%'],
-['calamity','(JRO)真理超魔導師卡片','魔法攻擊給予的傷害 +10%；【魔力增幅】的詠唱時間 -100%'],
-['calamity','(JRO)時間支配者卡片','部分因反射而所受到的傷害 -10%；BaseLv 每上升1，追加Matk +1'],
-['calamity','(JRO)靈魂碎片卡片','物理攻擊命中時，一定機率對敵人發動技能【瞄準標靶】Lv10'],
-['calamity','(JRO)不祥岩石龜卡片','MaxHP +5000；MaxSP +500'],
-['calamity','(JRO)不祥烏龜將軍卡片','物理攻擊給予的傷害 +10%；可使用技能「怒爆」Lv10'],
-['calamity','(JRO)波蜜卡片','魔法攻擊給予的傷害 +10%；可使用技能「隕石術」Lv10'],
-['calamity','(JRO)封印滅絕古埃及王卡片','MaxHP +25%；魔法攻擊時，對惡魔型和不死型怪物的傷害 +10%；魔法攻擊時，對聖、不死屬性怪物的傷害 +10%'],
-['calamity','(JRO)封印憤怒月夜貓卡片','魔法攻擊時，對惡魔型和動物型怪物的傷害 +20%'],
-['calamity','(JRO)封印憤怒德古拉伯爵卡片','Aspd +1'],
-['calamity','(JRO)封印古代伍坦防禦者卡片','MaxHP +5%；MaxSP +5%；【黑暗瞬間】、【心靈震波】的習得Lv 每上升3時，追加技能共通延遲 -1%'],
-['calamity','(JRO)封印古代塔奧群卡卡片','MaxHP +25%'],
-['calamity','(JRO)封印睡醒水晶龍卡片','MaxHP +25%；魔法攻擊時，對惡魔型和無型怪物的傷害 +10%；魔法攻擊時，對火、無屬性怪物的傷害 +10%'],
-['calamity','(JRO)封印閃耀玩偶熊卡片','物理攻擊時，對惡魔型和不死型怪物的傷害 +20%'],
-['calamity','(JRO)封印混沌巴風特卡片','物理攻擊時，對昆蟲型和不死型怪物的傷害 +20%'],
-['calamity','(JRO)封印深海魔鬼大烏賊卡片','MaxHP +25%；物理攻擊時，對植物型和魚貝型怪物的傷害 +10%；物理攻擊時，對水、念屬性怪物的傷害 +10%；魔法攻擊時，對植物型和魚貝型怪物的傷害 +10%；魔法攻擊時，對水、念屬性怪物的傷害 +10%'],
-['calamity','(JRO)封印女王甲蟲卡片','物理攻擊時，對所有種族怪物的傷害 +15%'],
-['calamity','(JRO)封印黃金女王甲蟲卡片','絕對不會陷入混亂狀態'],
-['calamity','(JRO)封印時間支配者卡片','BaseLv 每上升2，追加Matk +1'],
-['calamity','(JRO)封印不祥烏龜將軍卡片','物理攻擊時，對無型和動物型怪物的傷害 +20%'],
-['calamity','(JRO)封印波蜜卡片','魔法攻擊給予的傷害 +10%'],
-['calamity','(JRO)勤勉黑蟻卡片','魔法攻擊給予的傷害 +10%；可使用技能「光耀之堂」Lv10'],
-['calamity','(JRO)豪言的蟻后卡片','物理攻擊給予的傷害 +10%；可使用技能「怒爆」Lv10'],
-['calamity','(JRO)巴基力詛咒荒勁之力','技能共通延遲 -25%'],
-['calamity','(JRO)肩上小黑貓','首領階級怪物的傷害 +10%；來自玩家受到的傷害 -5%'],
-['calamity','(JRO)哥布靈國王卡片','MaxHP +50%；可使用技能「傷害增壓」Lv5'],
-['calamity','(JRO)劍禪一如','Cri +25；暴擊傷害 +30%'],
-['calamity','(JRO)災難女王披肩','來自玩家受到的傷害 -5%；詠唱時間不會被中斷'],
-['calamity','(JRO)心外無刀','暴擊傷害 +30%；道具編號：311075'],
-// 異界的統轄者
-['ruler','冰暴騎士卡片（Storm Knight）','物理傷害 +25%；提高凍結觸發機率'],['ruler','烏龜將軍卡片','物理命中時一定機率 10 秒火屬性物理攻擊力 +20%'],['ruler','德古拉伯爵卡片','近／遠距離物理傷害 +15%；物理擊殺時 HP +200、SP +20'],['ruler','死靈騎士卡片（Lord of Death）','物理傷害 +25%；遠距離命中可造成出血／暈眩／沉默／中毒／詛咒並提高原卡觸發率'],['ruler','貝思波卡片','對 BOSS 魔法傷害 +15%'],['ruler','齊爾-D-01 卡片','念屬性傷害 -15%；可使用 Spell Breaker Lv5'],['ruler','法老王卡片','闇屬性傷害 -15%；可使用 Pressure Lv5'],['ruler','RSX-0806 卡片','DEF +500；免疫凍結'],['ruler','迪塔勒泰晤勒斯卡片','MaxHP +50%；提高自詠 Land Protector 機率'],['ruler','哈堤卡片','MaxHP +50%；受物理／魔法攻擊時使敵凍結'],['ruler','阿蒙拉卡片','MaxHP +25%；提高自詠 Kyrie Eleison 機率'],['ruler','黑暗之王卡片','Meteor Storm 傷害 +70%'],['ruler','怨靈武士卡片','對人類型魔物／杜蘭族玩家物理傷害 +35%'],['ruler','塔奧群卡卡片','物理／魔法傷害 +20%'],['ruler','(JRO)封印冰暴騎士卡片','物理傷害 +10%；提高凍結觸發率'],['ruler','(JRO)封印烏龜將軍卡片','物理命中時一定機率 10 秒火屬性物理攻擊力 +10%'],['ruler','(JRO)封印德古拉伯爵卡片','近／遠距離物理傷害 +10%；物理擊殺時 HP +100、SP +10'],['ruler','(JRO)封印死靈騎士卡片','物理傷害 +10%；遠距離命中可造成多種異常並提高原卡觸發率'],['ruler','(JRO)封印貝思波卡片','對 BOSS 魔法傷害 +5%'],['ruler','(JRO)封印齊爾-D-01 卡片','念屬性傷害 -15%'],['ruler','(JRO)封印法老王卡片','闇屬性傷害 -15%'],['ruler','(JRO)封印 RSX-0806 卡片','DEF +150；免疫凍結'],['ruler','(JRO)封印迪塔勒泰晤勒斯卡片','MaxHP +25%'],['ruler','(JRO)封印哈堤卡片','MaxHP +25%'],['ruler','(JRO)封印阿蒙拉卡片','MaxHP +25%'],['ruler','(JRO)封印波伊塔塔卡片','ASPD +1；魔法傷害 +5%'],['ruler','(JRO)封印怨靈武士卡片','對人類型魔物／杜蘭族玩家物理傷害 +25%'],['ruler','(JRO)封印白素貞卡片','Coluceo Heal SP 消耗 -25'],['ruler','(JRO)封印墨蛇君卡片','每 JobLv +10：INT +1、MDEF +1'],['ruler','(JRO)封印哥皮尼克卡片','MaxHP +25%'],['ruler','(JRO)封印塔奧群卡卡片','物理／魔法傷害 +10%'],['ruler','(JRO)封印雷雅卡片','念屬性傷害 -30%；提高恐懼／混亂觸發率'],['ruler','(JRO)封印嗒妮小姐卡片','對全種族魔物物理傷害 +10%；每 BaseLv +1 提高香蕉 HP 回復量'],['ruler','Ingrid 卡片','完全迴避 +10'],['ruler','(JRO)封印 Ingrid 卡片','完全迴避 +5'],['ruler','Runile 卡片','MaxHP +50%；可使用 Chain Lightning Lv5'],['ruler','(JRO)封印 Runile 卡片','MaxHP +25%'],['ruler','墮落天使海蛞蝓卡片','免疫沉默；每 10 秒 HP +5000、SP +100'],['ruler','究極 Rasgand 卡片','魔法傷害 +10%；Cloud Kill 固定詠唱 -100%'],['ruler','暴風雪天使海蛞蝓卡片','物理傷害 +10%；可使用 Renovatio Lv2'],['ruler','(JRO)封印暴風雪天使海蛞蝓卡片','對魚貝／天使型魔物物理傷害 +20%'],['ruler','Lugan Chief Cleaner 卡片','近／遠距離物理傷害 +15%；物理擊殺 HP +200、SP +20'],['ruler','(JRO)封印 Lugan Chief Cleaner 卡片','近／遠距離物理傷害 +10%；物理擊殺 HP +100、SP +10'],['ruler','Ice Horn 卡片','水屬性傷害 -10%；M Jack Frost 傷害 -100%'],['ruler','(JRO)封印 Ice Horn 卡片','水屬性傷害 -10%；M Jack Frost 傷害 -30%'],['ruler','Jörðr 調停官卡片','ASPD +1；魔法傷害 +10%'],['ruler','(JRO)封印 Jörðr 調停官卡片','ASPD +1；魔法傷害 +5%'],['ruler','Jörðr 執行官卡片','ASPD +1；魔法傷害 +10%'],['ruler','(JRO)封印 Jörðr 執行官卡片','ASPD +1；魔法傷害 +5%'],['ruler','幽靈船艦長卡片','MaxHP +50%；物理命中一定機率吸收造成傷害 1% 為 SP'],['ruler','侵蝕之舌卡片','無屬性傷害 -20%；石化耐性 +50%'],['ruler','亞空冰暴騎士卡片','物理命中一定機率吸收造成傷害 2% 為 SP；風屬性傷害 -50%'],['ruler','亞空哈堤卡片','免疫凍結／冰結／冷凍；水屬性傷害 -50%'],['ruler','亞空月夜花卡片','火屬性魔法傷害 +30%；三色 Bolt 固定詠唱 +100%'],
-// 英雄的凱歌
-['hero','(JRO)覺醒貝爾卡片','無屬性魔法攻擊給予的傷害 +10%；魔法攻擊命中時，敵人會陷入睡眠狀態'],
-['hero','(JRO)歐內斯特斯特凡‧傑克卡片','純粹 STR 每 +10 時，追加 ATK +10、HIT +5；純粹 STR 為 130 時，追加物理攻擊時，對首領階級怪物的傷害 +25%'],
-['hero','(JRO)闇答萊屍卡片','物理攻擊給予的傷害 +15%；魔法攻擊給予的傷害 +15%；每 4 秒，HP +666、SP +66'],
-['hero','(JRO)污染黑暗之王卡片','MaxHP +50%；可使用技能「魔法效果解除」Lv5'],
-['hero','(JRO)污染蜘蛛女王卡片','MaxHP +10%、MaxSP +10%；受到水屬性攻擊的傷害 -15%'],
-['hero','(JRO)騎士薩克萊卡片','物理攻擊命中時，一定機率將給予敵人的傷害中 2% 會吸收到 SP；受到無屬性攻擊的傷害 -20%'],
-['hero','(JRO)堅硬穆希貝斯寇卡片','MaxHP +10%、MaxSP +10%；受到火屬性攻擊的傷害 -15%'],
-['hero','(JRO)墮落根莖卡片','物理攻擊命中時，睡眠、石化、詛咒狀態效果的發動率上昇'],
-['hero','(JRO)覺醒墮落根莖卡片','物理攻擊命中時，一定機率，對敵人發動自動念咒「深淵沼地」Lv5'],
-['hero','(JRO)莎拉卡片','暗屬性魔法攻擊給予的傷害 +15%；可使用技能「地獄火焰」Lv5'],
-['hero','(JRO)死神 安庫卡片','MaxHP +15%；受到水屬性攻擊的傷害 -10%'],
-['hero','(JRO)闇答萊屍幻影卡片','MaxHP +50%；物理攻擊給予的傷害 +15%；魔法攻擊給予的傷害 +15%'],
-['hero','(JRO)希梅爾茲幻影卡片','物理攻擊命中時，一定機率使敵人會陷入 瀕死 狀態'],
-['hero','(JRO)魔族森靈皇后卡片','物理攻擊給予的傷害 +15%'],
-['hero','(JRO)絕望之神夢羅克卡片','追加發動「靈感」Lv1 狀態的機率上昇'],
-['hero','(JRO)無限墮落根莖卡片','物理攻擊命中時，睡眠、石化、詛咒狀態效果的發動率上昇'],
-['hero','(JRO)尼德霍格幻影卡片','MaxHP +50%；當 超魔導師系列職業裝備時，追加固定詠唱時間 -70%；盔甲的精煉值每上升 1 時，追加魔法攻擊給予的傷害 +3%'],
-['hero','(JRO)施密特國王卡片','可使用技能「大地毀滅」Lv5；近距離物理攻擊給予的傷害 +10%'],
-['hero','(JRO)畢尤卡片','受到無屬性攻擊的傷害 -20%；可使用技能「水元素領域」Lv5'],
-['hero','(JRO)潘利爾卡片','固定詠唱時間 -80%'],
-['hero','(JRO)船長裴陸卡片','誘導攻擊 +30%'],
-['hero','(JRO)魔劍士達納托斯的記憶卡片','部分反射而所受到的傷害 -10%；BaseLv 每上升 1，追加 ATK +1'],
-['hero','(JRO)覺醒闇答萊屍卡片','物理攻擊給予的傷害 +15%；魔法攻擊給予的傷害 +15%；每 6 秒，HP +666、SP +66'],
-['hero','(JRO)魔神追隨者卡片','對人型怪物的傷害 +30%；對杜蘭族玩家的傷害 +30%'],
-['hero','(JRO)夢羅克的行妖術者卡片','MaxHP +15%；受到風屬性攻擊的傷害 -10%'],
-['hero','(JRO)封印污染黑暗之王卡片','MaxHP +25%；當純粹的 STR／INT／DEX 加總 20 以上時，對無形種族物理和魔法攻擊的傷害 +1%'],
-['hero','(JRO)封印污染蜘蛛女王卡片','MaxHP +15%、MaxSP +15%；帶有水屬性攻擊受的傷害 -10%'],
-['hero','(JRO)封印魔劍士達納托斯的記憶卡片','BaseLv 每 +2 時，ATK +1'],
-// 殺意的怨念
-['grudge','伊格尼哲姆=賽尼亞（MVP）卡片','MaxHP／MaxSP +20%；每 10 秒 HP +5000、SP +100'],['grudge','封印伊格尼哲姆=賽尼亞（MVP）卡片','MaxHP／MaxSP +20%；每 10 秒 HP +1500、SP +30'],['grudge','艾勒梅斯=蓋爾（MVP）卡片','水／地屬性傷害 -50%；可使用 Enchant Poison Lv10'],['grudge','封印艾勒梅斯=蓋爾（MVP）卡片','水／地屬性傷害 -25%'],['grudge','凱特莉娜=凱隆（MVP）卡片','MATK +100；可使用 Ganbantein Lv1'],['grudge','封印凱特莉娜=凱隆（MVP）卡片','MATK +100'],['grudge','賽依連=溫莎（MVP）卡片','ATK +100；可使用 Concentration Lv5'],['grudge','西西莉=迪蒙（MVP）卡片','對 BOSS 物理傷害 +25%；可使用 True Sight Lv10'],['grudge','封印西西莉=迪蒙（MVP）卡片','對 BOSS 物理傷害 +20%'],['grudge','哈沃德=阿爾特艾森（MVP）卡片','對一般魔物物理傷害 +25%；可使用 Meltdown Lv10'],['grudge','封印哈沃德=阿爾特艾森（MVP）卡片','對一般魔物物理傷害 +20%'],['grudge','瑪嘉雷特=索琳（MVP）卡片','MaxHP +50%；免疫凍結；可使用 Assumptio Lv5'],['grudge','陳理歐（MVP）卡片','MaxHP +50%、免疫凍結；物理傷害 +7%，純 AGI 110 再 +7%'],['grudge','封印陳理歐（MVP）卡片','MaxHP +25%；物理傷害 +4%，純 AGI 110 再 +4%'],['grudge','特蘭提尼（MVP）卡片','FLEE +50、MaxHP +50%、免疫凍結；純 VIT 110 再 FLEE +50'],['grudge','封印特蘭提尼（MVP）卡片','FLEE +20、MaxHP +25%；純 VIT 110 再 FLEE +20'],['grudge','蘭德爾=勞倫斯（MVP）卡片','MaxHP +60%、免疫凍結；純 INT 110 再 MaxHP +10%'],['grudge','封印蘭德爾=勞倫斯（MVP）卡片','MaxHP +30%；純 INT 110 再 MaxHP +5%'],['grudge','大主教 瑪嘉雷特（MVP）卡片','部分需消耗寶石技能可免寶石；無屬性傷害 -50%'],['grudge','封印大主教 瑪嘉雷特（MVP）卡片','無屬性傷害 -25%'],['grudge','咒術士 凱特莉娜（MVP）卡片','技能後延遲 -10%；無屬性傷害 -50%'],['grudge','皇家禁衛 蘭德爾（MVP）卡片','MDEF +30；無屬性傷害 -50%'],['grudge','封印皇家禁衛 蘭德爾（MVP）卡片','無屬性傷害 -25%'],['grudge','修羅 陳（MVP）卡片','FLEE +50；無屬性傷害 -50%'],['grudge','封印修羅 陳（MVP）卡片','無屬性傷害 -25%'],['grudge','妖術師 賽莉亞（MVP）卡片','魔法擊殺 HP +200、SP +20；無屬性傷害 -50%'],['grudge','封印妖術師 賽莉亞（MVP）卡片','無屬性傷害 -25%'],['grudge','浪姬舞者 特蘭提尼（MVP）卡片','魔法傷害 +15%；無屬性傷害 -50%'],['grudge','封印浪姬舞者 特蘭提尼（MVP）卡片','無屬性傷害 -25%'],['grudge','憤怒盧恩騎士 賽依連（MVP）卡片','MaxHP +10%；物理命中一定機率 10 秒聖屬性物理攻擊力 +100%'],['grudge','憤怒皇家禁衛 蘭德爾（MVP）卡片','MaxHP +10%；物理命中一定機率 10 秒聖屬性物理攻擊力 +50%'],['grudge','憤怒咒術士 凱特莉娜（MVP）卡片','闇屬性傷害 -50%；魔法命中使敵暗黑'],['grudge','憤怒妖術師 賽莉亞（MVP）卡片','毒屬性傷害 -50%；魔法命中使敵猛毒'],['grudge','憤怒遊俠 西西莉（MVP）卡片','FLEE +50；物理命中一定機率 10 秒風屬性物理攻擊力 +50%'],['grudge','憤怒宮廷樂師 阿爾馮斯（MVP）卡片','FLEE +50；物理命中一定機率 10 秒風屬性物理攻擊力 +50%'],['grudge','憤怒浪姬舞者 特蘭提尼（MVP）卡片','魔法傷害 +10%；可使用 Metallic Sound Lv10'],['grudge','憤怒十字斬首者 艾勒梅斯（MVP）卡片','必中攻擊 +15%；物理命中一定機率 10 秒毒屬性物理攻擊力 +50%'],['grudge','憤怒魅影追蹤者 葛蒂（MVP）卡片','必中攻擊 +15%；物理命中一定機率 10 秒毒屬性物理攻擊力 +50%'],['grudge','憤怒大主教 瑪嘉雷特（MVP）卡片','魔法傷害 +10%；可使用 Adoramus Lv10'],['grudge','憤怒修羅 陳（MVP）卡片','ATK +50；物理命中一定機率 10 秒水屬性物理攻擊力 +50%'],['grudge','憤怒機械工匠 哈沃德（MVP）卡片','CRI +25；物理命中一定機率 10 秒地屬性物理攻擊力 +50%'],['grudge','憤怒基因學者 艾米爾（MVP）卡片','CRI +25；物理命中一定機率 10 秒火屬性物理攻擊力 +50%']
-];
-
-function getJroEnchantByName(name){
-  return JRO_MVP_ENCHANTS.find(x=>name===x.name || name.includes(x.name) || x.name.includes(name)) || null;
-}
-function jroIconHtml(name, size='sm'){
-  const found=getJroEnchantByName(String(name||''));
-  if(!found || !found.icon) return '';
-  const cls=size==='lg' ? 'jro-inline-icon lg' : 'jro-inline-icon';
-  return `<img class="${cls}" src="${found.icon}" alt="${esc(found.name)}">`;
-}
-function displayJroItemName(name){
-  const s=String(name||'').trim();
-  if(!s) return s;
-  if(s.startsWith('(JRO)') || s.startsWith('（JRO）')) return s;
-  return `(JRO)${s}`;
-}
-(function(){
- const byId=Object.fromEntries(JRO_MVP_ENCHANTS.map(x=>[x.id,x]));
- const base=document.getElementById('jroMvpBase'), rows=document.getElementById('jroMvpRows'), search=document.getElementById('jroMvpSearch'), sel=document.getElementById('jroMvpEnchant'), meta=document.getElementById('jroMvpMeta');
- if(!base||!rows)return;
- sel.innerHTML='<option value="all">全部 8 種附魔</option>'+JRO_MVP_ENCHANTS.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
- base.innerHTML=JRO_MVP_ENCHANTS.map(x=>`<div class="jro-base-card" data-jro-enchant="${x.id}"><b><span class="jro-with-icon">${jroIconHtml(x.name,'lg')}<span>${esc(x.name)}</span></span></b><small>${esc(x.base)}</small></div>`).join('');
- function render(){
-   const q=(search.value||'').trim().toLowerCase(); const eid=sel.value;
-   const out=JRO_MVP_ROWS.filter(r=>{
-     const e=byId[r[0]]; if(eid!=='all'&&r[0]!==eid)return false;
-     const label=displayJroItemName(r[1]);
-     if(!q)return true; return `${e.name} ${e.jp} ${r[1]} ${label} ${r[2]}`.toLowerCase().includes(q);
-   });
-   meta.textContent=`顯示 ${out.length} / ${JRO_MVP_ROWS.length} 筆套裝效果`;
-   rows.innerHTML=out.length?out.map(r=>{const e=byId[r[0]],label=displayJroItemName(r[1]),sealed=/封印/.test(r[1]);return `<tr><td class="jro-enchant"><span class="jro-with-icon">${jroIconHtml(e.name)}<span>${esc(e.name)}</span></span><div class="jro-meta">${esc(e.jp)}<br>本體：${esc(e.base)}</div></td><td class="jro-card ${sealed?'jro-sealed':''}">${esc(label)}</td><td>${esc(r[2])}</td></tr>`}).join(''):'<tr><td colspan="3" class="jro-nores">沒有符合的附魔／卡片</td></tr>';
-   base.querySelectorAll('.jro-base-card').forEach(c=>c.classList.toggle('active',eid===c.dataset.jroEnchant));
- }
- search.addEventListener('input',render);sel.addEventListener('change',render);
- document.getElementById('jroMvpClear').addEventListener('click',()=>{search.value='';sel.value='all';render();});
- base.addEventListener('click',e=>{const c=e.target.closest('[data-jro-enchant]');if(!c)return;sel.value=sel.value===c.dataset.jroEnchant?'all':c.dataset.jroEnchant;render();});
- render();
-})();
 
 async function importSelectedExcel(file){
   if(!file) return;
