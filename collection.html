@@ -1197,27 +1197,6 @@ th{background:#ddebf7}
 </table>
 
 
-<script>
-(function(){
-  function initJroEnchantToggle(){
-    const btn = document.getElementById('jroEnchantToggle');
-    const content = document.getElementById('jroMvpBase');
-    if(!btn || !content) return;
-
-    btn.addEventListener('click', function(){
-      const isHidden = content.style.display === 'none';
-      content.style.display = isHidden ? '' : 'none';
-      btn.textContent = isHidden ? '▲ 收合附魔' : '▼ 展開附魔';
-      btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-    });
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initJroEnchantToggle, {once:true});
-  }else{
-    initJroEnchantToggle();
-  }
-})();
-</script>
 
 </body>
 </html>`;
@@ -1638,6 +1617,20 @@ $("#clear").addEventListener("click",()=>{
   if(!confirm("確定清除全部已勾選收藏？"))return;
   selected.clear();save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
 });
+
+
+(function initJroEnchantToggle(){
+  const btn = document.getElementById('jroEnchantToggle');
+  const content = document.getElementById('jroMvpBase');
+  if(!btn || !content) return;
+
+  btn.addEventListener('click', function(){
+    const isHidden = content.style.display === 'none';
+    content.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? '▲ 收合附魔' : '▼ 展開附魔';
+    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  });
+})();
 
 updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 </script>
