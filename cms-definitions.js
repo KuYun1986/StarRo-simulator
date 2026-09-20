@@ -1,7 +1,7 @@
 (function(){
   const P={
     index:{file:'index.html',label:'主頁',icon:'🏠',title:'🌟 繁星仙境模擬器',subtitle:'古雲防上頭用V777（機率僅供參考，實際依遊戲為主）',blockMode:'selectors',blocks:[
-      ['workflow','自訂流程','#homeWorkflow'],['dropRate','🎁 掉落率計算器','#dropRateSimulator'],['cardDecompose','🧩 卡片分解模擬','#cardDecomposeSimulator'],['refineBox','🧰 精煉箱','#homeRefineBox'],['runeMonument','🗿 符文石碑模擬器','#runeMonumentSimulator'],['autocast','⚡ 自動詠唱機率模擬器','#autocastSimulator']
+      ['workflow','自訂流程','#homeWorkflow'],['dropRate','🎁 掉落率計算器','#dropRateSimulator'],['cardDecompose','🧩 卡片分解模擬','#cardDecomposeSimulator'],['urGem1','💎 UR寶石箱(1)','#homeUrGem1'],['refineBox','🧰 精煉箱','#homeRefineBox'],['xrGacha','🎰 XR 轉蛋','#homeXrGacha'],['urGacha','🎟️ UR 轉蛋','#homeUrGacha'],['sss','🏆 SSS評級系統','#homeSss'],['refine2030','🔨 +20 → +30 精煉模擬','#homeRefine2030'],['shieldStone','🛡️ 盾牌石','#homeShieldStone'],['gloveStone','🧤 手套石','#homeGloveStone'],['runeMonument','🗿 符文石碑模擬器','#runeMonumentSimulator'],['autocast','⚡ 自動詠唱機率模擬器','#autocastSimulator']
     ]},
         game:{file:'game.html',label:'遊戲區',icon:'🎮',title:'🎮 繁星遊戲區',subtitle:'',blocks:[
       ['fullFlow','完整流程'],['urGem1','💎 UR寶石箱(1)'],['xrGacha','🎰 XR 轉蛋'],['urGacha','🎟️ UR 轉蛋'],['timeBoot','💎 時光超越靴附魔'],['dragon','🐉 龍甲附魔'],['evil','⚔️ 善惡武器附魔'],['weaponIdentify','🗡️ 進階武器鑑定'],['weaponChip','💠 武器指定晶片'],['huajinArmor','🔥 華金一條龍(鎧甲/戰靴)'],['huajinAccessory','💎 華金一條龍(耳環/飾品)'],['midIdentify','🎀 頭中鑑定棒'],['midBook','📕 頭中指定書'],['lowIdentify','🎗️ 頭下鑑定棒'],['lowBook','📙 頭下指定書'],['shoeIdentify','👟 鞋子鑑定棒'],['shoeBook','📘 鞋子指定書'],['accIdentify','🪄 飾品鑑定棒'],['accBook','📖 飾品指定魔法書'],['sss','🏆 SSS評級系統'],['refine2030','🔨 +20 → +30 精煉模擬'],['shieldStone','🛡️ 盾牌石'],['gloveStone','🧤 手套石'],['wheel','🎡 繁星大輪盤'],['baccarat','🎴 百家樂'],['blackjack','🃏 21點'],['tongzi','🀙 推筒子']

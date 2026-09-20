@@ -189,10 +189,6 @@ a{color:#77a9ff}
 <link rel="stylesheet" href="front-cms.css">
 
 <style id="homeDashboardCleanup">
-.home-game-duplicate{display:none!important}
-.home-game-hub{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0;padding:14px 16px;border:1px solid #33445f;border-radius:12px;background:linear-gradient(180deg,#111c2c,#0d1623)}
-.home-game-hub div{display:flex;flex-direction:column;gap:4px}.home-game-hub span{color:#98a9c3;font-size:13px;line-height:1.6}.home-game-hub a{flex:0 0 auto;padding:9px 13px;border:1px solid #4d78aa;border-radius:9px;color:#dcecff;text-decoration:none;font-weight:900;background:#17304d}
-@media(max-width:700px){.home-game-hub{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body><div class="wrap">
@@ -208,7 +204,16 @@ a{color:#77a9ff}
 <a href="shadow.html">💎 影子區</a>
 <a href="admin.html" class="game-page-link" style="margin-left:auto">🔐 管理後台</a>
 </nav>
-<div class="starro-section-shortcuts" aria-label="本頁捷徑"><button onclick="document.getElementById('runeMonumentSimulator').scrollIntoView({behavior:'smooth',block:'start'})">🗿 符文石碑</button></div>
+<div class="starro-section-shortcuts" aria-label="本頁捷徑">
+<button onclick="document.getElementById('homeUrGem1').scrollIntoView({behavior:'smooth',block:'start'})">💎 UR寶石箱</button>
+<button onclick="document.getElementById('homeXrGacha').scrollIntoView({behavior:'smooth',block:'start'})">🎰 XR轉蛋</button>
+<button onclick="document.getElementById('homeUrGacha').scrollIntoView({behavior:'smooth',block:'start'})">🎟️ UR轉蛋</button>
+<button onclick="document.getElementById('homeSss').scrollIntoView({behavior:'smooth',block:'start'})">🏆 SSS</button>
+<button onclick="document.getElementById('homeRefine2030').scrollIntoView({behavior:'smooth',block:'start'})">🔨 +20→+30</button>
+<button onclick="document.getElementById('homeShieldStone').scrollIntoView({behavior:'smooth',block:'start'})">🛡️ 盾牌石</button>
+<button onclick="document.getElementById('homeGloveStone').scrollIntoView({behavior:'smooth',block:'start'})">🧤 手套石</button>
+<button onclick="document.getElementById('runeMonumentSimulator').scrollIntoView({behavior:'smooth',block:'start'})">🗿 符文石碑</button>
+</div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div id="onlineBar" class="stat" style="margin-top:12px">
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -220,82 +225,6 @@ a{color:#77a9ff}
   <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
   <div id="jackpotFeed" style="margin-top:8px;max-height:220px;overflow:auto"></div>
 </div>
-
-
-
-<div class="home-game-hub" role="note">
-  <div><b>🎮 完整遊戲模擬已集中到遊戲區</b><span>轉蛋、SSS、+20→+30、盾牌石、手套石等完整模擬統一在遊戲區，首頁保留常用工具。</span></div>
-  <a href="game.html">前往遊戲區 →</a>
-</div>
-<section class="card" id="homeWorkflow">
-<h2>自訂流程</h2>
-<p class="tiny">目前只保留精煉 1% 流程。</p>
-<div id="steps"></div>
-<div class="actions">
-<button onclick="addPreset('精煉 1%',1)">＋精煉1%</button>
-<button onclick="addPreset('自訂階段',10)">＋自訂</button>
-</div>
-<div style="margin-top:14px">
-<label>模擬次數</label>
-<input id="flowTrials" type="number" min="1" max="1000000" value="1000">
-</div>
-<div class="actions">
-<button class="primary" onclick="runFlow()">模擬自訂流程</button>
-<button onclick="clearSteps()">清空</button>
-</div>
-<div id="theory" style="margin-top:14px"></div>
-<div id="flowResult" class="statgrid"></div>
-</section>
-
-<section class="card" id="dropRateSimulator">
-<h2>🎁 掉落率計算器</h2>
-<p class="tiny">
-  <span style="color:#ff5f6d;font-weight:800;display:block;margin-bottom:6px">1% 基礎掉落率道具</span>
-  <span>最終卡率依「掉落倍率 × 卡片倍率 × 無限幻境倍率」計算。</span>
-</p>
-
-<div class="drop-checks">
-  <label><input id="dropUseDaidai" type="checkbox" checked> 呆呆：掉落率 +100%</label>
-  <label><input id="dropUseCandy" type="checkbox" checked> 超黏掉寶糖：+200%</label>
-  <label><input id="dropUseEvil" type="checkbox" checked> 惡波卷：卡片掉落 +200%</label>
-</div>
-
-<div class="row">
-  <span>無限幻境</span>
-  <select id="dropDreamMode">
-    <option value="0" selected>未使用｜+0%</option>
-    <option value="100">普通｜+100%</option>
-    <option value="200">進階｜+200%</option>
-  </select>
-  <span></span>
-</div>
-
-<div class="row">
-  <span>裝備卡片基礎掉落率</span>
-  <input id="dropCardRate" type="number" min="0" step="1" value="141">
-  <span>%</span>
-</div>
-
-<div class="row">
-  <span>裝備掉落率</span>
-  <input id="dropEquipRate" type="number" min="0" step="1" value="120">
-  <span>%</span>
-</div>
-
-<div class="actions" style="margin-top:12px">
-  <button class="primary" onclick="calcDropRate()">🧮 計算掉落率</button>
-</div>
-
-<div class="stat" style="margin-top:12px">
-  <span class="label">計算公式</span>
-  <div class="tiny" style="line-height:1.9;margin-top:6px">
-    最終卡率 ＝ 基礎掉落率<br>
-    × (100% + 裝備掉落% + 呆呆100% + 超黏200%)<br>
-    × (100% + 裝備卡片基礎掉落% + 惡波卷200%)<br>
-    × (100% + 無限幻境：普通100%／進階200%)
-  </div>
-</div>
-
 <div id="dropRateResult" class="statgrid" style="margin-top:12px"></div>
 <div id="dropRateDetail" style="margin-top:10px"></div>
 </section>
@@ -359,7 +288,7 @@ a{color:#77a9ff}
 
 
 
-<section class="card home-game-duplicate">
+<section class="card" id="homeUrGem1">
 <h2>💎 UR寶石箱(1)</h2>
 <div class="tiny">開啟 UR寶石箱(1)，有機會獲得 <b>UR寶石箱(2)</b>。</div>
 <div class="actions">
@@ -407,7 +336,7 @@ a{color:#77a9ff}
 <div id="refineBoxStats" class="statgrid" style="margin-top:10px"></div>
 <div id="refineBoxDist" style="margin-top:10px"></div>
 </section>
-<section class="card home-game-duplicate">
+<section class="card" id="homeXrGacha">
 <h2>🎰 XR 轉蛋</h2>
 <div class="row"><span>每抽花費</span><b>19 紅利</b></div>
 <p class="tiny">XR：0.07%（XR大獎）｜UR：0.07%（UR一獎、UR二獎）｜連續 1001 抽未出大獎才觸發保底：XR大獎 / UR一獎 / UR二獎，3 抽 1；自然抽到任一大獎或觸發保底後，都重新從第 1 抽計算。</p>
@@ -422,7 +351,7 @@ a{color:#77a9ff}
 <div id="xrStats" class="statgrid"></div>
 <div id="xrDist" style="margin-top:10px"></div>
 </section>
-<section class="card home-game-duplicate">
+<section class="card" id="homeUrGacha">
 <h2>🎟️ UR 轉蛋</h2>
 <div class="row"><span>每抽花費</span><b>19 紅利</b></div>
 <p class="tiny">無保底｜UR：0.15%｜UR內容：UR服飾隨機書、華金自選箱；其中華金自選箱機率 0.05%。</p>
@@ -568,7 +497,7 @@ a{color:#77a9ff}
 </p>
 </section>
 
-<section class="card home-game-duplicate">
+<section class="card" id="homeSss">
 <h2>🏆 SSS評級系統</h2>
 <p class="tiny">每次評級成功機率 <b>15%</b>，每次成本固定 <b>500 台幣</b>。</p>
 
@@ -583,7 +512,7 @@ a{color:#77a9ff}
 <div id="sssNow" style="margin-top:12px"></div>
 <div id="sssStats" style="margin-top:10px"></div>
 </section>
-<section class="card home-game-duplicate">
+<section class="card" id="homeRefine2030">
 <h2>🔨 +20 → +30 精煉模擬</h2>
 <p class="tiny">⭐ 若從 +20 開始累計 <b>200 把精煉槌內</b> 達成 +30，會送上全服即時戰報。</p>
 <p class="tiny">每把武器從 <b>+20</b> 開始；每次精煉都消耗 <b>1 把精煉槌</b>，每把精煉槌 <b>15,000 P</b>。失敗維持原精煉值，成功才進到下一階。每次按 10 / 100 把精煉槌都會從「目前精煉值」繼續往上敲，進度不會重置；可一路累積到 +30。</p>
@@ -608,7 +537,7 @@ a{color:#77a9ff}
 <div id="refine30Stats" style="margin-top:10px"></div>
 </section>
 
-<section class="card home-game-duplicate">
+<section class="card" id="homeShieldStone">
 <h2>🛡️ 盾牌石</h2>
 <p class="tiny">⭐ 100 次內抽中成功結果會送上「全服即時戰報」。</p>
 <p class="tiny">每次使用都會計算成本；抽到「腐朽」仍可繼續洗，並累計腐朽數量。</p>
@@ -645,7 +574,7 @@ a{color:#77a9ff}
 </div>
 </section>
 
-<section class="card home-game-duplicate">
+<section class="card" id="homeGloveStone">
 <h2>🧤 手套石</h2>
 <p class="tiny">⭐ 100 次內抽中純潔石成功會送上「全服即時戰報」。</p>
 <div class="stat">
