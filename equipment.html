@@ -764,7 +764,8 @@ renderTabs();renderTable();
    ["+20","20"]
  ].forEach((x,i)=>cr.add(new Option(x[0],x[1],i===0,i===0)));
 
- for(let i=0;i<=20;i++) tr.add(new Option("+"+i,i,i===20,i===20));
+ tr.add(new Option("+0（只評級）","0",false,false));
+ tr.add(new Option("+20","20",true,true)); // 目標精煉只提供 +0（只評級）與 +20
 
  const rank={D:0,C:1,B:2,A:3,S:4,SS:5};
 
@@ -793,14 +794,46 @@ renderTabs();renderTable();
  }
 
  function steps(){
-   if(+tr.value<+cr.value || rank[tg.value]<rank[cg.value]){
+   const gradeOnly = +tr.value===0;
+   if((!gradeOnly && +tr.value<+cr.value) || rank[tg.value]<rank[cg.value]){
      route.textContent="⚠️ 目標不可低於目前狀態";
      return null;
    }
 
    let a=[];
+
+   // 目標精煉 +0 = 只評級：完全不加入任何精煉／敲裝費用與材料。
+   if(gradeOnly){
+     const needsSOnly  = rank[cg.value] < 4 && rank[tg.value] >= 4;
+     const needsSSOnly = rank[cg.value] < 5 && rank[tg.value] >= 5;
+     if(needsSOnly) a.push(["grade:S","評 S"]);
+     if(needsSSOnly) a.push(["grade:SS","評 SS"]);
+     route.textContent=a.length
+       ? "自動路線（只評級）："+a.map(x=>x[1]).join(" → ")
+       : "目前已達目標評級";
+     return a;
+   }
    const needsS  = rank[cg.value] < 4 && rank[tg.value] >= 4;
    const needsSS = rank[cg.value] < 5 && rank[tg.value] >= 5;
+
+   // V103：目前已經 +20、目標也是 +20 時，只計算「尚未完成的評級＋該階敲裝」。
+   // 不回頭重算任何精煉，也不補目前評級以前的敲裝。
+   // 例：+20 S → +20 SS = 評 SS → 敲 SS。
+   if(+cr.value===20 && +tr.value===20){
+     if(needsS){
+       a.push(["grade:S","評 S"]);
+       a.push(["refine:S","敲 S"]);
+     }
+     if(needsSS){
+       a.push(["grade:SS","評 SS"]);
+       a.push(["refine:SS","敲 SS"]);
+     }
+     route.textContent=a.length
+       ? "自動路線（+20 評級差額）："+a.map(x=>x[1]).join(" → ")
+       : "目前已達目標";
+     return a;
+   }
+
    const needsRefine = +tr.value > +cr.value || needsS || needsSS;
 
    if(eq.value==="lt20"){
