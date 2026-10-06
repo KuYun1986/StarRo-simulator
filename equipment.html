@@ -72,25 +72,20 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 .auto-service-grid label{font-size:12px;color:#aebdd0;font-weight:800}
 .auto-service-grid select{display:block;width:100%;margin-top:5px;min-height:40px;padding:7px;border-radius:8px;border:1px solid #34465f;background:#0b1119;color:#fff}
 @media(max-width:850px){.auto-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-</style>
-<script src="starro-config.js"></script>
-<script src="cms-definitions.js"></script>
-<link rel="stylesheet" href="front-cms.css">
-</head>
+</style></head>
 <body>
 <div class="wrap">
 <div class="page-head">
   <h1>💰 裝備成本區</h1>
   <a href="admin.html" class="admin-entry">⚙️ 後台管理</a>
 </div>
-<div class="topnav" aria-label="網站導覽">
+<div class="topnav">
   <a href="index.html" class="game-page-link">🏠 主頁</a>
   <a href="game.html" class="game-page-link">🎮 遊戲區</a>
+  <a href="wash.html" class="game-page-link">🧪 洗詞區</a>
   <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
-  <a href="identify.html" class="game-page-link">🔍 洗詞鑑定區</a>
+  <a href="identify.html" class="game-page-link">🔍 鑑定區</a>
   <a href="collection.html" class="game-page-link">📚 收藏區</a>
-  <a href="equipment.html" class="game-page-link" aria-current="page">💰 裝備成本區</a>
-  <a href="CASH.html" class="game-page-link">💳 現金區</a>
   <a href="shadow.html" class="game-page-link">💎 影子區</a>
 </div>
 <div class="sub">裝備製作模擬｜所有 P 點價格都可以自行修改。</div>
@@ -192,7 +187,7 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   <div style="margin-top:18px;padding:16px;border:1px solid #3d5878;border-radius:12px;background:#0d1623">
     <h3 style="margin:0 0 12px">🎯 自動試算</h3>
     <div class="tiny" style="margin-bottom:10px;line-height:1.75">
-      目前精煉：+0～+13＝完整敲S（大小金各15把）；+14＝大小金各15把；+15＝大小金各10把；+16＝大小金各5把；+17＝大金15把；+18＝大金10把；+19＝大金5把；+20＝不計算敲S費用。
+      目前精煉：+0～+14＝完整敲S（大小金各15把／支票20張）；+14＝大金15／小金15把／支票15張；+15＝大金15／小金10把／支票15張；+16＝大金15／小金5把／支票15張；+17＝大金15／小金0把／支票15張；+18＝大金10把／支票10張；+19＝大金5把／支票5張；+20＝不計算第一段敲S費用。+14～+19 的敲S仍計20紅；敲S②固定完整敲S（支票20張）；評S另加9張支票，評SS另加25張支票。
     </div>
     <div class="auto-service-grid">
       <label>裝備種類<select id="autoEquipType"><option value="normal">1級防具／4級武器</option><option value="high" selected>2級防具／5級武器</option><option value="lt20">上LT+20</option></select></label>
@@ -255,8 +250,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
       <div class="stat"><span class="label">代敲／代評費用</span><b id="multiRedFee">0 紅</b></div>
       <div class="stat"><span class="label">支票</span><b id="multiChecks">0 張</b></div>
       <div class="stat"><span class="label">鐵匠的祝福</span><b id="multiBless">0 個</b></div>
-      <div class="stat"><span class="label">大小金</span><b id="multiGold">各 0 把</b></div>
-      <div class="stat"><span class="label">大小灰</span><b id="multiGray">各 0 把</b></div>
+      <div class="stat"><span class="label">大小金</span><b id="multiGold">大0／小0 把</b></div>
+      <div class="stat"><span class="label">大小灰</span><b id="multiGray">大0／小0 把</b></div>
       <div class="stat"><span class="label">乙太塔菲石</span><b id="multiTaffy">0 個</b></div>
       <div class="stat"><span class="label">庇佑乙太星塵</span><b id="multiDust">0 個</b></div>
       <div class="stat"><span class="label">全部總成本(含紅利)</span><b id="multiTotalP" style="color:#7ee0a1">0 P</b></div>
@@ -266,9 +261,9 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
   </div>
 
   <div class="note tiny" style="margin-top:14px;line-height:1.8">
-    <span style="color:#ff5c5c;font-weight:700">精煉37%、評級27%</span><br>
+    <span style="color:#ff5c5c;font-weight:700">精煉37%、評級29%</span><br>
     敲裝須自備：裝備、槌子、支票、材料。<br>
-    D、C 評級機率：29/30%。
+    D、C 評級機率：30/31%。
   </div>
 
 </section>
@@ -277,9 +272,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
 
 </div>
 
-<script src="equipment-data.js"></script>
 <script>
-/* EQUIPMENT_DATA moved to equipment-data.js */
+const EQUIPMENT_DATA={"信念頭":[{"name":"裝備附魔券#1000874","qty":35.0,"price":1000,"pack":1},{"name":"紫水晶碎片100入#67816","qty":23900.0,"price":90,"pack":100},{"name":"聖域能量#67017","qty":1500.0,"price":3,"pack":1},{"name":"聖域精華#67018","qty":400.0,"price":75,"pack":1},{"name":"特定屬性聖域寶石碎片（自選）","qty":100.0,"price":150.0,"pack":1},{"name":"支票#60332","qty":52,"price":18,"pack":1}],"伊斯頭":[{"name":"支票#60332","qty":10000.0,"price":18,"pack":1},{"name":"裝備附魔券#1000874","qty":300.0,"price":1000,"pack":1},{"name":"神聖的貓鬍鬚#1001217","qty":18000.0,"price":1,"pack":1},{"name":"維格納上層交換證書#1001618","qty":15000.0,"price":1,"pack":1},{"name":"燦爛的夕陽魔法石#1001658","qty":3000.0,"price":3000,"pack":3000},{"name":"明亮的綠松石魔法石#1001655","qty":3000.0,"price":3000,"pack":3000},{"name":"絢麗的腥紅魔法石#1001661","qty":3000.0,"price":3000,"pack":3000},{"name":"綏藍魔法石#1001664","qty":3000.0,"price":3000,"pack":3000},{"name":"伊斯加爾特的恩典氣息#68756","qty":2500.0,"price":30,"pack":1},{"name":"伊斯加爾特之心#68757＋伊斯加爾特的祝福碎片#68758（綁定）","qty":500,"qtyLabel":"各500","price":160000,"pack":500},{"name":"晨曦之光#1001786","qty":10.0,"price":4800,"pack":1},{"name":"魔星石#1001438","qty":10.0,"price":2200,"pack":1},{"name":"正義女神寶石#1001797","qty":15.0,"price":2200,"pack":1},{"name":"阿奎拉卡#300382","qty":1.0,"price":3000,"pack":1},{"name":"仿真蓉可兒卡#300378","qty":1.0,"price":666,"pack":1},{"name":"究極拉斯甘德卡#300472","qty":1.0,"price":5000,"pack":1},{"name":"幽靈船船長卡#300532","qty":1.0,"price":499,"pack":1},{"name":"被侵占的燒毀卡#300533","qty":1.0,"price":1000,"pack":1}],"凱薩":[{"name":"獼猴桃果實10入#16770 右上商城購買","qty":79,"price":42,"pack":1},{"name":"威力隕石浮塵","qty":4.0,"price":1,"pack":1},{"name":"耐力隕石浮塵","qty":4.0,"price":1,"pack":1},{"name":"專注隕石浮塵","qty":4.0,"price":1,"pack":1},{"name":"創造隕石浮塵","qty":4.0,"price":1,"pack":1},{"name":"咒術隕石浮塵","qty":4.0,"price":1,"pack":1},{"name":"智慧隕石浮塵","qty":4.0,"price":1,"pack":1},{"name":"威力隕石碎片","qty":2704.0,"price":13,"pack":1},{"name":"耐力隕石碎片","qty":2704.0,"price":5,"pack":1},{"name":"專注隕石碎片","qty":2704.0,"price":9,"pack":1},{"name":"創造隕石碎片","qty":2704.0,"price":11,"pack":1},{"name":"咒術隕石碎片","qty":2704.0,"price":20,"pack":1},{"name":"智慧隕石碎片","qty":2704.0,"price":9,"pack":1},{"name":"對應屬性的精華（自選）","qty":16.0,"price":5000.0,"pack":1},{"name":"對應屬性隕石碎片(3種)（自選）","qty":2500.0,"price":30.0,"pack":1},{"name":"對應屬性隕石浮塵(3種)（自選）","qty":2000.0,"price":3.0,"pack":1},{"name":"星辰粉末罐#60627","qty":7000.0,"price":9,"pack":1},{"name":"地獄夜勝魔靈珠#67461","qty":650.0,"price":90,"pack":1},{"name":"地獄參宿四靈珠#67462","qty":325.0,"price":80,"pack":1},{"name":"地獄參宿七靈珠#67463","qty":325.0,"price":80,"pack":1},{"name":"裝備附魔券","qty":6.0,"price":1000,"pack":1}],"龍甲":[{"name":"支票#60332","qty":4661.0,"price":18,"pack":1},{"name":"伊美樂心臟能量碎片#1001256","qty":3.0,"price":3000,"pack":1},{"name":"伊美樂心臟能量石#1001174","qty":6.0,"price":8888,"pack":1},{"name":"裝備附魔券#1000874","qty":34.0,"price":1000,"pack":1},{"name":"小的龍骨頭#25766","qty":300.0,"price":1,"pack":1},{"name":"大的龍骨頭#25765","qty":800.0,"price":1,"pack":1},{"name":"火龍的麟片#7451","qty":600.0,"price":4,"pack":1},{"name":"血紅鱗片#6091","qty":250.0,"price":30,"pack":1},{"name":"尼德霍德的水藍寶石鱗片#68532","qty":2900.0,"price":55,"pack":1},{"name":"尼德霍德的血紅寶石鱗片#68531（綁定）","qty":350.0,"price":0,"pack":1},{"name":"防具強化石(頂級)#1000437","qty":450.0,"price":14,"pack":1},{"name":"七彩寶珠#60257","qty":300.0,"price":10,"pack":1},{"name":"迪塔勒泰晤勒斯卡片#4386","qty":1.0,"price":500,"pack":1},{"name":"骨骸迪塔勒泰晤勒斯卡片#300021","qty":2.0,"price":500,"pack":1},{"name":"尼德霍格幻影卡片#4456","qty":2.0,"price":900,"pack":1},{"name":"威力隕石碎片","qty":2100.0,"price":13,"pack":1},{"name":"耐力隕石碎片","qty":2100.0,"price":5,"pack":1},{"name":"專注隕石碎片","qty":2100.0,"price":9,"pack":1},{"name":"創造隕石碎片","qty":2100.0,"price":11,"pack":1},{"name":"咒術隕石碎片","qty":2100.0,"price":20,"pack":1},{"name":"智慧隕石碎片","qty":2100.0,"price":9,"pack":1},{"name":"獼猴桃果實10入#16770 右上商城購買","qty":100,"price":42,"pack":1}],"懺悔武器":[{"name":"悔恨結晶100入#67819","qty":35000,"price":40,"pack":100},{"name":"悔恨能量碎片#60794","qty":4600.0,"price":10,"pack":1},{"name":"悔恨能量精華#60795","qty":150.0,"price":1,"pack":1},{"name":"薩克萊卡片#300192","qty":1.0,"price":3000,"pack":1},{"name":"提亞拉卡片#300193","qty":1.0,"price":2500,"pack":1},{"name":"支票#60332","qty":11,"price":18,"pack":1}],"神話／英雄LT武器":[{"name":"生體試驗晶片殘骸100入#67817","qty":55000.0,"price":30,"pack":100},{"name":"生體試驗報告100入#67818","qty":55000.0,"price":30,"pack":100},{"name":"生體能量精華#67183","qty":100.0,"price":13,"pack":1},{"name":"生體能量精華(光)#67185","qty":100.0,"price":23,"pack":1},{"name":"邪惡的心靈氣息#19439","qty":1.0,"price":500,"pack":1},{"name":"生體能量殘骸#67186","qty":1650.0,"price":10,"pack":1},{"name":"生體能量殘骸(光)#67184","qty":1650.0,"price":14,"pack":1},{"name":"活體劍士卡片#300266","qty":1.0,"price":666,"pack":1},{"name":"支票#60332","qty":8,"price":18,"pack":1}],"吉芬披":[{"name":"暗夜吉芬鬥技場冠軍（綁定）","qty":3600.0,"price":0,"pack":1},{"name":"暗夜吉芬鬥技場硬幣100入#67815","qty":97500.0,"price":5,"pack":100},{"name":"暗夜吉芬鬥技場證明#1000317","qty":6000.0,"price":1,"pack":1},{"name":"暗夜吉芬衛冕硬幣#67122","qty":600.0,"price":45,"pack":1},{"name":"弱化的潘利爾卡片#4557","qty":20.0,"price":78,"pack":1},{"name":"暗夜吉芬衛冕冠軍證明#67123","qty":550.0,"price":48,"pack":1},{"name":"潘利爾卡片#4556","qty":1.0,"price":6000,"pack":1},{"name":"莎拉卡片#4610","qty":1.0,"price":15000,"pack":1},{"name":"支票#60332","qty":58,"price":18,"pack":1}],"生命披":[{"name":"季節(王)材料（自選）","qty":69.0,"price":50.0,"pack":1},{"name":"(季節)之靈（自選）","qty":1254.0,"price":3.0,"pack":1},{"name":"能量各2種（自選）","qty":1292.0,"price":28.0,"pack":1},{"name":"靈魂的保護#1001465","qty":305.0,"price":10,"pack":1},{"name":"生命循環#1001456","qty":300.0,"price":1,"pack":1},{"name":"生命的果實#1001457","qty":128.0,"price":1,"pack":1},{"name":"滅絕的果實#1001458","qty":98.0,"price":8,"pack":1},{"name":"生命的真相#1001459","qty":38.0,"price":50,"pack":1},{"name":"生命之光#1001460","qty":96.0,"price":300,"pack":1},{"name":"元素能量#1001600","qty":35.0,"price":145,"pack":1},{"name":"支票#60332","qty":276.0,"price":18,"pack":1},{"name":"完整的符文#1001283","qty":15.0,"price":181,"pack":1},{"name":"濃縮神金#67992","qty":10.0,"price":4,"pack":1},{"name":"濃縮鍺金#67993","qty":10.0,"price":4,"pack":1},{"name":"殿堂象徵(金塊)（綁定）","qty":50.0,"price":80.0,"pack":1},{"name":"幻象殿堂象徵(銀塊)#608003","qty":100.0,"price":40,"pack":1}],"奧林披":[{"name":"支票#60332","qty":5500.0,"price":18,"pack":1},{"name":"裝備附魔券#1000874","qty":120.0,"price":1000,"pack":1},{"name":"無限挑戰日誌（綁定）","qty":425.0,"price":0,"pack":1},{"name":"暗夜吉芬衛冕硬幣#67122","qty":500.0,"price":45,"pack":1},{"name":"空中要塞鑰匙／原礦／礦石（三合一）（綁定）","qty":1,"price":250000,"pack":1},{"name":"歐內斯特卡片#31026","qty":6.0,"price":4000,"pack":1},{"name":"晨曦之心#1001786","qty":30.0,"price":5000,"pack":1},{"name":"乙太塔菲石#60381","qty":1000.0,"price":40,"pack":1},{"name":"凱薩祝福10入#60321","qty":1000.0,"price":480,"pack":1}]};
 
 // 「現價」：彙整所有裝備製作材料，同名道具只列一次。
 // 同一道具的價格／價格單位共用，從現價或任何裝備頁修改都會同步到其他裝備。
@@ -521,7 +515,14 @@ renderTabs();renderTable();
   };
   const REFINE_RULES={    "LT20":{red:10,checks:10,bless:0,bigGold:5,smallGold:0,bigGray:15,smallGray:15,note:"上LT+20：10紅、支票10張、大小灰各15把＋大金5把。"},
     "A-D":{red:10,checks:10,bless:0,bigGold:0,smallGold:0,bigGray:15,smallGray:15,note:"A裝 +0~+20：大小灰各15把、支票10張、10紅。"},
-    "S":{red:20,checks:20,bless:200,bigGold:15,smallGold:15,bigGray:0,smallGray:0,note:"2級防具／5級武器／S裝 +0~+20：鐵匠的祝福200個、支票20張、大小金各15把、20紅。"},
+    "S":{red:20,checks:20,bless:200,bigGold:15,smallGold:15,bigGray:0,smallGray:0,note:"2級防具／5級武器／S裝 +0~+14：鐵匠的祝福200個、支票20張、大小金各15把、20紅。"},
+    "S-BOTH15":{red:20,checks:15,bless:0,bigGold:15,smallGold:15,bigGray:0,smallGray:0,note:"目前精煉 +14：20紅、支票15張、大小金各15把。"},
+    "S-BOTH10":{red:20,checks:15,bless:0,bigGold:15,smallGold:10,bigGray:0,smallGray:0,note:"目前精煉 +15：20紅、支票15張、大金15／小金10把。"},
+    "S-BOTH5":{red:20,checks:15,bless:0,bigGold:15,smallGold:5,bigGray:0,smallGray:0,note:"目前精煉 +16：20紅、支票15張、大金15／小金5把。"},
+    "S-BIG15":{red:20,checks:15,bless:0,bigGold:15,smallGold:0,bigGray:0,smallGray:0,note:"目前精煉 +17：20紅、支票15張、大金15把。"},
+    "S-BIG10":{red:20,checks:10,bless:0,bigGold:10,smallGold:0,bigGray:0,smallGray:0,note:"目前精煉 +18：20紅、支票10張、大金10把。"},
+    "S-BIG5":{red:20,checks:5,bless:0,bigGold:5,smallGold:0,bigGray:0,smallGray:0,note:"目前精煉 +19：20紅、支票5張、大金5把。"},
+    "S-ZERO":{red:0,checks:0,bless:0,bigGold:0,smallGold:0,bigGray:0,smallGray:0,note:"目前精煉 +20：不計算敲S費用。"},
     "SS":{red:60,checks:35,bless:350,bigGold:35,smallGold:35,bigGray:0,smallGray:0,note:"SS裝 +0~+20：鐵匠的祝福350個、支票35張、大小金各35把、60紅。"}
   };
   const GRADE_RULES={
@@ -561,11 +562,10 @@ renderTabs();renderTable();
     document.getElementById("refineRedFee").textContent=fmt(r.red*qty)+" 紅";
     document.getElementById("refineChecks").textContent=fmt(r.checks*qty)+" 張";
     document.getElementById("refineBless").textContent=fmt(r.bless*qty)+" 個";
-    if(type==="A-D"){
-      document.getElementById("refineHammers").textContent="大小灰各 "+fmt(15*qty)+" 把";
+    if(r.bigGray || r.smallGray){
+      document.getElementById("refineHammers").textContent="大"+fmt(r.bigGray*qty)+"／小"+fmt(r.smallGray*qty)+" 把";
     }else{
-      const per=type==="SS"?35:15;
-      document.getElementById("refineHammers").textContent="大小金各 "+fmt(per*qty)+" 把";
+      document.getElementById("refineHammers").textContent="大"+fmt(r.bigGold*qty)+"／小"+fmt(r.smallGold*qty)+" 把";
     }
     const total=qty*(
       r.red*price("red") +
@@ -602,7 +602,7 @@ renderTabs();renderTable();
 
   function renderServiceMulti(){
     const qty=q("serviceMultiQty");
-    const checked=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')].map(x=>x.value);
+    const checked=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')].map(x=>x.dataset.costType || x.value);
 
     const sum={
       red:0,checks:0,bless:0,bigGold:0,smallGold:0,bigGray:0,smallGray:0,
@@ -620,12 +620,12 @@ renderTabs();renderTable();
         labels.push(
           type==="A-D" ? "敲 1級／4級" :
           type==="LT20" ? "敲+20①" :
-          type==="S-BOTH15" ? "敲 S（大小金各15把）" :
-          type==="S-BOTH10" ? "敲 S（大小金各10把）" :
-          type==="S-BOTH5" ? "敲 S（大小金各5把）" :
-          type==="S-BIG15" ? "敲 S（大金15把）" :
-          type==="S-BIG10" ? "敲 S（大金10把）" :
-          type==="S-BIG5" ? "敲 S（大金5把）" :
+          type==="S-BOTH15" ? "敲 S（大15／小15）" :
+          type==="S-BOTH10" ? "敲 S（大15／小10）" :
+          type==="S-BOTH5" ? "敲 S（大15／小5）" :
+          type==="S-BIG15" ? "敲 S（大15／小0）" :
+          type==="S-BIG10" ? "敲 S（大10／小0）" :
+          type==="S-BIG5" ? "敲 S（大5／小0）" :
           type==="S-ZERO" ? "敲 S（不計費）" :
           "敲 "+type
         );
@@ -643,11 +643,9 @@ renderTabs();renderTable();
     document.getElementById("multiChecks").textContent=fmt(sum.checks)+" 張";
     document.getElementById("multiBless").textContent=fmt(sum.bless)+" 個";
     document.getElementById("multiGold").textContent=
-      sum.bigGold===sum.smallGold ? "各 "+fmt(sum.bigGold)+" 把"
-                                 : "大 "+fmt(sum.bigGold)+"／小 "+fmt(sum.smallGold)+" 把";
+      "大"+fmt(sum.bigGold)+"／小"+fmt(sum.smallGold)+" 把";
     document.getElementById("multiGray").textContent=
-      sum.bigGray===sum.smallGray ? "各 "+fmt(sum.bigGray)+" 把"
-                                 : "大 "+fmt(sum.bigGray)+"／小 "+fmt(sum.smallGray)+" 把";
+      "大"+fmt(sum.bigGray)+"／小"+fmt(sum.smallGray)+" 把";
     document.getElementById("multiTaffy").textContent=fmt(sum.taffy)+" 個";
     document.getElementById("multiDust").textContent=fmt(sum.dust)+" 個";
 
@@ -757,7 +755,7 @@ renderTabs();renderTable();
 
  // 目前精煉只保留 8 種選項
  [
-   ["+0～+13","13"],
+   ["+0～+14","13"],
    ["+14","14"],
    ["+15","15"],
    ["+16","16"],
@@ -774,17 +772,23 @@ renderTabs();renderTable();
  // 所有「敲 S」步驟都套用目前精煉規則
  function sStep(label="敲 S", which="firstS"){
    const lv=+cr.value;
-   if(lv>=20) return ["refine:S-ZERO",label+"（不計費）"];
-   if(lv===19) return ["refine:S-BIG5",label+"（大金5把）"];
-   if(lv===18) return ["refine:S-BIG10",label+"（大金10把）"];
-   if(lv===17) return ["refine:S-BIG15",label+"（大金15把）"];
-   if(lv===16) return ["refine:S-BOTH5",label+"（大小金各5把）"];
-   if(lv===15) return ["refine:S-BOTH10",label+"（大小金各10把）"];
-   if(lv===14) return ["refine:S-BOTH15",label+"（大小金各15把）"];
-   return ["refine:S",label,which]; // +0～+13：完整敲S
+   if(lv>=20) return ["refine:S-ZERO",label+"（不計費）",which];
+   if(lv===19) return ["refine:S-BIG5",label+"（大5／小0）",which];
+   if(lv===18) return ["refine:S-BIG10",label+"（大10／小0）",which];
+   if(lv===17) return ["refine:S-BIG15",label+"（大15／小0）",which];
+   if(lv===16) return ["refine:S-BOTH5",label+"（大15／小5）",which];
+   if(lv===15) return ["refine:S-BOTH10",label+"（大15／小10）",which];
+   if(lv===14) return ["refine:S-BOTH15",label+"（大15／小15）",which];
+   return ["refine:S",label,which]; // +0～+14：完整敲S
  }
 
  function pushS(arr,label,which){
+   // 第一個敲 S 依「目前精煉」扣除已完成的金槌材料；
+   // 第二個敲 S② 是新的 S 階段，固定使用完整敲 S 規則。
+   if(which==="secondS"){
+     arr.push(["refine:S",label,which]);
+     return;
+   }
    const s=sStep(label,which);
    if(s) arr.push(s);
  }
@@ -859,15 +863,22 @@ renderTabs();renderTable();
  function apply(){
    const a=steps(); if(!a)return;
    const box=[...document.querySelectorAll("#serviceMultiOptions input[type=checkbox]")];
-   box.forEach(x=>x.checked=false);
+   box.forEach(x=>{ x.checked=false; delete x.dataset.costType; });
 
    a.forEach(([v,label,which])=>{
-     const hits=box.filter(x=>x.value===v);
-     if(v==="refine:S" && hits.length>1){
-       if(which==="secondS") hits[1].checked=true;
-       else hits[0].checked=true;
+     // +14～+20 的敲 S 使用特殊費用，但畫面仍要勾到可見的「敲 S」欄位。
+     // 透過 data-cost-type 保留實際計費規則，避免只勾隱藏欄位、也避免兩次敲 S 被合併成一次。
+     const isSpecialS = v.startsWith("refine:S-");
+     const lookupValue = isSpecialS ? "refine:S" : v;
+     const hits=box.filter(x=>x.value===lookupValue && !x.dataset.autoOnly);
+
+     if(lookupValue==="refine:S" && hits.length>1){
+       const target = which==="secondS" ? hits[1] : hits[0];
+       target.checked=true;
+       if(isSpecialS) target.dataset.costType=v;
      }else if(hits[0]){
        hits[0].checked=true;
+       if(isSpecialS) hits[0].dataset.costType=v;
      }
    });
 
@@ -882,5 +893,4 @@ renderTabs();renderTable();
  steps();
 })();
 </script>
-<script src="front-cms.js"></script>
 </body></html>
