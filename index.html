@@ -225,6 +225,55 @@ a{color:#77a9ff}
   <div id="jackpotTicker" class="tiny" style="margin-top:8px">尚無大獎紀錄</div>
   <div id="jackpotFeed" style="margin-top:8px;max-height:220px;overflow:auto"></div>
 </div>
+<section class="card" id="dropRateSimulator">
+<h2>🎁 掉落率計算器</h2>
+<p class="tiny">
+  <span style="color:#ff5f6d;font-weight:800;display:block;margin-bottom:6px">1% 基礎掉落率道具</span>
+  <span>最終卡率依「掉落倍率 × 卡片倍率 × 無限幻境倍率」計算。</span>
+</p>
+
+<div class="drop-checks">
+  <label><input id="dropUseDaidai" type="checkbox" checked> 呆呆：掉落率 +100%</label>
+  <label><input id="dropUseCandy" type="checkbox" checked> 超黏掉寶糖：+200%</label>
+  <label><input id="dropUseEvil" type="checkbox" checked> 惡波卷：卡片掉落 +200%</label>
+</div>
+
+<div class="row">
+  <span>無限幻境</span>
+  <select id="dropDreamMode">
+    <option value="0" selected>未使用｜+0%</option>
+    <option value="100">普通｜+100%</option>
+    <option value="200">進階｜+200%</option>
+  </select>
+  <span></span>
+</div>
+
+<div class="row">
+  <span>裝備卡片基礎掉落率</span>
+  <input id="dropCardRate" type="number" min="0" step="1" value="141">
+  <span>%</span>
+</div>
+
+<div class="row">
+  <span>裝備掉落率</span>
+  <input id="dropEquipRate" type="number" min="0" step="1" value="120">
+  <span>%</span>
+</div>
+
+<div class="actions" style="margin-top:12px">
+  <button class="primary" onclick="calcDropRate()">🧮 計算掉落率</button>
+</div>
+
+<div class="stat" style="margin-top:12px">
+  <span class="label">計算公式</span>
+  <div class="tiny" style="line-height:1.9;margin-top:6px">
+    最終卡率 ＝ 基礎掉落率<br>
+    × (100% + 裝備掉落% + 呆呆100% + 超黏200%)<br>
+    × (100% + 裝備卡片基礎掉落% + 惡波卷200%)<br>
+    × (100% + 無限幻境：普通100%／進階200%)
+  </div>
+</div>
+
 <div id="dropRateResult" class="statgrid" style="margin-top:12px"></div>
 <div id="dropRateDetail" style="margin-top:10px"></div>
 </section>
@@ -2379,8 +2428,11 @@ function calcBossCardRate(){
 
 document.addEventListener("DOMContentLoaded", ()=>{
   calcDropRate();
-  ["dropUseDream","dropUseDaidai","dropUseCandy","dropUseEvil"].forEach(id=>{
+  ["dropUseDaidai","dropUseCandy","dropUseEvil","dropDreamMode"].forEach(id=>{
     document.getElementById(id)?.addEventListener("change", calcDropRate);
+  });
+  ["dropCardRate","dropEquipRate"].forEach(id=>{
+    document.getElementById(id)?.addEventListener("input", calcDropRate);
   });
 });
 
