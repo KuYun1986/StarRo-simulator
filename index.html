@@ -280,7 +280,7 @@ a{color:#77a9ff}
 
 <section class="card" id="talismanCostSimulator">
 <h2>🧿 護身符成本模擬器</h2>
-<p class="muted">可分開模擬完整 +20A、單輪 +0→+11，或只模擬評級。所有價格都可自行調整。</p>
+<p class="muted">可分開模擬完整 +20A、單輪 +0→+11，或只模擬評級。大量模擬已關閉；理論期望值放在折疊區，需要時再展開查看。</p>
 
 <style>
 .tal-config-wrap{display:grid;gap:14px;margin-top:14px}
@@ -322,15 +322,6 @@ a{color:#77a9ff}
         </select>
         <small>「模擬評級」時，將只跑這一段升階。</small>
       </label>
-      <label class="tal-field">
-        <span>大量模擬次數</span>
-        <select id="talCount">
-          <option value="1000">1,000</option>
-          <option value="10000" selected>10,000</option>
-          <option value="50000">50,000</option>
-        </select>
-        <small>用來估算 +20A 平均成本，次數越高越穩定。</small>
-      </label>
     </div>
   </div>
 </div>
@@ -339,7 +330,6 @@ a{color:#77a9ff}
 <button id="talFull" type="button" class="primary">🎲 模擬 +20A</button>
 <button id="talRefine11" type="button">🔨 模擬 +0→+11</button>
 <button id="talGrade" type="button">⭐ 模擬評級</button>
-<button id="talMany" type="button">📊 +20A 大量模擬平均</button>
 </div>
 
 <div class="statgrid" style="margin-top:14px">
@@ -351,6 +341,20 @@ a{color:#77a9ff}
 </div>
 
 <div id="talDetail" class="result" style="margin-top:12px;white-space:pre-line">選擇上方模式開始模擬。</div>
+
+<details id="talExpectedDetails" style="margin-top:12px">
+  <summary>📐 理論期望值｜需要時再展開查看</summary>
+  <div class="result" style="margin-top:10px">
+    <div class="statgrid" style="margin-top:0">
+      <div class="stat"><span>+20A 期望總花費</span><b id="talExpCost">—</b></div>
+      <div class="stat"><span>精煉石期望</span><b id="talExpRef">—</b></div>
+      <div class="stat"><span>評級粉期望</span><b id="talExpPowder">—</b></div>
+      <div class="stat"><span>精煉嘗試期望</span><b id="talExpRefTry">—</b></div>
+      <div class="stat"><span>評級嘗試期望</span><b id="talExpGradeTry">—</b></div>
+    </div>
+    <div id="talExpectedBreakdown" class="tiny" style="margin-top:12px;white-space:pre-line;line-height:1.8"></div>
+  </div>
+</details>
 
 <details id="talLuckDetails" style="margin-top:12px" open>
   <summary>🍀 幸運值過程｜看每一次失敗怎麼累積</summary>
@@ -446,14 +450,38 @@ function show(o,title){
 $('talFull')?.addEventListener('click',()=>show(fullRun(true),'🎲 +20A 本次模擬'));
 $('talRefine11')?.addEventListener('click',()=>show(refineRange(11,true),'🔨 +0→+11 本次模擬'));
 $('talGrade')?.addEventListener('click',()=>{let target=$('talGradeTarget').value;show(gradeOnly(target),`⭐ 評級 ${G[target][0]} 本次模擬`)});
-$('talMany')?.addEventListener('click',()=>{
-  let n=+$('talCount').value||10000,s=blank();
-  for(let i=0;i<n;i++){let o=fullRun(false);for(let k of ['ref','powder','rt','gt'])s[k]+=o[k]}
-  for(let k of ['ref','powder','rt','gt'])s[k]/=n;
-  s.luckLines.push('📊 大量模擬為了效能不逐次列出幸運值；請按「模擬 +20A」或「模擬 +0→+11」體驗單次幸運值累積。');
-  show(s,`📊 +20A ${fmt(n,0)} 次模擬平均`)
-});
-for(let id of ['talRefinePrice','talPowderPrice']){let e=$(id),k='starro_'+id,v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('change',()=>localStorage.setItem(k,e.value))}
+function expectedRefineLevel(level){
+  const [base,luckAdd,rateAdd]=R[level];
+  let luck=0,bonus=0,survival=1,expected=0,guard=0;
+  while(survival>1e-12 && guard++<500){
+    expected+=survival;
+    const guaranteed=luck>=100;
+    const chance=guaranteed?1:Math.min(1,(base+bonus)/100);
+    if(chance>=1) break;
+    survival*=1-chance;
+    const before=luck;
+    luck=Math.min(100,luck+luckAdd);
+    if(before>=50 && luck<100) bonus+=rateAdd;
+  }
+  return expected;
+}
+function expectedRefineRange(end){let total=0;for(let l=0;l<end;l++)total+=expectedRefineLevel(l);return total}
+function renderExpected(){
+  const rp=+$('talRefinePrice').value||0,pp=+$('talPowderPrice').value||0;
+  const exp011=expectedRefineRange(11),exp020=expectedRefineRange(20),expRef=exp011*4+exp020;
+  const rows=[['無→D',.30,5],['D→C',.21,10],['C→B',.17,15],['B→A',.13,20]];
+  let expGradeTry=0,expPowder=0;const lines=[];
+  for(const [name,p,powder] of rows){const tries=1/p,powders=tries*powder;expGradeTry+=tries;expPowder+=powders;lines.push(`${name}：期望 ${fmt(tries)} 次｜評級粉 ${fmt(powders)} 個`)}
+  const expCost=expRef*rp+expPowder*pp;
+  $('talExpCost').textContent=fmt(expCost)+' 紅';
+  $('talExpRef').textContent=fmt(expRef)+' 個';
+  $('talExpPowder').textContent=fmt(expPowder)+' 個';
+  $('talExpRefTry').textContent=fmt(expRef)+' 次';
+  $('talExpGradeTry').textContent=fmt(expGradeTry)+' 次';
+  $('talExpectedBreakdown').textContent=`+0→+11 單輪精煉期望：${fmt(exp011)} 次\n前四輪 +0→+11：${fmt(exp011*4)} 次\nA階 +0→+20：${fmt(exp020)} 次\n精煉石成本：${fmt(expRef)} × ${fmt(rp)}紅 = ${fmt(expRef*rp)}紅\n\n${lines.join('\\n')}\n評級粉成本：${fmt(expPowder)} × ${fmt(pp)}紅 = ${fmt(expPowder*pp)}紅\n\n合計期望：${fmt(expCost)} 紅`;
+}
+for(let id of ['talRefinePrice','talPowderPrice']){let e=$(id),k='starro_'+id,v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('input',()=>{localStorage.setItem(k,e.value);renderExpected()})}
+renderExpected();
 })();
 </script>
 
