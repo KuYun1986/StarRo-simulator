@@ -282,19 +282,57 @@ a{color:#77a9ff}
 <h2>🧿 護身符成本模擬器</h2>
 <p class="muted">可分開模擬完整 +20A、單輪 +0→+11，或只模擬評級。所有價格都可自行調整。</p>
 
-<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
-<label>精煉道具價格（紅）<input id="talRefinePrice" type="number" min="0" step="0.01" value="29"></label>
-<label>升階提升道具（紅）<input id="talBoostPrice" type="number" min="0" step="0.01" value="19"></label>
-<label>升階石折合（紅／顆）<input id="talStonePrice" type="number" min="0" step="0.01" value="0"></label>
-<label>評級目標
-<select id="talGradeTarget">
-<option value="D">D｜無→D</option>
-<option value="C">C｜D→C</option>
-<option value="B">B｜C→B</option>
-<option value="A">A｜B→A</option>
-</select>
-</label>
-<label>大量模擬次數<select id="talCount"><option value="1000">1,000</option><option value="10000" selected>10,000</option><option value="50000">50,000</option></select></label>
+<style>
+.tal-config-wrap{display:grid;gap:14px;margin-top:14px}
+.tal-config-block{background:rgba(11,17,25,.65);border:1px solid #27313d;border-radius:12px;padding:14px}
+.tal-config-title{display:block;font-weight:800;font-size:14px;letter-spacing:.3px;color:var(--accent);margin-bottom:12px}
+.tal-input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tal-field{display:flex;flex-direction:column;gap:7px}
+.tal-field span{font-size:14px;font-weight:700;color:#d7deea;line-height:1.4}
+.tal-field small{font-size:12px;color:var(--muted);line-height:1.5}
+@media(max-width:720px){.tal-input-grid{grid-template-columns:1fr}}
+</style>
+<div class="tal-config-wrap">
+  <div class="tal-config-block">
+    <span class="tal-config-title">💰 價格設定</span>
+    <div class="tal-input-grid">
+      <label class="tal-field">
+        <span>護身符精煉石價格（紅／個）</span>
+        <input id="talRefinePrice" type="number" min="0" step="0.01" value="29">
+        <small>每次精煉固定消耗 1 個護身符精煉石。</small>
+      </label>
+      <label class="tal-field">
+        <span>護身符評級粉價格（紅／個）</span>
+        <input id="talPowderPrice" type="number" min="0" step="0.01" value="19">
+        <small>無→D 5個、D→C 10個、C→B 15個、B→A 20個。</small>
+      </label>
+    </div>
+  </div>
+
+  <div class="tal-config-block">
+    <span class="tal-config-title">⚙️ 模擬設定</span>
+    <div class="tal-input-grid">
+      <label class="tal-field">
+        <span>評級目標</span>
+        <select id="talGradeTarget">
+          <option value="D">D｜無→D</option>
+          <option value="C">C｜D→C</option>
+          <option value="B">B｜C→B</option>
+          <option value="A">A｜B→A</option>
+        </select>
+        <small>「模擬評級」時，將只跑這一段升階。</small>
+      </label>
+      <label class="tal-field">
+        <span>大量模擬次數</span>
+        <select id="talCount">
+          <option value="1000">1,000</option>
+          <option value="10000" selected>10,000</option>
+          <option value="50000">50,000</option>
+        </select>
+        <small>用來估算 +20A 平均成本，次數越高越穩定。</small>
+      </label>
+    </div>
+  </div>
 </div>
 
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
@@ -307,8 +345,7 @@ a{color:#77a9ff}
 <div class="statgrid" style="margin-top:14px">
 <div class="stat"><span>總花費</span><b id="talCost">—</b></div>
 <div class="stat"><span>精煉道具</span><b id="talRef">—</b></div>
-<div class="stat"><span>升階石</span><b id="talStone">—</b></div>
-<div class="stat"><span>升階提升道具</span><b id="talBoost">—</b></div>
+<div class="stat"><span>護身符評級粉</span><b id="talPowder">—</b></div>
 <div class="stat"><span>精煉嘗試</span><b id="talRefTry">—</b></div>
 <div class="stat"><span>升階嘗試</span><b id="talGradeTry">—</b></div>
 </div>
@@ -323,7 +360,7 @@ a{color:#77a9ff}
 <details style="margin-top:14px"><summary>📘 計算規則</summary><div class="muted" style="line-height:1.75;margin-top:8px">
 完整 +20A 路線：+0→+11 無階 → D；+0→+11 D → C；+0→+11 C → B；+0→+11 B → A；最後 +0→+20 A。<br>
 精煉失敗不爆、不退；幸運值達 50% 後，後續失敗開始增加成功率；幸運值達 100% 時下一次必定成功；成功後幸運值歸 0。<br>
-升階每次固定使用 5 個提升道具，成功率：無→D 30%、D→C 21%、C→B 17%、B→A 13%。
+評級粉消耗：無→D 5個、D→C 10個、C→B 15個、B→A 20個；成功率：無→D 30%、D→C 21%、C→B 17%、B→A 13%。
 </div></details>
 </section>
 <script>
@@ -362,7 +399,7 @@ function rr(level,trace=false){
   }
 }
 function gr(p){let n=0;do{n++}while(Math.random()>=p);return n}
-function blank(){return {ref:0,stone:0,boost:0,rt:0,gt:0,lines:[],luckLines:[]}}
+function blank(){return {ref:0,powder:0,rt:0,gt:0,lines:[],luckLines:[]}}
 function refineRange(end,trace=true){
   const o=blank();let x=0;
   for(let l=0;l<end;l++){
@@ -371,8 +408,8 @@ function refineRange(end,trace=true){
   o.ref=x;o.rt=x;o.lines.push(`+0→+${end}：精煉 ${x} 次`);return o
 }
 function gradeOnly(target){
-  const o=blank(),g=G[target],q=gr(g[1]);o.gt=q;o.stone=q*g[2];o.boost=q*5;
-  o.lines.push(`${g[0]}：${q} 次｜升階石 ${o.stone} 個｜提升道具 ${o.boost} 個`);
+  const o=blank(),g=G[target],q=gr(g[1]);o.gt=q;o.powder=q*g[2];
+  o.lines.push(`${g[0]}：${q} 次｜護身符評級粉 ${o.powder} 個`);
   o.luckLines.push('⭐ 評級本身不使用精煉幸運值；幸運值只套用在 +0～+20 的精煉過程。');
   return o
 }
@@ -384,7 +421,7 @@ function fullRun(trace=false){
       const r=rr(l,trace);x+=r.tries;if(trace)o.luckLines.push(...r.log);
     }
     o.ref+=x;o.rt+=x;
-    const g=G[order[s]],q=gr(g[1]);o.gt+=q;o.stone+=q*g[2];o.boost+=q*5;
+    const g=G[order[s]],q=gr(g[1]);o.gt+=q;o.powder+=q*g[2];
     o.lines.push(`${stageName[s]}階 +0→+11：精煉 ${x} 次｜${g[0]}：${q} 次`);
     if(trace)o.luckLines.push(`⭐ ${g[0]} 評級：嘗試 ${q} 次（評級不使用幸運值）`);
   }
@@ -395,10 +432,14 @@ function fullRun(trace=false){
   o.ref+=x;o.rt+=x;o.lines.push(`A階 +0→+20：精煉 ${x} 次`);return o
 }
 function show(o,title){
-  const rp=+$('talRefinePrice').value||0,bp=+$('talBoostPrice').value||0,sp=+$('talStonePrice').value||0;
-  const c=o.ref*rp+o.boost*bp+o.stone*sp;
-  $('talCost').textContent=fmt(c)+' 紅';$('talRef').textContent=fmt(o.ref)+' 個';$('talStone').textContent=fmt(o.stone)+' 個';$('talBoost').textContent=fmt(o.boost)+' 個';$('talRefTry').textContent=fmt(o.rt)+' 次';$('talGradeTry').textContent=fmt(o.gt)+' 次';
-  $('talDetail').textContent=`${title}\n精煉：${fmt(o.ref)} × ${fmt(rp)}紅 = ${fmt(o.ref*rp)}紅\n升階提升：${fmt(o.boost)} × ${fmt(bp)}紅 = ${fmt(o.boost*bp)}紅\n升階石：${fmt(o.stone)} × ${fmt(sp)}紅 = ${fmt(o.stone*sp)}紅`+(o.lines.length?'\n\n'+o.lines.join('\n'):'');
+  const rp=+$('talRefinePrice').value||0,pp=+$('talPowderPrice').value||0;
+  const c=o.ref*rp+o.powder*pp;
+  $('talCost').textContent=fmt(c)+' 紅';
+  $('talRef').textContent=fmt(o.ref)+' 個';
+  $('talPowder').textContent=fmt(o.powder)+' 個';
+  $('talRefTry').textContent=fmt(o.rt)+' 次';
+  $('talGradeTry').textContent=fmt(o.gt)+' 次';
+  $('talDetail').textContent=`${title}\n護身符精煉石：${fmt(o.ref)} × ${fmt(rp)}紅 = ${fmt(o.ref*rp)}紅\n護身符評級粉：${fmt(o.powder)} × ${fmt(pp)}紅 = ${fmt(o.powder*pp)}紅`+(o.lines.length?'\n\n'+o.lines.join('\n'):'');
   const luck=$('talLuckLog');
   if(luck) luck.textContent=o.luckLines?.length?o.luckLines.join('\n'):'此模式未產生幸運值紀錄。';
 }
@@ -407,12 +448,12 @@ $('talRefine11')?.addEventListener('click',()=>show(refineRange(11,true),'🔨 +
 $('talGrade')?.addEventListener('click',()=>{let target=$('talGradeTarget').value;show(gradeOnly(target),`⭐ 評級 ${G[target][0]} 本次模擬`)});
 $('talMany')?.addEventListener('click',()=>{
   let n=+$('talCount').value||10000,s=blank();
-  for(let i=0;i<n;i++){let o=fullRun(false);for(let k of ['ref','stone','boost','rt','gt'])s[k]+=o[k]}
-  for(let k of ['ref','stone','boost','rt','gt'])s[k]/=n;
+  for(let i=0;i<n;i++){let o=fullRun(false);for(let k of ['ref','powder','rt','gt'])s[k]+=o[k]}
+  for(let k of ['ref','powder','rt','gt'])s[k]/=n;
   s.luckLines.push('📊 大量模擬為了效能不逐次列出幸運值；請按「模擬 +20A」或「模擬 +0→+11」體驗單次幸運值累積。');
   show(s,`📊 +20A ${fmt(n,0)} 次模擬平均`)
 });
-for(let id of ['talRefinePrice','talBoostPrice','talStonePrice']){let e=$(id),k='starro_'+id,v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('change',()=>localStorage.setItem(k,e.value))}
+for(let id of ['talRefinePrice','talPowderPrice']){let e=$(id),k='starro_'+id,v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('change',()=>localStorage.setItem(k,e.value))}
 })();
 </script>
 
