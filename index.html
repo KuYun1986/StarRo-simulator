@@ -462,7 +462,7 @@ function show(o,title){
   $('talBless').textContent=fmt(o.bless)+' 個';
   $('talRefTry').textContent=fmt(o.rt)+' 次';
   $('talGradeTry').textContent=fmt(o.gt)+' 次';
-  $('talDetail').textContent=`${title}\n護身符精煉石：${fmt(o.ref)} × ${fmt(rp)}紅利點數 = ${fmt(o.ref*rp)}紅利點數\n護身符升階石：${fmt(o.powder)} × ${fmt(pp)}P = ${fmt(o.powder*pp)}P\n祝福粉：${fmt(o.bless)} × ${fmt(bp)}紅利點數 = ${fmt(o.bless*bp)}紅利點數`+(o.lines.length?'\n\n'+o.lines.join('\n'):'');
+  $('talDetail').textContent=`${title}\n護身符精煉石：${fmt(o.ref)} × ${fmt(rp)}紅利點數／個 = ${fmt(o.ref*rp)}紅利點數\n護身符升階石：${fmt(o.powder)} × ${fmt(pp)}P = ${fmt(o.powder*pp)}P\n祝福粉：${fmt(o.bless)} × ${fmt(bp)}紅利點數／個 = ${fmt(o.bless*bp)}紅利點數`+(o.lines.length?'\n\n'+o.lines.join('\n'):'');
   const luck=$('talLuckLog');
   if(luck) luck.textContent=o.luckLines?.length?o.luckLines.join('\n'):'此模式未產生幸運值紀錄。';
 }
@@ -504,7 +504,7 @@ function renderCp(){
   $('talCpSummary').textContent=`最佳升階期望：${fmt(chosenTotal)} P｜全部升階統一投入 ${blessGroups()} 組：${fmt(currentTotal)} P
 最佳策略預計節省：${fmt(Math.max(0,currentTotal-chosenTotal))} P
 包含精煉石的完整 +20A 期望總成本（各階採最省組數）：${fmt(chosenTotal+refineCost)} P
-（1 紅 = ${fmt(exchange)} P；這是無限重試下的數學期望值，不保證每次實際花費。）`;
+（1 紅利點數 = ${fmt(exchange)} P；這是無限重試下的數學期望值，不保證每次實際花費。）`;
 }
 $('talApplyCp')?.addEventListener('click',()=>{
   const key=$('talGradeTarget').value,g=G[key];
