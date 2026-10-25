@@ -171,6 +171,16 @@ a{color:#77a9ff}
 .rm-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.rm-summary div{padding:10px;border:1px solid var(--border);border-radius:10px}.rm-summary span{display:block;color:var(--muted);font-size:11px}.rm-summary strong{color:var(--rm);font-size:25px}.rm-log{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}.rm-log i{padding:5px 7px;border-radius:6px;background:#101824;font-style:normal;font-size:10px}.rm-log i.fail{color:#ffac70}.rm-log i.ok{color:var(--rm)}
 .rm-selected{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:rgba(0,0,0,.12)}.rm-selected h3{margin:0 0 7px;color:var(--rm)}.rm-chips{display:flex;gap:6px;flex-wrap:wrap}.rm-chips span{padding:4px 8px;border:1px solid var(--border);border-radius:999px;font-size:11px;color:var(--muted)}
 .rm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}.rm-box{padding:12px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.12)}.rm-box h4{margin:0 0 8px;color:var(--rm);font-size:12px}.rm-box p{white-space:pre-line;margin:0;line-height:1.7}.rm-box ul{list-style:none;margin:0;padding:0}.rm-box li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dotted var(--border);font-size:12px}.rm-box li:last-child{border-bottom:0}.rm-box li b{white-space:nowrap}
+.extreme-tower{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.et-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.et-head h3{margin:0;color:#ffcf5a}
+.et-ranges{display:flex;gap:7px;flex-wrap:wrap}
+.et-ranges button{min-width:92px;padding:8px 11px!important;min-height:38px!important}
+.et-ranges button.on{background:#6d4c12!important;border-color:#d59a27!important;color:#ffe59b!important}
+.et-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.et-summary .stat b{font-size:21px}
+.et-detail{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.8}
+@media(max-width:720px){.et-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:720px){.rm-controls,.rm-grid{grid-template-columns:1fr}.rm-rules{grid-template-columns:repeat(2,1fr)}.rm-rules div:last-child{grid-column:1/-1}}
 </style>
 
@@ -704,6 +714,23 @@ renderExpected();
   <button class="rm-run" id="rmRun">模擬精煉到 +15</button>
   <div id="rmResult"></div>
   <div id="rmInfo"></div>
+
+  <div class="extreme-tower" id="extremeTowerRune">
+    <div class="et-head">
+      <div>
+        <h3>🏰 極限塔符文</h3>
+        <div class="tiny">依「[符紋]極限塔符文數量.xlsx」整理｜每 50 層為一個區間</div>
+      </div>
+    </div>
+    <div class="et-ranges" id="etRanges"></div>
+    <div class="et-summary">
+      <div class="stat"><span class="label">極限塔碎片</span><b id="etFragment">1,350</b></div>
+      <div class="stat"><span class="label">符文祝福</span><b id="etBless">65</b></div>
+      <div class="stat"><span class="label">塔日誌</span><b id="etLog">150</b></div>
+      <div class="stat"><span class="label">完整符文</span><b id="etRune">500</b></div>
+    </div>
+    <div class="et-detail" id="etDetail"></div>
+  </div>
 </section>
 
 <section class="card" id="autocastSimulator">
@@ -2815,6 +2842,41 @@ const mult=result?.attempts||level;const norm=n=>n.replace('屬性傷','屬性')
 $('rmResult').innerHTML=result?`<div class="rm-summary"><div><span>總嘗試</span><strong>${result.attempts}</strong> 次</div><div><span>失敗</span><strong>${result.failures}</strong> 次</div><div><span>結果</span><strong>+${level}</strong> 完成</div></div><div class="rm-log">${result.levels.map(v=>`<i class="${v.tries>1?'fail':'ok'}">+${v.lv}｜${v.tries}次｜${v.chance}%</i>`).join('')}</div>`:'';}
 function simulate(){let attempts=0,failures=0,levels=[];for(let lv=1;lv<=level;lv++){const t=TIERS.find(v=>lv>=v.min&&lv<=v.max);let f=0;while(true){const chance=Math.min(100,t.base+bonus+f*t.fail);attempts++;if(Math.random()*100<chance){levels.push({lv,tries:f+1,chance});break}f++;failures++;}}result={attempts,failures,levels};render()}
 $('rmSeries').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b){series=b.dataset.s;result=null;render()}});$('rmSet').addEventListener('change',e=>{chosen[series]=e.target.value;result=null;render()});$('rmLevel').addEventListener('input',e=>{level=+e.target.value;result=null;render()});$('rmBonus').addEventListener('change',e=>{bonus=+e.target.value;result=null;render()});$('rmRun').addEventListener('click',simulate);render();
+})();
+
+// ===== 極限塔符文材料 =====
+(()=>{
+const ET_DATA=[
+  {range:'10–50',start:10,end:50,fragment:1350,bless:65,log:150,rune:500,activation:{fragment:500,bless:10,rune:100},upgrade:{fragment:400,bless:40,rune:400}},
+  {range:'60–100',start:60,end:100,fragment:3000,bless:140,log:400,rune:1000,activation:{fragment:1000,bless:20,rune:200},upgrade:{fragment:800,bless:80,rune:800}},
+  {range:'110–150',start:110,end:150,fragment:4650,bless:215,log:650,rune:1600,activation:{fragment:1500,bless:30,rune:400},upgrade:{fragment:1200,bless:120,rune:1200}},
+  {range:'160–200',start:160,end:200,fragment:6300,bless:290,log:900,rune:2400,activation:{fragment:2000,bless:40,rune:800},upgrade:{fragment:1600,bless:160,rune:1600}},
+  {range:'210–250',start:210,end:250,fragment:7950,bless:365,log:1150,rune:3600,activation:{fragment:2500,bless:50,rune:1600},upgrade:{fragment:2000,bless:200,rune:2000}},
+  {range:'260–300',start:260,end:300,fragment:9600,bless:440,log:1400,rune:4800,activation:{fragment:3000,bless:60,rune:2400},upgrade:{fragment:2400,bless:240,rune:2400}},
+  {range:'310–350',start:310,end:350,fragment:11250,bless:515,log:1650,rune:6000,activation:{fragment:3500,bless:70,rune:3200},upgrade:{fragment:2800,bless:280,rune:2800}},
+  {range:'360–400',start:360,end:400,fragment:12900,bless:590,log:1900,rune:7200,activation:{fragment:4000,bless:80,rune:4000},upgrade:{fragment:3200,bless:320,rune:3200}},
+  {range:'410–450',start:410,end:450,fragment:14550,bless:665,log:2150,rune:8400,activation:{fragment:4500,bless:90,rune:4800},upgrade:{fragment:3600,bless:360,rune:3600}},
+  {range:'460–500',start:460,end:500,fragment:16200,bless:740,log:2400,rune:9600,activation:{fragment:5000,bless:100,rune:5600},upgrade:{fragment:4000,bless:400,rune:4000}}
+];
+let current=0;
+const fmt=n=>Number(n).toLocaleString('zh-TW');
+function renderET(){
+  const x=ET_DATA[current];
+  document.getElementById('etRanges').innerHTML=ET_DATA.map((v,i)=>`<button type="button" class="${i===current?'on':''}" data-et="${i}">${v.range}</button>`).join('');
+  document.getElementById('etFragment').textContent=fmt(x.fragment);
+  document.getElementById('etBless').textContent=fmt(x.bless);
+  document.getElementById('etLog').textContent=fmt(x.log);
+  document.getElementById('etRune').textContent=fmt(x.rune);
+  document.getElementById('etDetail').innerHTML=
+    `<b style="color:#ffcf5a">${x.range} 總材料</b>＝該 5 個樓層碎片需求＋啟動＋40 次升級。<br>`+
+    `啟動：極限塔碎片 ${fmt(x.activation.fragment)}、符文祝福 ${fmt(x.activation.bless)}、完整符文 ${fmt(x.activation.rune)}。<br>`+
+    `升級 40 次：極限塔碎片 ${fmt(x.upgrade.fragment)}、符文祝福 ${fmt(x.upgrade.bless)}、完整符文 ${fmt(x.upgrade.rune)}。`;
+}
+document.getElementById('etRanges')?.addEventListener('click',e=>{
+  const b=e.target.closest('[data-et]'); if(!b)return;
+  current=Number(b.dataset.et)||0; renderET();
+});
+renderET();
 })();
 </script>
 <script src="ro-front-theme.js"></script>
