@@ -302,9 +302,9 @@ a{color:#77a9ff}
         <small>每次精煉固定消耗 1 個護身符精煉石。</small>
       </label>
       <label class="tal-field">
-        <span>護身符評級粉價格（紅／個）</span>
+        <span>護身符升階石價格（紅／個）</span>
         <input id="talPowderPrice" type="number" min="0" step="0.01" value="19">
-        <small>升階評級粉：無→D 5個、D→C 10個、C→B 15個、B→A 20個（與祝福粉分開計價）。</small>
+        <small>升階石：無→D 5個、D→C 10個、C→B 15個、B→A 20個（每次嘗試固定消耗，失敗也消耗；與祝福粉分開計價）。</small>
       </label>
     <label class="tal-field"><span>祝福粉價格（紅／個）</span><input id="talBlessPrice" type="number" min="0" step="0.01" value="0"><small>每投入 1 組消耗 5 個，最多 10 組。預設 0 僅為待填價格，請輸入實際單價後再看 CP 推薦。</small></label>
     </div>
@@ -336,12 +336,12 @@ a{color:#77a9ff}
 <div class="statgrid" style="margin-top:14px">
 <div class="stat"><span>總花費</span><b id="talCost">—</b></div>
 <div class="stat"><span>精煉道具</span><b id="talRef">—</b></div>
-<div class="stat"><span>護身符評級粉</span><b id="talPowder">—</b></div><div class="stat"><span>祝福粉</span><b id="talBless">—</b></div>
+<div class="stat"><span>護身符升階石</span><b id="talPowder">—</b></div><div class="stat"><span>祝福粉</span><b id="talBless">—</b></div>
 <div class="stat"><span>精煉嘗試</span><b id="talRefTry">—</b></div>
 <div class="stat"><span>升階嘗試</span><b id="talGradeTry">—</b></div>
 </div>
 
-<article style="margin-top:14px;border:1px solid #40567d;border-radius:12px;padding:14px;background:rgba(25,42,64,.38)"><h3 style="margin:0 0 8px">🏆 祝福粉最高 CP 值｜自動推薦</h3><p class="tiny" style="margin:0 0 10px">依目前「評級粉單價」與「祝福粉單價」，逐階比較 0～10 組，選擇達成升階時期望紅利成本最低的組數；每次嘗試均需重新投入。</p><div class="scroll" style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>升階</th><th>推薦組數</th><th>成功率</th><th>平均嘗試</th><th>期望祝福粉</th><th>期望升階成本</th></tr></thead><tbody id="talCpRows"></tbody></table></div><div id="talCpSummary" class="tiny" style="margin-top:12px;white-space:pre-line"></div><button id="talApplyCp" type="button" style="margin-top:8px">⭐ 套用目前目標階段的最佳組數</button></article>
+<article style="margin-top:14px;border:1px solid #40567d;border-radius:12px;padding:14px;background:rgba(25,42,64,.38)"><h3 style="margin:0 0 8px">🏆 祝福粉最高 CP 值｜自動推薦</h3><p class="tiny" style="margin:0 0 10px">依目前「升階石單價」與「祝福粉單價」，逐階比較 0～10 組，選擇達成升階時期望紅利成本最低的組數；每次嘗試均需重新投入。</p><div class="scroll" style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>升階</th><th>推薦組數</th><th>成功率</th><th>平均嘗試</th><th>期望祝福粉</th><th>期望升階成本</th></tr></thead><tbody id="talCpRows"></tbody></table></div><div id="talCpSummary" class="tiny" style="margin-top:12px;white-space:pre-line"></div><button id="talApplyCp" type="button" style="margin-top:8px">⭐ 套用目前目標階段的最佳組數</button></article>
 
 <div id="talDetail" class="result" style="margin-top:12px;white-space:pre-line">選擇上方模式開始模擬。</div>
 
@@ -351,7 +351,7 @@ a{color:#77a9ff}
     <div class="statgrid" style="margin-top:0">
       <div class="stat"><span>+20A 期望總花費</span><b id="talExpCost">—</b></div>
       <div class="stat"><span>精煉石期望</span><b id="talExpRef">—</b></div>
-      <div class="stat"><span>評級粉期望</span><b id="talExpPowder">—</b></div><div class="stat"><span>祝福粉期望</span><b id="talExpBless">—</b></div>
+      <div class="stat"><span>升階石期望</span><b id="talExpPowder">—</b></div><div class="stat"><span>祝福粉期望</span><b id="talExpBless">—</b></div>
       <div class="stat"><span>精煉嘗試期望</span><b id="talExpRefTry">—</b></div>
       <div class="stat"><span>評級嘗試期望</span><b id="talExpGradeTry">—</b></div>
     </div>
@@ -367,7 +367,7 @@ a{color:#77a9ff}
 <details style="margin-top:14px"><summary>📘 計算規則</summary><div class="muted" style="line-height:1.75;margin-top:8px">
 完整 +20A 路線：+0→+11 無階 → D；+0→+11 D → C；+0→+11 C → B；+0→+11 B → A；最後 +0→+20 A。<br>
 精煉失敗不爆、不退；幸運值達 50% 後，後續失敗開始增加成功率；幸運值達 100% 時下一次必定成功；成功後幸運值歸 0。<br>
-評級粉消耗：無→D 5個、D→C 10個、C→B 15個、B→A 20個；基礎成功率：無→D 25%、D→C 15%、C→B 10%、B→A 5%。祝福粉每組 5 個，D／C／B／A 每組分別增加 5／6／7／8 個百分點，最多 10 組。
+升階石消耗：無→D 5個、D→C 10個、C→B 15個、B→A 20個；基礎成功率：無→D 25%、D→C 15%、C→B 10%、B→A 5%。祝福粉每組 5 個，D／C／B／A 每組分別增加 5／6／7／8 個百分點，最多 10 組。
 </div></details>
 </section>
 <script>
@@ -419,7 +419,7 @@ function refineRange(end,trace=true){
 }
 function gradeOnly(target){
   const o=blank(),g=G[target],q=gr(gradeChance(g));o.gt=q;o.powder=q*g[2];o.bless=q*blessGroups()*5;
-  o.lines.push(`${g[0]}：${q} 次｜成功率 ${pct(gradeChance(g)*100)}｜評級粉 ${o.powder} 個｜祝福粉 ${o.bless} 個`);
+  o.lines.push(`${g[0]}：${q} 次｜成功率 ${pct(gradeChance(g)*100)}｜升階石 ${o.powder} 個｜祝福粉 ${o.bless} 個`);
   o.luckLines.push('⭐ 評級本身不使用精煉幸運值；幸運值只套用在 +0～+20 的精煉過程。');
   return o
 }
@@ -450,7 +450,7 @@ function show(o,title){
   $('talBless').textContent=fmt(o.bless)+' 個';
   $('talRefTry').textContent=fmt(o.rt)+' 次';
   $('talGradeTry').textContent=fmt(o.gt)+' 次';
-  $('talDetail').textContent=`${title}\n護身符精煉石：${fmt(o.ref)} × ${fmt(rp)}紅 = ${fmt(o.ref*rp)}紅\n護身符評級粉：${fmt(o.powder)} × ${fmt(pp)}紅 = ${fmt(o.powder*pp)}紅\n祝福粉：${fmt(o.bless)} × ${fmt(bp)}紅 = ${fmt(o.bless*bp)}紅`+(o.lines.length?'\n\n'+o.lines.join('\n'):'');
+  $('talDetail').textContent=`${title}\n護身符精煉石：${fmt(o.ref)} × ${fmt(rp)}紅 = ${fmt(o.ref*rp)}紅\n護身符升階石：${fmt(o.powder)} × ${fmt(pp)}紅 = ${fmt(o.powder*pp)}紅\n祝福粉：${fmt(o.bless)} × ${fmt(bp)}紅 = ${fmt(o.bless*bp)}紅`+(o.lines.length?'\n\n'+o.lines.join('\n'):'');
   const luck=$('talLuckLog');
   if(luck) luck.textContent=o.luckLines?.length?o.luckLines.join('\n'):'此模式未產生幸運值紀錄。';
 }
@@ -502,7 +502,7 @@ function renderExpected(){
   const exp011=expectedRefineRange(11),exp020=expectedRefineRange(20),expRef=exp011*4+exp020;
   const rows=Object.values(G);
   let expGradeTry=0,expPowder=0,expBless=0;const lines=[];
-  for(const g of rows){const tries=1/gradeChance(g),powders=tries*g[2],bless=tries*blessGroups()*5;expGradeTry+=tries;expPowder+=powders;expBless+=bless;lines.push(`${g[0]}：成功率 ${pct(gradeChance(g)*100)}｜期望 ${fmt(tries)} 次｜評級粉 ${fmt(powders)} 個｜祝福粉 ${fmt(bless)} 個`)}
+  for(const g of rows){const tries=1/gradeChance(g),powders=tries*g[2],bless=tries*blessGroups()*5;expGradeTry+=tries;expPowder+=powders;expBless+=bless;lines.push(`${g[0]}：成功率 ${pct(gradeChance(g)*100)}｜期望 ${fmt(tries)} 次｜升階石 ${fmt(powders)} 個｜祝福粉 ${fmt(bless)} 個`)}
   const expCost=expRef*rp+expPowder*pp+expBless*bp;
   $('talExpCost').textContent=fmt(expCost)+' 紅';
   $('talExpRef').textContent=fmt(expRef)+' 個';
@@ -511,7 +511,7 @@ function renderExpected(){
   $('talExpRefTry').textContent=fmt(expRef)+' 次';
   $('talExpGradeTry').textContent=fmt(expGradeTry)+' 次';
   renderCp();
-  $('talExpectedBreakdown').textContent=`+0→+11 單輪精煉期望：${fmt(exp011)} 次\n前四輪 +0→+11：${fmt(exp011*4)} 次\nA階 +0→+20：${fmt(exp020)} 次\n精煉石成本：${fmt(expRef)} × ${fmt(rp)}紅 = ${fmt(expRef*rp)}紅\n\n${lines.join('\\n')}\n評級粉成本：${fmt(expPowder)} × ${fmt(pp)}紅 = ${fmt(expPowder*pp)}紅\n祝福粉成本：${fmt(expBless)} × ${fmt(bp)}紅 = ${fmt(expBless*bp)}紅\n\n合計期望：${fmt(expCost)} 紅`;
+  $('talExpectedBreakdown').textContent=`+0→+11 單輪精煉期望：${fmt(exp011)} 次\n前四輪 +0→+11：${fmt(exp011*4)} 次\nA階 +0→+20：${fmt(exp020)} 次\n精煉石成本：${fmt(expRef)} × ${fmt(rp)}紅 = ${fmt(expRef*rp)}紅\n\n${lines.join('\\n')}\n升階石成本：${fmt(expPowder)} × ${fmt(pp)}紅 = ${fmt(expPowder*pp)}紅\n祝福粉成本：${fmt(expBless)} × ${fmt(bp)}紅 = ${fmt(expBless*bp)}紅\n\n合計期望：${fmt(expCost)} 紅`;
 }
 for(let id of ['talRefinePrice','talPowderPrice','talBlessPrice','talBlessGroups','talGradeTarget']){let e=$(id),k='starro_'+id,v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('input',()=>{localStorage.setItem(k,e.value);renderExpected()})}
 renderExpected();
