@@ -367,13 +367,13 @@ a{color:#77a9ff}
 <details style="margin-top:14px"><summary>📘 計算規則</summary><div class="muted" style="line-height:1.75;margin-top:8px">
 完整 +20A 路線：+0→+11 無階 → D；+0→+11 D → C；+0→+11 C → B；+0→+11 B → A；最後 +0→+20 A。<br>
 精煉失敗不爆、不退；幸運值達 50% 後，後續失敗開始增加成功率；幸運值達 100% 時下一次必定成功；成功後幸運值歸 0。<br>
-評級粉消耗：無→D 5個、D→C 10個、C→B 15個、B→A 20個；基礎成功率暫沿用無→D 30%、D→C 21%、C→B 17%；B→A 依「10 組可達 85%」調整為基礎 5%。祝福粉每組 5 個，D／C／B／A 每組分別增加 5／6／7／8 個百分點，最多 10 組。
+評級粉消耗：無→D 5個、D→C 10個、C→B 15個、B→A 20個；基礎成功率：無→D 25%、D→C 15%、C→B 10%、B→A 5%。祝福粉每組 5 個，D／C／B／A 每組分別增加 5／6／7／8 個百分點，最多 10 組。
 </div></details>
 </section>
 <script>
 (function(){
 const R=[[90,25,3],[85,25,3],[80,20,3],[75,20,3],[70,20,3],[60,20,3],[25,10,2],[15,6,2],[12,4,1.2],[7,3,1.2],[5,2.5,1],[4,2.3,1],[3,2,1],[3,1.8,1],[3,1.6,1],[3,1.5,1],[2,1.4,.8],[2,1.3,.8],[2,1.1,.8],[2,1,.8]];
-const G={D:['無→D',.30,5,5],C:['D→C',.21,10,6],B:['C→B',.17,15,7],A:['B→A',.05,20,8]},$=id=>document.getElementById(id);
+const G={D:['無→D',.25,5,5],C:['D→C',.15,10,6],B:['C→B',.10,15,7],A:['B→A',.05,20,8]},$=id=>document.getElementById(id);
 const blessGroups=()=>Math.max(0,Math.min(10,Math.floor(Number($('talBlessGroups').value)||0)));
 const gradeChanceAt=(g,groups)=>Math.min(1,g[1]+g[3]*groups/100);
 const gradeChance=g=>gradeChanceAt(g,blessGroups());
