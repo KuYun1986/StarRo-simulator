@@ -311,6 +311,16 @@ a{color:#77a9ff}
   </div>
 
   <div class="tal-config-block">
+    <span class="tal-config-title">⛏️ 空中副本｜升階石換算（P）</span>
+    <div class="tal-input-grid">
+      <label class="tal-field"><span>每場總入場成本（P）</span><input id="talSkyCost" type="number" min="0" step="1" value="1900"><small>暫依你估算的總成本 1,900P；若 1,400P 是每把鑰匙，兩把加門票應改填 3,300P。</small></label>
+      <label class="tal-field"><span>每場能源礦（個）</span><input id="talSkyOre" type="number" min="0" step="1" value="69"><small>全開空中副本約 69 個能源礦。</small></label>
+      <label class="tal-field"><span>淬鍊石單價（P／個）</span><input id="talTemperPrice" type="number" min="0" step="1" value="0"><small>每個升階石另需 3 個淬鍊石；未填價格時顯示不含此項的成本。</small></label>
+    </div>
+    <div id="talSkyResult" class="result" style="margin-top:10px;white-space:pre-line"></div>
+  </div>
+
+  <div class="tal-config-block">
     <span class="tal-config-title">⚙️ 模擬設定</span>
     <div class="tal-input-grid">
       <label class="tal-field">
@@ -497,6 +507,18 @@ $('talApplyCp')?.addEventListener('click',()=>{
   localStorage.setItem('starro_talBlessGroups',$('talBlessGroups').value);
   renderExpected();
 });
+function renderSky(){
+  const cost=Math.max(0,Number($('talSkyCost').value)||0);
+  const ore=Math.max(0,Number($('talSkyOre').value)||0);
+  const temper=Math.max(0,Number($('talTemperPrice').value)||0);
+  const stones=Math.floor(ore/30);
+  const leftover=ore-stones*30;
+  const perStone=stones>0?cost/stones+3*temper:null;
+  const el=$('talSkyResult');
+  el.textContent=stones>0
+    ?`⛏️ 一場約取得 ${fmt(ore)} 能源礦，可立即製作 ${stones} 顆升階石，剩餘 ${fmt(leftover)} 礦。\\n每顆升階石：30 能源礦 + 3 淬鍊石。\\n以整場產出 ${stones} 顆均攤：${fmt(cost/stones)}P／顆（不含淬鍊石）+ ${fmt(3*temper)}P（淬鍊石）＝${fmt(perStone)}P／顆。\\n四階每次嘗試（僅升階石）：無→D ${fmt(perStone*5)}P｜D→C ${fmt(perStone*10)}P｜C→B ${fmt(perStone*15)}P｜B→A ${fmt(perStone*20)}P。\\n注意：此 P 成本和上方紅利成本分開計算，不直接相加。`
+    :'目前能源礦不足 30 個，單場無法立即製作升階石；請調整單場產量。';
+}
 function renderExpected(){
   const rp=+$('talRefinePrice').value||0,pp=+$('talPowderPrice').value||0,bp=+$('talBlessPrice').value||0;
   const exp011=expectedRefineRange(11),exp020=expectedRefineRange(20),expRef=exp011*4+exp020;
@@ -511,9 +533,10 @@ function renderExpected(){
   $('talExpRefTry').textContent=fmt(expRef)+' 次';
   $('talExpGradeTry').textContent=fmt(expGradeTry)+' 次';
   renderCp();
+  renderSky();
   $('talExpectedBreakdown').textContent=`+0→+11 單輪精煉期望：${fmt(exp011)} 次\n前四輪 +0→+11：${fmt(exp011*4)} 次\nA階 +0→+20：${fmt(exp020)} 次\n精煉石成本：${fmt(expRef)} × ${fmt(rp)}紅 = ${fmt(expRef*rp)}紅\n\n${lines.join('\\n')}\n升階石成本：${fmt(expPowder)} × ${fmt(pp)}紅 = ${fmt(expPowder*pp)}紅\n祝福粉成本：${fmt(expBless)} × ${fmt(bp)}紅 = ${fmt(expBless*bp)}紅\n\n合計期望：${fmt(expCost)} 紅`;
 }
-for(let id of ['talRefinePrice','talPowderPrice','talBlessPrice','talBlessGroups','talGradeTarget']){let e=$(id),k='starro_'+id,v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('input',()=>{localStorage.setItem(k,e.value);renderExpected()})}
+for(let id of ['talRefinePrice','talPowderPrice','talBlessPrice','talBlessGroups','talGradeTarget','talSkyCost','talSkyOre','talTemperPrice']){let e=$(id),k='starro_'+id,v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('input',()=>{localStorage.setItem(k,e.value);renderExpected()})}
 renderExpected();
 })();
 </script>
