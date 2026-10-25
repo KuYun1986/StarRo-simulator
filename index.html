@@ -516,7 +516,7 @@ function renderSky(){
   const perStone=stones>0?cost/stones+3*temper:null;
   const el=$('talSkyResult');
   el.textContent=stones>0
-    ?`⛏️ 一場約取得 ${fmt(ore)} 能源礦，可立即製作 ${stones} 顆升階石，剩餘 ${fmt(leftover)} 礦。\\n每顆升階石：30 能源礦 + 3 淬鍊石。\\n以整場產出 ${stones} 顆均攤：${fmt(cost/stones)}P／顆（不含淬鍊石）+ ${fmt(3*temper)}P（淬鍊石）＝${fmt(perStone)}P／顆。\\n四階每次嘗試（僅升階石）：無→D ${fmt(perStone*5)}P｜D→C ${fmt(perStone*10)}P｜C→B ${fmt(perStone*15)}P｜B→A ${fmt(perStone*20)}P。\\n注意：此 P 成本和上方紅利成本分開計算，不直接相加。`
+    ?`⛏️ 一場約取得 ${fmt(ore)} 能源礦，可立即製作 ${stones} 顆升階石，剩餘 ${fmt(leftover)} 礦。\n每顆升階石：30 能源礦 + 3 淬鍊石。\n以整場產出 ${stones} 顆均攤：${fmt(cost/stones)}P／顆（不含淬鍊石）+ ${fmt(3*temper)}P（淬鍊石）＝${fmt(perStone)}P／顆。\n四階每次嘗試（僅升階石）：無→D ${fmt(perStone*5)}P｜D→C ${fmt(perStone*10)}P｜C→B ${fmt(perStone*15)}P｜B→A ${fmt(perStone*20)}P。\n注意：此 P 成本和上方紅利成本分開計算，不直接相加。`
     :'目前能源礦不足 30 個，單場無法立即製作升階石；請調整單場產量。';
 }
 function renderExpected(){
