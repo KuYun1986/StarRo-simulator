@@ -375,6 +375,16 @@ h1{margin:0 0 6px;font-size:28px}
 </section>
 
 <section class="card">
+  <details id="dailyCumulativeDetails">
+    <summary style="cursor:pointer;font-weight:900;font-size:20px">📅 累儲每日領取細項</summary>
+    <p class="note">獨立紀錄每日可領取的累儲獎勵；黃色列表示「推薦」。請依活動清單輸入領取天數、品項及數量。此紀錄僅保存在目前瀏覽器，不會修改遊戲帳號。</p>
+    <div class="urbox-controls"><button type="button" id="dailyCumAdd">＋ 新增領取項目</button><button type="button" id="dailyCumClear">清空本區紀錄</button></div>
+    <div class="urbox-table-wrap"><table class="urbox-table" style="min-width:680px"><thead><tr><th>領取日／階段</th><th>每日獎勵品項</th><th>數量</th><th>推薦</th><th>操作</th></tr></thead><tbody id="dailyCumBody"></tbody></table></div>
+    <p class="note" id="dailyCumSummary"></p>
+  </details>
+</section>
+
+<section class="card">
   <details id="cumulativeRewardsDetails">
     <summary style="cursor:pointer;font-weight:900;font-size:20px">🎁 累計儲值道具</summary>
 
@@ -1520,6 +1530,38 @@ function initURCostumeRandom(){
  renderURCostumeRandom();
 }
 initURCostumeRandom();
+
+const DAILY_CUM_KEY='starro_cash_daily_cumulative_v1';
+let dailyCumItems=[];
+function loadDailyCum(){
+ try{const v=JSON.parse(localStorage.getItem(DAILY_CUM_KEY)||'[]');dailyCumItems=Array.isArray(v)?v:[];}catch(e){dailyCumItems=[];}
+}
+function saveDailyCum(){try{localStorage.setItem(DAILY_CUM_KEY,JSON.stringify(dailyCumItems))}catch(e){}}
+function renderDailyCum(){
+ const body=document.getElementById('dailyCumBody');body.replaceChildren();
+ dailyCumItems.forEach((entry,i)=>{
+  const tr=document.createElement('tr');if(entry.recommended){tr.style.background='rgba(255,211,106,.16)';tr.style.borderLeft='4px solid #ffd36a';}
+  function input(key,type,placeholder){
+   const el=document.createElement('input');el.type=type;el.value=entry[key]??'';el.placeholder=placeholder;
+   el.style.cssText='width:100%;min-width:80px;border-radius:7px;border:1px solid #33445f;background:#0b1421;color:#eef4ff;padding:7px';
+   el.addEventListener('input',()=>{dailyCumItems[i][key]=type==='number'?Math.max(0,Number(el.value)||0):el.value;saveDailyCum();});
+   return el;
+  }
+  const day=document.createElement('td');day.appendChild(input('day','text','例：第1天／滿額階段'));
+  const name=document.createElement('td');name.appendChild(input('name','text','獎勵名稱'));
+  const qty=document.createElement('td');qty.appendChild(input('qty','number','數量'));
+  const recommend=document.createElement('td');const ck=document.createElement('input');ck.type='checkbox';ck.checked=!!entry.recommended;ck.title='黃色推薦';ck.addEventListener('change',()=>{dailyCumItems[i].recommended=ck.checked;saveDailyCum();renderDailyCum()});recommend.appendChild(ck);
+  const action=document.createElement('td');const del=document.createElement('button');del.type='button';del.textContent='刪除';del.style.cssText='padding:6px 10px;border:1px solid #354762;background:#141e2c;color:white;border-radius:6px;cursor:pointer';del.addEventListener('click',()=>{dailyCumItems.splice(i,1);saveDailyCum();renderDailyCum()});action.appendChild(del);
+  [day,name,qty,recommend,action].forEach(el=>tr.appendChild(el));body.appendChild(tr);
+ });
+ document.getElementById('dailyCumSummary').textContent='目前 '+dailyCumItems.length+' 筆｜黃色推薦 '+dailyCumItems.filter(x=>x.recommended).length+' 筆'+(dailyCumItems.length?'｜修改會自動儲存':'｜尚未輸入每日獎勵明細');
+}
+loadDailyCum();
+document.getElementById('dailyCumAdd').addEventListener('click',()=>{dailyCumItems.push({day:'',name:'',qty:1,recommended:false});saveDailyCum();renderDailyCum()});
+document.getElementById('dailyCumClear').addEventListener('click',()=>{if(!confirm('確定清空每日領取明細？'))return;dailyCumItems=[];saveDailyCum();renderDailyCum()});
+renderDailyCum();
+
+
 
 
 
