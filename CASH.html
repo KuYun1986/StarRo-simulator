@@ -342,33 +342,78 @@ h1{margin:0 0 6px;font-size:28px}
 <section class="card">
   <details id="urCostumeRandomDetails">
     <summary style="cursor:pointer;font-weight:900;font-size:20px">📘 UR服飾魔法書盒(隨機)｜明細與估值</summary>
-    <p class="note">依提供的 19 種魔法書與台價值建立。價格可以修改並保留於本瀏覽器。平均價僅假設 19 種等機率，並非官方公布的抽取機率。</p>
+    <p class="note">依提供的 65 種魔法書與台價值建立。價格可以修改並保留於本瀏覽器。平均價僅假設 65 種等機率，並非官方公布的抽取機率。</p>
     <div class="urbox-controls"><button type="button" id="urCostumeRandomReset">恢復預設價格</button></div>
     <div class="urbox-table-wrap">
       <table class="urbox-table"><thead><tr><th>魔法書名稱</th><th>台價值（NT$）</th></tr></thead><tbody id="urCostumeRandomBody">
-        <tr><td>冷卻</td><td><input class="urbox-price-input" data-id="0" type="number" min="0" step="1" value="800"></td></tr>
-        <tr><td>精煉</td><td><input class="urbox-price-input" data-id="1" type="number" min="0" step="1" value="300"></td></tr>
-        <tr><td>符文強化</td><td><input class="urbox-price-input" data-id="2" type="number" min="0" step="1" value="500"></td></tr>
-        <tr><td>爆擊傷害</td><td><input class="urbox-price-input" data-id="3" type="number" min="0" step="1" value="800"></td></tr>
-        <tr><td>技能爆擊</td><td><input class="urbox-price-input" data-id="4" type="number" min="0" step="1" value="800"></td></tr>
-        <tr><td>物理範圍</td><td><input class="urbox-price-input" data-id="5" type="number" min="0" step="1" value="800"></td></tr>
-        <tr><td>魔法範圍</td><td><input class="urbox-price-input" data-id="6" type="number" min="0" step="1" value="800"></td></tr>
-        <tr><td>屬性詛咒</td><td><input class="urbox-price-input" data-id="7" type="number" min="0" step="1" value="800"></td></tr>
-        <tr><td>貪婪</td><td><input class="urbox-price-input" data-id="8" type="number" min="0" step="1" value="300"></td></tr>
-        <tr><td>消耗</td><td><input class="urbox-price-input" data-id="9" type="number" min="0" step="1" value="300"></td></tr>
-        <tr><td>距離</td><td><input class="urbox-price-input" data-id="10" type="number" min="0" step="1" value="300"></td></tr>
-        <tr><td>自詠</td><td><input class="urbox-price-input" data-id="11" type="number" min="0" step="1" value="400"></td></tr>
-        <tr><td>範圍</td><td><input class="urbox-price-input" data-id="12" type="number" min="0" step="1" value="400"></td></tr>
-        <tr><td>普攻</td><td><input class="urbox-price-input" data-id="13" type="number" min="0" step="1" value="400"></td></tr>
-        <tr><td>抗性</td><td><input class="urbox-price-input" data-id="14" type="number" min="0" step="1" value="500"></td></tr>
-        <tr><td>卡片</td><td><input class="urbox-price-input" data-id="15" type="number" min="0" step="1" value="500"></td></tr>
-        <tr><td>追加</td><td><input class="urbox-price-input" data-id="16" type="number" min="0" step="1" value="500"></td></tr>
-        <tr><td>背刺</td><td><input class="urbox-price-input" data-id="17" type="number" min="0" step="1" value="600"></td></tr>
-        <tr><td>掉落率</td><td><input class="urbox-price-input" data-id="18" type="number" min="0" step="1" value="500"></td></tr>
-      </tbody></table>
+<tr><td>冷卻</td><td><input class="urbox-price-input" data-id="0" type="number" min="0" step="1" value="800"></td></tr>
+<tr><td>精煉</td><td><input class="urbox-price-input" data-id="1" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>符文強化</td><td><input class="urbox-price-input" data-id="2" type="number" min="0" step="1" value="500"></td></tr>
+<tr><td>爆擊傷害</td><td><input class="urbox-price-input" data-id="3" type="number" min="0" step="1" value="800"></td></tr>
+<tr><td>技能爆擊</td><td><input class="urbox-price-input" data-id="4" type="number" min="0" step="1" value="800"></td></tr>
+<tr><td>物理範圍</td><td><input class="urbox-price-input" data-id="5" type="number" min="0" step="1" value="800"></td></tr>
+<tr><td>魔法範圍</td><td><input class="urbox-price-input" data-id="6" type="number" min="0" step="1" value="800"></td></tr>
+<tr><td>屬性詛咒</td><td><input class="urbox-price-input" data-id="7" type="number" min="0" step="1" value="800"></td></tr>
+<tr><td>貪婪</td><td><input class="urbox-price-input" data-id="8" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>消耗</td><td><input class="urbox-price-input" data-id="9" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>距離</td><td><input class="urbox-price-input" data-id="10" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>自詠</td><td><input class="urbox-price-input" data-id="11" type="number" min="0" step="1" value="400"></td></tr>
+<tr><td>範圍</td><td><input class="urbox-price-input" data-id="12" type="number" min="0" step="1" value="400"></td></tr>
+<tr><td>普攻</td><td><input class="urbox-price-input" data-id="13" type="number" min="0" step="1" value="400"></td></tr>
+<tr><td>抗性</td><td><input class="urbox-price-input" data-id="14" type="number" min="0" step="1" value="500"></td></tr>
+<tr><td>卡片</td><td><input class="urbox-price-input" data-id="15" type="number" min="0" step="1" value="500"></td></tr>
+<tr><td>追加</td><td><input class="urbox-price-input" data-id="16" type="number" min="0" step="1" value="500"></td></tr>
+<tr><td>背刺</td><td><input class="urbox-price-input" data-id="17" type="number" min="0" step="1" value="600"></td></tr>
+<tr><td>掉落率</td><td><input class="urbox-price-input" data-id="18" type="number" min="0" step="1" value="500"></td></tr>
+<tr><td>抗魔反</td><td><input class="urbox-price-input" data-id="19" type="number" min="0" step="1" value="400"></td></tr>
+<tr><td>抗物反</td><td><input class="urbox-price-input" data-id="20" type="number" min="0" step="1" value="600"></td></tr>
+<tr><td>種族抵抗</td><td><input class="urbox-price-input" data-id="21" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>體型抵抗</td><td><input class="urbox-price-input" data-id="22" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>屬性抵抗</td><td><input class="urbox-price-input" data-id="23" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>攻速上限</td><td><input class="urbox-price-input" data-id="24" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td>元素魔法</td><td><input class="urbox-price-input" data-id="25" type="number" min="0" step="1" value="650"></td></tr>
+<tr><td>負重</td><td><input class="urbox-price-input" data-id="26" type="number" min="0" step="1" value="150"></td></tr>
+<tr><td>反逆</td><td><input class="urbox-price-input" data-id="27" type="number" min="0" step="1" value="150"></td></tr>
+<tr><td>物理吸收</td><td><input class="urbox-price-input" data-id="28" type="number" min="0" step="1" value="150"></td></tr>
+<tr><td>魔法吸收</td><td><input class="urbox-price-input" data-id="29" type="number" min="0" step="1" value="150"></td></tr>
+<tr><td>魔法單體</td><td><input class="urbox-price-input" data-id="30" type="number" min="0" step="1" value="150"></td></tr>
+<tr><td>公會經驗</td><td><input class="urbox-price-input" data-id="31" type="number" min="0" step="1" value="150"></td></tr>
+<tr><td>Buff恢復</td><td><input class="urbox-price-input" data-id="32" type="number" min="0" step="1" value="100"></td></tr>
+<tr><td>種族物理傷害</td><td><input class="urbox-price-input" data-id="33" type="number" min="0" step="1" value="200"></td></tr>
+<tr><td>種族魔法傷害</td><td><input class="urbox-price-input" data-id="34" type="number" min="0" step="1" value="200"></td></tr>
+<tr><td>屬性</td><td><input class="urbox-price-input" data-id="35" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>近攻</td><td><input class="urbox-price-input" data-id="36" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>遠攻</td><td><input class="urbox-price-input" data-id="37" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>爆傷</td><td><input class="urbox-price-input" data-id="38" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>生命</td><td><input class="urbox-price-input" data-id="39" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>攻擊</td><td><input class="urbox-price-input" data-id="40" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>魔攻</td><td><input class="urbox-price-input" data-id="41" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>攻速</td><td><input class="urbox-price-input" data-id="42" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>跑速</td><td><input class="urbox-price-input" data-id="43" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>完迴</td><td><input class="urbox-price-input" data-id="44" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>誘導</td><td><input class="urbox-price-input" data-id="45" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>固詠</td><td><input class="urbox-price-input" data-id="46" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>物理抵抗</td><td><input class="urbox-price-input" data-id="47" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>魔法抵抗</td><td><input class="urbox-price-input" data-id="48" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>特殊物攻</td><td><input class="urbox-price-input" data-id="49" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>特殊魔攻</td><td><input class="urbox-price-input" data-id="50" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>特殊爆傷</td><td><input class="urbox-price-input" data-id="51" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>特殊屬性</td><td><input class="urbox-price-input" data-id="52" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>技能延遲</td><td><input class="urbox-price-input" data-id="53" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>階級抵抗</td><td><input class="urbox-price-input" data-id="54" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>無視物抗</td><td><input class="urbox-price-input" data-id="55" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>無視魔抗</td><td><input class="urbox-price-input" data-id="56" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>無視魔防</td><td><input class="urbox-price-input" data-id="57" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>無視物防</td><td><input class="urbox-price-input" data-id="58" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>物理單體</td><td><input class="urbox-price-input" data-id="59" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>AP上限</td><td><input class="urbox-price-input" data-id="60" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>Buff上限</td><td><input class="urbox-price-input" data-id="61" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>物理AP恢復</td><td><input class="urbox-price-input" data-id="62" type="number" min="0" step="1" value="50"></td></tr>
+<tr><td>魔法AP恢復</td><td><input class="urbox-price-input" data-id="63" type="number" min="0" step="1" value="50"></td></tr>
+</tbody></table>
     </div>
     <div class="urbox-summary">
-      <div class="result"><div class="k">19 種品項總價</div><div class="v gold" id="urCostumeRandomTotal">—</div></div>
+      <div class="result"><div class="k">65 種品項總價</div><div class="v gold" id="urCostumeRandomTotal">—</div></div>
       <div class="result"><div class="k">隨機盒單次平均估值（假設等機率）</div><div class="v green" id="urCostumeRandomAverage">—</div></div>
     </div>
   </details>
@@ -1051,48 +1096,52 @@ function initURBox2(){
 
 initURBox2();
 
-const UR_COSTUME_KEY='starro_cash_urcostume_v3';
-const UR_COSTUME_PRICES=[800,300,500,800,800,800,800,800,300,300,300,400,400,400,500,500,500,600,500];
+
+const UR_COSTUME_KEY='starro_cash_urcostume_v4';
+const UR_COSTUME_PRICES=[800,300,500,800,800,800,800,800,300,300,300,400,400,400,500,500,500,600,500,400,600,300,300,300,300,650,150,150,150,150,150,150,100,200,200,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50];
 function initCostume(){
  const els=[...document.querySelectorAll('#urCostumeRandomBody input')];
  try{const v=JSON.parse(localStorage.getItem(UR_COSTUME_KEY)||'null');if(Array.isArray(v)&&v.length===els.length)els.forEach((e,i)=>e.value=v[i]);}catch(e){}
  function draw(){
-  const total=els.reduce((a,x)=>a+Math.max(0,Number(x.value)||0),0);
-  document.getElementById('urCostumeRandomTotal').textContent='NT$'+total.toLocaleString('zh-TW',{maximumFractionDigits:2});
-  document.getElementById('urCostumeRandomAverage').textContent='NT$'+(total/els.length).toLocaleString('zh-TW',{maximumFractionDigits:2});
+   const total=els.reduce((a,x)=>a+Math.max(0,Number(x.value)||0),0);
+   document.getElementById('urCostumeRandomTotal').textContent='NT$'+total.toLocaleString('zh-TW',{maximumFractionDigits:2});
+   document.getElementById('urCostumeRandomAverage').textContent='NT$'+(total/els.length).toLocaleString('zh-TW',{maximumFractionDigits:2});
  }
  els.forEach(el=>el.addEventListener('input',()=>{localStorage.setItem(UR_COSTUME_KEY,JSON.stringify(els.map(x=>x.value)));draw()}));
  document.getElementById('urCostumeRandomReset').addEventListener('click',()=>{if(!confirm('恢復預設價格？'))return;els.forEach((e,i)=>e.value=UR_COSTUME_PRICES[i]);localStorage.removeItem(UR_COSTUME_KEY);draw()});
  draw();
 }
 initCostume();
-const DAILY_REWARDS_KEY='starro_cash_dailyrewards_v3';
-let dailyItems=[];
-try{const v=JSON.parse(localStorage.getItem(DAILY_REWARDS_KEY)||'[]');if(Array.isArray(v))dailyItems=v;}catch(e){}
-function saveDaily(){localStorage.setItem(DAILY_REWARDS_KEY,JSON.stringify(dailyItems));}
+
+const DAILY_REWARDS_KEY='starro_cash_dailyrewards_v4';
+const DAILY_DEFAULTS=[{"name":"副本入場券","day":0,"qty":1,"bonus":1.887,"recommended":false},{"name":"超黏掉寶","day":100,"qty":1,"bonus":0.051,"recommended":false},{"name":"呆呆罐頭","day":500,"qty":1,"bonus":2.363,"recommended":false},{"name":"轉蛋兌換券","day":1000,"qty":5,"bonus":0.425,"recommended":false},{"name":"服飾幻化券","day":1500,"qty":1,"bonus":2.652,"recommended":false},{"name":"1億元支票","day":2000,"qty":5,"bonus":0.51,"recommended":false},{"name":"波利之王祝福卷軸","day":2500,"qty":1,"bonus":0.85,"recommended":false},{"name":"科技加速器1hr","day":4500,"qty":2,"bonus":0.748,"recommended":false},{"name":"商城點數100P","day":5000,"qty":5,"bonus":3.043,"recommended":true},{"name":"副本掃蕩卷","day":7500,"qty":4,"bonus":2.38,"recommended":false},{"name":"UR寶石碎片","day":10000,"qty":3,"bonus":0.357,"recommended":false},{"name":"天使波利祝福卷軸","day":15000,"qty":1,"bonus":4.607,"recommended":false},{"name":"1億元支票","day":20000,"qty":25,"bonus":2.55,"recommended":false},{"name":"極限神工匠鐵鎚","day":22500,"qty":3,"bonus":7.089,"recommended":false},{"name":"武器鑑定晶片","day":25000,"qty":2,"bonus":12.138,"recommended":true},{"name":"惡魔波利祝福卷軸","day":30000,"qty":2,"bonus":5.474,"recommended":false},{"name":"高密度乙太神工匠的鐵鎚","day":35000,"qty":3,"bonus":2.448,"recommended":false},{"name":"寵物裝備箱","day":37500,"qty":1,"bonus":12.597,"recommended":true},{"name":"基礎寵物精煉工具","day":40000,"qty":3,"bonus":5.661,"recommended":false},{"name":"高密度極限乙太神工匠的鐵鎚","day":45000,"qty":3,"bonus":18.207,"recommended":true},{"name":"1億元支票","day":47500,"qty":65,"bonus":6.63,"recommended":false},{"name":"高級副本掃蕩券","day":50000,"qty":6,"bonus":18.258,"recommended":true},{"name":"JRO老舊收集冊","day":52500,"qty":1,"bonus":"","recommended":false},{"name":"寵物強化工具自選5入","day":55000,"qty":1,"bonus":18.887,"recommended":false},{"name":"神級材料寶箱","day":65000,"qty":4,"bonus":18.224,"recommended":true},{"name":"地獄副本掃蕩券","day":70000,"qty":3,"bonus":18.207,"recommended":false},{"name":"專寵","day":75000,"qty":2,"bonus":30.6,"recommended":false},{"name":"科技加速器1hr","day":80000,"qty":40,"bonus":30.6,"recommended":false},{"name":"寵物升級卷","day":85000,"qty":5,"bonus":40.137,"recommended":false},{"name":"頂寵","day":90000,"qty":1,"bonus":34,"recommended":false},{"name":"JRO黃金卡冊","day":95000,"qty":1,"bonus":34,"recommended":false},{"name":"競標服裝鑑定針","day":100000,"qty":3,"bonus":42.5,"recommended":true},{"name":"寵物裝備鑑定針","day":125000,"qty":3,"bonus":42.5,"recommended":false},{"name":"影子昇華結晶","day":150000,"qty":5,"bonus":34,"recommended":false},{"name":"競標1針","day":200000,"qty":2,"bonus":42.5,"recommended":false},{"name":"競標2針","day":250000,"qty":1,"bonus":42.5,"recommended":false},{"name":"昇華箱","day":300000,"qty":5,"bonus":42.5,"recommended":false},{"name":"寵物靈氣隨機箱","day":350000,"qty":10,"bonus":42.5,"recommended":false}];
+let dailyItems=DAILY_DEFAULTS.map(x=>({...x}));
+try{const v=JSON.parse(localStorage.getItem(DAILY_REWARDS_KEY)||'null');if(Array.isArray(v))dailyItems=v;}catch(e){}
+function saveDaily(){try{localStorage.setItem(DAILY_REWARDS_KEY,JSON.stringify(dailyItems))}catch(e){}}
 function renderDaily(){
  const body=document.getElementById('dailyCumBody');body.replaceChildren();
  dailyItems.forEach((item,i)=>{
   const tr=document.createElement('tr');if(item.recommended)tr.style.background='rgba(255,211,106,.19)';
   const td=()=>{const cell=document.createElement('td');tr.appendChild(cell);return cell};
   const inp=(key,type)=>{
-   const x=document.createElement('input');x.type=type;x.value=item[key]??'';if(type==='number')x.min='0';x.style.cssText='width:100%;max-width:160px;background:#0b1421;color:#fff;border:1px solid #33445f;border-radius:7px;padding:7px';
-   x.addEventListener('input',()=>{item[key]=type==='number'?Math.max(0,Number(x.value)||0):x.value;saveDaily();update()});td().appendChild(x);
+    const x=document.createElement('input');x.type=type;x.value=item[key]??'';if(type==='number')x.min='0';x.style.cssText='width:100%;max-width:160px;background:#0b1421;color:#fff;border:1px solid #33445f;border-radius:7px;padding:7px';
+    x.addEventListener('input',()=>{item[key]=type==='number'?(x.value===''?'':Math.max(0,Number(x.value)||0)):x.value;saveDaily();update()});td().appendChild(x);
   };
   inp('day','text');inp('name','text');inp('qty','number');inp('bonus','number');
   const nt=document.createElement('span');td().appendChild(nt);
   const check=document.createElement('input');check.type='checkbox';check.checked=!!item.recommended;check.addEventListener('change',()=>{item.recommended=check.checked;saveDaily();renderDaily()});td().appendChild(check);
   const del=document.createElement('button');del.textContent='刪除';del.type='button';del.addEventListener('click',()=>{dailyItems.splice(i,1);saveDaily();renderDaily()});td().appendChild(del);
-  function update(){nt.textContent='NT$'+(Math.max(0,Number(item.bonus)||0)/1.7).toLocaleString('zh-TW',{maximumFractionDigits:2});summaryDaily();}
+  function update(){nt.textContent=item.bonus===''||item.bonus==null?'—':'NT$'+(Math.max(0,Number(item.bonus)||0)/1.7).toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2});summaryDaily();}
   update();body.appendChild(tr);
  });
  summaryDaily();
 }
 function summaryDaily(){
- const total=dailyItems.reduce((v,x)=>v+Math.max(0,Number(x.bonus)||0)/1.7,0);
- document.getElementById('dailyCumSummary').textContent='共 '+dailyItems.length+' 筆｜推薦 '+dailyItems.filter(x=>x.recommended).length+' 筆｜台幣總價 NT$'+total.toLocaleString('zh-TW',{maximumFractionDigits:2})+'（紅利價值 ÷ 1.7）';
+ const known=dailyItems.filter(x=>x.bonus!==''&&x.bonus!=null);
+ const total=known.reduce((v,x)=>v+Math.max(0,Number(x.bonus)||0)/1.7,0);
+ document.getElementById('dailyCumSummary').textContent='共 '+dailyItems.length+' 筆｜推薦 '+dailyItems.filter(x=>x.recommended).length+' 筆｜已知台幣價值合計 NT$'+total.toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2})+'（紅利價值 ÷ 1.7；未估價項目不計）';
 }
-document.getElementById('dailyCumAdd').addEventListener('click',()=>{dailyItems.push({day:'',name:'',qty:1,bonus:0,recommended:false});saveDaily();renderDaily()});
+document.getElementById('dailyCumAdd').addEventListener('click',()=>{dailyItems.push({day:'',name:'',qty:1,bonus:'',recommended:false});saveDaily();renderDaily()});
 document.getElementById('dailyCumClear').addEventListener('click',()=>{if(!confirm('清空每日領取明細？'))return;dailyItems=[];saveDaily();renderDaily()});
 renderDaily();
 
