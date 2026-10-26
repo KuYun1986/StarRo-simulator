@@ -343,7 +343,7 @@ h1{margin:0 0 6px;font-size:28px}
   <details id="urCostumeRandomDetails">
     <summary style="cursor:pointer;font-weight:900;font-size:20px">📘 UR服飾魔法書盒(隨機)｜明細與估值</summary>
     <p class="note">依提供的 64 種魔法書與台價值建立。可修改紅利價格，台幣價值自動以紅利 ÷ 1.7 換算；按「儲存價格」可保存於本瀏覽器。平均價僅假設 64 種等機率，並非官方公布的抽取機率。</p>
-    <div class="urbox-controls"><button type="button" id="urCostumeRandomSave" style="background:#206447;color:white">💾 儲存價格</button><button type="button" id="urCostumeRandomReset">恢復預設價格</button><span id="urCostumeSaveStatus" class="note" role="status"></span></div>
+    <div class="urbox-controls"><button type="button" id="urCostumeRandomSave" style="background:#206447;color:white">🔐 管理後台修改價格</button><button type="button" id="urCostumeRandomReset">恢復預設價格</button><span id="urCostumeSaveStatus" class="note" role="status"></span></div>
     <div class="urbox-table-wrap">
       <table class="urbox-table"><thead><tr><th>魔法書名稱</th><th>紅利價值</th><th>台幣價值（÷1.7）</th></tr></thead><tbody id="urCostumeRandomBody">
 <tr><td>冷卻</td><td><input class="urbox-price-input" data-id="0" type="number" min="0" step="0.01" value="1360"></td><td class="ur-costume-nt">NT$800.00</td></tr>
@@ -1121,10 +1121,7 @@ function initCostume(){
  }
  const status=document.getElementById('urCostumeSaveStatus');
  els.forEach(el=>el.addEventListener('input',()=>{draw();status.textContent='尚未儲存的修改';}));
- document.getElementById('urCostumeRandomSave').addEventListener('click',()=>{
-  try{localStorage.setItem(UR_COSTUME_KEY,JSON.stringify(els.map(e=>e.value)));status.textContent='✅ 已儲存於此瀏覽器';}
-  catch(e){status.textContent='❌ 儲存失敗：請檢查瀏覽器儲存空間';}
- });
+ document.getElementById('urCostumeRandomSave').addEventListener('click',()=>{location.href='admin.html';});
  document.getElementById('urCostumeRandomReset').addEventListener('click',()=>{
   if(!confirm('恢復預設紅利價值？按「儲存價格」後才會覆蓋已儲存資料。'))return;
   els.forEach((e,i)=>e.value=UR_COSTUME_PRICES[i]);status.textContent='已恢復預設值（尚未儲存）';draw();
@@ -1600,6 +1597,17 @@ function applyStarroCashConfig(){
     URBOX2_DEFAULTS=c.urBox2.map(x=>({name:x.name,price:Number(x.price)||0}));
     document.querySelectorAll('#urBoxBody tr').forEach((tr,i)=>{const x=URBOX2_DEFAULTS[i];if(!x)return;const name=tr.querySelector('td:first-child'),inp=tr.querySelector('.urbox-price-input');if(name)name.textContent=x.name;if(inp)inp.value=x.price});
     if(typeof renderURBox2==='function')renderURBox2();
+  }
+  if(Array.isArray(c.urCostumeBooks)&&c.urCostumeBooks.length){
+    const prices=new Map(c.urCostumeBooks.map(x=>[x.name,Math.max(0,Number(x.bonus)||0)]));
+    const rows=[...document.querySelectorAll('#urCostumeRandomBody tr')];
+    rows.forEach(row=>{const input=row.querySelector('.urbox-price-input'),name=row.cells[0]?.textContent.trim();if(input&&prices.has(name))input.value=prices.get(name);});
+    const nt=v=>'NT'+String.fromCharCode(36)+v.toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2});
+    let total=0;
+    rows.forEach(row=>{const n=Math.max(0,Number(row.querySelector('.urbox-price-input')?.value)||0);total+=n;const cell=row.querySelector('.ur-costume-nt');if(cell)cell.textContent=nt(n/1.7);});
+    document.getElementById('urCostumeRandomTotal').textContent=nt(total/1.7);
+    document.getElementById('urCostumeRandomAverage').textContent=nt(total/1.7/rows.length);
+    const status=document.getElementById('urCostumeSaveStatus');if(status)status.textContent='目前顯示雲端管理價格';
   }
   if(Array.isArray(c.cumulativeRewardTiers))CUMULATIVE_REWARD_TIERS=JSON.parse(JSON.stringify(c.cumulativeRewardTiers));
   if(Array.isArray(c.priceTable)&&c.priceTable.length)applyCloudPriceTableRows(c.priceTable);
