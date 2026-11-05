@@ -244,6 +244,16 @@ section{padding:12px;min-width:0}
 </head>
 <body>
 <div class="wrap">
+<div class="collection-auth-panel" style="border:1px solid #385775;border-radius:14px;background:#142337;padding:14px;margin:12px 0">
+ <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+  <button type="button" id="collectionGoogleLogin" class="primary">使用 Google 登入</button>
+  <button type="button" id="collectionCloudSave" style="display:none">☁️ 儲存到雲端</button>
+  <button type="button" id="collectionCloudLoad" style="display:none">↻ 載入雲端進度</button>
+  <button type="button" id="collectionGoogleLogout" style="display:none">登出</button>
+  <span id="collectionCloudStatus" class="note" role="status">未登入・目前進度僅保存在此瀏覽器</span>
+ </div>
+ <div class="note" style="margin-top:8px">Google 登入後會以帳號同步收藏勾選進度，換裝置也能繼續使用。網站不會取得 Google 密碼。首次同步前會確認是否覆蓋進度。</div>
+</div>
 <div class="top">
 <h1>⭐ 繁星收藏模擬</h1>
 <div class="topnav" aria-label="網站導覽">
@@ -422,7 +432,7 @@ section{padding:12px;min-width:0}
 <h3>⚠️ 條件式／無法直接加總效果</h3>
 <div class="cond-list" id="conditions"></div>
 </div>
-<div class="footer-note">重新整理頁面後會恢復為全部未勾選；可先匯出 Excel，下次再匯入繼續新增勾選。相同需求道具出現在不同收藏時，格數只計算一次。</div>
+<div class="footer-note">未登入時勾選進度保存在此瀏覽器；使用 Google 登入後可手動儲存或同步到雲端。相同需求道具出現在不同收藏時，格數只計算一次。</div>
 </section>
 </div>
 </div>
@@ -430,8 +440,10 @@ section{padding:12px;min-width:0}
 <script>
 /* ITEMS moved to collection-data.js */
 const $=s=>document.querySelector(s);
-const selected=new Set();
-localStorage.removeItem("starro_collection_selected");
+const COLLECTION_LOCAL_KEY="starro_collection_selected";
+let existingSelected=[];
+try{const x=JSON.parse(localStorage.getItem(COLLECTION_LOCAL_KEY)||"[]");if(Array.isArray(x))existingSelected=x;}catch(e){}
+const selected=new Set(existingSelected);
 let onlySelected=false;
 let activeSubcat="all";
 const activeSpecials=new Set();
@@ -687,7 +699,10 @@ function renderSubcats(){
     renderList();
   }));
 }
-function save(){}
+function save(){
+ try{localStorage.setItem(COLLECTION_LOCAL_KEY,JSON.stringify([...selected]));}catch(e){}
+ window.StarroCollectionCloud?.scheduleSave();
+}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function fmt(v){return Number.isInteger(v)?String(v):String(Math.round(v*10000)/10000)}
 
@@ -1481,6 +1496,9 @@ $("#clear").addEventListener("click",()=>{
 
 updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="collection-cloud.js"></script>
 <script src="front-cms.js"></script>
 </body>
 </html>
