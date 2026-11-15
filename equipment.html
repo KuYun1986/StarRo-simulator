@@ -264,6 +264,15 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
     </div>
 
     <div class="note tiny" id="multiServiceNote">尚未選擇步驟。</div>
+    <div style="margin-top:16px;padding:14px;border:1px solid #34465f;border-radius:12px;background:#0b1523">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <div><h3 style="margin:0 0 5px">📋 所需材料｜純文字版本</h3>
+          <div class="tiny">依勾選步驟和件數自動更新，可複製貼到 Discord。</div></div>
+        <button id="copyServiceMaterials" type="button" style="padding:9px 14px;border-radius:9px;border:1px solid #47658c;background:#17263a;color:#fff;font-weight:900;cursor:pointer">📋 複製材料清單</button>
+      </div>
+      <textarea id="serviceMaterialsText" readonly aria-label="純文字材料清單"
+        style="display:block;width:100%;min-height:195px;resize:vertical;white-space:pre-wrap;line-height:1.75;padding:12px;border-radius:9px;border:1px solid #34465f;background:#090f19;color:#eef4fc;font:14px/1.75 monospace">尚未選擇步驟。</textarea>
+    </div>
   </div>
 
 </section>
@@ -692,6 +701,23 @@ renderTabs();renderTable();
     document.getElementById("multiTotalP").textContent=fmt(total)+" P";
     document.getElementById("multiServiceNote").textContent=
       labels.length ? "已選："+labels.join(" → ")+"｜件數："+qty : "尚未選擇步驟。";
+    // Generate copyable requirements from the very same aggregated material totals.
+    const materialNames=[
+      ["checks","支票","張"],["bless","鐵匠的祝福","個"],
+      ["bigGold","大金","把"],["smallGold","小金","把"],
+      ["bigGray","大灰","把"],["smallGray","小灰","把"],
+      ["taffy","乙太塔菲石","個"],["dust","庇佑乙太星塵","個"]
+    ];
+    const lines=labels.length
+      ? ["【古雲代敲／代評｜材料清單】",
+         "步驟："+labels.join(" → "),
+         "件數："+fmt(qty),"","所需材料：",
+         ...materialNames.filter(([key])=>sum[key]>0)
+           .map(([key,name,unit])=>name+"："+fmt(sum[key])+unit),
+         "","代敲／代評費用："+fmt(sum.red)+"紅"]
+      : ["尚未選擇步驟。"];
+    const materialText=document.getElementById("serviceMaterialsText");
+    if(materialText)materialText.value=lines.join("\n");
   }
 
   ["refineServiceType","refineServiceQty"].forEach(id=>{
@@ -705,6 +731,24 @@ renderTabs();renderTable();
     el.addEventListener("change",renderServiceMulti);
   });
   document.getElementById("serviceMultiQty")?.addEventListener("input",renderServiceMulti);
+  document.getElementById("copyServiceMaterials")?.addEventListener("click",async function(){
+    const el=document.getElementById("serviceMaterialsText");
+    const text=el?.value||"";
+    if(!text||text==="尚未選擇步驟。")return;
+    try{
+      if(navigator.clipboard && window.isSecureContext)await navigator.clipboard.writeText(text);
+      else{
+        el.focus();el.select();
+        if(!document.execCommand("copy"))throw new Error("copy unavailable");
+        el.setSelectionRange(0,0);el.blur();
+      }
+      this.textContent="✅ 已複製";
+    }catch(error){
+      this.textContent="請選取下方文字複製";
+      el.select();
+    }
+    setTimeout(()=>{this.textContent="📋 複製材料清單";},1800);
+  });
   Object.values(PRICE_IDS).forEach(id=>{
     document.getElementById(id)?.addEventListener("input",()=>{renderRefine();renderGrade();});
   });
