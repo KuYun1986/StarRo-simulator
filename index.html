@@ -279,7 +279,7 @@ a{color:#77a9ff}
 </section>
 
 <section class="card" id="talismanCostSimulator">
-<h2>🧿 護身符成本模擬器</h2>
+<h2>🧿 空中護身符模擬器</h2>
 <p class="muted">可分開模擬完整 +20A、單輪 +0→+11，或只模擬評級。大量模擬已關閉；理論期望值放在折疊區，需要時再展開查看。</p>
 
 <style>
@@ -544,6 +544,117 @@ function renderExpected(){
 }
 for(let id of ['talRefinePrice','talPowderPrice','talBlessPrice','talRedToP','talBlessGroups','talGradeTarget','talSkyCost','talSkyOre','talTemperPrice']){let e=$(id),k='starro_'+id+(['talPowderPrice','talBlessPrice'].includes(id)?'_v2':''),v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('input',()=>{localStorage.setItem(k,e.value);renderExpected()})}
 renderExpected();
+})();
+</script>
+
+
+<section class="card" id="biosTalismanSimulator">
+  <h2>🧿 拜歐斯護身符模擬器</h2>
+  <p class="tiny">依拜歐斯護符材料表，分為 4S 前置、4S 強化、3S 啟用及 3S 強化。失敗需重新消耗該階材料；材料期望值依每階成功率計算，非固定次數。</p>
+  <style>
+    #biosTalismanSimulator{--bio:#64cba6}
+    .bio-controls{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:14px 0}
+    .bio-controls label{display:grid;gap:6px;flex:1;min-width:170px;font-size:13px;font-weight:700}
+    .bio-controls select{width:100%}
+    .bio-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .bio-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
+    .bio-results>div{padding:12px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.14)}
+    .bio-results small{display:block;color:var(--muted)}
+    .bio-results strong{display:block;font-size:23px;color:var(--bio)}
+    .bio-table{width:100%;border-collapse:collapse;min-width:460px}
+    .bio-table th,.bio-table td{padding:9px;border-bottom:1px solid var(--border);text-align:right}
+    .bio-table th:first-child,.bio-table td:first-child{text-align:left}
+    .bio-table tbody tr:nth-child(even){background:rgba(255,255,255,.025)}
+    .bio-note{color:var(--muted);font-size:12px;line-height:1.7}
+    @media(max-width:600px){.bio-results{grid-template-columns:1fr 1fr}.bio-results strong{font-size:19px}}
+  </style>
+  <div class="bio-controls">
+    <label>模擬起始階段<select id="bioStart"></select></label>
+    <label>模擬結束階段<select id="bioEnd"></select></label>
+  </div>
+  <div class="bio-actions">
+    <button type="button" class="primary" id="bioSimulate">🎲 模擬拜歐斯護符</button>
+    <button type="button" id="bioReset">清除模擬結果</button>
+  </div>
+  <div class="bio-results">
+    <div><small>階段成功數</small><strong id="bioStageCount">12</strong></div>
+    <div><small>期望總嘗試</small><strong id="bioExpectedTries">—</strong></div>
+    <div><small>本次實際嘗試</small><strong id="bioActualTries">—</strong></div>
+  </div>
+  <div class="scroll"><table class="bio-table"><thead><tr><th>材料</th><th>最少消耗</th><th>期望消耗</th><th>本次模擬</th></tr></thead><tbody id="bioMaterialRows"></tbody></table></div>
+  <details style="margin-top:14px"><summary>📊 各階成功率與嘗試明細</summary><div class="scroll"><table class="bio-table"><thead><tr><th>階段</th><th>成功率</th><th>期望嘗試</th><th>本次嘗試</th></tr></thead><tbody id="bioStepRows"></tbody></table></div></details>
+  <p class="bio-note">期望消耗 = 各階「單次材料 ÷ 該階成功率」後加總。材料只依選取階段計算；本次模擬則按隨機成功／失敗的實際次數累積。未提供道具單價，因此不推估 P 或紅利點數成本。</p>
+</section>
+<script id="biosTalismanScript">
+(()=>{
+  const stages=[
+    ['4S 前置-1',1],['4S 前置-2',1],['4S 前置-3',1],
+    ['4S 強化-1',1],['4S 強化-2',.9],['4S 強化-3',.8],['4S 強化-4',.7],['4S 強化-5',.6],
+    ['3S 啟用',1],['3S 強化-1',1],['3S 強化-2',.9],['3S 強化-3',.8]
+  ];
+  // All quantities represent materials required for ONE attempt at a stage.
+  // Entries are indexed by 4S pre-stage (0-2), 4S refine (3-7), 3S activation (8), 3S refine (9-11).
+  const materials=[
+    ['空中要塞鑰匙',{0:250,8:1000}],
+    ['無限挑戰日誌',{0:50,1:100,2:150}],
+    ['空中要塞能源礦',{0:150,1:1500,2:4500,8:1500}],
+    ['空中要塞淬鍊石',{0:50,1:500,2:1500,8:500}],
+    ['暗夜吉芬衛冕硬幣',{0:300}],
+    ['暗夜吉芬衛冕冠軍證明',{1:200}],
+    ['晨曦之心',{1:10,2:20}],
+    ['乙太塔菲石',{2:1000}],
+    ['凱薩祝福',{8:1000}],
+    ['歐內斯特、斯特凡、傑克卡片',{0:1,1:1,2:3,8:1}],
+    ['史蒂芬傑克歐內斯特符文意識',{8:5}],
+    ['裝備附魔券',{0:10,1:30,2:50,8:30}],
+    ['拜歐斯晝夜碎片',{3:25,4:55,5:80,6:110,9:25,10:55,11:80}],
+    ['拜歐斯曙光碎片',{4:20,5:40,6:60,7:100,10:20,11:40}],
+    ['拜歐斯冥夜精華',{5:15,6:20,7:30,11:20}],
+    ['安庫的死神印記',{6:35,7:65,11:40}],
+    ['死神安庫卡片',{3:1,9:1}],
+    ['死神安庫符文意識',{3:1,4:2,5:3,6:4,7:5,9:1,10:2,11:3}],
+    ['徽記',{0:500,1:1500,2:2000,3:250,4:500,5:750,6:1000,7:1500,8:1500,9:500,10:1000,11:1500}]
+  ];
+  const $=id=>document.getElementById(id);
+  const fmt=n=>Number(n).toLocaleString('zh-TW',{maximumFractionDigits:2});
+  let sample=null;
+  const options=stages.map(([name],i)=>'<option value="'+i+'">'+name+'</option>').join('');
+  $('bioStart').innerHTML=options;
+  $('bioEnd').innerHTML=options;
+  $('bioEnd').value=String(stages.length-1);
+  function range(){
+    const start=Number($('bioStart').value),end=Number($('bioEnd').value);
+    return {start,end,valid:start<=end};
+  }
+  function draw(){
+    const {start,end,valid}=range();
+    if(!valid){$('bioEnd').value=String(start);return draw();}
+    const indexes=Array.from({length:end-start+1},(_,i)=>start+i);
+    $('bioStageCount').textContent=indexes.length;
+    $('bioExpectedTries').textContent=fmt(indexes.reduce((n,i)=>n+1/stages[i][1],0))+' 次';
+    $('bioActualTries').textContent=sample?fmt(sample.reduce((n,i)=>n+i.tries,0))+' 次':'—';
+    $('bioStepRows').innerHTML=indexes.map(i=>'<tr><td>'+stages[i][0]+'</td><td>'+fmt(stages[i][1]*100)+'%</td><td>'+fmt(1/stages[i][1])+'</td><td>'+(sample?sample[i-start].tries:'—')+'</td></tr>').join('');
+    $('bioMaterialRows').innerHTML=materials.map(([name,recipe])=>{
+      const base=indexes.reduce((n,i)=>n+(recipe[i]||0),0);
+      const expected=indexes.reduce((n,i)=>n+(recipe[i]||0)/stages[i][1],0);
+      const actual=sample?indexes.reduce((n,i)=>n+(recipe[i]||0)*sample[i-start].tries,0):null;
+      return base?'<tr><td>'+name+'</td><td>'+fmt(base)+'</td><td>'+fmt(expected)+'</td><td>'+(sample?fmt(actual):'—')+'</td></tr>':'';
+    }).join('');
+  }
+  $('bioStart').addEventListener('change',()=>{sample=null;draw();});
+  $('bioEnd').addEventListener('change',()=>{sample=null;draw();});
+  $('bioReset').addEventListener('click',()=>{sample=null;draw();});
+  $('bioSimulate').addEventListener('click',()=>{
+    const {start,end}=range();
+    sample=[];
+    for(let i=start;i<=end;i++){
+      let tries=1;
+      while(Math.random()>=stages[i][1])tries++;
+      sample.push({tries});
+    }
+    draw();
+  });
+  draw();
 })();
 </script>
 
