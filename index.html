@@ -584,6 +584,23 @@ renderExpected();
   <div class="scroll"><table class="bio-table"><thead><tr><th>材料</th><th>最少消耗</th><th>期望消耗</th><th>本次模擬</th></tr></thead><tbody id="bioMaterialRows"></tbody></table></div>
   <details style="margin-top:14px"><summary>📊 各階成功率與嘗試明細</summary><div class="scroll"><table class="bio-table"><thead><tr><th>階段</th><th>成功率</th><th>期望嘗試</th><th>本次嘗試</th></tr></thead><tbody id="bioStepRows"></tbody></table></div></details>
   <p class="bio-note">期望消耗 = 各階「單次材料 ÷ 該階成功率」後加總。材料只依選取階段計算；本次模擬則按隨機成功／失敗的實際次數累積。未提供道具單價，因此不推估 P 或紅利點數成本。</p>
+  <div class="tal-config-block" style="margin-top:16px">
+    <h3 style="margin:0 0 8px;color:var(--bio)">⭐ 拜歐斯護符｜PT 星級材料對照</h3>
+    <p class="bio-note" style="margin:0 0 10px">以下依圖片列出各 PT 區間的對應材料；沒有標示材料的區間以「未標示」呈現。此表僅供查詢，不影響上方強化模擬或材料期望值。</p>
+    <div class="scroll">
+      <table class="bio-table" aria-label="拜歐斯護符 PT 星級材料對照">
+        <thead><tr><th>星級</th><th>PT 範圍</th><th style="text-align:left">對應材料</th></tr></thead>
+        <tbody>
+          <tr><td>★</td><td>0～349 PT</td><td style="text-align:left">拜歐斯晝夜碎片 × 3</td></tr>
+          <tr><td>★★</td><td>350～549 PT</td><td style="text-align:left">拜歐斯晝夜碎片 × 2、拜歐斯曙光碎片 × 1</td></tr>
+          <tr><td>★★★</td><td>550～749 PT</td><td style="text-align:left">拜歐斯曙光碎片 × 3</td></tr>
+          <tr><td>★★★★</td><td>750～899 PT</td><td style="text-align:left">拜歐斯曙光碎片 × 2、拜歐斯冥夜精華 × 1</td></tr>
+          <tr><td>★★★★★</td><td>900～999 PT</td><td style="text-align:left">未標示</td></tr>
+          <tr><td>★★★★★★</td><td>1,000 PT</td><td style="text-align:left">未標示</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </section>
 <script id="biosTalismanScript">
 (()=>{
