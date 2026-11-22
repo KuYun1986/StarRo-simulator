@@ -708,9 +708,16 @@ renderTabs();renderTable();
       ["bigGray","大灰","把"],["smallGray","小灰","把"],
       ["taffy","乙太塔菲石","個"],["dust","庇佑乙太星塵","個"]
     ];
+    // 服務說明依實際勾選項目產生；不擅自加入未勾選的 +20 材料。
+    const hasRefine=checked.some(v=>v.startsWith("refine:"));
+    const hasGrade=checked.some(v=>v.startsWith("grade:"));
+    const serviceDescription=hasRefine&&hasGrade
+      ? "敲+20／代敲＋代評"
+      : hasRefine ? "敲+20／代敲" : "代評";
     const lines=labels.length
       ? ["【古雲代敲／代評｜材料清單】",
-         "步驟："+labels.join(" → "),
+         "服務內容："+serviceDescription,
+         "詳細步驟："+labels.join(" → "),
          "件數："+fmt(qty),"","所需材料：",
          ...materialNames.filter(([key])=>sum[key]>0)
            .map(([key,name,unit])=>name+"："+fmt(sum[key])+unit),
