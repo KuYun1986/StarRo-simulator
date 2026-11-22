@@ -640,7 +640,8 @@ renderTabs();renderTable();
 
   function renderServiceMulti(){
     const qty=q("serviceMultiQty");
-    const selectedInputs=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')];
+    const selectedInputs=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')]
+      .sort((a,b)=>(Number(a.dataset.autoOrder??999)-Number(b.dataset.autoOrder??999)));
     const checked=selectedInputs.map(x=>x.dataset.costType || x.value);
 
     const sum={
@@ -657,15 +658,19 @@ renderTabs();renderTable();
         sum.red+=r.red; sum.checks+=r.checks; sum.bless+=r.bless;
         sum.bigGold+=r.bigGold; sum.smallGold+=r.smallGold;
         sum.bigGray+=r.bigGray; sum.smallGray+=r.smallGray;
+        // Keep each visible step's label consistent with the selected service.
+        const hammerLabel=(big,small)=>title==="敲+20"
+          ? "（大金"+big+"／小金"+small+"）"
+          : "（大"+big+"／小"+small+"）";
         labels.push(
           type==="A-D" ? "敲 1級／4級" :
           type==="LT20" ? "敲+20①" :
-          type==="S-BOTH15" ? title+"（大15／小15）" :
-          type==="S-BOTH10" ? title+"（大15／小10）" :
-          type==="S-BOTH5" ? title+"（大15／小5）" :
-          type==="S-BIG15" ? title+"（大15／小0）" :
-          type==="S-BIG10" ? title+"（大10／小0）" :
-          type==="S-BIG5" ? title+"（大5／小0）" :
+          type==="S-BOTH15" ? title+hammerLabel(15,15) :
+          type==="S-BOTH10" ? title+hammerLabel(15,10) :
+          type==="S-BOTH5" ? title+hammerLabel(15,5) :
+          type==="S-BIG15" ? title+hammerLabel(15,0) :
+          type==="S-BIG10" ? title+hammerLabel(10,0) :
+          type==="S-BIG5" ? title+hammerLabel(5,0) :
           type==="S-ZERO" ? title+"（不計費）" :
           type==="S" ? title : "敲 "+type
         );
@@ -715,8 +720,8 @@ renderTabs();renderTable();
     const hasGrade=checked.some(v=>v.startsWith("grade:"));
     const hasPlus20=selectedInputs.some(x=>x.dataset.serviceLabel==="敲+20" || x.value==="refine:LT20");
     const serviceDescription=hasRefine&&hasGrade
-      ? (hasPlus20 ? "敲+20＋代敲＋代評" : "代敲＋代評")
-      : hasRefine ? (hasPlus20 ? "敲+20" : "代敲") : "代評";
+      ? labels.map(label=>label.replace(/^評 S$/, "評S").replace(/^評 SS$/, "評SS")).join("＋")
+      : hasRefine ? labels.join("＋") : labels.join("＋");
     const lines=labels.length
       ? ["【古雲代敲／代評｜材料清單】",
          "服務內容："+serviceDescription,
@@ -934,7 +939,7 @@ renderTabs();renderTable();
      if(rank[cg.value] <= 3 && needsRefine){
        pushS(a,"敲+20","firstS");
        if(needsS) a.push(["grade:S","評 S"]);
-       if(needsS || needsSS) pushS(a,"敲 S②","secondS");
+       if(needsS || needsSS) pushS(a,"敲 S","secondS");
      }else if(cg.value==="S" && needsRefine){
        pushS(a,"敲 S","firstS");
      }else if(needsS){
@@ -978,9 +983,9 @@ renderTabs();renderTable();
  function apply(){
    const a=steps(); if(!a)return;
    const box=[...document.querySelectorAll("#serviceMultiOptions input[type=checkbox]")];
-   box.forEach(x=>{ x.checked=false; delete x.dataset.costType; });
+   box.forEach(x=>{ x.checked=false; delete x.dataset.costType; delete x.dataset.autoOrder; });
 
-   a.forEach(([v,label,which])=>{
+   a.forEach(([v,label,which],order)=>{
      // +14～+20 的敲 S 使用特殊費用，但畫面仍要勾到可見的「敲 S」欄位。
      // 透過 data-cost-type 保留實際計費規則，避免只勾隱藏欄位、也避免兩次敲 S 被合併成一次。
      const isSpecialS = v.startsWith("refine:S-");
@@ -988,11 +993,16 @@ renderTabs();renderTable();
      const hits=box.filter(x=>x.value===lookupValue && !x.dataset.autoOnly);
 
      if(lookupValue==="refine:S" && hits.length>1){
-       const target = which==="secondS" ? hits[1] : hits[0];
+       // For 2級防具/5級武器, the first +20 step is the dedicated
+       // "+20" checkbox; the following S refine is the other checkbox.
+       const target = eq.value==="high" && which==="firstS" ? hits[1]
+         : which==="secondS" ? hits[0] : hits[0];
        target.checked=true;
+       target.dataset.autoOrder=String(order);
        if(isSpecialS) target.dataset.costType=v;
      }else if(hits[0]){
        hits[0].checked=true;
+       hits[0].dataset.autoOrder=String(order);
        if(isSpecialS) hits[0].dataset.costType=v;
      }
    });
