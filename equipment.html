@@ -232,8 +232,8 @@ button.on,.primary{background:linear-gradient(180deg,#268d34,#176c26)!important;
         <input type="checkbox" value="refine:S"> 敲 S
       </label>
       <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
-        <input type="checkbox" value="refine:S">
-        <span>敲 S<br><span class="tiny">2級防具、5級武器</span></span>
+        <input type="checkbox" value="refine:S" data-service-label="敲+20">
+        <span>敲+20<br><span class="tiny">2級防具、5級武器（原敲 S）</span></span>
       </label>
       <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #34404e;border-radius:10px">
         <input type="checkbox" value="grade:S"> 評 S
@@ -640,7 +640,8 @@ renderTabs();renderTable();
 
   function renderServiceMulti(){
     const qty=q("serviceMultiQty");
-    const checked=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')].map(x=>x.dataset.costType || x.value);
+    const selectedInputs=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')];
+    const checked=selectedInputs.map(x=>x.dataset.costType || x.value);
 
     const sum={
       red:0,checks:0,bless:0,bigGold:0,smallGold:0,bigGray:0,smallGray:0,
@@ -648,8 +649,9 @@ renderTabs();renderTable();
     };
 
     const labels=[];
-    checked.forEach(v=>{
+    checked.forEach((v,index)=>{
       const [kind,type]=v.split(":");
+      const title=selectedInputs[index].dataset.serviceLabel || "敲 S";
       if(kind==="refine" && REFINE_RULES[type]){
         const r=REFINE_RULES[type];
         sum.red+=r.red; sum.checks+=r.checks; sum.bless+=r.bless;
@@ -658,14 +660,14 @@ renderTabs();renderTable();
         labels.push(
           type==="A-D" ? "敲 1級／4級" :
           type==="LT20" ? "敲+20①" :
-          type==="S-BOTH15" ? "敲 S（大15／小15）" :
-          type==="S-BOTH10" ? "敲 S（大15／小10）" :
-          type==="S-BOTH5" ? "敲 S（大15／小5）" :
-          type==="S-BIG15" ? "敲 S（大15／小0）" :
-          type==="S-BIG10" ? "敲 S（大10／小0）" :
-          type==="S-BIG5" ? "敲 S（大5／小0）" :
-          type==="S-ZERO" ? "敲 S（不計費）" :
-          "敲 "+type
+          type==="S-BOTH15" ? title+"（大15／小15）" :
+          type==="S-BOTH10" ? title+"（大15／小10）" :
+          type==="S-BOTH5" ? title+"（大15／小5）" :
+          type==="S-BIG15" ? title+"（大15／小0）" :
+          type==="S-BIG10" ? title+"（大10／小0）" :
+          type==="S-BIG5" ? title+"（大5／小0）" :
+          type==="S-ZERO" ? title+"（不計費）" :
+          type==="S" ? title : "敲 "+type
         );
       }else if(kind==="grade" && GRADE_RULES[type]){
         const r=GRADE_RULES[type];
@@ -711,9 +713,10 @@ renderTabs();renderTable();
     // 服務說明依實際勾選項目產生；不擅自加入未勾選的 +20 材料。
     const hasRefine=checked.some(v=>v.startsWith("refine:"));
     const hasGrade=checked.some(v=>v.startsWith("grade:"));
+    const hasPlus20=selectedInputs.some(x=>x.dataset.serviceLabel==="敲+20" || x.value==="refine:LT20");
     const serviceDescription=hasRefine&&hasGrade
-      ? "敲+20／代敲＋代評"
-      : hasRefine ? "敲+20／代敲" : "代評";
+      ? (hasPlus20 ? "敲+20＋代敲＋代評" : "代敲＋代評")
+      : hasRefine ? (hasPlus20 ? "敲+20" : "代敲") : "代評";
     const lines=labels.length
       ? ["【古雲代敲／代評｜材料清單】",
          "服務內容："+serviceDescription,
@@ -929,7 +932,7 @@ renderTabs();renderTable();
 
    }else if(eq.value==="high"){
      if(rank[cg.value] <= 3 && needsRefine){
-       pushS(a,"敲 2級／5級","firstS");
+       pushS(a,"敲+20","firstS");
        if(needsS) a.push(["grade:S","評 S"]);
        if(needsS || needsSS) pushS(a,"敲 S②","secondS");
      }else if(cg.value==="S" && needsRefine){
