@@ -729,7 +729,7 @@ renderTabs();renderTable();
          "件數："+fmt(qty),"","所需材料：",
          ...materialNames.filter(([key])=>sum[key]>0)
            .map(([key,name,unit])=>name+"："+fmt(sum[key])+unit),
-         "","代敲／代評費用："+fmt(sum.red)+"紅"]
+         "","代敲／代評費用："+fmt(sum.red)+"紅","","以上請寄信給「古雲」"]
       : ["尚未選擇步驟。"];
     const materialText=document.getElementById("serviceMaterialsText");
     if(materialText)materialText.value=lines.join("\n");
