@@ -641,7 +641,17 @@ renderTabs();renderTable();
   function renderServiceMulti(){
     const qty=q("serviceMultiQty");
     const selectedInputs=[...document.querySelectorAll('#serviceMultiOptions input[type="checkbox"]:checked')]
-      .sort((a,b)=>(Number(a.dataset.autoOrder??999)-Number(b.dataset.autoOrder??999)));
+      .sort((a,b)=>{
+        // The +20 refinement must precede S/SS hammering in service summaries.
+        const order=(el)=>{
+          const label=el.dataset.serviceLabel || "";
+          const value=el.dataset.costType || el.value;
+          if(label==="敲+20" || value==="refine:LT20") return 0;
+          return 1;
+        };
+        return order(a)-order(b) ||
+          Number(a.dataset.autoOrder??999)-Number(b.dataset.autoOrder??999);
+      });
     const checked=selectedInputs.map(x=>x.dataset.costType || x.value);
 
     const sum={
