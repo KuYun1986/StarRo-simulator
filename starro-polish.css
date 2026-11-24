@@ -59,3 +59,30 @@ details{border-radius:12px}details summary{cursor:pointer}
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* Management workspace polish */
+.ux-admin-tools{margin:16px 0 20px;padding:18px;border:1px solid rgba(131,177,224,.4);border-radius:16px;background:linear-gradient(130deg,#14263e,#111d30 72%);box-shadow:var(--ux-glow)}
+.ux-admin-tools__title{font-size:18px;font-weight:900;color:var(--ux-gold);margin-bottom:4px}
+.ux-admin-tools .ux-section-index__links{margin:12px 0 16px}
+.ux-admin-search{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ux-admin-search label{color:#c5d8ef;font-weight:700;font-size:13px}
+.ux-admin-search input{flex:1;min-width:min(240px,100%);border:1px solid #57718e;background:#0a1422;color:#fff;padding:11px 13px}
+.ux-admin-search .tiny{min-width:95px}
+#featureTable .feature-row[hidden]{display:none!important}
+#biosAdminPanel,#serviceRulesAdminPanel,#airPricesAdminPanel{scroll-margin-top:80px;position:relative;background:linear-gradient(145deg,rgba(21,38,57,.98),rgba(12,23,37,.98))!important}
+#biosAdminPanel h2,#serviceRulesAdminPanel h2,#airPricesAdminPanel h2{color:#f4d993}
+#biosAdminPanel textarea,#serviceRulesAdminPanel textarea{border:1px solid #556a85;background:#0b1422;color:#dceaff;padding:12px;border-radius:12px;line-height:1.65}
+#biosAdminPanel input,#airPricesAdminPanel input{border:1px solid #526a86;background:#0d1929;color:#f6faff}
+#biosAdminPanel .actions,#serviceRulesAdminPanel .actions{padding-top:8px}
+#versionDialog{box-shadow:0 35px 100px #000b;max-height:88dvh;overflow:auto}
+#versionDialog::backdrop{background:rgba(2,7,16,.78);backdrop-filter:blur(5px)}
+#saveState{font-weight:750}
+#adminApp .topbar{position:sticky;top:0;z-index:35;backdrop-filter:blur(14px);background:rgba(11,22,35,.95)!important;border-bottom:1px solid rgba(132,174,223,.27)}
+@media(max-width:780px){
+ .ux-admin-tools{padding:13px}
+ .ux-admin-search{align-items:stretch;flex-direction:column;gap:7px}
+ .ux-admin-search input{width:100%;min-width:0}
+ #adminApp .topbar{gap:8px;flex-wrap:wrap;padding:10px!important}
+ #adminApp .topbar h1{font-size:18px!important}
+ #versionDialog{width:96vw!important;padding:14px!important}
+}
