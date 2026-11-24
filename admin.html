@@ -72,6 +72,12 @@ details.admin-details{margin-top:12px;border:1px solid #28323e;border-radius:11p
       <div class="actions"><button class="btn blue" id="serviceRulesValidateBtn" type="button">✅ 檢查代敲規則與測試案例</button><button class="btn ghost" id="serviceRulesRestoreDefaults" type="button">↩️ 恢復代敲內建規則（尚未發布）</button></div>
       <p class="tiny" id="serviceRulesStatus" aria-live="polite"></p>
     </section>
+    <section class="section" id="airPricesAdminPanel" style="margin:12px 0;padding:18px;border:1px solid #425c76;border-radius:14px">
+      <h2>🧿 空中護身符｜成本預設參數</h2>
+      <p class="tiny">調整新使用者的護身符成本預設值。已在自己的瀏覽器手動修改並保存價格的玩家，仍以他們的個人設定為準。</p>
+      <div id="airPricesAdmin" class="grid3" style="margin-top:12px"></div>
+      <p class="tiny" id="airPricesStatus">調整後按右上角「儲存全部」發布。</p>
+    </section>
     <div class="feature-table" id="featureTable"></div>
     <div id="panels"></div>
   </div>
@@ -241,7 +247,29 @@ function renderServiceRulesEditor(){
   $('#serviceRulesAdmin').value=JSON.stringify(rules,null,2);
   $('#serviceRulesStatus').textContent='目前含 '+Object.keys(rules.refine).length+' 種敲裝及 '+Object.keys(rules.grade).length+' 種評級規則。';
 }
-function captureAll(){FEATURES.forEach(f=>capturePanel(f.key));captureBiosEditor();captureServiceRulesEditor();cfg.meta.updatedAt=new Date().toISOString();}
+const AIR_PRICE_LABELS={
+  talRefinePrice:'精煉石（紅利點數／個）',talPowderPrice:'升階石（P／個）',
+  talBlessPrice:'祝福粉（紅利點數／個）',talRedToP:'1 紅利點數兌換 P',
+  talSkyCost:'空中副本入場成本（P）',talSkyOre:'每場能源礦（個）',
+  talTemperPrice:'淬鍊石單價（P／個）'
+};
+function renderAirPricesEditor(){
+  const prices=cfg.features.simulators?.airTalismanPrices||StarroConfig.defaults.features.simulators.airTalismanPrices;
+  $('#airPricesAdmin').innerHTML=Object.entries(AIR_PRICE_LABELS).map(([id,label])=>'<div class="field"><label>'+esc(label)+'</label><input type="number" min="0" step="0.01" data-air-price="'+id+'" value="'+esc(prices[id]??0)+'"></div>').join('');
+}
+function captureAirPricesEditor(){
+  const inputs=[...document.querySelectorAll('#airPricesAdmin input[data-air-price]')];
+  if(!inputs.length)return;
+  if(inputs.length!==Object.keys(AIR_PRICE_LABELS).length)throw new Error('空中護身符價格欄位不完整');
+  const prices={};
+  for(const input of inputs){
+    const n=Number(input.value);
+    if(!input.value.trim()||!Number.isFinite(n)||n<0)throw new Error(AIR_PRICE_LABELS[input.dataset.airPrice]+' 不可為空或負數');
+    prices[input.dataset.airPrice]=n;
+  }
+  cfg.features.simulators.airTalismanPrices=prices;
+}
+function captureAll(){FEATURES.forEach(f=>capturePanel(f.key));captureBiosEditor();captureServiceRulesEditor();captureAirPricesEditor();cfg.meta.updatedAt=new Date().toISOString();}
 function updateMetrics(){const n=FEATURES.filter(f=>getFeature(f.key).enabled!==false).length;$('#managedCount').textContent=FEATURES.length;$('#enabledCount').textContent=n;$('#updatedAt').textContent=cfg.meta.updatedAt?new Date(cfg.meta.updatedAt).toLocaleString('zh-TW'):'—';}
 const HISTORY_KEY='starro-admin-config-history-v1';
 function versionHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
@@ -277,7 +305,7 @@ function showVersionHistory(){
     if(!found||!confirm('確定載入這份舊設定？尚未儲存的修改將被取代。載入後仍需按「儲存全部」才會更新雲端。'))return;
     versionSaveSnapshot(cfg,'回復前自動備份');
     cfg=deepMerge(StarroConfig.defaults,found.config);
-    setDirty(true);renderShell();renderBiosEditor();renderServiceRulesEditor();$('#versionDialog').close();toast('已載入舊版本，按儲存全部後才會發布');
+    setDirty(true);renderShell();renderBiosEditor();renderServiceRulesEditor();renderAirPricesEditor();$('#versionDialog').close();toast('已載入舊版本，按儲存全部後才會發布');
   });
   $('#versionDialog').showModal();
 }
@@ -385,7 +413,7 @@ async function login(){const s=sb();if(!s.url||!s.anonKey){$('#loginMsg').textCo
 async function loadRemoteForAdmin(){const s=sb(),row=encodeURIComponent(s.configRow||'main');const r=await fetch(s.url.replace(/\/$/,'')+`/rest/v1/site_config?id=eq.${row}&select=config,updated_at`,{headers:{apikey:s.anonKey,Authorization:'Bearer '+cloudSession.access_token}});if(!r.ok)throw new Error('讀取雲端設定失敗');const d=await r.json();if(d[0]?.config){cfg=deepMerge(StarroConfig.defaults,d[0].config);StarroConfig.replace(cfg)}}
 function deepMerge(a,b){if(Array.isArray(b))return JSON.parse(JSON.stringify(b));if(!b||typeof b!=='object')return b===undefined?JSON.parse(JSON.stringify(a)):b;const o=(a&&typeof a==='object'&&!Array.isArray(a))?JSON.parse(JSON.stringify(a)):{};Object.keys(b).forEach(k=>o[k]=deepMerge(o[k],b[k]));return o}
 async function saveRemote(obj){const s=sb(),id=s.configRow||'main';const r=await fetch(s.url.replace(/\/$/,'')+'/rest/v1/site_config?on_conflict=id',{method:'POST',headers:{apikey:s.anonKey,Authorization:'Bearer '+cloudSession.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id,config:obj,updated_at:new Date().toISOString()})});if(!r.ok){const txt=await r.text();throw new Error('雲端儲存失敗：'+txt)}}
-function showApp(cloud){$('#loginScreen').classList.add('hidden');$('#adminApp').classList.remove('hidden');$('#cloudDot').className='dot '+(cloud?'ok':'warn');$('#cloudStatus').textContent=cloud?'已登入雲端':'本機預覽模式';$('#sourceMode').textContent=cloud?'雲端':'本機';renderShell();renderBiosEditor();renderServiceRulesEditor()}
+function showApp(cloud){$('#loginScreen').classList.add('hidden');$('#adminApp').classList.remove('hidden');$('#cloudDot').className='dot '+(cloud?'ok':'warn');$('#cloudStatus').textContent=cloud?'已登入雲端':'本機預覽模式';$('#sourceMode').textContent=cloud?'雲端':'本機';renderShell();renderBiosEditor();renderServiceRulesEditor();renderAirPricesEditor()}
 function extractAssigned(text,marker){const at=text.indexOf(marker);if(at<0)throw new Error('找不到 '+marker);let i=text.indexOf(marker.includes('EQUIPMENT')?'{':'[',at),open=text[i],close=open==='['?']':'}',depth=0,str=false,escp=false;for(let j=i;j<text.length;j++){const ch=text[j];if(str){if(escp)escp=false;else if(ch==='\\')escp=true;else if(ch==='"')str=false;continue}if(ch==='"'){str=true;continue}if(ch===open)depth++;else if(ch===close){depth--;if(depth===0)return JSON.parse(text.slice(i,j+1));}}throw new Error('資料解析失敗')}
 async function loadCollectionData(){try{const r=await fetch('collection.html',{cache:'no-store'});const text=await r.text();collectionItems=Array.isArray(cfg.features.collection.items)?JSON.parse(JSON.stringify(cfg.features.collection.items)):extractAssigned(text,'const ITEMS=');$('#collectionCount').textContent=collectionItems.length.toLocaleString()+' 筆';renderCollectionList();setDirty();toast('已載入收藏資料')}catch(e){toast('收藏資料載入失敗：'+e.message,true)}}
 function renderCollectionList(){const el=$('#collectionList');if(!collectionItems){el.innerHTML='<div class="collection-item"><span>尚未載入收藏資料</span></div>';return}const q=($('#collectionSearch')?.value||'').trim().toLowerCase();const rows=[];for(let i=0;i<collectionItems.length;i++){const x=collectionItems[i],hay=(x.name+' '+x.effect+' '+x.game+' '+x.group).toLowerCase();if(q&&!hay.includes(q))continue;rows.push({i,x});if(rows.length>=100)break}el.innerHTML=rows.map(({i,x})=>`<div class="collection-item" data-col-index="${i}"><b>${esc(x.name)}</b><span>${esc(x.group)}｜${esc(x.game)}｜佔格 ${esc(x.slot)}</span></div>`).join('')||'<div class="collection-item"><span>沒有符合資料</span></div>';el.querySelectorAll('[data-col-index]').forEach(r=>r.onclick=()=>editCollection(+r.dataset.colIndex))}
@@ -406,8 +434,8 @@ $('#biosRestoreDefaults').onclick=()=>{if(!confirm('確定把拜歐斯表單恢�
 $('#biosAdminPanel').addEventListener('input',()=>setDirty(true));
 $('#serviceRulesValidateBtn').onclick=()=>{try{const {rules,example}=readServiceRulesEditor();$('#serviceRulesStatus').textContent='✅ 格式通過。+16A 五級武器 → +20S 參考測試：'+example.checks+' 張支票、'+example.bless+' 祝福、'+example.bigGold+' 大金、'+example.smallGold+' 小金、'+example.red+' 紅（原始基準為 44 張／200／30／20／60 紅）；目前設定可以刻意不同。';toast('代敲材料與費用格式檢查通過')}catch(e){$('#serviceRulesStatus').textContent='❌ '+e.message;toast(e.message,true)}};
 $('#serviceRulesRestoreDefaults').onclick=()=>{if(!confirm('確定將代敲代評表單恢復為內建預設值？尚未發布。'))return;cfg.features.equipment.serviceRules=JSON.parse(JSON.stringify(StarroConfig.defaults.features.equipment.serviceRules));renderServiceRulesEditor();setDirty(true)};
-$('#serviceRulesAdminPanel').addEventListener('input',()=>setDirty(true));
-$('#saveAllBtn').onclick=saveAll;$('#historyBtn').onclick=showVersionHistory;$('#versionClose').onclick=()=>$('#versionDialog').close();$('#versionExport').onclick=exportConfig;$('#exportBtn').onclick=exportConfig;$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('starro_admin_session');location.reload()};$('#importFile').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());cfg=deepMerge(StarroConfig.defaults,o);StarroConfig.replace(cfg);setDirty();renderShell();renderBiosEditor();renderServiceRulesEditor();toast('設定已匯入，請按儲存全部')}catch(err){toast('匯入失敗：'+err.message,true)}};
+$('#serviceRulesAdminPanel').addEventListener('input',()=>setDirty(true));$('#airPricesAdminPanel').addEventListener('input',()=>setDirty(true));
+$('#saveAllBtn').onclick=saveAll;$('#historyBtn').onclick=showVersionHistory;$('#versionClose').onclick=()=>$('#versionDialog').close();$('#versionExport').onclick=exportConfig;$('#exportBtn').onclick=exportConfig;$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('starro_admin_session');location.reload()};$('#importFile').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());cfg=deepMerge(StarroConfig.defaults,o);StarroConfig.replace(cfg);setDirty();renderShell();renderBiosEditor();renderServiceRulesEditor();renderAirPricesEditor();toast('設定已匯入，請按儲存全部')}catch(err){toast('匯入失敗：'+err.message,true)}};
 const s=sb();if(s.url&&s.anonKey)$('#cloudSetupWarn').classList.add('hidden');
 try{const saved=JSON.parse(sessionStorage.getItem('starro_admin_session')||'null');if(saved?.access_token&&s.url&&s.anonKey){cloudSession=saved;loadRemoteForAdmin().then(()=>showApp(true)).catch(()=>sessionStorage.removeItem('starro_admin_session'));}}catch(e){}
 </script>
