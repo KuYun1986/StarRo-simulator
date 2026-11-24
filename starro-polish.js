@@ -18,7 +18,23 @@
         link.textContent=heading.textContent.trim().replace(/\s+/g,' ').slice(0,30);
         links.appendChild(link);
       });
-      nav.append(heading,links);
+      nav.append(heading);
+      if(sections.length>=8){
+        const filter=document.createElement('input');
+        filter.type='search';filter.className='ux-section-index__search';
+        filter.placeholder='搜尋模擬器名稱…';
+        filter.setAttribute('aria-label','搜尋本頁模擬器');
+        const count=document.createElement('span');
+        count.className='ux-section-index__count';
+        filter.addEventListener('input',()=>{
+          const q=filter.value.trim().toLocaleLowerCase('zh-TW');
+          let shown=0;
+          [...links.children].forEach(link=>{const match=!q||link.textContent.toLocaleLowerCase('zh-TW').includes(q);link.hidden=!match;if(match)shown++});
+          count.textContent=q?'找到 '+shown+' 項':'';
+        });
+        nav.append(filter,count);
+      }
+      nav.append(links);
       top.parentNode.insertBefore(nav,top);
     }
     const toTop=document.createElement('button');toTop.type='button';toTop.className='ux-page-top';toTop.textContent='↑ 回到頁首';toTop.setAttribute('aria-label','回到頁首');
