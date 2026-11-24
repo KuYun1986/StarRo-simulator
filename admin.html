@@ -54,7 +54,7 @@ details.admin-details{margin-top:12px;border:1px solid #28323e;border-radius:11p
   <div class="side-footer"><a class="btn ghost" href="index.html">🌟 回到網站</a><button class="btn ghost" id="exportBtn">⬇️ 匯出設定 JSON</button><label class="btn ghost" style="cursor:pointer">⬆️ 匯入設定 JSON<input id="importFile" type="file" accept="application/json" hidden></label><button class="btn danger" id="logoutBtn">登出</button></div>
 </aside>
 <main class="main">
-  <header class="topbar"><h1>繁星仙境模擬器｜管理後台</h1><div class="spacer"></div><span id="saveState" class="tiny">尚未修改</span><button class="btn primary" id="saveAllBtn">💾 儲存全部</button></header>
+  <header class="topbar"><h1>繁星仙境模擬器｜管理後台</h1><div class="spacer"></div><span id="saveState" class="tiny">尚未修改</span><button class="btn ghost" id="historyBtn" type="button">🕘 版本備份／回復</button><button class="btn primary" id="saveAllBtn">💾 儲存全部</button></header>
   <div class="content">
     <div class="overview"><div class="metric"><span>管理項目</span><b id="managedCount">10</b></div><div class="metric"><span>啟用功能</span><b id="enabledCount">0</b></div><div class="metric"><span>設定來源</span><b id="sourceMode">本機</b></div><div class="metric"><span>最後更新</span><b id="updatedAt">—</b></div></div>
     <div class="feature-table" id="featureTable"></div>
@@ -63,6 +63,12 @@ details.admin-details{margin-top:12px;border:1px solid #28323e;border-radius:11p
 </main>
 </div>
 <div id="toast" class="toast hidden"></div>
+<dialog id="versionDialog" style="max-width:min(720px,94vw);width:100%;background:#111c2c;color:#fff;border:1px solid #53647d;border-radius:14px;padding:20px">
+  <h2 style="margin-top:0">🕘 設定版本備份／回復</h2>
+  <p class="tiny">每次按「儲存全部」之前，會在目前瀏覽器保存前一個版本，最多 15 筆。回復僅先載入編輯器，需再按「儲存全部」才能發布至雲端。不同裝置間的本機備份不會自動同步。</p>
+  <div id="versionRows" style="max-height:45vh;overflow:auto"></div>
+  <div class="actions" style="margin-top:16px"><button class="btn blue" type="button" id="versionExport">⬇️ 下載目前設定</button><button class="btn ghost" type="button" id="versionClose">關閉</button></div>
+</dialog>
 
 <script>
 const FEATURES=[
@@ -168,7 +174,66 @@ function capturePanel(key){
 }
 function captureAll(){FEATURES.forEach(f=>capturePanel(f.key));cfg.meta.updatedAt=new Date().toISOString();}
 function updateMetrics(){const n=FEATURES.filter(f=>getFeature(f.key).enabled!==false).length;$('#managedCount').textContent=FEATURES.length;$('#enabledCount').textContent=n;$('#updatedAt').textContent=cfg.meta.updatedAt?new Date(cfg.meta.updatedAt).toLocaleString('zh-TW'):'—';}
-async function saveAll(){try{captureAll();StarroConfig.replace(cfg);if(cloudSession){await saveRemote(cfg);$('#sourceMode').textContent='雲端';toast('已儲存到雲端，前台重新整理後會套用');}else{toast('已儲存在這台瀏覽器（本機預覽）');}setDirty(false);renderShell();}catch(e){toast(e.message||String(e),true)}}
+const HISTORY_KEY='starro-admin-config-history-v1';
+function versionHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function versionSaveSnapshot(snapshot,description){
+  const items=versionHistory();
+  items.unshift({at:new Date().toISOString(),description,config:JSON.parse(JSON.stringify(snapshot))});
+  try{localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,15)))}catch(e){toast('版本備份空間不足，請先下載設定 JSON',true)}
+}
+function validateConfiguration(data){
+  const errors=[];
+  const scan=(node,path='設定')=>{
+    if(Array.isArray(node)){node.forEach((v,i)=>scan(v,path+'['+i+']'));return}
+    if(!node||typeof node!=='object')return;
+    for(const [k,v] of Object.entries(node)){
+      const name=path+'.'+k;
+      if(typeof v==='number'&&!Number.isFinite(v))errors.push(name+' 不是有效數字');
+      if(typeof v==='number'&&/(rate|chance|probability|weight)$/i.test(k)&& (v<0||v>100))errors.push(name+' 必須在 0～100 之間');
+      if(typeof v==='number'&&/(cost|price|red|checks|bless|gold|gray|taffy|dust|qty)$/i.test(k)&&v<0)errors.push(name+' 不可為負數');
+      if(k==='ranges'&&Array.isArray(v)){
+        v.forEach((x,i)=>{if(x && (Number(x.min)>Number(x.max)||Number(x.min)<0))errors.push(name+'['+i+'] 範圍錯誤')});
+      }
+      scan(v,name);
+    }
+  };
+  scan(data.features||{});
+  return errors;
+}
+function showVersionHistory(){
+  const rows=versionHistory();
+  $('#versionRows').innerHTML=rows.length?rows.map((v,i)=>'<div style="display:flex;gap:12px;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #34465f"><div><b>'+esc(new Date(v.at).toLocaleString('zh-TW'))+'</b><div class="tiny">'+esc(v.description||'設定備份')+'</div></div><button class="btn blue" type="button" data-restore-version="'+i+'">載入此版本</button></div>').join(''):'<p class="muted">尚無備份。第一次儲存後會建立版本紀錄。</p>';
+  $('#versionRows').querySelectorAll('[data-restore-version]').forEach(btn=>btn.onclick=()=>{
+    const found=versionHistory()[Number(btn.dataset.restoreVersion)];
+    if(!found||!confirm('確定載入這份舊設定？尚未儲存的修改將被取代。載入後仍需按「儲存全部」才會更新雲端。'))return;
+    versionSaveSnapshot(cfg,'回復前自動備份');
+    cfg=deepMerge(StarroConfig.defaults,found.config);
+    setDirty(true);renderShell();$('#versionDialog').close();toast('已載入舊版本，按儲存全部後才會發布');
+  });
+  $('#versionDialog').showModal();
+}
+async function saveAll(){
+  if(saveAll._busy)return;
+  saveAll._busy=true;
+  $('#saveAllBtn').disabled=true;
+  try{
+    const previous=StarroConfig.all();
+    captureAll();
+    const errors=validateConfiguration(cfg);
+    if(errors.length)throw new Error('設定驗證失敗：'+errors.slice(0,3).join('；')+(errors.length>3?'（另有 '+(errors.length-3)+' 項）':''));
+    if(cloudSession){
+      await saveRemote(cfg);
+      $('#sourceMode').textContent='雲端';
+      toast('已儲存到雲端，前台重新整理後會套用');
+    }else{
+      toast('已儲存在這台瀏覽器（本機預覽）');
+    }
+    versionSaveSnapshot(previous,'儲存前版本');
+    StarroConfig.replace(cfg);
+    setDirty(false);renderShell();
+  }catch(e){toast(e.message||String(e),true)}
+  finally{saveAll._busy=false;$('#saveAllBtn').disabled=false}
+}
 function sb(){return window.STARRO_SUPABASE||{}}
 let lastDiagText='';
 function diagAdd(rows,level,title,detail){rows.push({level,title,detail:String(detail??'')})}
@@ -267,7 +332,7 @@ async function loadAuctionDefaults(){try{const r=await fetch('identify.html',{ca
 async function loadCashPriceTableDefaults(){try{const r=await fetch('CASH.html',{cache:'no-store'}),text=await r.text();const data=extractAssigned(text,'const PRICE_TABLE_DEFAULTS=');if(!Array.isArray(data))throw new Error('物價表格式錯誤');getFeature('cash').priceTable=data.map(normalizeCashPriceRow);setDirty();renderShellKeep('cash');toast(`已載入 CASH.html 儲值物價表 ${data.length} 筆`)}catch(e){toast('儲值物價表載入失敗：'+e.message,true)}}
 async function loadCashCumulative(){try{const r=await fetch('CASH.html',{cache:'no-store'}),text=await r.text();const data=extractAssigned(text,'CUMULATIVE_REWARD_TIERS=');$('#cashCumulativeJson').value=JSON.stringify(data,null,2);getFeature('cash').cumulativeRewardTiers=data;setDirty();toast('已載入 CASH 累積儲值獎勵')}catch(e){toast('CASH 獎勵資料載入失敗：'+e.message,true)}}
 function exportConfig(){captureAll();const blob=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='starro-config-backup.json';a.click();URL.revokeObjectURL(a.href)}
-$('#loginBtn').onclick=login;$('#diagnoseBtn').onclick=runDiagnostics;$('#copyDiagBtn').onclick=async()=>{try{await navigator.clipboard.writeText(lastDiagText);$('#loginMsg').textContent='診斷結果已複製';}catch(e){$('#loginMsg').textContent='無法自動複製，請手動選取診斷結果';}};$('#previewBtn').onclick=()=>{previewMode=true;showApp(false)};$('#saveAllBtn').onclick=saveAll;$('#exportBtn').onclick=exportConfig;$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('starro_admin_session');location.reload()};$('#importFile').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());cfg=deepMerge(StarroConfig.defaults,o);StarroConfig.replace(cfg);setDirty();renderShell();toast('設定已匯入，請按儲存全部')}catch(err){toast('匯入失敗：'+err.message,true)}};
+$('#loginBtn').onclick=login;$('#diagnoseBtn').onclick=runDiagnostics;$('#copyDiagBtn').onclick=async()=>{try{await navigator.clipboard.writeText(lastDiagText);$('#loginMsg').textContent='診斷結果已複製';}catch(e){$('#loginMsg').textContent='無法自動複製，請手動選取診斷結果';}};$('#previewBtn').onclick=()=>{previewMode=true;showApp(false)};$('#saveAllBtn').onclick=saveAll;$('#historyBtn').onclick=showVersionHistory;$('#versionClose').onclick=()=>$('#versionDialog').close();$('#versionExport').onclick=exportConfig;$('#exportBtn').onclick=exportConfig;$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('starro_admin_session');location.reload()};$('#importFile').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());cfg=deepMerge(StarroConfig.defaults,o);StarroConfig.replace(cfg);setDirty();renderShell();toast('設定已匯入，請按儲存全部')}catch(err){toast('匯入失敗：'+err.message,true)}};
 const s=sb();if(s.url&&s.anonKey)$('#cloudSetupWarn').classList.add('hidden');
 try{const saved=JSON.parse(sessionStorage.getItem('starro_admin_session')||'null');if(saved?.access_token&&s.url&&s.anonKey){cloudSession=saved;loadRemoteForAdmin().then(()=>showApp(true)).catch(()=>sessionStorage.removeItem('starro_admin_session'));}}catch(e){}
 </script>
