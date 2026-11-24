@@ -45,6 +45,19 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('#serviceMultiOptions').count());
         assert.ok(await p.locator('#serviceMaterialsText').count());
       }
+      if(url==='collection.html'){
+        await p.evaluate(()=>{
+          const cfg=window.StarroConfig.all();
+          cfg.features.catalog.items=[{group:'自訂收藏',row:982345,name:'驗收新增收藏',effect:'ATK+1',slot:1,required:['驗收裝備'],image:''}];
+          cfg.features.catalog.images['驗收新增收藏']='https://example.com/test-icon.webp';
+          window.StarroConfig.replace(cfg);
+        });
+        await p.locator('#search').fill('驗收新增收藏');
+        await p.locator('#list .item').first().waitFor({timeout:10000});
+        assert.ok((await p.locator('#list').textContent()).includes('驗收新增收藏'));
+        assert.ok((await p.locator('#list .collection-thumb').count())>=1,'added collection image missing');
+        await p.locator('#search').fill('');
+      }
       if(url==='catalog.html'){
         await p.locator('.catalog-card').first().waitFor({timeout:10000});
         assert.ok((await p.locator('.catalog-card').count())>=20,'collection gallery cards missing');
