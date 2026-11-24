@@ -86,3 +86,11 @@ details{border-radius:12px}details summary{cursor:pointer}
  #adminApp .topbar h1{font-size:18px!important}
  #versionDialog{width:96vw!important;padding:14px!important}
 }
+
+.ux-config-details>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:48px;font-size:17px;font-weight:850;color:#f4d993}
+.ux-config-details>summary::-webkit-details-marker{display:none}
+.ux-config-details>summary::before{content:"＋";font-size:20px;color:#8dbffa;width:26px;flex:0 0 26px;text-align:center}
+.ux-config-details[open]>summary::before{content:"−"}
+.ux-config-details__content{padding:12px 0 4px;border-top:1px solid rgba(138,178,219,.2)}
+.ux-config-details__content>h2{display:none}
+.ux-config-details:not([open]){padding:0}
