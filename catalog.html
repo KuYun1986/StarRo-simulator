@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1725">
+<title>繁星收藏・轉蛋查詢｜StarRo</title>
+<link rel="stylesheet" href="starro-polish.css?v=20261125">
+<link rel="stylesheet" href="catalog.css?v=20261125">
+<script src="supabase-config.js"></script>
+<script src="starro-config.js"></script>
+</head>
+<body>
+<main class="catalog-app">
+ <header class="catalog-head">
+  <div class="catalog-brand"><a href="index.html">✦ StarRo</a><span>收藏・轉蛋圖鑑</span></div>
+  <nav class="catalog-topnav" aria-label="快速導覽"><a href="collection.html">📚 原收藏模擬器</a><a href="game.html">🎰 遊戲區</a><a href="admin.html">⚙️ 管理後台</a></nav>
+ </header>
+ <section class="catalog-hero">
+  <div><p class="catalog-eyebrow">STARRO COLLECTION INDEX</p><h1>收藏與轉蛋，一站查詢。</h1><p>保留既有收藏資料，快速查找效果、需求裝備與轉蛋來源；支援收藏圖片及獎品圖片。</p></div>
+  <div class="catalog-counts"><div><b id="catalogTotal">—</b><span>收藏項目</span></div><div><b id="catalogPoolTotal">—</b><span>轉蛋池</span></div></div>
+ </section>
+ <section class="catalog-controls" aria-label="搜尋與篩選">
+  <div class="catalog-tabs" role="tablist" aria-label="查詢模式">
+   <button type="button" class="active" id="catalogTabCollection" role="tab" aria-selected="true">📚 收藏圖鑑</button>
+   <button type="button" id="catalogTabGacha" role="tab" aria-selected="false">🎁 轉蛋查詢</button>
+  </div>
+  <div class="catalog-searchrow">
+   <label for="catalogSearch" class="visually-hidden">搜尋收藏／道具／轉蛋名稱</label>
+   <input id="catalogSearch" type="search" placeholder="搜尋收藏名稱、效果、裝備或轉蛋編號…" autocomplete="off">
+   <select id="catalogGroup" aria-label="收藏分類"><option value="all">全部分類</option><option value="普通收藏">普通收藏</option><option value="JRO收藏">JRO收藏</option><option value="自訂收藏">自訂收藏</option></select>
+   <select id="catalogProgress" aria-label="收藏狀態"><option value="all">所有進度</option><option value="saved">已勾選收藏</option><option value="unsaved">尚未勾選</option></select>
+   <select id="catalogGachaType" aria-label="轉蛋類型" hidden><option value="all">所有轉蛋</option><option value="XR">XR</option><option value="紅利轉蛋">紅利轉蛋</option><option value="商城轉蛋">商城轉蛋</option><option value="其他">其他</option></select>
+  </div>
+  <div class="catalog-filters"><span>常用部位：</span><div id="catalogSlots" class="catalog-slot-list"></div></div>
+  <div id="catalogViewSwitch" class="catalog-view-switch" hidden><button type="button" class="active" data-view="items">以獎品查詢</button><button type="button" data-view="pools">以轉蛋查詢</button></div>
+  <div class="catalog-status"><span id="catalogStatus" role="status">載入收藏資料中…</span><button id="catalogReset" type="button">清除條件</button></div>
+ </section>
+ <section id="catalogResults" class="catalog-grid" aria-label="查詢結果"></section>
+ <nav class="catalog-pagination" aria-label="結果分頁"><button type="button" id="catalogPrev">← 上一頁</button><span id="catalogPage"></span><button type="button" id="catalogNext">下一頁 →</button></nav>
+ <div class="catalog-info">收藏勾選狀態沿用本站原收藏模擬器的本機紀錄。轉蛋與圖片由管理後台維護，尚未建立圖片的資料會顯示預設圖示；不會使用未核實的獎品機率。</div>
+</main>
+<dialog id="catalogDialog" class="catalog-dialog" aria-labelledby="catalogDialogTitle"><button type="button" class="catalog-close" id="catalogDialogClose" aria-label="關閉">✕</button><div id="catalogDialogContent"></div></dialog>
+<script src="collection-data.js?v=20261017-0208"></script>
+<script src="catalog.js?v=20261125"></script>
+</body>
+</html>
