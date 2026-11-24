@@ -22,7 +22,7 @@ const server=http.createServer((req,res)=>{
   const base='http://127.0.0.1:'+server.address().port;
   const browser=await chromium.launch({headless:true});
   const failures=[],details=[];
-  const pages=['index.html','game.html','enchant.html','identify.html','collection.html','equipment.html','CASH.html','shadow.html'];
+  const pages=['index.html','game.html','enchant.html','identify.html','collection.html','equipment.html','CASH.html','shadow.html','catalog.html'];
   async function check(url,mode){
     const ctx=await browser.newContext(mode==='mobile'?{...devices['iPhone 13'],locale:'zh-TW'}:{viewport:{width:1440,height:900},deviceScaleFactor:1,locale:'zh-TW'});
     const p=await ctx.newPage();
@@ -32,7 +32,7 @@ const server=http.createServer((req,res)=>{
       assert.equal(resp.status(),200);
       await p.waitForTimeout(350);
       assert.equal(await p.locator('link[href*="starro-polish.css"]').count(),1);
-      assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
+      if(url!=='catalog.html')assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
       assert.ok(await p.locator('h1').count()>=1,url+' is missing h1');
       const extent=await p.evaluate(()=>({scroll:document.documentElement.scrollWidth,window:innerWidth}));
       const nav=await p.locator('.ux-section-index').count();
@@ -44,6 +44,27 @@ const server=http.createServer((req,res)=>{
       if(url==='equipment.html'){
         assert.ok(await p.locator('#serviceMultiOptions').count());
         assert.ok(await p.locator('#serviceMaterialsText').count());
+      }
+      if(url==='catalog.html'){
+        await p.locator('.catalog-card').first().waitFor({timeout:10000});
+        assert.ok((await p.locator('.catalog-card').count())>=20,'collection gallery cards missing');
+        await p.locator('#catalogSearch').fill('翡翠LT收藏組合');
+        assert.ok((await p.locator('.catalog-card').count())>=1,'catalog search did not return existing collection');
+        await p.locator('#catalogReset').click();
+        await p.locator('#catalogTabGacha').click();
+        assert.ok((await p.locator('#catalogGachaType').isVisible()),'gacha filter missing');
+        await p.evaluate(()=>{
+          const cfg=window.StarroConfig.all();
+          cfg.features.catalog.gachaPools=[{key:'test-pool',name:'XR測試轉蛋',type:'XR',id:'XR-TEST',items:[{name:'翡翠戒指-LT[1]',rate:'1%',image:''}]}];
+          window.StarroConfig.replace(cfg);
+        });
+        await p.locator('.catalog-card').first().waitFor({timeout:10000});
+        assert.ok((await p.locator('#catalogResults').textContent()).includes('翡翠戒指-LT[1]'));
+        await p.locator('button[data-action="drop"]').first().click();
+        assert.ok((await p.locator('#catalogDialog').isVisible()),'detail dialog did not open');
+        await p.locator('#catalogDialogClose').click();
+        await p.locator('#catalogViewSwitch [data-view="pools"]').click();
+        assert.ok((await p.locator('#catalogResults').textContent()).includes('XR測試轉蛋'));
       }
       await p.screenshot({path:path.join(screenshots,url.replace('.html','')+'-'+mode+'.png'),fullPage:false});
       details.push({page:url,mode,nav,viewport:extent.window,pageWidth:extent.scroll,errors:errors.slice(0,8)});
@@ -63,6 +84,17 @@ const server=http.createServer((req,res)=>{
     assert.ok(await admin.locator('#biosAdminPanel').count());
     assert.ok(await admin.locator('#serviceRulesAdminPanel').count());
     assert.ok(await admin.locator('#airPricesAdminPanel').count());
+    assert.ok(await admin.locator('#catManage').count(), 'catalog admin missing');
+    await admin.locator('#catCollectionName').fill('驗收收藏');
+    await admin.locator('#catCollectionEffect').fill('ATK+1');
+    await admin.locator('#catCollectionSave').click();
+    await admin.locator('#catManageStatus').getByText('已儲存收藏', {exact:false}).waitFor({timeout:10000}).catch(()=>{});
+    assert.ok((await admin.locator('#catCollectionSelect option').count())>=2,'catalog item editor save failed');
+    await admin.locator('[data-pane="gacha"]').first().click();
+    await admin.locator('#catPoolName').fill('驗收轉蛋');
+    await admin.locator('#catPoolDrops').fill('驗收獎品 | 0.1%');
+    await admin.locator('#catPoolSave').click();
+    assert.ok((await admin.locator('#catPoolSelect option').count())>=2,'gacha editor save failed');
     await admin.locator('#adminUxSearch').fill('收藏');
     assert.ok((await admin.locator('#featureTable .feature-row:visible').count())>=1);
     await admin.locator('#adminUxSearch').fill('');
