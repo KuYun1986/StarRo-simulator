@@ -30,11 +30,11 @@
     app.addEventListener('input',e=>{
       if(e.target.closest('#biosAdminPanel,#serviceRulesAdminPanel,#airPricesAdminPanel'))app.dataset.unsaved='true';
     });
-    const save=document.getElementById('saveAllBtn');
-    save?.addEventListener('click',()=>{
-      // Actual save status is authoritative; button click alone must not clear a warning.
-      setTimeout(()=>{if(document.getElementById('saveState')?.textContent==='已同步')app.dataset.unsaved='false'},450);
-    });
+    const saveState=document.getElementById('saveState');
+    if(saveState){
+      const syncFlag=()=>{if(saveState.textContent==='已同步')app.dataset.unsaved='false'};
+      new MutationObserver(syncFlag).observe(saveState,{childList:true,characterData:true,subtree:true});
+    }
     window.addEventListener('beforeunload',e=>{
       const pending=app.dataset.unsaved==='true'||document.getElementById('saveState')?.textContent==='有未儲存變更';
       if(!app.classList.contains('hidden')&&pending){e.preventDefault();e.returnValue='';}
