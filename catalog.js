@@ -10,6 +10,8 @@ const safeImage=s=>{
   return '';
 };
 const normalize=s=>clean(s).toLocaleLowerCase('zh-TW').replace(/\s+/g,'');
+const eqName=s=>normalize(s).replace(/^(?:\+\d+\s*|[a-ds]階\s*)/i,'').replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
+const equipDetail=name=>(catalog().equipmentDetails||{})[name]||{};
 const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
   return '<div class="catalog-cover">'+(url?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+esc(url)+'" alt="">':icon)+'</div>';
@@ -39,6 +41,53 @@ function imageFor(name,explicit=''){
   const url=explicit||images[name]||known;
   return safeImage(url);
 }
+function equipmentEntries(){
+  const m=new Map();
+  const all=allCollections();
+  for(const col of all)for(const requirement of (col.required||[])){
+    const name=clean(requirement).replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
+    if(!name)continue;
+    const key=eqName(name);
+    if(!m.has(key))m.set(key,{name,collections:[],sources:[]});
+    const entry=m.get(key);
+    if(!entry.collections.some(x=>keyOf(x)===keyOf(col)))entry.collections.push(col);
+  }
+  for(const pool of pools())for(const item of pool.items||[]){
+    const key=eqName(item.name);
+    if(!m.has(key))m.set(key,{name:item.name,collections:[],sources:[]});
+    m.get(key).sources.push({pool:pool.name,type:pool.type||'其他',rate:item.rate||'',image:item.image||''});
+  }
+  return [...m.values()].sort((a,b)=>b.collections.length-a.collections.length||a.name.localeCompare(b.name,'zh-Hant'));
+}
+function equipmentFilters(item){
+  if(state.slot!=='all'&&!inSlot(item.name+' '+(equipDetail(item.name).type||'')))return false;
+  const q=normalize(state.query);
+  const meta=equipDetail(item.name);
+  return !q||normalize([item.name,meta.type,meta.description,meta.stats,...item.collections.map(c=>c.name),...item.sources.map(s=>s.pool)].join(' ')).includes(q);
+}
+function relatedCollectionHtml(items){
+  return items.length?'<div class="catalog-related">'+items.slice(0,80).map(x=>
+    '<button type="button" class="catalog-related__item" data-collection-key="'+esc(keyOf(x))+'"><span class="catalog-related__mark">📚</span><span><b>'+esc(x.name)+'</b><small>'+esc(x.effect||'')+'</small></span></button>').join('')+'</div>':
+    '<p class="catalog-notpicked">目前沒有找到使用此裝備的收藏</p>';
+}
+function equipmentDetailHtml(item){
+  const info=equipDetail(item.name),src=imageFor(item.name,info.image||item.sources[0]?.image);
+  const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],['能力／效果',info.stats||'尚未登錄裝備效果']];
+  return detailHeader(item.name,src,'equipment')+
+    '<div class="catalog-detail-section"><h3>裝備詳細資料</h3><dl class="catalog-equipment-meta">'+
+    rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+
+    '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
+    detailSection('出現轉蛋／獎品來源（'+item.sources.length+'）',item.sources.map(x=>x.pool+'｜'+x.type+(x.rate?'｜'+x.rate:'')));
+}
+function collectionEquipmentHtml(items){
+  return items.length?'<div class="catalog-equipment-list">'+items.map(name=>{
+    const match=equipmentEntries().find(x=>eqName(x.name)===eqName(name));
+    const related=match?.collections.length||0;
+    return '<button type="button" class="catalog-equipment-row" data-equipment-name="'+esc(match?.name||name)+'">'+
+      imageHtml(imageFor(name,equipDetail(name).image),'🛡️')+
+      '<span><b>'+esc(name)+'</b><small>其他相關收藏 '+Math.max(0,related-1)+' 項'+(match?.sources.length?' · 轉蛋來源 '+match.sources.length+' 筆':'')+'</small></span><span aria-hidden="true">›</span></button>'
+  }).join('')+'</div>':'<p class="catalog-notpicked">沒有需求裝備資料</p>';
+}
 function inSlot(text){
   if(state.slot==='all')return true;
   const s=clean(text);
@@ -46,11 +95,11 @@ function inSlot(text){
   return s.includes(state.slot);
 }
 function collectionSource(item){
-  const req=(item.required||[]).map(x=>normalize(x.replace(/\s*(?:×|x)\s*\d+$/i,'')));
+  const req=(item.required||[]).map(eqName);
   const out=[];
   for(const pool of pools()){
     for(const drop of pool.items){
-      if(req.includes(normalize(drop.name))){out.push({pool:pool.name,type:pool.type||'其他',drop});}
+      if(req.includes(eqName(drop.name))){out.push({pool:pool.name,type:pool.type||'其他',drop});}
     }
   }
   return out;
@@ -114,22 +163,37 @@ function renderItemCard(it,i){
   '<div class="catalog-card__meta">'+it.sources.slice(0,3).map(x=>'<span class="catalog-chip">'+esc(x.type)+'</span>').join('')+'</div></div>'+
   '<div class="catalog-card__bottom"><span class="catalog-notpicked">來源查詢</span>'+button('查看來源','drop',String(i))+'</div></article>';
 }
+function renderEquipmentCard(item,i){
+  const info=equipDetail(item.name);
+  return '<article class="catalog-card catalog-card--equipment"><div class="catalog-card__top">'+
+    imageHtml(imageFor(item.name,info.image||item.sources[0]?.image),'🛡️')+
+    '<div class="catalog-card__name">'+esc(item.name)+'</div></div>'+
+    '<div class="catalog-card__body"><div class="catalog-card__effect">'+
+    esc(info.description||info.stats||'查看裝備詳細資料及收藏來源')+'</div><div class="catalog-card__meta">'+
+    '<span class="catalog-chip">'+item.collections.length+' 項收藏需求</span>'+
+    (item.sources.length?'<span class="catalog-chip">'+item.sources.length+' 筆轉蛋來源</span>':'')+'</div></div>'+
+    '<div class="catalog-card__bottom"><span class="catalog-notpicked">'+esc(info.type||'裝備／卡片')+'</span>'+
+    button('裝備詳情','equipment',String(i))+'</div></article>';
+}
 let rendered=[];
 function render(){
   const collections=allCollections(),allPools=pools();
   $('catalogTotal').textContent=collections.length.toLocaleString('zh-TW');
   $('catalogPoolTotal').textContent=allPools.length.toLocaleString('zh-TW');
-  const gacha=state.tab==='gacha';
-  $('catalogTabCollection').classList.toggle('active',!gacha);
+  const gacha=state.tab==='gacha',equipment=state.tab==='equipment';
+  $('catalogTabCollection').classList.toggle('active',!gacha&&!equipment);
+  $('catalogTabEquipment').classList.toggle('active',equipment);
+  $('catalogTabEquipment').setAttribute('aria-selected',String(equipment));
   $('catalogTabGacha').classList.toggle('active',gacha);
-  $('catalogTabCollection').setAttribute('aria-selected',String(!gacha));
+  $('catalogTabCollection').setAttribute('aria-selected',String(!gacha&&!equipment));
   $('catalogTabGacha').setAttribute('aria-selected',String(gacha));
   $('catalogGachaType').hidden=!gacha;
-  $('catalogGroup').hidden=gacha;$('catalogProgress').hidden=gacha;
+  $('catalogGroup').hidden=gacha||equipment;$('catalogProgress').hidden=gacha||equipment;
   $('catalogViewSwitch').hidden=!gacha;
   $('catalogViewSwitch').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
   let results;
-  if(!gacha){results=collections.filter(collectionFilters);}
+  if(equipment){results=equipmentEntries().filter(equipmentFilters);}
+  else if(!gacha){results=collections.filter(collectionFilters);}
   else if(state.view==='pools'){results=allPools.filter(gachaFilters);}
   else{results=allItems().filter(itemFilters);}
   const totalPages=Math.max(1,Math.ceil(results.length/state.pageSize));
@@ -139,7 +203,7 @@ function render(){
   $('catalogStatus').textContent='符合條件 '+results.length.toLocaleString('zh-TW')+' 筆｜每頁 '+state.pageSize+' 筆';
   $('catalogPage').textContent='第 '+state.page+' / '+totalPages+' 頁';
   $('catalogPrev').disabled=state.page<=1;$('catalogNext').disabled=state.page>=totalPages;
-  $('catalogResults').innerHTML=rendered.length?rendered.map((x,i)=>!gacha?renderCollectionCard(x,i):(state.view==='pools'?renderPoolCard(x,i):renderItemCard(x,i))).join(''):
+  $('catalogResults').innerHTML=rendered.length?rendered.map((x,i)=>equipment?renderEquipmentCard(x,i):!gacha?renderCollectionCard(x,i):(state.view==='pools'?renderPoolCard(x,i):renderItemCard(x,i))).join(''):
     '<div class="catalog-empty">'+(gacha&&!allPools.length?'尚未建立轉蛋資料。可從 StarRo 管理後台新增轉蛋池、獎品與圖片。':'沒有符合條件的項目，請調整關鍵字或分類。')+'</div>';
 }
 function detailHeader(name,src,kind){
@@ -159,9 +223,11 @@ function openDetail(kind,i){
     const has=selected.has(keyOf(entry));
     html=detailHeader(entry.name,imageFor(entry.name,entry.image),'collection')+
       detailSection('收藏效果',[entry.effect||'尚無效果說明'])+
-      detailSection('需求裝備／卡片',req)+
+      '<div class="catalog-detail-section"><h3>所需裝備／卡片（點選可查詳細資料與其他收藏）</h3>'+collectionEquipmentHtml(req)+'</div>'+
       detailSection('已建立的轉蛋來源',sources.map(x=>x.pool+'｜'+x.drop.name+(x.drop.rate?'｜'+x.drop.rate:'') ))+
       '<div class="catalog-detail-section"><button class="catalog-detail-btn" type="button" id="catalogToggleSelected" data-key="'+esc(keyOf(entry))+'">'+(has?'取消勾選':'✓ 標記已收藏')+'</button></div>';
+  }else if(kind==='equipment'){
+    html=equipmentDetailHtml(entry);
   }else if(kind==='pool'){
     html=detailHeader(entry.name,imageFor(entry.name,entry.image),'gacha')+
       detailSection('轉蛋類型／編號',[entry.type||'其他',entry.id||'未提供編號'])+
@@ -169,7 +235,7 @@ function openDetail(kind,i){
   }else{
     html=detailHeader(entry.name,imageFor(entry.name,entry.images[0]),'gacha')+
       detailSection('出現轉蛋',entry.sources.map(x=>x.pool+'｜'+x.type+(x.rate?'｜'+x.rate:'') ));
-    const related=allCollections().filter(x=>(x.required||[]).some(r=>normalize(r).includes(normalize(entry.name))));
+    const related=allCollections().filter(x=>(x.required||[]).some(r=>eqName(r)===eqName(entry.name)));
     html+=detailSection('相關收藏',related.slice(0,30).map(x=>x.name));
   }
   $('catalogDialogContent').innerHTML=html;
@@ -185,6 +251,7 @@ function init(){
   });
   $('catalogTabCollection').onclick=()=>{state.tab='collection';state.page=1;render()};
   $('catalogTabGacha').onclick=()=>{state.tab='gacha';state.page=1;render()};
+  $('catalogTabEquipment').onclick=()=>{state.tab='equipment';state.page=1;render()};
   $('catalogViewSwitch').addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b){state.view=b.dataset.view;state.page=1;render()}});
   $('catalogSearch').addEventListener('input',e=>{state.query=e.target.value;state.page=1;render()});
   for(const [id,key] of [['catalogGroup','group'],['catalogProgress','progress'],['catalogGachaType','gachaType']]){
@@ -205,6 +272,20 @@ function init(){
   $('catalogDialogClose').onclick=()=>$('catalogDialog').close();
   $('catalogDialog').onclick=e=>{if(e.target===$('catalogDialog'))$('catalogDialog').close()};
   $('catalogDialogContent').addEventListener('click',e=>{
+    const itemBtn=e.target.closest('[data-equipment-name]');
+    if(itemBtn){
+      const item=equipmentEntries().find(x=>eqName(x.name)===eqName(itemBtn.dataset.equipmentName));
+      if(item)$('catalogDialogContent').innerHTML=equipmentDetailHtml(item);
+      return;
+    }
+    const relatedBtn=e.target.closest('[data-collection-key]');
+    if(relatedBtn){
+      const item=allCollections().find(x=>keyOf(x)===relatedBtn.dataset.collectionKey);
+      if(item)$('catalogDialogContent').innerHTML=detailHeader(item.name,imageFor(item.name,item.image),'collection')+
+        detailSection('收藏效果',[item.effect||''])+
+        '<div class="catalog-detail-section"><h3>需求裝備</h3>'+collectionEquipmentHtml(item.required||[])+'</div>';
+      return;
+    }
     const b=e.target.closest('#catalogToggleSelected');if(!b)return;
     if(selected.has(b.dataset.key))selected.delete(b.dataset.key);else selected.add(b.dataset.key);
     localStorage.setItem(progressKey,JSON.stringify([...selected]));
@@ -215,6 +296,7 @@ function init(){
   window.addEventListener('storage',e=>{if(e.key===progressKey){selected=loadSaved();render()}});
   const params=new URLSearchParams(location.search);
   if(params.get('tab')==='gacha')state.tab='gacha';
+  if(params.get('tab')==='equipment')state.tab='equipment';
   if(params.get('q')){state.query=params.get('q');$('catalogSearch').value=state.query}
   render();
 }
