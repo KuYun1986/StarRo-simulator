@@ -23,6 +23,33 @@ jobs:
         run: node --test tests/service-config-regression.test.cjs
       - name: Run Chromium desktop/mobile acceptance tests
         run: node tests/browser-acceptance.cjs
+      - name: Check public Pages deployment (informational)
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p acceptance-artifacts
+          SITE="https://kuyun1986.github.io/StarRo-simulator/"
+          CODE=$(curl -L --max-time 20 -sS -o /tmp/starro-live.html -w '%{http_code}' "$SITE" || true)
+          CSS=$(curl -L --max-time 20 -sS -o /tmp/starro-live.css -w '%{http_code}' "${SITE}starro-polish.css" || true)
+          {
+            echo "Checked URL: $SITE"
+            echo "Index HTTP: $CODE"
+            echo "Shared style HTTP: $CSS"
+            if [ "$CODE" = "200" ]; then
+              if grep -q 'starro-polish.css' /tmp/starro-live.html; then
+                echo "Published index references polish CSS: yes"
+              else
+                echo "Published index references polish CSS: no"
+              fi
+            fi
+            if [ "$CSS" = "200" ]; then
+              if grep -q 'ux-section-index' /tmp/starro-live.css; then
+                echo "Published polish CSS includes quick navigation: yes"
+              else
+                echo "Published polish CSS includes quick navigation: no"
+              fi
+            fi
+          } | tee acceptance-artifacts/live-deployment.txt
       - name: Store screenshot and test reports
         uses: actions/upload-artifact@v4
         if: always()
