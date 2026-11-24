@@ -1,0 +1,82 @@
+'use strict';
+const { chromium, devices } = require('playwright');
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const ROOT=path.resolve(__dirname,'..');
+const screenshots=path.join(ROOT,'acceptance-artifacts');
+fs.mkdirSync(screenshots,{recursive:true});
+const MIME={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'text/javascript','.png':'image/png','.json':'application/json'};
+const server=http.createServer((req,res)=>{
+  try{
+    const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+    const file=path.resolve(ROOT,'.'+pathname.replace(/\/$/,'/index.html'));
+    if(!file.startsWith(ROOT+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);return res.end('Not found');}
+    res.writeHead(200,{'content-type':MIME[path.extname(file)]||'application/octet-stream','cache-control':'no-store'});
+    fs.createReadStream(file).pipe(res);
+  }catch(error){res.writeHead(500);res.end(String(error))}
+});
+(async()=>{
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const base='http://127.0.0.1:'+server.address().port;
+  const browser=await chromium.launch({headless:true});
+  const failures=[],details=[];
+  const pages=['index.html','game.html','enchant.html','identify.html','collection.html','equipment.html','CASH.html','shadow.html'];
+  async function check(url,mode){
+    const ctx=await browser.newContext(mode==='mobile'?{...devices['iPhone 13'],locale:'zh-TW'}:{viewport:{width:1440,height:900},deviceScaleFactor:1,locale:'zh-TW'});
+    const p=await ctx.newPage();
+    const errors=[];p.on('pageerror',e=>errors.push(e.message));
+    try{
+      const resp=await p.goto(base+'/'+url,{waitUntil:'domcontentloaded',timeout:35000});
+      assert.equal(resp.status(),200);
+      await p.waitForTimeout(350);
+      assert.equal(await p.locator('link[href*="starro-polish.css"]').count(),1);
+      assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
+      assert.ok(await p.locator('h1').count()>=1,url+' is missing h1');
+      const extent=await p.evaluate(()=>({scroll:document.documentElement.scrollWidth,window:innerWidth}));
+      const nav=await p.locator('.ux-section-index').count();
+      if(url==='index.html'){
+        assert.ok(await p.locator('#biosTalismanSimulator').count());
+        assert.ok(await p.locator('#talismanCostSimulator').count());
+        assert.ok(await p.locator('#bioMaterialRows tr').count()>0);
+      }
+      if(url==='equipment.html'){
+        assert.ok(await p.locator('#serviceMultiOptions').count());
+        assert.ok(await p.locator('#serviceMaterialsText').count());
+      }
+      await p.screenshot({path:path.join(screenshots,url.replace('.html','')+'-'+mode+'.png'),fullPage:false});
+      details.push({page:url,mode,nav,viewport:extent.window,pageWidth:extent.scroll,errors:errors.slice(0,8)});
+      if(errors.length)failures.push(url+' '+mode+' JavaScript errors: '+errors.slice(0,3).join(' | '));
+    }catch(e){failures.push(url+' '+mode+': '+e.stack)}
+    await ctx.close();
+  }
+  for(const mode of ['desktop','mobile'])for(const page of pages)await check(page,mode);
+  // Admin preview requires no credentials; must not perform a cloud save.
+  const ctx=await browser.newContext({viewport:{width:1440,height:900}});
+  const admin=await ctx.newPage();const adminErrors=[];
+  admin.on('pageerror',e=>adminErrors.push(e.message));
+  try{
+    await admin.goto(base+'/admin.html',{waitUntil:'domcontentloaded'});
+    await admin.locator('#previewBtn').click();
+    await admin.locator('#adminUxTools').waitFor();
+    assert.ok(await admin.locator('#biosAdminPanel').count());
+    assert.ok(await admin.locator('#serviceRulesAdminPanel').count());
+    assert.ok(await admin.locator('#airPricesAdminPanel').count());
+    await admin.locator('#adminUxSearch').fill('收藏');
+    assert.ok((await admin.locator('#featureTable .feature-row:visible').count())>=1);
+    await admin.locator('#adminUxSearch').fill('');
+    await admin.locator('#biosAdminPanel details').evaluate(x=>x.open=true);
+    assert.equal(await admin.locator('#biosStageAdmin input[data-bios-rate]').count(),12);
+    await admin.screenshot({path:path.join(screenshots,'admin-desktop.png'),fullPage:false});
+    details.push({page:'admin.html',mode:'desktop',errors:adminErrors});
+    if(adminErrors.length)failures.push('admin page errors: '+adminErrors.slice(0,3).join(' | '));
+  }catch(e){failures.push('admin: '+e.stack)}
+  await ctx.close();
+  await browser.close();
+  server.close();
+  const report={checkedAt:new Date().toISOString(),pages:details,failures};
+  fs.writeFileSync(path.join(screenshots,'report.json'),JSON.stringify(report,null,2));
+  console.log(JSON.stringify(report,null,2));
+  if(failures.length)process.exitCode=1;
+})().catch(e=>{console.error(e);server.close();process.exitCode=1});
