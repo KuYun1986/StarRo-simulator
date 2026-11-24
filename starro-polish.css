@@ -94,3 +94,7 @@ details{border-radius:12px}details summary{cursor:pointer}
 .ux-config-details__content{padding:12px 0 4px;border-top:1px solid rgba(138,178,219,.2)}
 .ux-config-details__content>h2{display:none}
 .ux-config-details:not([open]){padding:0}
+
+.ux-section-index__search{display:block;width:min(390px,100%);margin:10px 0;padding:10px 12px;background:#0b1a2d;color:#f5faff;border:1px solid #557aa1;border-radius:10px;font-size:15px}
+.ux-section-index__count{font-size:12px;color:#a8c4e4;margin:0 0 8px;display:inline-block}
+.ux-section-index__links a[hidden]{display:none!important}
