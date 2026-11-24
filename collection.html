@@ -242,6 +242,9 @@ section{padding:12px;min-width:0}
 <script src="cms-definitions.js"></script>
 <link rel="stylesheet" href="front-cms.css">
 <link rel="stylesheet" href="starro-polish.css?v=20261125">
+<style>
+.collection-thumb{width:34px;height:34px;object-fit:contain;vertical-align:middle;border-radius:8px;background:#1e354f;border:1px solid #547596;margin-right:8px}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -275,6 +278,7 @@ section{padding:12px;min-width:0}
 <option value="all">全部收藏</option>
 <option value="普通收藏">普通收藏</option>
 <option value="JRO收藏">JRO收藏</option>
+<option value="自訂收藏">自訂收藏</option>
 </select>
 <button class="primary" id="selectVisible">勾選目前結果</button>
 <button id="onlySelected">只看已勾選：關</button>
@@ -442,6 +446,31 @@ section{padding:12px;min-width:0}
 <script>
 /* ITEMS moved to collection-data.js */
 const $=s=>document.querySelector(s);
+
+const catalogExtraKeys=new Set();
+function syncAddedCollectionItems(){
+  // Keep historical collection records and progress keys untouched.
+  for(let i=ITEMS.length-1;i>=0;i--)if(catalogExtraKeys.has(keyOf(ITEMS[i])))ITEMS.splice(i,1);
+  catalogExtraKeys.clear();
+  const custom=window.StarroConfig?.get('features.catalog.items',[])||[];
+  if(!Array.isArray(custom))return;
+  const existing=new Set(ITEMS.map(keyOf));
+  for(const x of custom){
+    if(!x||typeof x.name!=='string'||!x.name.trim())continue;
+    const it={group:x.group||'自訂收藏',row:Number(x.row)||900000,dc:x.dc||'',game:x.game||'',
+      name:x.name,effect:x.effect||'',slot:Number(x.slot)||0,
+      required:Array.isArray(x.required)?x.required:[],image:x.image||''};
+    const k=keyOf(it);if(existing.has(k))continue;
+    ITEMS.push(it);catalogExtraKeys.add(k);existing.add(k);
+  }
+}
+function catalogThumb(it){
+  const images=window.StarroConfig?.get('features.catalog.images',{})||{};
+  const src=it.image||images[it.name]||'';
+  if(!/^https:\/\//i.test(src)&&!/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(src))return '';
+  return '<img class="collection-thumb" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" src="'+esc(src)+'">';
+}
+
 const COLLECTION_LOCAL_KEY="starro_collection_selected";
 let existingSelected=[];
 try{const x=JSON.parse(localStorage.getItem(COLLECTION_LOCAL_KEY)||"[]");if(Array.isArray(x))existingSelected=x;}catch(e){}
@@ -922,7 +951,7 @@ function renderList(){
       <input type="checkbox" data-key="${esc(k)}" ${checked}>
       <div>
         <div class="item-title">
-          <span class="item-title-main">${jroIconHtml(it.name)}${JRO_NAME_PREFIX[k]?`<span class="item-prefix">${esc(JRO_NAME_PREFIX[k])}</span>`:""}<span>${esc(it.name)}</span></span>
+          <span class="item-title-main">${catalogThumb(it)}${jroIconHtml(it.name)}${JRO_NAME_PREFIX[k]?`<span class="item-prefix">${esc(JRO_NAME_PREFIX[k])}</span>`:""}<span>${esc(it.name)}</span></span>
           <span class="badge ${it.group==="JRO收藏"?"jro":""}">${esc(it.group)}</span>
           <span class="badge">佔格 ${Number(it.slot||0)}</span>
           <span class="badge">${esc(SUBCAT_LABELS[subcatOf(it)]||subcatOf(it))}</span>
@@ -1496,6 +1525,11 @@ $("#clear").addEventListener("click",()=>{
   });
 })();
 
+syncAddedCollectionItems();
+document.addEventListener('starro-config-applied',()=>{
+  syncAddedCollectionItems();
+  updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
+});
 updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
