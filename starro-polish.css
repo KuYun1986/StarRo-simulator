@@ -1,0 +1,61 @@
+/* STARRO UI refresh 2026-11: shared visual system, no gameplay logic */
+:root{
+  --ux-bg:#080e19;--ux-panel:#111c2a;--ux-panel2:#152337;--ux-border:#38516a;
+  --ux-text:#f0f6ff;--ux-muted:#b2c4d9;--ux-gold:#f4ce7a;--ux-blue:#84b8ff;
+  --ux-teal:#75dec4;--ux-glow:0 16px 42px rgba(1,8,18,.35),inset 0 1px 0 rgba(255,255,255,.045);
+  color-scheme:dark;
+}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{background:radial-gradient(ellipse 68% 26% at 12% -8%,rgba(64,122,203,.20),transparent 75%),radial-gradient(ellipse 44% 25% at 100% 0,rgba(207,151,59,.13),transparent 70%),linear-gradient(180deg,#07111d,#091321 46%,#080f19)!important;color:var(--ux-text)}
+body,button,input,select,textarea{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif}
+:is(button,a,input,select,textarea):focus-visible{outline:3px solid #9cc7ff!important;outline-offset:3px}
+button,a,[role=button]{-webkit-tap-highlight-color:transparent}
+button:not(:disabled){transition:transform .16s ease,background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
+button:not(:disabled):active{transform:translateY(1px)}
+button:disabled{opacity:.55;cursor:not-allowed}
+:is(input,select,textarea){max-width:100%;border-radius:10px;accent-color:#81c6ed}
+:is(input,select,textarea):focus{border-color:#83b6f3!important;box-shadow:0 0 0 3px rgba(114,174,255,.15)}
+::placeholder{color:#8a9eb8;opacity:1}
+::selection{background:rgba(120,184,245,.38);color:#fff}
+:is(.wrap,.main,.content){min-width:0}
+:is(.card,.panel,.section,.metric,.stat,.feature-table,.summary,.home-card,.login-card,.ro-lobby,.ro-portal){
+  border-color:rgba(118,155,197,.27)!important;box-shadow:var(--ux-glow);backdrop-filter:blur(6px)
+}
+:is(.card,.panel,.section,.ro-lobby){border-radius:18px}
+:is(.card,.panel,.section,.summary,.ro-lobby){overflow-wrap:anywhere}
+:is(h1,h2,h3){letter-spacing:.015em;text-wrap:balance}
+:is(.card,.panel) > h2{padding-bottom:10px;border-bottom:1px solid rgba(130,165,208,.17)}
+:is(.tiny,.muted,.sub,.note){line-height:1.65}
+:is(table){border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
+th{text-align:left;background:rgba(103,152,213,.13)}
+:is(td,th){border-bottom:1px solid rgba(145,171,209,.14)}
+tbody tr:nth-child(even){background:rgba(103,152,213,.035)}
+tbody tr:hover{background:rgba(94,149,218,.09)}
+:is(.stat,.metric) b{font-variant-numeric:tabular-nums}
+details{border-radius:12px}details summary{cursor:pointer}
+:is(.game-page-link,.admin-entry,.topnav a,.starro-navigation a){transition:background-color .18s ease,border-color .18s ease,transform .18s ease}
+:is(.game-page-link,.admin-entry,.topnav a,.starro-navigation a):hover{border-color:rgba(157,207,255,.7);transform:translateY(-1px)}
+.ux-section-index{margin:16px 0 18px;padding:15px 18px;border:1px solid rgba(142,183,224,.36);border-radius:16px;background:linear-gradient(135deg,rgba(22,40,63,.96),rgba(13,26,44,.95));box-shadow:var(--ux-glow)}
+.ux-section-index__title{font-weight:900;font-size:14px;color:var(--ux-gold);margin:0 0 10px}
+.ux-section-index__links{display:flex;gap:9px;flex-wrap:wrap}
+.ux-section-index__links a{display:inline-flex;align-items:center;min-height:37px;padding:7px 11px;border-radius:10px;text-decoration:none;background:rgba(128,177,235,.10);border:1px solid rgba(140,180,221,.24);color:#e6f3ff;font-size:13px;font-weight:700}
+.ux-section-index__links a:hover{background:rgba(128,177,235,.21);border-color:#89b9ef}
+.ux-page-top{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));right:18px;z-index:70;border:1px solid #668db8;border-radius:999px;background:#1c3551;color:#edf8ff;box-shadow:0 10px 24px #0007;padding:9px 13px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s}
+.ux-page-top.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+@media(max-width:760px){
+ html{scroll-padding-top:66px}
+ :is(.wrap,.content){padding-left:12px!important;padding-right:12px!important}
+ :is(.card,.panel,.section,.ro-lobby){border-radius:14px!important;padding:14px!important}
+ :is(h1){font-size:clamp(22px,5.4vw,30px)!important}
+ :is(h2){font-size:clamp(18px,4.6vw,24px)!important}
+ :is(button,.btn,.game-page-link){min-height:40px}
+ :is(input,select,textarea){font-size:16px}
+ .ux-section-index{padding:12px}
+ .ux-section-index__links{gap:7px}
+ .ux-section-index__links a{font-size:12px}
+ :is(table){display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ :is(.row,.actions){flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
