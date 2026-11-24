@@ -551,7 +551,7 @@ renderTabs();renderTable();
     bigGray:"svcPriceBigGray", smallGray:"svcPriceSmallGray",
     taffy:"svcPriceTaffy", dust:"svcPriceDust", red:"svcPriceRed"
   };
-  const REFINE_RULES={    "LT20":{red:10,checks:10,bless:0,bigGold:5,smallGold:0,bigGray:15,smallGray:15,note:"上LT+20：10紅、支票10張、大小灰各15把＋大金5把。"},
+  let REFINE_RULES={    "LT20":{red:10,checks:10,bless:0,bigGold:5,smallGold:0,bigGray:15,smallGray:15,note:"上LT+20：10紅、支票10張、大小灰各15把＋大金5把。"},
     "A-D":{red:10,checks:10,bless:0,bigGold:0,smallGold:0,bigGray:15,smallGray:15,note:"A裝 +0~+20：大小灰各15把、支票10張、10紅。"},
     "S":{red:20,checks:20,bless:200,bigGold:15,smallGold:15,bigGray:0,smallGray:0,note:"2級防具／5級武器／S裝 +0~+14：鐵匠的祝福200個、支票20張、大小金各15把、20紅。"},
     "S-BOTH15":{red:20,checks:15,bless:0,bigGold:15,smallGold:15,bigGray:0,smallGray:0,note:"目前精煉 +14：20紅、支票15張、大小金各15把。"},
@@ -563,10 +563,21 @@ renderTabs();renderTable();
     "S-ZERO":{red:0,checks:0,bless:0,bigGold:0,smallGold:0,bigGray:0,smallGray:0,note:"目前精煉 +20：不計算敲S費用。"},
     "SS":{red:60,checks:35,bless:350,bigGold:35,smallGold:35,bigGray:0,smallGray:0,note:"SS裝 +0~+20：鐵匠的祝福350個、支票35張、大小金各35把、60紅。"}
   };
-  const GRADE_RULES={
+  let GRADE_RULES={
     "S":{red:20,taffy:30,dust:270,checks:9},
     "SS":{red:40,taffy:100,dust:1000,checks:25}
   };
+  function applyCloudServiceRules(){
+    const data=window.StarroConfig?.get('features.equipment.serviceRules');
+    if(!data||!data.refine||!data.grade)return;
+    const validRule=(obj)=>obj && typeof obj==='object' && !Array.isArray(obj)
+      && Object.entries(obj).every(([key,v])=>key==='note'?typeof v==='string':typeof v==='number'&&Number.isFinite(v)&&v>=0);
+    if(!Object.keys(REFINE_RULES).every(k=>validRule(data.refine[k])&&['red','checks','bless','bigGold','smallGold','bigGray','smallGray'].every(x=>Number.isFinite(data.refine[k][x]))))return;
+    if(!Object.keys(GRADE_RULES).every(k=>validRule(data.grade[k])&&['red','checks','taffy','dust'].every(x=>Number.isFinite(data.grade[k][x]))))return;
+    REFINE_RULES=Object.fromEntries(Object.keys(REFINE_RULES).map(k=>[k,{...data.refine[k]}]));
+    GRADE_RULES=Object.fromEntries(Object.keys(GRADE_RULES).map(k=>[k,{...data.grade[k]}]));
+    renderRefine();renderGrade();renderServiceMulti();
+  }
   function fmt(n){return Number(n||0).toLocaleString("zh-TW",{maximumFractionDigits:2});}
   function q(id){return Math.max(1,Math.floor(Number(document.getElementById(id)?.value||1)));}
   function price(k){return Math.max(0,Number(document.getElementById(PRICE_IDS[k])?.value||0));}
@@ -787,6 +798,8 @@ renderTabs();renderTable();
     servicePriceToggle.textContent=opening ? "隱藏代敲材料價格" : "顯示代敲材料價格";
   });
   loadServicePrices();
+  applyCloudServiceRules();
+  document.addEventListener('starro-config-applied',applyCloudServiceRules);
   renderRefine();
   renderGrade();
   renderServiceMulti();
