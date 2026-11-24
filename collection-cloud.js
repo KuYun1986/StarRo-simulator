@@ -14,11 +14,11 @@
     updateSummary();renderSubcats();renderSpecials();renderList();
     renderTotals();renderRequiredPanels();
   };
-  const validKeys=new Set(ITEMS.map(keyOf));
-  const current=()=>[...selected].filter(k=>validKeys.has(k));
+  const validKeys=()=>new Set(ITEMS.map(keyOf));
+  const current=()=>[...selected].filter(k=>validKeys().has(k));
   const apply=keys=>{
     selected.clear();
-    (Array.isArray(keys)?keys:[]).forEach(k=>{if(validKeys.has(k))selected.add(k);});
+    (Array.isArray(keys)?keys:[]).forEach(k=>{if(validKeys().has(k))selected.add(k);});
     try{localStorage.setItem(localKey,JSON.stringify(current()));}catch(e){}
     redraw();
   };
