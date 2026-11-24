@@ -34,7 +34,9 @@ function pools(){
 }
 function imageFor(name,explicit=''){
   const images=catalog().images||{};
-  const url=explicit||images[name]||'';
+  const known=typeof JRO_MVP_ENCHANTS!=='undefined'
+    ? JRO_MVP_ENCHANTS.find(x=>x.name===name)?.icon||'' : '';
+  const url=explicit||images[name]||known;
   return safeImage(url);
 }
 function inSlot(text){
