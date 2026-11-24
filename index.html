@@ -542,8 +542,18 @@ function renderExpected(){
   renderSky();
   $('talExpectedBreakdown').textContent=`+0→+11 單輪精煉期望：${fmt(exp011)} 次\n前四輪 +0→+11：${fmt(exp011*4)} 次\nA階 +0→+20：${fmt(exp020)} 次\n精煉石成本：${fmt(expRef)} × ${fmt(rp)}紅利點數 = ${fmt(expRef*rp)}紅利點數\n\n${lines.join('\n')}\n升階石成本：${fmt(expPowder)} × ${fmt(pp)}P = ${fmt(expPowder*pp)}P\n祝福粉成本：${fmt(expBless)} × ${fmt(bp)}紅利點數 = ${fmt(expBless*bp)}紅利點數\n\n合計期望：${fmt(expCost)} P（1紅利點數 = ${fmt(exchange)}P）`;
 }
+const airPriceFields=['talRefinePrice','talPowderPrice','talBlessPrice','talRedToP','talSkyCost','talSkyOre','talTemperPrice'];
+function applyAirPrices(){
+  const prices=window.StarroConfig?.get('features.simulators.airTalismanPrices',{})||{};
+  for(const id of airPriceFields){
+    const e=$(id),k='starro_'+id+(['talPowderPrice','talBlessPrice'].includes(id)?'_v2':'');
+    if(e&&localStorage.getItem(k)===null&&typeof prices[id]==='number'&&Number.isFinite(prices[id])&&prices[id]>=0)e.value=prices[id];
+  }
+  renderExpected();
+}
 for(let id of ['talRefinePrice','talPowderPrice','talBlessPrice','talRedToP','talBlessGroups','talGradeTarget','talSkyCost','talSkyOre','talTemperPrice']){let e=$(id),k='starro_'+id+(['talPowderPrice','talBlessPrice'].includes(id)?'_v2':''),v=localStorage.getItem(k);if(v!==null)e.value=v;e?.addEventListener('input',()=>{localStorage.setItem(k,e.value);renderExpected()})}
-renderExpected();
+applyAirPrices();
+document.addEventListener('starro-config-applied',applyAirPrices);
 })();
 </script>
 
