@@ -3,13 +3,23 @@
   function init(){
     const app=document.getElementById('adminApp'),overview=app?.querySelector('.overview');
     if(!app||!overview||document.getElementById('adminUxTools'))return;
+    // Compact the three long configuration editors into accessible expandable panels.
+    for(const id of ['biosAdminPanel','serviceRulesAdminPanel','airPricesAdminPanel']){
+      const section=document.getElementById(id);if(!section||section.querySelector(':scope > details'))continue;
+      const details=document.createElement('details');details.className='ux-config-details';
+      const summary=document.createElement('summary');summary.textContent=section.querySelector('h2')?.textContent.trim()||'模擬器設定';
+      details.appendChild(summary);
+      const content=document.createElement('div');content.className='ux-config-details__content';
+      while(section.firstChild)content.appendChild(section.firstChild);
+      details.appendChild(content);section.appendChild(details);
+    }
     const tools=document.createElement('section');
     tools.className='ux-admin-tools';tools.id='adminUxTools';
     const title=document.createElement('div');title.className='ux-admin-tools__title';title.textContent='✦ 管理工作台';
     const desc=document.createElement('p');desc.className='tiny';desc.textContent='搜尋功能，或快速前往模擬器規則與備份管理。所有資料仍由原本的「儲存全部」發布。';
     const shortcuts=document.createElement('div');shortcuts.className='ux-section-index__links';
     const destinations=[['#biosAdminPanel','🧿 拜歐斯材料'],['#serviceRulesAdminPanel','🔨 代敲／代評'],['#airPricesAdminPanel','🧿 空中護身符'],['#featureTable','⚙️ 其他模擬器']];
-    destinations.forEach(([href,label])=>{const a=document.createElement('a');a.href=href;a.textContent=label;shortcuts.appendChild(a)});
+    destinations.forEach(([href,label])=>{const a=document.createElement('a');a.href=href;a.textContent=label;a.addEventListener('click',()=>{const section=document.querySelector(href);const detail=section?.querySelector('details');if(detail)detail.open=true});shortcuts.appendChild(a)});
     const controls=document.createElement('div');controls.className='ux-admin-search';
     const label=document.createElement('label');label.htmlFor='adminUxSearch';label.textContent='搜尋管理功能';
     const search=document.createElement('input');search.id='adminUxSearch';search.type='search';search.placeholder='例如：收藏、裝備價格、遊戲、附魔';search.autocomplete='off';
