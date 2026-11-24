@@ -1,0 +1,40 @@
+name: Inspect catalog reference
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/inspect-catalog-reference.yml
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Inspect external public reference safely
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request,html,re
+          from html.parser import HTMLParser
+          url='https://ro-collectitem-yuno.netlify.app/'
+          try:
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+              with urllib.request.urlopen(req,timeout=20) as res:
+                  body=res.read(500000).decode('utf-8','replace')
+                  print('STATUS',res.status,'URL',res.url,'LENGTH',len(body))
+              class Parser(HTMLParser):
+                  def __init__(self):super().__init__();self.tags=[];self.active=False
+                  def handle_starttag(self,t,a):
+                      if t in ('title','h1','h2','h3','button','a','label','option'):self.active=t;self.buf=''
+                  def handle_data(self,d):
+                      if self.active:self.buf+=d
+                  def handle_endtag(self,t):
+                      if self.active==t:
+                          text=' '.join(self.buf.split())
+                          if text:self.tags.append((t,text[:160]))
+                          self.active=False
+              p=Parser();p.feed(body)
+              print('DISPLAY_LABELS:',p.tags[:120])
+              print('SCRIPTS:',re.findall(r'<script[^>]+src=["\']([^"\']+)',body,re.I)[:30])
+              print('IMAGES:',re.findall(r'<img[^>]+src=["\']([^"\']+)',body,re.I)[:15])
+              print('SNIPPET:',body[:2000])
+          except Exception as e:print('FETCH ERROR',type(e).__name__,str(e))
+          PY
