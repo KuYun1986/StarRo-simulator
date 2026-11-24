@@ -19,7 +19,7 @@
         links.appendChild(link);
       });
       nav.append(heading,links);
-      root.insertBefore(nav,top);
+      top.parentNode.insertBefore(nav,top);
     }
     const toTop=document.createElement('button');toTop.type='button';toTop.className='ux-page-top';toTop.textContent='↑ 回到頁首';toTop.setAttribute('aria-label','回到頁首');
     toTop.addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'}));
