@@ -604,14 +604,14 @@ renderExpected();
 </section>
 <script id="biosTalismanScript">
 (()=>{
-  const stages=[
+  let stages=[
     ['4S 前置-1',1],['4S 前置-2',1],['4S 前置-3',1],
     ['4S 強化-1',1],['4S 強化-2',.9],['4S 強化-3',.8],['4S 強化-4',.7],['4S 強化-5',.6],
     ['3S 啟用',1],['3S 強化-1',1],['3S 強化-2',.9],['3S 強化-3',.8]
   ];
   // All quantities represent materials required for ONE attempt at a stage.
   // Entries are indexed by 4S pre-stage (0-2), 4S refine (3-7), 3S activation (8), 3S refine (9-11).
-  const materials=[
+  let materials=[
     ['空中要塞鑰匙',{0:250,8:1000}],
     ['無限挑戰日誌',{0:50,1:100,2:150}],
     ['空中要塞能源礦',{0:150,1:1500,2:4500,8:1500}],
@@ -635,9 +635,22 @@ renderExpected();
   const $=id=>document.getElementById(id);
   const fmt=n=>Number(n).toLocaleString('zh-TW',{maximumFractionDigits:2});
   let sample=null;
-  const options=stages.map(([name],i)=>'<option value="'+i+'">'+name+'</option>').join('');
-  $('bioStart').innerHTML=options;
-  $('bioEnd').innerHTML=options;
+  function applyBiosRules(){
+    const rules=window.StarroConfig?.get('features.simulators.bios');
+    if(!rules||!Array.isArray(rules.stages)||rules.stages.length!==12||!Array.isArray(rules.materials))return;
+    if(!rules.stages.every(x=>Array.isArray(x)&&typeof x[0]==='string'&&Number.isFinite(x[1])&&x[1]>0&&x[1]<=1))return;
+    if(!rules.materials.every(x=>Array.isArray(x)&&typeof x[0]==='string'&&x[1]&&Object.entries(x[1]).every(([k,v])=>/^\d+$/.test(k)&&+k<12&&Number.isFinite(v)&&v>=0)))return;
+    const oldStart=Number($('bioStart').value)||0,oldEnd=$('bioEnd').options.length?Number($('bioEnd').value):11;
+    stages=rules.stages.map(x=>[x[0],x[1]]);
+    materials=rules.materials.map(x=>[x[0],{...x[1]}]);
+    const esc=x=>String(x).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const options=stages.map(([name],i)=>'<option value="'+i+'">'+esc(name)+'</option>').join('');
+    $('bioStart').innerHTML=options;$('bioEnd').innerHTML=options;
+    $('bioStart').value=String(Math.min(11,oldStart));$('bioEnd').value=String(Math.max(oldStart,Math.min(11,oldEnd)));
+    sample=null;draw();
+  }
+  $('bioStart').innerHTML=stages.map(([name],i)=>'<option value="'+i+'">'+name+'</option>').join('');
+  $('bioEnd').innerHTML=$('bioStart').innerHTML;
   $('bioEnd').value=String(stages.length-1);
   function range(){
     const start=Number($('bioStart').value),end=Number($('bioEnd').value);
@@ -671,6 +684,8 @@ renderExpected();
     }
     draw();
   });
+  applyBiosRules();
+  document.addEventListener('starro-config-applied',applyBiosRules);
   draw();
 })();
 </script>
