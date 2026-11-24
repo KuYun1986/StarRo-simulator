@@ -1,0 +1,26 @@
+
+/* Collection + gacha management panel */
+.cat-manage{margin:18px 0;padding:22px;border:1px solid #4d6e92;border-radius:18px;background:linear-gradient(135deg,#162b43,#0e1b2c);box-shadow:0 20px 40px #0004}
+.cat-manage header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
+.cat-manage h2{font-size:22px;color:#f5d892;margin:0}
+.cat-manage header a{font-size:13px;color:#d9efff;text-decoration:none;border:1px solid #6686a8;padding:8px 12px;border-radius:8px}
+.cat-manage p{color:#afc7e1;font-size:13px;line-height:1.7}
+.cat-manage-tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #4e6581;padding-bottom:12px;margin-bottom:16px}
+.cat-manage-tabs button{background:#172b43;border:1px solid #567393;color:#d6e8fc;padding:10px 14px;border-radius:10px}
+.cat-manage-tabs button.active{background:#e8cd8c;color:#132135;font-weight:900;border-color:#e8cd8c}
+.cat-manage-pane[hidden]{display:none!important}
+.cat-manage-pane{display:grid;gap:13px}
+.cat-manage-pane label{display:grid;gap:7px;font-size:13px;color:#c3d4e6;font-weight:800}
+.cat-manage-pane input,.cat-manage-pane select,.cat-manage-pane textarea{display:block;width:100%;min-height:42px;border:1px solid #527295;border-radius:10px;background:#0a1727;color:#f4f9ff;padding:10px 12px;font-size:14px}
+.cat-manage-pane textarea{min-height:90px;resize:vertical;line-height:1.7}
+.cat-manage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cat-manage-buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}
+.cat-manage-buttons button{min-height:42px;background:#193554;border:1px solid #648ab3;border-radius:10px;padding:9px 15px;color:#ecf6ff;font-weight:900}
+.cat-manage-buttons button.primary{background:linear-gradient(135deg,#2d698a,#286f7e);border-color:#64b8c2}
+.cat-manage-buttons button.danger{color:#ffc0bc;border-color:#9d5555}
+#catManageStatus{margin-top:17px;border-top:1px solid #405c79;padding-top:12px;color:#a6efc3!important}
+#catPicturePreview{min-height:12px}
+#catPictureList{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+#catPictureList>p{flex:1 0 100%}
+#catPictureList button{border:1px solid #456c96;background:#142b45;color:#d6e8fb;border-radius:8px;padding:7px 9px;font-size:12px}
+@media(max-width:720px){.cat-manage{padding:14px}.cat-manage-grid{grid-template-columns:1fr}.cat-manage-tabs button{flex:1}.cat-manage-pane input{font-size:16px}}
