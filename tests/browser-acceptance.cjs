@@ -22,7 +22,7 @@ const server=http.createServer((req,res)=>{
   const base='http://127.0.0.1:'+server.address().port;
   const browser=await chromium.launch({headless:true});
   const failures=[],details=[];
-  const pages=['index.html','game.html','enchant.html','identify.html','collection.html','equipment.html','CASH.html','shadow.html','catalog.html'];
+  const pages=['index.html','game.html','enchant.html','identify.html','collection.html','collection-advanced.html','equipment.html','CASH.html','shadow.html','catalog.html'];
   async function check(url,mode){
     const ctx=await browser.newContext(mode==='mobile'?{...devices['iPhone 13'],locale:'zh-TW'}:{viewport:{width:1440,height:900},deviceScaleFactor:1,locale:'zh-TW'});
     const p=await ctx.newPage();
@@ -32,7 +32,7 @@ const server=http.createServer((req,res)=>{
       assert.equal(resp.status(),200);
       await p.waitForTimeout(350);
       assert.equal(await p.locator('link[href*="starro-polish.css"]').count(),1);
-      if(url!=='catalog.html')assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
+      if(!['catalog.html','collection.html'].includes(url))assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
       assert.ok(await p.locator('h1').count()>=1,url+' is missing h1');
       const extent=await p.evaluate(()=>({scroll:document.documentElement.scrollWidth,window:innerWidth}));
       const nav=await p.locator('.ux-section-index').count();
@@ -45,7 +45,7 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('#serviceMultiOptions').count());
         assert.ok(await p.locator('#serviceMaterialsText').count());
       }
-      if(url==='collection.html'){
+      if(url==='collection-advanced.html'){
         await p.evaluate(()=>{
           const cfg=window.StarroConfig.all();
           cfg.features.catalog.items=[{group:'自訂收藏',row:982345,name:'驗收新增收藏',effect:'ATK+1',slot:1,required:['驗收裝備'],image:''}];
@@ -58,7 +58,7 @@ const server=http.createServer((req,res)=>{
         assert.ok((await p.locator('#list .collection-thumb').count())>=1,'added collection image missing');
         await p.locator('#search').fill('');
       }
-      if(url==='catalog.html'){
+      if(url==='catalog.html'||url==='collection.html'){
         await p.locator('.catalog-card').first().waitFor({timeout:10000});
         assert.ok((await p.locator('.catalog-card').count())>=20,'collection gallery cards missing');
         await p.locator('#catalogSearch').fill('翡翠LT收藏組合');
