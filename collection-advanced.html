@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>進階收藏模擬器｜繁星仙境</title>
+<style>
+:root{
+  --bg:#080d18;--panel:#101827;--panel2:#151f31;--line:#26354d;
+  --text:#eef4ff;--muted:#98a9c3;--blue:#4da3ff;--green:#4ed69c;
+  --gold:#f7c65c;--red:#ff6675;--purple:#b993ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#070b13,#0b1220 40%,#080d18);color:var(--text);
+font-family:"Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif}
+.wrap{max-width:1440px;margin:auto;padding:18px}
+.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:26px;margin:0;margin-right:auto}.back{color:var(--blue);text-decoration:none;font-weight:800}
+.note{color:var(--muted);font-size:13px;line-height:1.7}
+.toolbar,.summary,.layout>section{background:rgba(16,24,39,.95);border:1px solid var(--line);border-radius:14px}
+.toolbar{padding:14px;display:grid;grid-template-columns:minmax(240px,1fr) auto auto auto auto;gap:10px;align-items:center}.slot-input{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;white-space:nowrap}.slot-input input{width:92px;height:42px;border-radius:9px;border:1px solid #33445f;background:#0d1523;color:var(--text);padding:0 10px;font-size:15px}
+input[type="search"],select,button{height:42px;border-radius:9px;border:1px solid #33445f;background:#0d1523;color:var(--text);padding:0 12px;font-size:15px}
+button{cursor:pointer;font-weight:800} button:hover{border-color:#5b7aa7}
+.primary{background:#183b61;border-color:#2e75b9}.danger{color:#ff9aa5}
+.summary{margin-top:12px;padding:12px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px}
+.kpi small{display:block;color:var(--muted);margin-bottom:4px}.kpi b{font-size:22px;color:var(--green)}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.75fr);gap:14px;margin-top:14px}
+section{padding:12px;min-width:0}
+.section-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.section-head h2{margin:0;font-size:18px}.section-head .count{color:var(--muted);font-size:13px}
+.list{max-height:72vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.item{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:10px 12px;border-bottom:1px solid #1f2b3e}
+.item:last-child{border-bottom:0}.item:hover{background:#121d2d}
+.item input{width:19px;height:19px;margin-top:3px}
+.item-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-weight:800}
+.item-prefix{color:var(--red);font-weight:900;margin-right:4px}
+.badge{font-size:11px;border:1px solid #41587a;border-radius:999px;padding:2px 7px;color:#bfd4f5}
+.badge.jro{color:#d6c1ff;border-color:#694f98}.effect{margin-top:5px;color:#c4d0e2;font-size:13px;line-height:1.55}
+.required-items{margin-top:7px;padding:8px 10px;border-left:3px solid #4da3ff;background:#0c1524;border-radius:7px;color:#dce8fb;font-size:12px;line-height:1.65}
+.required-items strong{color:#7dbbff;margin-right:6px}
+.required-list{display:flex;flex-wrap:wrap;gap:5px 7px;margin-top:4px}
+.req-item{display:inline-block;padding:2px 7px;border:1px solid #304764;border-radius:7px;background:#111d2e;color:#dbe8fb}
+
+.idtxt{color:#7386a3;font-size:11px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:48vh;overflow:auto;padding-right:2px}
+.stat{display:flex;justify-content:space-between;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px}
+.stat span{overflow-wrap:anywhere}.stat b{color:var(--green);white-space:nowrap}
+.conditional{margin-top:14px}.conditional h3{font-size:15px;margin:0 0 8px}.cond-list{max-height:25vh;overflow:auto;color:#c7d1e1;font-size:12px;line-height:1.55}
+.cond-row{padding:7px 2px;border-bottom:1px solid #202c40}.cond-row b{color:var(--gold)}
+.empty{padding:30px 10px;text-align:center;color:var(--muted)}
+.footer-note{margin-top:8px;color:#7f91ad;font-size:11px;line-height:1.6}
+.subcats{margin-top:12px;padding:12px;background:rgba(16,24,39,.95);border:1px solid var(--line);border-radius:14px}
+.subcat-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;color:var(--muted);font-size:14px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid #33445f;background:#edf2fb;color:#1b2a43;font-weight:800;cursor:pointer;transition:.15s}
+.chip:hover{transform:translateY(-1px);border-color:#5b7aa7}
+.chip.active{background:#2f7ef7;color:#fff;border-color:#2f7ef7;box-shadow:0 8px 18px rgba(47,126,247,.25)}
+.chip small{display:inline-block;min-width:22px;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.12);color:inherit;font-size:12px;line-height:1.2}
+.chip.active small{background:rgba(255,255,255,.2)}
+.special-box{margin-top:12px;padding:12px;background:rgba(16,24,39,.95);border:1px solid var(--line);border-radius:14px}
+.special-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.special-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:14px;font-weight:700}
+.special-tools{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:950px){
+ .toolbar{grid-template-columns:1fr 1fr}.toolbar input{grid-column:1/-1}
+ .summary{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.list{max-height:55vh}
+}
+@media(max-width:560px){
+ .wrap{padding:10px}h1{font-size:21px}.toolbar{grid-template-columns:1fr}
+ .summary{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr}
+}
+
+
+.topnav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}.game-page-link{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:9px;border:1px solid #3a4654;background:linear-gradient(180deg,#1b2430,#141b25);color:#f5f7fb;font-weight:700;min-height:42px}
+</style>
+
+<style>
+.req-summary-box{
+  margin-top:14px;padding:12px;background:rgba(16,24,39,.95);
+  border:1px solid var(--line);border-radius:14px
+}
+.req-summary-box details>summary{
+  cursor:pointer;font-weight:800;user-select:none
+}
+.req-summary-box details[open]>summary{margin-bottom:10px}
+.req-summary-list{
+  max-height:34vh;overflow:auto;display:flex;flex-direction:column;gap:7px
+}
+.req-summary-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 10px;border:1px solid #2d3e58;border-radius:9px;background:#0d1725
+}
+.req-summary-left{display:flex;align-items:center;gap:8px;min-width:0}
+.req-summary-left input{width:17px!important;height:17px!important;margin:0!important;flex:0 0 auto}
+.req-summary-name{font-weight:700;word-break:break-word}
+.req-summary-qty{color:#9fb0ca;white-space:nowrap}
+.req-summary-missing .req-summary-name{color:#ff8b8b}
+</style>
+
+
+<style>
+.req-agg-prize{color:#ff4d4f!important;font-weight:900}
+.req-agg-blue{color:#5aa9ff!important;font-weight:900}
+</style>
+
+
+<style>
+#selectedRequiredList{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px!important;
+  max-height:42vh;
+  overflow:auto;
+}
+.req-total-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 10px;
+  border:1px solid #2d3e58;
+  border-radius:10px;
+  background:#0d1725;
+  cursor:pointer;
+  min-width:0;
+}
+.req-total-main{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.req-total-main input{
+  width:17px!important;
+  height:17px!important;
+  margin:0!important;
+  flex:0 0 auto;
+}
+.req-total-main .req-summary-name{
+  min-width:0;
+  word-break:break-word;
+}
+.req-special-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:1px 6px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.req-special-badge.prize{
+  color:#ff7b7d;
+  border:1px solid rgba(255,77,79,.45);
+  background:rgba(255,77,79,.08);
+}
+.req-special-badge.blue{
+  color:#72b7ff;
+  border:1px solid rgba(90,169,255,.45);
+  background:rgba(90,169,255,.08);
+}
+@media (max-width:760px){
+  #selectedRequiredList{grid-template-columns:1fr}
+}
+</style>
+
+
+<style>
+.charcalc{
+  margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#0c1524;padding:12px
+}
+.charcalc details>summary{cursor:pointer;font-weight:900;font-size:16px;user-select:none}
+.charcalc details[open]>summary{margin-bottom:10px}
+.charcalc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.charcalc-group{margin-top:12px}
+.charcalc-title{font-size:13px;color:#8fbfff;font-weight:900;margin-bottom:7px}
+.charcalc-row{
+  display:grid;grid-template-columns:70px minmax(70px,1fr) 78px 84px;
+  gap:7px;align-items:center;padding:7px 8px;border:1px solid #263752;border-radius:9px;background:#111b2b
+}
+.charcalc-row .cc-label{font-weight:900;color:#e9f2ff}
+.charcalc-row input{
+  width:100%;height:34px;border-radius:7px;border:1px solid #33445f;
+  background:#0b1421;color:#eef4ff;padding:0 8px;font-size:14px
+}
+.charcalc-row .cc-add{color:#73b9ff;text-align:right;font-weight:800;white-space:nowrap}
+.charcalc-row .cc-total{color:#69dfab;text-align:right;font-weight:900;white-space:nowrap}
+.charcalc-head{
+  display:grid;grid-template-columns:70px minmax(70px,1fr) 78px 84px;gap:7px;
+  color:#7f91ad;font-size:11px;padding:0 8px 5px
+}
+.charcalc-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.charcalc-note{font-size:12px;color:#8fa0ba;line-height:1.65}
+@media(max-width:650px){
+  .charcalc-grid{grid-template-columns:1fr}
+  .charcalc-row,.charcalc-head{grid-template-columns:62px minmax(62px,1fr) 72px 76px}
+}
+</style>
+
+
+<style>
+.charcalc-pointbar{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px
+}
+.charcalc-pointcard{
+  padding:10px;border:1px solid #2d405e;border-radius:10px;background:#101b2c
+}
+.charcalc-pointcard .k{font-size:12px;color:#8fa2c1}
+.charcalc-pointcard .v{font-size:20px;font-weight:900;margin-top:3px}
+.charcalc-pointcard .okv{color:#70d9a7}
+.charcalc-pointcard .badv{color:#ff7676}
+.charcalc-levelrow{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0
+}
+.charcalc-levelrow input{
+  width:90px;height:34px;border-radius:7px;border:1px solid #33445f;
+  background:#0b1421;color:#eef4ff;padding:0 8px
+}
+@media(max-width:650px){
+  .charcalc-pointbar{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+.jro-mvp-box{margin:14px 0 18px;padding:14px;border:1px solid #2e4262;border-radius:14px;background:#0f1a2a}
+.jro-mvp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.jro-mvp-head h2{margin:0;font-size:20px}.jro-mvp-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.jro-mvp-controls input,.jro-mvp-controls select{height:38px;border-radius:9px;border:1px solid #33445f;background:#0b1421;color:#eef4ff;padding:0 10px}
+.jro-mvp-controls input{min-width:260px;flex:1}.jro-mvp-base{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:10px 0 12px}
+.jro-base-card{padding:10px;border:1px solid #2d405e;border-radius:10px;background:#101b2c;cursor:pointer}.jro-base-card.active{outline:2px solid #5aa9ff}
+.jro-base-card b{display:block;margin-bottom:4px}.jro-base-card small{color:#9eb0ca;line-height:1.45}.jro-mvp-tablewrap{overflow:auto;border:1px solid #2d405e;border-radius:10px;max-height:560px}
+.jro-mvp-table{width:100%;border-collapse:collapse;min-width:760px}.jro-mvp-table th,.jro-mvp-table td{padding:9px 10px;border-bottom:1px solid #24344d;vertical-align:top;text-align:left;line-height:1.45}
+.jro-mvp-table th{position:sticky;top:0;background:#142238;z-index:2}.jro-mvp-table tr:hover td{background:#132238}.jro-enchant{font-weight:800;white-space:nowrap}.jro-card{font-weight:700}.jro-sealed{color:#f6c76e}.jro-meta{color:#8fa2c1;font-size:12px}.jro-nores{padding:18px;text-align:center;color:#9eb0ca}.jro-with-icon{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}.jro-inline-icon{width:20px;height:20px;object-fit:contain;flex:0 0 20px;image-rendering:auto}.jro-inline-icon.lg{width:24px;height:24px;flex-basis:24px}.item-title-main{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.jro-base-card b .jro-with-icon{display:flex}.jro-enchant .jro-with-icon{white-space:nowrap}
+@media(max-width:650px){.jro-mvp-controls{display:grid;grid-template-columns:1fr}.jro-mvp-controls input{min-width:0;width:100%}}
+</style>
+
+
+<script src="starro-config.js"></script>
+<script src="cms-definitions.js"></script>
+<link rel="stylesheet" href="front-cms.css">
+<link rel="stylesheet" href="starro-polish.css?v=20261125">
+<style>
+.collection-thumb{width:34px;height:34px;object-fit:contain;vertical-align:middle;border-radius:8px;background:#1e354f;border:1px solid #547596;margin-right:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="collection-auth-panel" style="border:1px solid #385775;border-radius:14px;background:#142337;padding:14px;margin:12px 0">
+ <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+  <button type="button" id="collectionGoogleLogin" class="primary">使用 Google 登入</button>
+  <button type="button" id="collectionCloudSave" style="display:none">☁️ 儲存到雲端</button>
+  <button type="button" id="collectionCloudLoad" style="display:none">↻ 載入雲端進度</button>
+  <button type="button" id="collectionGoogleLogout" style="display:none">登出</button>
+  <span id="collectionCloudStatus" class="note" role="status">未登入・目前進度僅保存在此瀏覽器</span>
+ </div>
+ <div class="note" style="margin-top:8px">Google 登入後會以帳號同步收藏勾選進度，換裝置也能繼續使用。網站不會取得 Google 密碼。首次同步前會確認是否覆蓋進度。</div>
+</div>
+<div class="top">
+<h1>⭐ 繁星收藏模擬</h1>
+<div class="topnav" aria-label="網站導覽">
+  <a href="index.html" class="game-page-link">🏠 主頁</a>
+  <a href="game.html" class="game-page-link">🎮 遊戲區</a>
+  <a href="enchant.html" class="game-page-link">✨ 附魔區</a>
+  <a href="identify.html" class="game-page-link">🔍 洗詞鑑定區</a>
+  <a href="collection-advanced.html" class="game-page-link" aria-current="page">📚 收藏區</a>
+  <a href="catalog.html" class="game-page-link">🖼️ 收藏／轉蛋圖鑑</a>
+  <a href="equipment.html" class="game-page-link">💰 裝備成本區</a>
+  <a href="CASH.html" class="game-page-link">💳 現金區</a>
+  <a href="shadow.html" class="game-page-link">💎 影子區</a>
+</div>
+</div>
+<div class="toolbar">
+<input id="search" placeholder="搜尋收藏名稱、效果、需求道具…" type="search"/>
+<select id="groupFilter">
+<option value="all">全部收藏</option>
+<option value="普通收藏">普通收藏</option>
+<option value="JRO收藏">JRO收藏</option>
+<option value="自訂收藏">自訂收藏</option>
+</select>
+<button class="primary" id="selectVisible">勾選目前結果</button>
+<button id="onlySelected">只看已勾選：關</button>
+<button id="exportExcel">📤 匯出 Excel</button>
+<button id="importExcel">📥 匯入 Excel</button>
+<input accept=".xls,.html,.htm" id="importExcelFile" style="display:none" type="file"/>
+<button class="danger" id="clear">全部清除</button>
+<label class="slot-input">普通格子 <input id="normalSlots" min="0" step="1" type="number" value="1000"/></label>
+<label class="slot-input">JRO格子 <input id="jroSlots" min="0" step="1" type="number" value="600"/></label>
+</div>
+<div class="subcats">
+<div class="subcat-title">子分類 <span id="subcatMeta"></span></div>
+<div class="chips" id="subcatChips"></div>
+</div>
+<div class="special-box">
+<div class="special-head">
+<div class="special-title">自選特定分類（可複選） <span id="specialMeta"></span></div>
+<div class="special-tools">
+<button class="primary" id="selectSpecialVisible">一鍵勾選所選分類</button>
+<button id="clearSpecialFilter">清除所選分類收藏</button>
+</div>
+</div>
+<div class="note" style="margin:0 0 10px">可同時選多個分類；符合任一分類的收藏只顯示一次，不會重複。</div>
+<div class="chips" id="specialChips"></div>
+</div>
+
+<div class="jro-mvp-box" id="jroMvpBox">
+  <div class="jro-mvp-head">
+    <h2>🧿 JRO 附魔 × MVP 卡片查詢</h2>
+    <div class="jro-mvp-controls">
+      <input id="jroMvpSearch" type="search" placeholder="自行輸入：附魔、卡片、效果關鍵字…">
+      <select id="jroMvpEnchant"><option value="all">全部 8 種附魔</option></select>
+      <button id="jroMvpClear">清除搜尋</button>
+    </div>
+  </div>
+  <div class="note" style="margin:0 0 8px">可直接輸入「英雄的凱歌」、「烏龜將軍」、「MVP」、「封印」、「MaxHP」、「BOSS」等關鍵字。點上方附魔卡片可快速篩選。</div>
+  <div style="display:flex;justify-content:flex-end;margin:6px 0 8px">
+    <button type="button" id="jroEnchantToggle" aria-expanded="true" aria-controls="jroMvpCollapseArea">▲ 收合附魔</button>
+  </div>
+  <div id="jroMvpCollapseArea">
+    <div class="jro-mvp-base" id="jroMvpBase"></div>
+    <div class="jro-meta" id="jroMvpMeta"></div>
+    <div class="jro-mvp-tablewrap"><table class="jro-mvp-table"><thead><tr><th>附魔</th><th>JRO卡片／裝備</th><th>套裝效果</th></tr></thead><tbody id="jroMvpRows"></tbody></table></div>
+  </div>
+</div>
+
+<div class="summary">
+<div class="kpi"><small>資料庫收藏</small><b id="totalCount">0</b></div>
+<div class="kpi"><small>已勾選收藏</small><b id="selectedCount">0</b></div>
+<div class="kpi"><small>普通收藏使用格（重複道具不重算）</small><b id="normalUsed">0 / 1000</b></div>
+<div class="kpi"><small>JRO 收藏使用格（重複道具不重算）</small><b id="jroUsed">0 / 600</b></div>
+<div class="kpi"><small>重複道具節省格數</small><b id="savedSlots">0</b></div>
+</div>
+
+<div class="req-summary-box">
+  <details id="selectedRequiredDetails">
+    <summary>📦 已選收藏總道具（數量） <span class="idtxt" id="selectedRequiredMeta"></span></summary>
+    <div class="note" style="margin:8px 0">預設全部打勾＝已有；沒有的自行取消。特別標示物品會排最前面，相同道具只顯示一次並合併數量。</div>
+    <div class="req-summary-list" id="selectedRequiredList"></div>
+  </details>
+</div>
+
+<div class="req-summary-box">
+  <details id="missingRequiredDetails">
+    <summary>❗ 已選收藏所缺道具 <span class="idtxt" id="missingRequiredMeta"></span></summary>
+    <div class="req-summary-list" id="missingRequiredList" style="margin-top:8px"></div>
+  </details>
+</div>
+
+<div class="layout">
+<section>
+<div class="section-head">
+<h2>收藏清單</h2><span class="count" id="visibleCount"></span>
+</div>
+<div class="list" id="list"></div>
+</section>
+<section>
+<div class="section-head"><h2>已選收藏總能力</h2></div>
+<div class="note">
+        會自動加總效果文字中可明確判定的「直接 + / - 數值」。
+        「每…、當…時、機率、依精煉/素質/裝備數量變動」等條件式效果不直接加總，會列在下方提醒。
+      </div>
+<div class="stats" id="stats"></div>
+
+<div class="charcalc">
+<details id="characterCalcDetails">
+<summary>🧮 角色素質計算機</summary>
+<div class="charcalc-note">
+參考 RO Calculator 的角色素質欄位配置製作成本地版。左欄輸入角色目前基礎／面板值；
+勾選收藏後，「收藏加成」會自動帶入並計算總值。
+</div>
+<div class="charcalc-levelrow">
+  <b>Base Lv.</b>
+  <input id="charCalcLevel" type="number" min="1" max="275" step="1" value="275">
+  <span class="charcalc-note">預設 275 等</span>
+</div>
+
+<div class="charcalc-pointbar">
+  <div class="charcalc-pointcard">
+    <div class="k">基本素質｜可分配點數</div>
+    <div class="v" id="charBasicAvailable">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">基本素質｜已使用點數</div>
+    <div class="v" id="charBasicUsed">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">基本素質｜剩餘點數</div>
+    <div class="v okv" id="charBasicRemain">0</div>
+  </div>
+</div>
+
+<div class="charcalc-pointbar">
+  <div class="charcalc-pointcard">
+    <div class="k">特性素質｜可分配點數</div>
+    <div class="v" id="charTraitAvailable">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">特性素質｜已使用點數</div>
+    <div class="v" id="charTraitUsed">0</div>
+  </div>
+  <div class="charcalc-pointcard">
+    <div class="k">特性素質｜剩餘點數</div>
+    <div class="v okv" id="charTraitRemain">0</div>
+  </div>
+</div>
+<div class="charcalc-actions">
+  <button id="charCalcReset">清空角色輸入</button>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">基本素質</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcBasic"></div>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">四轉特性素質</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcTrait"></div>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">戰鬥面板</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcCombat"></div>
+</div>
+
+<div class="charcalc-group">
+  <div class="charcalc-title">百分比加成</div>
+  <div class="charcalc-head"><span>能力</span><span>角色輸入</span><span>收藏加成</span><span>套用後</span></div>
+  <div class="charcalc-grid" id="charCalcPct"></div>
+</div>
+</details>
+</div>
+<div class="conditional">
+<h3>⚠️ 條件式／無法直接加總效果</h3>
+<div class="cond-list" id="conditions"></div>
+</div>
+<div class="footer-note">未登入時勾選進度保存在此瀏覽器；使用 Google 登入後可手動儲存或同步到雲端。相同需求道具出現在不同收藏時，格數只計算一次。</div>
+</section>
+</div>
+</div>
+<script src="collection-data.js?v=20261017-0208"></script>
+<script>
+/* ITEMS moved to collection-data.js */
+const $=s=>document.querySelector(s);
+
+const catalogExtraKeys=new Set();
+function syncAddedCollectionItems(){
+  // Keep historical collection records and progress keys untouched.
+  for(let i=ITEMS.length-1;i>=0;i--)if(catalogExtraKeys.has(keyOf(ITEMS[i])))ITEMS.splice(i,1);
+  catalogExtraKeys.clear();
+  const custom=window.StarroConfig?.get('features.catalog.items',[])||[];
+  if(!Array.isArray(custom))return;
+  const existing=new Set(ITEMS.map(keyOf));
+  for(const x of custom){
+    if(!x||typeof x.name!=='string'||!x.name.trim())continue;
+    const it={group:x.group||'自訂收藏',row:Number(x.row)||900000,dc:x.dc||'',game:x.game||'',
+      name:x.name,effect:x.effect||'',slot:Number(x.slot)||0,
+      required:Array.isArray(x.required)?x.required:[],image:x.image||''};
+    const k=keyOf(it);if(existing.has(k))continue;
+    ITEMS.push(it);catalogExtraKeys.add(k);existing.add(k);
+  }
+}
+function catalogThumb(it){
+  const images=window.StarroConfig?.get('features.catalog.images',{})||{};
+  const src=it.image||images[it.name]||'';
+  if(!/^https:\/\//i.test(src)&&!/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(src))return '';
+  return '<img class="collection-thumb" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" src="'+esc(src)+'">';
+}
+
+const COLLECTION_LOCAL_KEY="starro_collection_selected";
+let existingSelected=[];
+try{const x=JSON.parse(localStorage.getItem(COLLECTION_LOCAL_KEY)||"[]");if(Array.isArray(x))existingSelected=x;}catch(e){}
+const selected=new Set(existingSelected);
+let onlySelected=false;
+let activeSubcat="all";
+const activeSpecials=new Set();
+
+const MISSING_REQ_KEY="starro_collection_missing_required_v147";
+function loadMissingRequired(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(MISSING_REQ_KEY)||"[]");
+    return new Set(Array.isArray(raw)?raw:[]);
+  }catch(e){
+    return new Set();
+  }
+}
+const missingRequired=loadMissingRequired();
+
+function saveMissingRequired(){
+  try{
+    localStorage.setItem(MISSING_REQ_KEY,JSON.stringify([...missingRequired]));
+  }catch(e){}
+}
+
+function parseRequiredItem(raw){
+  const s=String(raw||"").trim();
+  // 支援：道具名 × 10 / x10 / *10。沒有數量就視為 1。
+  const m=s.match(/^(.*?)(?:\s*(?:×|x|X|\*)\s*(\d+(?:\.\d+)?))$/);
+  if(m){
+    return {name:m[1].trim(),qty:Number(m[2])||1};
+  }
+  return {name:s,qty:1};
+}
+
+function getSelectedRequiredTotals(){
+  const totals=new Map();
+
+  function normalizeReqName(name){
+    return String(name||"")
+      .replace(/\s+/g," ")
+      .trim();
+  }
+
+  function markRank(mark){
+    return mark==="blue"?2:(mark==="prize"?1:0);
+  }
+
+  for(const it of ITEMS){
+    if(!selected.has(keyOf(it))) continue;
+
+    const reqs=it.required||[];
+    reqs.forEach((raw,i)=>{
+      const p=parseRequiredItem(raw);
+      const name=normalizeReqName(p.name);
+      if(!name) return;
+
+      let mark="";
+      const isXRFirst=isPureXRCollection(it) && i===0;
+      if(isXRFirst){
+        mark="blue";
+      }else if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
+        mark="prize";
+      }
+
+      const existing=totals.get(name);
+      if(existing){
+        existing.qty+=p.qty;
+        if(markRank(mark)>markRank(existing.mark)) existing.mark=mark;
+      }else{
+        totals.set(name,{qty:p.qty,mark});
+      }
+    });
+  }
+
+  return totals;
+}
+
+function renderRequiredPanels(){
+  const totals=getSelectedRequiredTotals();
+  const rows=[...totals.entries()].sort((a,b)=>{
+    const rank=x=>x[1].mark==="blue"?2:(x[1].mark==="prize"?1:0);
+    const d=rank(b)-rank(a);
+    return d!==0 ? d : a[0].localeCompare(b[0],"zh-Hant");
+  });
+
+  const totalMeta=$("#selectedRequiredMeta");
+  const totalList=$("#selectedRequiredList");
+  const missMeta=$("#missingRequiredMeta");
+  const missList=$("#missingRequiredList");
+  if(!totalMeta||!totalList||!missMeta||!missList) return;
+
+  totalMeta.textContent=rows.length?`（${rows.length} 種）`:"";
+
+  if(!rows.length){
+    totalList.innerHTML='<div class="empty">先勾選收藏，就會統計需求道具</div>';
+    missMeta.textContent="";
+    missList.innerHTML='<div class="empty">先勾選收藏，就會統計缺少道具</div>';
+    return;
+  }
+
+  totalList.innerHTML=rows.map(([name,info])=>{
+    const owned=!missingRequired.has(name);
+    const markClass=info.mark==="prize"?" req-agg-prize":(info.mark==="blue"?" req-agg-blue":"");
+    const suffix=info.mark==="prize"?' <b>（UR賞）</b>':(info.mark==="blue"?' <b>（XR賞）</b>':"");
+    const badge=info.mark==="prize"
+      ? '<span class="req-special-badge prize">UR賞</span>'
+      : (info.mark==="blue" ? '<span class="req-special-badge blue">XR賞</span>' : "");
+    return `<label class="req-total-card ${owned?"":"req-summary-missing"}">
+      <span class="req-total-main">
+        <input class="req-owned-check" type="checkbox" data-name="${esc(name)}" ${owned?"checked":""}>
+        <span class="req-summary-name${markClass}">${esc(name)}${suffix}</span>
+        ${badge}
+      </span>
+      <span class="req-summary-qty">× ${Number(info.qty).toLocaleString("zh-TW",{maximumFractionDigits:2})}</span>
+    </label>`;
+  }).join("");
+
+  totalList.querySelectorAll(".req-owned-check").forEach(ch=>{
+    ch.addEventListener("change",()=>{
+      const name=ch.dataset.name;
+      if(ch.checked) missingRequired.delete(name);
+      else missingRequired.add(name);
+      saveMissingRequired();
+      renderRequiredPanels();
+    });
+  });
+
+  const missing=rows.filter(([name])=>missingRequired.has(name));
+  missMeta.textContent=missing.length?`（缺 ${missing.length} 種）`:"（0 種）";
+
+  missList.innerHTML=missing.length
+    ? missing.map(([name,info])=>{
+        const markClass=info.mark==="prize"?" req-agg-prize":(info.mark==="blue"?" req-agg-blue":"");
+        const suffix=info.mark==="prize"?' <b>（UR賞）</b>':(info.mark==="blue"?' <b>（XR賞）</b>':"");
+        return `<div class="req-summary-row req-summary-missing">
+          <span class="req-summary-name${markClass}">${esc(name)}${suffix}</span>
+          <span class="req-summary-qty">× ${Number(info.qty).toLocaleString("zh-TW",{maximumFractionDigits:2})}</span>
+        </div>`;
+      }).join("")
+    : '<div class="empty">✅ 目前沒有標記缺少的道具</div>';
+}
+
+const SUBCAT_LABELS={
+  "裝備":"裝備組合",
+  "JRO裝備":"JRO裝備組合",
+  "MVP":"MVP卡片組合",
+  "其他":"其他組合",
+  "套卡":"套卡組合",
+  "套裝":"套裝組合",
+  "影子":"影子組合",
+  "系列":"系列組合",
+  "JRO卡片":"JRO卡片組合"
+};
+const SUBCAT_ORDER=["JRO卡片","JRO裝備","MVP","其他","套卡","套裝","影子","系列","裝備"];
+
+const SPECIAL_FILTERS = {
+  "爆擊傷害":"爆擊傷害",
+  "遠距離攻擊":"遠距離攻擊",
+  "近距離":"近距離",
+  "全屬性物理":"全屬性物理",
+  "全屬性魔法傷害":"全屬性魔法傷害",
+  "階級物理":"階級物理",
+  "階級魔法":"階級魔法",
+  "MATK":"MATK",
+  "ATK":"ATK",
+  "CRI":"CRI",
+  "C.RATE":"C.RATE",
+  "ASPD":"ASPD",
+  "詠唱":"詠唱",
+  "減傷":"減傷"
+};
+const SPECIAL_ORDER = ["爆擊傷害","遠距離攻擊","近距離","全屬性物理","全屬性魔法傷害","階級物理","階級魔法","MATK","ATK","CRI","C.RATE","ASPD","詠唱","減傷"];
+
+/* JRO_NAME_PREFIX moved to collection-data.js */
+/* JRO_EQUIP_ORDER moved to collection-data.js */
+
+
+function requiredAggregateMark(name){
+  const s=String(name||"");
+  // XR轉（01）開始：第一件裝備在需求彙總也維持藍字。
+  if(s.includes("XR轉（01）")){
+    return {cls:"req-agg-blue",suffix:""};
+  }
+  // JRO UR賞標記：沿用需求列表中的（UR賞）字樣，彙總區也顯示紅字。
+  if(s.includes("（UR賞）")){
+    return {cls:"req-agg-prize",suffix:""};
+  }
+  return {cls:"",suffix:""};
+}
+
+function isPureXRCollection(it){
+  const prefix=String(JRO_NAME_PREFIX[keyOf(it)]||"").trim();
+  return /^XR轉[（(]\d+[）)]/.test(prefix);
+}
+
+function renderRequiredWithMarks(it){
+  const reqs=it.required||[];
+  const pureXR=isPureXRCollection(it);
+
+  return reqs.map((x,i)=>{
+    let style="";
+    let suffix="";
+
+    if(pureXR && i===0){
+      style=' style="color:#5aa9ff;font-weight:900"';
+      suffix=' <b>（XR賞）</b>';
+    }else if(subcatOf(it)==="JRO裝備" && (i===0 || i===5)){
+      style=' style="color:#ff4d4f;font-weight:900"';
+      suffix=' <b>（UR賞）</b>';
+    }
+
+    return `<span class="req-item"${style}>${esc(x)}${suffix}</span>`;
+  }).join("");
+}
+
+
+
+
+const ALIAS={
+ "Int":"INT","Str":"STR","Agi":"AGI","Vit":"VIT","Dex":"DEX","Luk":"LUK",
+ "Cri":"CRI","C.Rate":"C.RATE","C.rate":"C.RATE","Pow":"POW","Spl":"SPL","Con":"CON","Crt":"CRT",
+ "P.Atk":"P.ATK","P.atk":"P.ATK","PATK":"P.ATK","S.Matk":"S.MATK","S.matk":"S.MATK","SMATK":"S.MATK","/S.MATK":"S.MATK",
+ "MaxHP":"MHP","MaxSP":"MSP","AllState":"ALL","暴擊傷害":"爆擊傷害","爆擊傷害":"爆擊傷害","全屬性魔法攻擊傷害":"全屬性魔法傷害","全屬性魔法傷害":"全屬性魔法傷害","遠距離物理攻擊力":"遠距離傷害","遠距離物理攻擊傷害":"遠距離傷害","遠距離物理傷害":"遠距離傷害","遠程物理傷害":"遠距離傷害","遠距離攻擊傷害":"遠距離傷害","遠距離物理攻擊":"遠距離傷害","近/遠距離物理攻擊傷害":"近/遠距離傷害","近/遠距離物理傷害":"近/遠距離傷害","遠/近距離物理攻擊傷害":"近/遠距離傷害","遠/近距離物理傷害":"近/遠距離傷害","近/遠距離傷害":"近/遠距離傷害","近/遠距離物理攻擊力":"近/遠距離傷害","近距離與遠距離物理攻擊力":"近/遠距離傷害","近距離與遠距離的物理傷害":"近/遠距離傷害",
+ "全技能終傷":"技能終傷","所有技能終傷":"技能終傷"
+};
+const CONDITIONAL=["每","當","時","機率","精煉","Base","base","基礎","習得","裝備一件","達到","以上","以下","依照","根據"];
+
+function keyOf(item){return item.group+"|"+item.row+"|"+item.name}
+function subcatOf(item){
+  const m=String(item.game||"").match(/^\[[^\]]+\]([^\-\d]+)/);
+  return m?m[1]:"其他";
+}
+function getSubcatOptions(){
+  const g=$("#groupFilter").value;
+  const q=$("#search").value.trim().toLowerCase();
+  const counter=new Map();
+  for(const it of ITEMS){
+    if(g!=="all"&&it.group!==g) continue;
+    if(q && !(it.name+" "+it.effect+" "+it.dc+" "+it.game).toLowerCase().includes(q)) continue;
+    const s=subcatOf(it);
+    counter.set(s,(counter.get(s)||0)+1);
+  }
+  return SUBCAT_ORDER.filter(k=>counter.get(k)).map(k=>({key:k,label:SUBCAT_LABELS[k]||k,count:counter.get(k)||0}));
+}
+function renderSubcats(){
+  const opts=getSubcatOptions();
+  if(activeSubcat!=="all" && !opts.some(x=>x.key===activeSubcat)) activeSubcat="all";
+  $("#subcatMeta").textContent=`(${opts.length})`;
+  const total=opts.reduce((a,b)=>a+b.count,0);
+  $("#subcatChips").innerHTML=[`<button class="chip ${activeSubcat==="all"?"active":""}" data-subcat="all">全部 <small>${total}</small></button>`].concat(
+    opts.map(x=>`<button class="chip ${activeSubcat===x.key?"active":""}" data-subcat="${esc(x.key)}">${esc(x.label)} <small>${x.count}</small></button>`)
+  ).join("");
+  $("#subcatChips").querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{
+    activeSubcat=btn.dataset.subcat;
+    renderSubcats();
+    renderList();
+  }));
+}
+function save(){
+ try{localStorage.setItem(COLLECTION_LOCAL_KEY,JSON.stringify([...selected]));}catch(e){}
+ window.StarroCollectionCloud?.scheduleSave();
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function fmt(v){return Number.isInteger(v)?String(v):String(Math.round(v*10000)/10000)}
+
+function normalizeLabel(label){
+  label=label.trim().replace(/^[且並和及同時]+/,"").replace(/^(增加|提升|減少)/,"").trim();
+  return ALIAS[label]||label;
+}
+function addStat(map,label,val,isPct){
+  label=normalizeLabel(label);
+  if(!label || label.length>55)return;
+  // Known combined stats: one written bonus applies to both.
+  const combo={
+    "ATK/MATK":["ATK","MATK"],
+    "P.ATK/S.MATK":["P.ATK","S.MATK"],
+    "P.Atk/S.M.Atk":["P.ATK","S.MATK"],
+    "RES/MRES":["RES","MRES"],
+    "近/遠距離傷害":["近距離傷害","遠距離傷害"]
+  };
+  const labels=combo[label]||[label];
+  for(const l0 of labels){
+    const l=normalizeLabel(l0);
+    const k=l+(isPct?"%":"");
+    map.set(k,(map.get(k)||0)+val);
+  }
+}
+function parseDirect(effect){
+  const map=new Map(), conditions=[];
+  const text=effect.replaceAll("＋","+").replaceAll("－","-").replaceAll("﹑","、");
+  const clauses=text.split(/[，。；;]/).map(x=>x.trim()).filter(Boolean);
+  for(const clause of clauses){
+    if(CONDITIONAL.some(w=>clause.includes(w))){
+      conditions.push(clause);
+      continue;
+    }
+    // Split only where each fragment is often an independent stat.
+    const parts=clause.split("、");
+    let found=false;
+    for(const part of parts){
+      const rx=/(.{1,55}?)\s*([+-])\s*(\d+(?:\.\d+)?)\s*(%)?/g;
+      let m;
+      while((m=rx.exec(part))){
+        let label=m[1].trim();
+        // If previous value text leaked into label, take tail after punctuation.
+        label=label.split(/[：:]/).pop().trim();
+        const val=(m[2]==="-"?-1:1)*Number(m[3]);
+        addStat(map,label,val,!!m[4]);
+        found=true;
+      }
+    }
+    if(!found) conditions.push(clause);
+  }
+  return {map,conditions};
+}
+
+
+function matchSpecial(item,specialKey){
+  if(specialKey==="all") return true;
+  const effect=String(item.effect||"");
+
+  // 「受到 XXX 傷害」統一歸到減傷；其他自選分類判定時，
+  // 先排除這類減傷片段，避免像「受到全階級物理傷害」又被算進階級物理。
+  const clauses=effect.split(/[，。；;]/).map(x=>x.trim()).filter(Boolean);
+  const isReductionClause=s=>/受到[^，。；]*(?:傷害|攻擊)|(?:傷害|攻擊)[^，。；]*減少|減少[^，。；]*(?:傷害|攻擊)|抗性/.test(s);
+  const reductionClauses=clauses.filter(isReductionClause);
+  const offensiveEffect=clauses.filter(s=>!isReductionClause(s)).join("，");
+
+  if(specialKey==="減傷") return reductionClauses.length>0;
+
+  const p=parseDirect(offensiveEffect);
+  const keys=[...p.map.keys()].map(k=>k.replace(/%$/,""));
+  const has=(name)=>keys.includes(name) || offensiveEffect.toLowerCase().includes(String(name).toLowerCase());
+
+  if(specialKey==="爆擊傷害") return has("爆擊傷害");
+  if(specialKey==="遠距離攻擊") return has("遠距離傷害") || /遠距離|遠程/.test(offensiveEffect);
+  if(specialKey==="近距離") return has("近距離傷害") || /近距離/.test(offensiveEffect);
+  if(specialKey==="全屬性物理") return /全屬性[^，。；]*(?:物理\s*\/\s*魔法|物理)[^，。；]*傷害/.test(offensiveEffect);
+  if(specialKey==="全屬性魔法傷害") return has("全屬性魔法傷害") || /全屬性[^，。；]*(?:物理\s*\/\s*魔法|魔法)[^，。；]*傷害/.test(offensiveEffect);
+  if(specialKey==="階級物理") return /階級[^，。；]*物理|物理[^，。；]*階級/.test(offensiveEffect);
+  if(specialKey==="階級魔法") return /階級[^，。；]*魔法|魔法[^，。；]*階級/.test(offensiveEffect);
+  if(specialKey==="MATK"){
+    return /(?:^|[^A-Z])(?:S\.)?MATK/i.test(offensiveEffect);
+  }
+  if(specialKey==="ATK"){
+    return /P\.?ATK/i.test(offensiveEffect) || /(?:^|[^A-Z.])ATK/i.test(offensiveEffect);
+  }
+  if(specialKey==="CRI") return has("CRI");
+  if(specialKey==="C.RATE") return has("C.RATE");
+  if(specialKey==="ASPD") return /ASPD/i.test(offensiveEffect);
+  if(specialKey==="詠唱") return /詠唱/.test(effect);
+  return true;
+}
+function getSpecialOptions(){
+  const g=$("#groupFilter").value;
+  const q=$("#search").value.trim().toLowerCase();
+  const counter=new Map();
+  for(const key of SPECIAL_ORDER) counter.set(key,0);
+  for(const it of ITEMS){
+    if(g!=="all"&&it.group!==g) continue;
+    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) continue;
+    const reqText=(it.required||[]).join(" ");
+    if(q && !(it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText).toLowerCase().includes(q)) continue;
+    for(const key of SPECIAL_ORDER){
+      if(matchSpecial(it,key)) counter.set(key,(counter.get(key)||0)+1);
+    }
+  }
+  return SPECIAL_ORDER.map(key=>({key,label:SPECIAL_FILTERS[key],count:counter.get(key)||0})).filter(x=>x.count>0);
+}
+function renderSpecials(){
+  const opts=getSpecialOptions();
+  const validKeys=new Set(opts.map(x=>x.key));
+  for(const key of [...activeSpecials]){
+    if(!validKeys.has(key)) activeSpecials.delete(key);
+  }
+
+  $("#specialMeta").textContent=activeSpecials.size
+    ? `（已選 ${activeSpecials.size} 類）`
+    : `（${opts.length} 類）`;
+
+  const total=opts.reduce((a,b)=>a+b.count,0);
+  $("#specialChips").innerHTML=[
+    `<button class="chip ${activeSpecials.size===0?"active":""}" data-special="all">全部 <small>${total}</small></button>`
+  ].concat(
+    opts.map(x=>`<button class="chip ${activeSpecials.has(x.key)?"active":""}" data-special="${esc(x.key)}">${esc(x.label)} <small>${x.count}</small></button>`)
+  ).join("");
+
+  $("#specialChips").querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{
+    const key=btn.dataset.special;
+    if(key==="all"){
+      activeSpecials.clear();
+    }else if(activeSpecials.has(key)){
+      activeSpecials.delete(key);
+    }else{
+      activeSpecials.add(key);
+    }
+    renderSpecials();
+    renderList();
+  }));
+}
+
+function searchAliasesFor(it){
+  const name=String(it.name||"");
+  const prefix=String(JRO_NAME_PREFIX[keyOf(it)]||"");
+  const aliases=[];
+
+  // XR 純編號快捷搜尋
+  if(name.includes("超載狂暴回音")){
+    aliases.push("01","xr01","xr轉01","xr轉(01)","xr轉（01）");
+  }
+  if(name.includes("星星眼罩") || name.includes("萬神殿之靴")){
+    aliases.push("02","xr02","xr轉02","xr轉(02)","xr轉（02）");
+  }
+
+  // 紅轉：例如「紅02 / 紅轉02 / 紅轉(02)」都可搜尋。
+  const redMatches=[...prefix.matchAll(/紅轉[（(](\d+)[）)]/g)];
+  for(const x of redMatches){
+    const n=x[1].padStart(2,"0");
+    aliases.push(`紅${n}`,`紅轉${n}`,`紅轉(${n})`,`紅轉（${n}）`);
+  }
+
+  // XR 前綴也通用支援 xr01 / xr轉01。
+  const xrMatches=[...prefix.matchAll(/XR轉[（(](\d+)[）)]/gi)];
+  for(const x of xrMatches){
+    const n=x[1].padStart(2,"0");
+    aliases.push(`xr${n}`,`xr轉${n}`,`xr轉(${n})`,`xr轉（${n}）`);
+  }
+
+  return aliases;
+}
+
+function getVisible(){
+  const q=$("#search").value.trim().toLowerCase();
+  const g=$("#groupFilter").value;
+  const arr=ITEMS.filter(it=>{
+    if(g!=="all"&&it.group!==g)return false;
+    const k=keyOf(it);
+    if(onlySelected&&!selected.has(k))return false;
+    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) return false;
+    if(activeSpecials.size && ![...activeSpecials].some(key=>matchSpecial(it,key))) return false;
+    if(!q)return true;
+    const reqText=(it.required||[]).join(" ");
+    const prefix=String(JRO_NAME_PREFIX[keyOf(it)]||"");
+    const aliasText=searchAliasesFor(it).join(" ");
+    return (it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText+" "+prefix+" "+aliasText).toLowerCase().includes(q);
+  });
+
+  const originalIndex=new Map(ITEMS.map((it,i)=>[keyOf(it),i]));
+  arr.sort((a,b)=>{
+    const aJro=subcatOf(a)==="JRO裝備";
+    const bJro=subcatOf(b)==="JRO裝備";
+
+    if(aJro && bJro){
+      const ai=JRO_EQUIP_ORDER[a.name] ?? 9999;
+      const bi=JRO_EQUIP_ORDER[b.name] ?? 9999;
+      return ai-bi;
+    }
+
+    // JRO裝備與其他類別的相對位置維持原本資料順序
+    return (originalIndex.get(keyOf(a))??0)-(originalIndex.get(keyOf(b))??0);
+  });
+
+  return arr;
+}
+
+function renderList(){
+  const arr=getVisible();
+  $("#visibleCount").textContent=`顯示 ${arr.length.toLocaleString()} 筆`;
+  if(!arr.length){
+    $("#list").innerHTML='<div class="empty">沒有符合條件的收藏</div>';
+    renderRequiredPanels();
+    return;
+  }
+  $("#list").innerHTML=arr.map(it=>{
+    const k=keyOf(it), checked=selected.has(k)?"checked":"";
+    return `<label class="item">
+      <input type="checkbox" data-key="${esc(k)}" ${checked}>
+      <div>
+        <div class="item-title">
+          <span class="item-title-main">${catalogThumb(it)}${jroIconHtml(it.name)}${JRO_NAME_PREFIX[k]?`<span class="item-prefix">${esc(JRO_NAME_PREFIX[k])}</span>`:""}<span>${esc(it.name)}</span></span>
+          <span class="badge ${it.group==="JRO收藏"?"jro":""}">${esc(it.group)}</span>
+          <span class="badge">佔格 ${Number(it.slot||0)}</span>
+          <span class="badge">${esc(SUBCAT_LABELS[subcatOf(it)]||subcatOf(it))}</span>
+        </div>
+        <div class="effect">${esc(it.effect)}</div>
+        <div class="required-items">
+          <strong>需求：</strong>
+          <div class="required-list">
+            ${(it.required||[]).length ? renderRequiredWithMarks(it)
+              : `<span class="idtxt">無需求資料</span>`}
+          </div>
+        </div>
+      </div>
+    </label>`;
+  }).join("");
+  $("#list").querySelectorAll('input[type="checkbox"]').forEach(ch=>{
+    ch.addEventListener("change",()=>{
+      if(ch.checked)selected.add(ch.dataset.key);else selected.delete(ch.dataset.key);
+      save();updateSummary();renderTotals();renderRequiredPanels();
+      if(onlySelected)renderList();
+    });
+  });
+  renderRequiredPanels();
+}
+
+
+const CHAR_CALC_KEY="starro_collection_charcalc_v158";
+const CHAR_BASIC=["STR","AGI","VIT","INT","DEX","LUK"];
+const CHAR_TRAIT=["POW","STA","WIS","SPL","CON","CRT"];
+const CHAR_COMBAT=["ATK","MATK","P.ATK","S.MATK","CRI","C.RATE","HIT","FLEE","DEF","MDEF","MHP","MSP","ASPD"];
+const CHAR_PCT=[
+  ["ATK%","ATK %"],["MATK%","MATK %"],["MHP%","MHP %"],["MSP%","MSP %"],
+  ["爆擊傷害%","爆擊傷害 %"],["遠距離傷害%","遠距離傷害 %"],
+  ["近距離傷害%","近距離傷害 %"],["技能終傷%","技能終傷 %"],["技能後延遲%","技能後延遲 %"]
+];
+let charCalcInput={level:275};
+try{
+  const x=JSON.parse(localStorage.getItem(CHAR_CALC_KEY)||"{}");
+  if(x&&typeof x==="object") charCalcInput=x;
+}catch(e){}
+if(!Number.isFinite(Number(charCalcInput.level))) charCalcInput.level=275;
+
+
+function normalStatAvailable(level){
+  level=Math.max(1,Math.min(275,Math.floor(Number(level)||275)));
+  // 轉生角色 Lv1 起始 100 點；200 後一般素質點不再增加。
+  let pts=100;
+  const cap=Math.min(level,200);
+  for(let x=1;x<cap;x++){
+    if(x<100) pts+=Math.floor(x/5)+3;
+    else if(x<=150) pts+=Math.floor(x/10)+13;
+    else pts+=Math.floor((x-150)/7)+28;
+  }
+  return pts;
+}
+
+function normalStatCostTo(target){
+  let v=Math.max(1,Math.min(130,Math.floor(Number(target)||1)));
+  let cost=0;
+  for(let low=1;low<v;low++){
+    if(low<100) cost+=2+Math.floor((low-1)/10);
+    else cost+=16+4*Math.floor((low-100)/5);
+  }
+  return cost;
+}
+
+function traitAvailable(level){
+  level=Math.max(1,Math.min(275,Math.floor(Number(level)||275)));
+  if(level<200) return 0;
+  const gainedLevels=level-200;
+  return 7 + gainedLevels*3 + Math.floor(gainedLevels/5)*4;
+}
+
+function basicStatInputValue(key){
+  const raw=charCalcInput[key];
+  if(raw===undefined || raw===null || raw==="") return 1;
+  return Math.max(1,Math.min(130,Math.floor(Number(raw)||1)));
+}
+
+function traitStatInputValue(key){
+  const raw=charCalcInput[key];
+  if(raw===undefined || raw===null || raw==="") return 0;
+  return Math.max(0,Math.min(110,Math.floor(Number(raw)||0)));
+}
+
+function renderStatPointSummary(){
+  const level=Math.max(1,Math.min(275,Math.floor(Number(charCalcInput.level)||275)));
+  const basicAvail=normalStatAvailable(level);
+  const basicUsed=CHAR_BASIC.reduce((s,k)=>s+normalStatCostTo(basicStatInputValue(k)),0);
+  const basicRemain=basicAvail-basicUsed;
+
+  const traitAvail=traitAvailable(level);
+  const traitUsed=CHAR_TRAIT.reduce((s,k)=>s+traitStatInputValue(k),0);
+  const traitRemain=traitAvail-traitUsed;
+
+  const set=(id,val,bad=false)=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=Number(val).toLocaleString();
+    el.classList.toggle("badv",bad);
+    el.classList.toggle("okv",!bad && id.includes("Remain"));
+  };
+  set("charBasicAvailable",basicAvail);
+  set("charBasicUsed",basicUsed);
+  set("charBasicRemain",basicRemain,basicRemain<0);
+  set("charTraitAvailable",traitAvail);
+  set("charTraitUsed",traitUsed);
+  set("charTraitRemain",traitRemain,traitRemain<0);
+
+  const lv=document.getElementById("charCalcLevel");
+  if(lv && String(lv.value)!==String(level)) lv.value=level;
+}
+
+function saveCharCalc(){
+  try{localStorage.setItem(CHAR_CALC_KEY,JSON.stringify(charCalcInput));}catch(e){}
+}
+
+function getSelectedCollectionStatMap(){
+  const totals=new Map();
+  for(const it of ITEMS){
+    if(!selected.has(keyOf(it))) continue;
+    const p=parseDirect(it.effect);
+    for(const [k,v] of p.map) totals.set(k,(totals.get(k)||0)+v);
+  }
+  return totals;
+}
+
+function collectionStatBonus(key,map){
+  let v=Number(map.get(key)||0);
+
+  // All / AllState 套用至六大基本素質
+  if(CHAR_BASIC.includes(key)){
+    v+=Number(map.get("ALL")||0);
+    v+=Number(map.get("All")||0);
+    v+=Number(map.get("全能力")||0);
+  }
+
+  // 全特殊屬性、四轉特殊屬性套用至 POW~CRT
+  if(CHAR_TRAIT.includes(key)){
+    v+=Number(map.get("全特殊屬性")||0);
+    v+=Number(map.get("四轉特殊屬性")||0);
+  }
+  return v;
+}
+
+function charNumber(key){
+  const n=Number(charCalcInput[key]);
+  return Number.isFinite(n)?n:0;
+}
+
+function charRow(key,label,map,isPct=false){
+  const add=collectionStatBonus(key,map);
+  let base=charNumber(key);
+  let inputValue=charCalcInput[key];
+
+  if(CHAR_BASIC.includes(key)){
+    base=basicStatInputValue(key);
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=1;
+  }else if(CHAR_TRAIT.includes(key)){
+    base=traitStatInputValue(key);
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=0;
+  }else{
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=0;
+  }
+
+  const total=base+add;
+  const addTxt=(add>0?"+":"")+fmt(add)+(isPct?"%":"");
+  const totalTxt=fmt(total)+(isPct?"%":"");
+  return `<div class="charcalc-row">
+    <span class="cc-label">${esc(label)}</span>
+    <input class="charcalc-input" data-char-key="${esc(key)}" type="number" step="${CHAR_BASIC.includes(key)||CHAR_TRAIT.includes(key)?1:0.1}" value="${esc(inputValue)}">
+    <span class="cc-add">${addTxt}</span>
+    <span class="cc-total">${totalTxt}</span>
+  </div>`;
+}
+
+function renderCharacterCalculator(){
+  const map=getSelectedCollectionStatMap();
+  const basic=$("#charCalcBasic"),trait=$("#charCalcTrait"),combat=$("#charCalcCombat"),pct=$("#charCalcPct");
+  if(!basic||!trait||!combat||!pct) return;
+
+  basic.innerHTML=CHAR_BASIC.map(k=>charRow(k,k,map,false)).join("");
+  trait.innerHTML=CHAR_TRAIT.map(k=>charRow(k,k,map,false)).join("");
+  combat.innerHTML=CHAR_COMBAT.map(k=>charRow(k,k,map,false)).join("");
+  pct.innerHTML=CHAR_PCT.map(([k,label])=>charRow(k,label,map,true)).join("");
+
+  document.querySelectorAll(".charcalc-input").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      const key=inp.dataset.charKey;
+      charCalcInput[key]=inp.value;
+      saveCharCalc();
+      renderCharacterCalculator();
+    });
+  });
+
+  renderStatPointSummary();
+}
+
+function renderTotals(){
+  const totals=new Map(), conditionRows=[];
+  for(const it of ITEMS){
+    if(!selected.has(keyOf(it)))continue;
+    const p=parseDirect(it.effect);
+    for(const [k,v] of p.map)totals.set(k,(totals.get(k)||0)+v);
+    if(p.conditions.length)conditionRows.push({name:it.name,effects:p.conditions.join("；")});
+  }
+  const order=["STR","AGI","VIT","INT","DEX","LUK","ALL","POW","STA","WIS","SPL","CON","CRT",
+               "ATK","ATK%","MATK","MATK%","P.ATK","S.MATK","CRI","C.RATE",
+               "MHP","MHP%","MSP","MSP%","ASPD","ASPD%","HIT","FLEE","DEF","MDEF",
+               "爆擊傷害%","遠距離傷害%","遠距離物理傷害%","近距離物理傷害%","技能終傷%","技能後延遲%"];
+  const entries=[...totals.entries()].filter(([,v])=>Math.abs(v)>1e-9);
+  entries.sort((a,b)=>{
+    const ai=order.indexOf(a[0]),bi=order.indexOf(b[0]);
+    if(ai>=0||bi>=0)return (ai<0?999:ai)-(bi<0?999:bi);
+    return a[0].localeCompare(b[0],"zh-Hant");
+  });
+  $("#stats").innerHTML=entries.length?entries.map(([k,v])=>{
+    const pct=k.endsWith("%"), label=pct?k.slice(0,-1):k;
+    const sign=v>0?"+":"";
+    return `<div class="stat"><span>${esc(label)}</span><b>${sign}${fmt(v)}${pct?"%":""}</b></div>`;
+  }).join(""):'<div class="empty" style="grid-column:1/-1">勾選收藏後會顯示總能力</div>';
+  $("#conditions").innerHTML=conditionRows.length?conditionRows.map(x=>
+    `<div class="cond-row"><b>${esc(x.name)}</b><br>${esc(x.effects)}</div>`
+  ).join(""):'<div class="empty">目前沒有條件式效果</div>';
+  renderCharacterCalculator();
+}
+
+
+function excelEsc(s){
+  return String(s??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+function exportSelectedExcel(){
+  const picked=ITEMS.filter(it=>selected.has(keyOf(it)));
+  if(!picked.length){
+    alert("目前沒有勾選任何收藏");
+    return;
+  }
+
+  const rows=picked.map(it=>`
+    <tr>
+      <td>${excelEsc(it.group)}</td>
+      <td>${excelEsc(SUBCAT_LABELS[subcatOf(it)]||subcatOf(it))}</td>
+      <td>${excelEsc(it.name)}</td>
+      <td>${excelEsc(it.effect)}</td>
+      <td>${Number(it.slot||0)}</td>
+      <td>${excelEsc((it.required||[]).join("｜"))}</td>
+      <td>${excelEsc(keyOf(it))}</td>
+    </tr>`).join("");
+
+  const normalUsed=picked.filter(it=>it.group==="普通收藏").reduce((a,it)=>a+(Number(it.slot)||0),0);
+  const jroUsed=picked.filter(it=>it.group==="JRO收藏").reduce((a,it)=>a+(Number(it.slot)||0),0);
+
+  const book=`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="application/vnd.ms-excel; charset=UTF-8">
+<title>繁星收藏勾選資料</title>
+<style>
+table{border-collapse:collapse;font-family:"Microsoft JhengHei",sans-serif}
+th,td{border:1px solid #999;padding:6px;vertical-align:top}
+th{background:#ddebf7}
+.meta{margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="meta">
+  <b>繁星收藏勾選資料</b><br>
+  已勾選：${picked.length} 筆｜
+  普通使用格：${normalUsed}｜
+  JRO使用格：${jroUsed}
+</div>
+<table>
+<thead>
+<tr>
+<th>收藏類型</th>
+<th>子分類</th>
+<th>收藏名稱</th>
+<th>效果</th>
+<th>佔格</th>
+<th>需求道具</th>
+<th>收藏KEY</th>
+</tr>
+</thead>
+<tbody>${rows}</tbody>
+</table>
+
+
+
+</body>
+</html>`;
+
+  const blob=new Blob(["\ufeff",book],{type:"application/vnd.ms-excel;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,"0");
+  const stamp=`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+  a.href=url;
+  a.download=`繁星收藏_${picked.length}筆_${stamp}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+
+/* JRO_MVP_ENCHANTS moved to collection-data.js */
+/* JRO_MVP_ROWS moved to collection-data.js */
+
+function getJroEnchantByName(name){
+  return JRO_MVP_ENCHANTS.find(x=>name===x.name || name.includes(x.name) || x.name.includes(name)) || null;
+}
+function jroIconHtml(name, size='sm'){
+  const found=getJroEnchantByName(String(name||''));
+  if(!found || !found.icon) return '';
+  const cls=size==='lg' ? 'jro-inline-icon lg' : 'jro-inline-icon';
+  return `<img class="${cls}" src="${found.icon}" alt="${esc(found.name)}">`;
+}
+function displayJroItemName(name){
+  const s=String(name||'').trim();
+  if(!s) return s;
+  if(s.startsWith('(JRO)') || s.startsWith('（JRO）')) return s;
+  return `(JRO)${s}`;
+}
+(function(){
+ const byId=Object.fromEntries(JRO_MVP_ENCHANTS.map(x=>[x.id,x]));
+ const base=document.getElementById('jroMvpBase'), rows=document.getElementById('jroMvpRows'), search=document.getElementById('jroMvpSearch'), sel=document.getElementById('jroMvpEnchant'), meta=document.getElementById('jroMvpMeta');
+ if(!base||!rows)return;
+ sel.innerHTML='<option value="all">全部 8 種附魔</option>'+JRO_MVP_ENCHANTS.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+ base.innerHTML=JRO_MVP_ENCHANTS.map(x=>`<div class="jro-base-card" data-jro-enchant="${x.id}"><b><span class="jro-with-icon">${jroIconHtml(x.name,'lg')}<span>${esc(x.name)}</span></span></b><small>${esc(x.base)}</small></div>`).join('');
+ function render(){
+   const q=(search.value||'').trim().toLowerCase(); const eid=sel.value;
+   const out=JRO_MVP_ROWS.filter(r=>{
+     const e=byId[r[0]]; if(eid!=='all'&&r[0]!==eid)return false;
+     const label=displayJroItemName(r[1]);
+     if(!q)return true; return `${e.name} ${e.jp} ${r[1]} ${label} ${r[2]}`.toLowerCase().includes(q);
+   });
+   meta.textContent=`顯示 ${out.length} / ${JRO_MVP_ROWS.length} 筆套裝效果`;
+   rows.innerHTML=out.length?out.map(r=>{const e=byId[r[0]],label=displayJroItemName(r[1]),sealed=/封印/.test(r[1]);return `<tr><td class="jro-enchant"><span class="jro-with-icon">${jroIconHtml(e.name)}<span>${esc(e.name)}</span></span><div class="jro-meta">${esc(e.jp)}<br>本體：${esc(e.base)}</div></td><td class="jro-card ${sealed?'jro-sealed':''}">${esc(label)}</td><td>${esc(r[2])}</td></tr>`}).join(''):'<tr><td colspan="3" class="jro-nores">沒有符合的附魔／卡片</td></tr>';
+   base.querySelectorAll('.jro-base-card').forEach(c=>c.classList.toggle('active',eid===c.dataset.jroEnchant));
+ }
+ search.addEventListener('input',render);sel.addEventListener('change',render);
+ document.getElementById('jroMvpClear').addEventListener('click',()=>{search.value='';sel.value='all';render();});
+ base.addEventListener('click',e=>{const c=e.target.closest('[data-jro-enchant]');if(!c)return;sel.value=sel.value===c.dataset.jroEnchant?'all':c.dataset.jroEnchant;render();});
+ render();
+})();
+
+async function importSelectedExcel(file){
+  if(!file) return;
+  try{
+    const text=await file.text();
+    const doc=new DOMParser().parseFromString(text,"text/html");
+    const table=doc.querySelector("table");
+    if(!table) throw new Error("找不到收藏表格");
+
+    const rows=[...table.querySelectorAll("tbody tr")];
+    if(!rows.length) throw new Error("Excel 內沒有收藏資料");
+
+    const byKey=new Map(ITEMS.map(it=>[keyOf(it),it]));
+    const byName=new Map();
+    for(const it of ITEMS){
+      const n=it.name.trim();
+      if(!byName.has(n)) byName.set(n,[]);
+      byName.get(n).push(it);
+    }
+
+    let added=0, matched=0, skipped=0;
+    for(const tr of rows){
+      const cells=[...tr.querySelectorAll("td")].map(td=>td.textContent.trim());
+      if(!cells.length) continue;
+
+      const name=cells[2]||"";
+      const importedKey=cells[6]||"";
+      let item=byKey.get(importedKey);
+
+      if(!item && name){
+        const candidates=byName.get(name.trim())||[];
+        if(candidates.length===1) item=candidates[0];
+        else if(candidates.length>1){
+          const group=cells[0]||"";
+          item=candidates.find(x=>x.group===group) || candidates[0];
+        }
+      }
+
+      if(!item){
+        skipped++;
+        continue;
+      }
+
+      matched++;
+      const k=keyOf(item);
+      if(!selected.has(k)){
+        selected.add(k);
+        added++;
+      }
+    }
+
+    save();
+    updateSummary();
+    renderSubcats();
+    renderSpecials();
+    renderList();
+    renderTotals();renderRequiredPanels();
+
+    alert(`匯入完成：辨識 ${matched} 筆，新增勾選 ${added} 筆${skipped?`，未匹配 ${skipped} 筆`:""}。`);
+  }catch(err){
+    console.error(err);
+    alert("匯入失敗：請使用此頁面匯出的 Excel (.xls) 檔案。");
+  }finally{
+    $("#importExcelFile").value="";
+  }
+}
+
+function slotItemKey(name){
+  return String(name||"")
+    .normalize("NFKC")
+    .replace(/\s+/g," ")
+    .trim()
+    .toLowerCase();
+}
+
+function calcUsedSlots(group){
+  const uniqueItems=new Set();
+  let rawSlots=0;
+  let hiddenSlots=0;
+
+  for(const it of ITEMS){
+    if(!selected.has(keyOf(it)) || it.group!==group) continue;
+
+    const slots=Math.max(0,Number(it.slot)||0);
+    rawSlots+=slots;
+
+    const req=(it.required||[]).filter(x=>String(x||"").trim());
+    for(const name of req){
+      uniqueItems.add(slotItemKey(name));
+    }
+
+    // 少數 Excel 收藏的「佔格」大於目前列出的需求道具數，
+    // 差額仍保留計入，避免低估實際格數。
+    hiddenSlots+=Math.max(0,slots-req.length);
+  }
+
+  return {
+    used: uniqueItems.size + hiddenSlots,
+    raw: rawSlots
+  };
+}
+
+function updateSummary(){
+  $("#totalCount").textContent=ITEMS.length.toLocaleString();
+  $("#selectedCount").textContent=selected.size.toLocaleString();
+
+  const normal=calcUsedSlots("普通收藏");
+  const jro=calcUsedSlots("JRO收藏");
+
+  const normalUsed=normal.used;
+  const jroUsed=jro.used;
+  const saved=Math.max(0,(normal.raw+jro.raw)-(normalUsed+jroUsed));
+
+  const normalCap=Math.max(0,Math.floor(Number($("#normalSlots").value)||0));
+  const jroCap=Math.max(0,Math.floor(Number($("#jroSlots").value)||0));
+
+  $("#normalUsed").textContent=`${normalUsed.toLocaleString()} / ${normalCap.toLocaleString()}`;
+  $("#jroUsed").textContent=`${jroUsed.toLocaleString()} / ${jroCap.toLocaleString()}`;
+  $("#savedSlots").textContent=saved.toLocaleString();
+
+  $("#normalUsed").style.color=normalUsed>normalCap?"var(--red)":"var(--green)";
+  $("#jroUsed").style.color=jroUsed>jroCap?"var(--red)":"var(--green)";
+  $("#savedSlots").style.color=saved>0?"var(--gold)":"var(--green)";
+}
+
+$("#exportExcel").addEventListener("click",exportSelectedExcel);
+$("#importExcel").addEventListener("click",()=>$("#importExcelFile").click());
+$("#importExcelFile").addEventListener("change",e=>importSelectedExcel(e.target.files?.[0]));
+
+$("#normalSlots").addEventListener("input",updateSummary);
+$("#jroSlots").addEventListener("input",updateSummary);
+
+const charCalcLevel=$("#charCalcLevel");
+if(charCalcLevel){
+  charCalcLevel.value=String(Math.max(1,Math.min(275,Math.floor(Number(charCalcInput.level)||275))));
+  charCalcLevel.addEventListener("input",()=>{
+    charCalcInput.level=Math.max(1,Math.min(275,Math.floor(Number(charCalcLevel.value)||275)));
+    saveCharCalc();
+    renderCharacterCalculator();
+  });
+}
+
+const charCalcResetBtn=$("#charCalcReset");
+if(charCalcResetBtn){
+  charCalcResetBtn.addEventListener("click",()=>{
+    charCalcInput={level:275};
+    saveCharCalc();
+    renderCharacterCalculator();
+  });
+}
+
+$("#search").addEventListener("input",()=>{renderSubcats();renderSpecials();renderList();});
+$("#groupFilter").addEventListener("change",()=>{renderSubcats();renderSpecials();renderList();});
+$("#onlySelected").addEventListener("click",()=>{
+  onlySelected=!onlySelected;
+  $("#onlySelected").textContent=`只看已勾選：${onlySelected?"開":"關"}`;
+  renderSubcats();
+  renderSpecials();
+  renderList();
+});
+$("#selectVisible").addEventListener("click",()=>{
+  for(const it of getVisible())selected.add(keyOf(it));
+  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
+});
+$("#selectSpecialVisible").addEventListener("click",()=>{
+  const arr=getVisible();
+  if(!arr.length){ alert("目前這個特定分類沒有可勾選的收藏"); return; }
+  for(const it of arr) selected.add(keyOf(it));
+  save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
+});
+$("#clearSpecialFilter").addEventListener("click",()=>{
+  if(!activeSpecials.size){
+    alert("請先選擇至少一個特定分類");
+    return;
+  }
+
+  let cleared=0;
+  for(const it of ITEMS){
+    if(![...activeSpecials].some(key=>matchSpecial(it,key))) continue;
+
+    const g=$("#groupFilter").value;
+    if(g!=="all" && it.group!==g) continue;
+    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) continue;
+
+    const q=$("#search").value.trim().toLowerCase();
+    if(q){
+      const reqText=(it.required||[]).join(" ");
+      const hay=(it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText).toLowerCase();
+      if(!hay.includes(q)) continue;
+    }
+
+    const k=keyOf(it);
+    if(selected.delete(k)) cleared++;
+  }
+
+  save();
+  updateSummary();
+  renderSubcats();
+  renderSpecials();
+  renderList();
+  renderTotals();renderRequiredPanels();
+});
+$("#clear").addEventListener("click",()=>{
+  if(!confirm("確定清除全部已勾選收藏？"))return;
+  selected.clear();save();updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
+});
+
+
+(function initJroEnchantToggle(){
+  const btn = document.getElementById('jroEnchantToggle');
+  const content = document.getElementById('jroMvpCollapseArea');
+  if(!btn || !content) return;
+
+  btn.addEventListener('click', function(){
+    const isHidden = content.style.display === 'none';
+    content.style.display = isHidden ? '' : 'none';
+    btn.textContent = isHidden ? '▲ 收合附魔' : '▼ 展開附魔';
+    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  });
+})();
+
+syncAddedCollectionItems();
+document.addEventListener('starro-config-applied',()=>{
+  syncAddedCollectionItems();
+  updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
+});
+updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="collection-cloud.js"></script>
+<script src="front-cms.js"></script>
+<script src="starro-polish.js?v=20261125"></script>
+</body>
+</html>
