@@ -1,0 +1,32 @@
+name: StarRo UI Acceptance
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser runner
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run materials regression tests
+        run: node --test tests/service-config-regression.test.cjs
+      - name: Run Chromium desktop/mobile acceptance tests
+        run: node tests/browser-acceptance.cjs
+      - name: Store screenshot and test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: starro-ui-acceptance
+          path: acceptance-artifacts/
+          retention-days: 14
