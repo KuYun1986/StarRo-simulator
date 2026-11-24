@@ -65,6 +65,13 @@ details.admin-details{margin-top:12px;border:1px solid #28323e;border-radius:11p
       <div class="actions"><button class="btn blue" id="biosValidateBtn" type="button">✅ 檢查拜歐斯參數</button><button class="btn ghost" id="biosRestoreDefaults" type="button">↩️ 恢復拜歐斯預設值（尚未發布）</button></div>
       <p class="tiny" id="biosEditorStatus" aria-live="polite"></p>
     </section>
+    <section class="section" id="serviceRulesAdminPanel" style="margin:12px 0;padding:18px;border:1px solid #425c76;border-radius:14px">
+      <h2>🔨 古雲代敲／代評｜材料及費用規則</h2>
+      <p class="tiny">編輯每個代敲／代評步驟的支票、鐵匠祝福、大／小金、大／小灰、評級材料及紅利費用。請保留規則名稱（例如 S-BOTH5、S、SS）。修改後先驗證再儲存全部。</p>
+      <label style="display:block;margin:12px 0"><b>各步驟材料與費用（JSON）</b><textarea id="serviceRulesAdmin" spellcheck="false" style="display:block;width:100%;min-height:310px;white-space:pre;font:12px/1.5 monospace;margin-top:8px"></textarea></label>
+      <div class="actions"><button class="btn blue" id="serviceRulesValidateBtn" type="button">✅ 檢查代敲規則與測試案例</button><button class="btn ghost" id="serviceRulesRestoreDefaults" type="button">↩️ 恢復代敲內建規則（尚未發布）</button></div>
+      <p class="tiny" id="serviceRulesStatus" aria-live="polite"></p>
+    </section>
     <div class="feature-table" id="featureTable"></div>
     <div id="panels"></div>
   </div>
@@ -210,7 +217,31 @@ function renderBiosEditor(){
   $('#biosMaterialsAdmin').value=JSON.stringify(bios.materials,null,2);
   $('#biosEditorStatus').textContent='目前 '+bios.stages.length+' 階、'+bios.materials.length+' 種材料。編輯後請儲存全部。';
 }
-function captureAll(){FEATURES.forEach(f=>capturePanel(f.key));captureBiosEditor();cfg.meta.updatedAt=new Date().toISOString();}
+function readServiceRulesEditor(){
+  let rules;
+  try{rules=JSON.parse($('#serviceRulesAdmin').value)}catch(e){throw new Error('代敲規則 JSON 格式錯誤：'+e.message)}
+  if(!rules||typeof rules!=='object'||!rules.refine||!rules.grade)throw new Error('代敲規則必須包含 refine 和 grade');
+  const defaults=StarroConfig.defaults.features.equipment.serviceRules;
+  for(const [group,keys] of [['refine',['red','checks','bless','bigGold','smallGold','bigGray','smallGray']],['grade',['red','checks','taffy','dust']]]){
+    for(const type of Object.keys(defaults[group])){
+      const rule=rules[group][type];
+      if(!rule||typeof rule!=='object'||Array.isArray(rule))throw new Error('缺少步驟 '+group+'.'+type);
+      for(const key of keys){if(typeof rule[key]!=='number'||!Number.isFinite(rule[key])||rule[key]<0)throw new Error(group+'.'+type+'.'+key+' 必須為非負數')}
+    }
+  }
+  // Existing reference scenario: +16A high-level weapon -> +20S.
+  // These expected totals are shown as a regression comparison, not imposed as fixed rules.
+  const total=(key)=>rules.refine['S-BOTH5'][key]+rules.refine.S[key]+(rules.grade.S[key]||0);
+  const example={red:total('red'),checks:total('checks'),bless:total('bless'),bigGold:total('bigGold'),smallGold:total('smallGold'),taffy:rules.grade.S.taffy,dust:rules.grade.S.dust};
+  return {rules,example};
+}
+function captureServiceRulesEditor(){if(!$('#serviceRulesAdmin').value.trim())return;cfg.features.equipment.serviceRules=readServiceRulesEditor().rules}
+function renderServiceRulesEditor(){
+  const rules=cfg.features.equipment.serviceRules||StarroConfig.defaults.features.equipment.serviceRules;
+  $('#serviceRulesAdmin').value=JSON.stringify(rules,null,2);
+  $('#serviceRulesStatus').textContent='目前含 '+Object.keys(rules.refine).length+' 種敲裝及 '+Object.keys(rules.grade).length+' 種評級規則。';
+}
+function captureAll(){FEATURES.forEach(f=>capturePanel(f.key));captureBiosEditor();captureServiceRulesEditor();cfg.meta.updatedAt=new Date().toISOString();}
 function updateMetrics(){const n=FEATURES.filter(f=>getFeature(f.key).enabled!==false).length;$('#managedCount').textContent=FEATURES.length;$('#enabledCount').textContent=n;$('#updatedAt').textContent=cfg.meta.updatedAt?new Date(cfg.meta.updatedAt).toLocaleString('zh-TW'):'—';}
 const HISTORY_KEY='starro-admin-config-history-v1';
 function versionHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
@@ -246,7 +277,7 @@ function showVersionHistory(){
     if(!found||!confirm('確定載入這份舊設定？尚未儲存的修改將被取代。載入後仍需按「儲存全部」才會更新雲端。'))return;
     versionSaveSnapshot(cfg,'回復前自動備份');
     cfg=deepMerge(StarroConfig.defaults,found.config);
-    setDirty(true);renderShell();renderBiosEditor();$('#versionDialog').close();toast('已載入舊版本，按儲存全部後才會發布');
+    setDirty(true);renderShell();renderBiosEditor();renderServiceRulesEditor();$('#versionDialog').close();toast('已載入舊版本，按儲存全部後才會發布');
   });
   $('#versionDialog').showModal();
 }
@@ -354,7 +385,7 @@ async function login(){const s=sb();if(!s.url||!s.anonKey){$('#loginMsg').textCo
 async function loadRemoteForAdmin(){const s=sb(),row=encodeURIComponent(s.configRow||'main');const r=await fetch(s.url.replace(/\/$/,'')+`/rest/v1/site_config?id=eq.${row}&select=config,updated_at`,{headers:{apikey:s.anonKey,Authorization:'Bearer '+cloudSession.access_token}});if(!r.ok)throw new Error('讀取雲端設定失敗');const d=await r.json();if(d[0]?.config){cfg=deepMerge(StarroConfig.defaults,d[0].config);StarroConfig.replace(cfg)}}
 function deepMerge(a,b){if(Array.isArray(b))return JSON.parse(JSON.stringify(b));if(!b||typeof b!=='object')return b===undefined?JSON.parse(JSON.stringify(a)):b;const o=(a&&typeof a==='object'&&!Array.isArray(a))?JSON.parse(JSON.stringify(a)):{};Object.keys(b).forEach(k=>o[k]=deepMerge(o[k],b[k]));return o}
 async function saveRemote(obj){const s=sb(),id=s.configRow||'main';const r=await fetch(s.url.replace(/\/$/,'')+'/rest/v1/site_config?on_conflict=id',{method:'POST',headers:{apikey:s.anonKey,Authorization:'Bearer '+cloudSession.access_token,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id,config:obj,updated_at:new Date().toISOString()})});if(!r.ok){const txt=await r.text();throw new Error('雲端儲存失敗：'+txt)}}
-function showApp(cloud){$('#loginScreen').classList.add('hidden');$('#adminApp').classList.remove('hidden');$('#cloudDot').className='dot '+(cloud?'ok':'warn');$('#cloudStatus').textContent=cloud?'已登入雲端':'本機預覽模式';$('#sourceMode').textContent=cloud?'雲端':'本機';renderShell();renderBiosEditor()}
+function showApp(cloud){$('#loginScreen').classList.add('hidden');$('#adminApp').classList.remove('hidden');$('#cloudDot').className='dot '+(cloud?'ok':'warn');$('#cloudStatus').textContent=cloud?'已登入雲端':'本機預覽模式';$('#sourceMode').textContent=cloud?'雲端':'本機';renderShell();renderBiosEditor();renderServiceRulesEditor()}
 function extractAssigned(text,marker){const at=text.indexOf(marker);if(at<0)throw new Error('找不到 '+marker);let i=text.indexOf(marker.includes('EQUIPMENT')?'{':'[',at),open=text[i],close=open==='['?']':'}',depth=0,str=false,escp=false;for(let j=i;j<text.length;j++){const ch=text[j];if(str){if(escp)escp=false;else if(ch==='\\')escp=true;else if(ch==='"')str=false;continue}if(ch==='"'){str=true;continue}if(ch===open)depth++;else if(ch===close){depth--;if(depth===0)return JSON.parse(text.slice(i,j+1));}}throw new Error('資料解析失敗')}
 async function loadCollectionData(){try{const r=await fetch('collection.html',{cache:'no-store'});const text=await r.text();collectionItems=Array.isArray(cfg.features.collection.items)?JSON.parse(JSON.stringify(cfg.features.collection.items)):extractAssigned(text,'const ITEMS=');$('#collectionCount').textContent=collectionItems.length.toLocaleString()+' 筆';renderCollectionList();setDirty();toast('已載入收藏資料')}catch(e){toast('收藏資料載入失敗：'+e.message,true)}}
 function renderCollectionList(){const el=$('#collectionList');if(!collectionItems){el.innerHTML='<div class="collection-item"><span>尚未載入收藏資料</span></div>';return}const q=($('#collectionSearch')?.value||'').trim().toLowerCase();const rows=[];for(let i=0;i<collectionItems.length;i++){const x=collectionItems[i],hay=(x.name+' '+x.effect+' '+x.game+' '+x.group).toLowerCase();if(q&&!hay.includes(q))continue;rows.push({i,x});if(rows.length>=100)break}el.innerHTML=rows.map(({i,x})=>`<div class="collection-item" data-col-index="${i}"><b>${esc(x.name)}</b><span>${esc(x.group)}｜${esc(x.game)}｜佔格 ${esc(x.slot)}</span></div>`).join('')||'<div class="collection-item"><span>沒有符合資料</span></div>';el.querySelectorAll('[data-col-index]').forEach(r=>r.onclick=()=>editCollection(+r.dataset.colIndex))}
@@ -373,6 +404,9 @@ function exportConfig(){try{captureAll()}catch(e){toast(e.message,true);return}c
 $('#loginBtn').onclick=login;$('#diagnoseBtn').onclick=runDiagnostics;$('#copyDiagBtn').onclick=async()=>{try{await navigator.clipboard.writeText(lastDiagText);$('#loginMsg').textContent='診斷結果已複製';}catch(e){$('#loginMsg').textContent='無法自動複製，請手動選取診斷結果';}};$('#previewBtn').onclick=()=>{previewMode=true;showApp(false)};$('#biosValidateBtn').onclick=()=>{try{const bios=readBiosEditor();$('#biosEditorStatus').textContent='✅ 檢查通過：'+bios.stages.length+' 階、'+bios.materials.length+' 種材料';toast('拜歐斯設定驗證通過')}catch(e){$('#biosEditorStatus').textContent='❌ '+e.message;toast(e.message,true)}};
 $('#biosRestoreDefaults').onclick=()=>{if(!confirm('確定把拜歐斯表單恢復成內建預設值？此操作不會立即發布。'))return;cfg.features.simulators=cfg.features.simulators||{};cfg.features.simulators.bios=JSON.parse(JSON.stringify(StarroConfig.defaults.features.simulators.bios));renderBiosEditor();setDirty(true)};
 $('#biosAdminPanel').addEventListener('input',()=>setDirty(true));
+$('#serviceRulesValidateBtn').onclick=()=>{try{const {rules,example}=readServiceRulesEditor();$('#serviceRulesStatus').textContent='✅ 格式通過。+16A 五級武器 → +20S 參考測試：'+example.checks+' 張支票、'+example.bless+' 祝福、'+example.bigGold+' 大金、'+example.smallGold+' 小金、'+example.red+' 紅（原始基準為 44 張／200／30／20／60 紅）；目前設定可以刻意不同。';toast('代敲材料與費用格式檢查通過')}catch(e){$('#serviceRulesStatus').textContent='❌ '+e.message;toast(e.message,true)}};
+$('#serviceRulesRestoreDefaults').onclick=()=>{if(!confirm('確定將代敲代評表單恢復為內建預設值？尚未發布。'))return;cfg.features.equipment.serviceRules=JSON.parse(JSON.stringify(StarroConfig.defaults.features.equipment.serviceRules));renderServiceRulesEditor();setDirty(true)};
+$('#serviceRulesAdminPanel').addEventListener('input',()=>setDirty(true));
 $('#saveAllBtn').onclick=saveAll;$('#historyBtn').onclick=showVersionHistory;$('#versionClose').onclick=()=>$('#versionDialog').close();$('#versionExport').onclick=exportConfig;$('#exportBtn').onclick=exportConfig;$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('starro_admin_session');location.reload()};$('#importFile').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());cfg=deepMerge(StarroConfig.defaults,o);StarroConfig.replace(cfg);setDirty();renderShell();toast('設定已匯入，請按儲存全部')}catch(err){toast('匯入失敗：'+err.message,true)}};
 const s=sb();if(s.url&&s.anonKey)$('#cloudSetupWarn').classList.add('hidden');
 try{const saved=JSON.parse(sessionStorage.getItem('starro_admin_session')||'null');if(saved?.access_token&&s.url&&s.anonKey){cloudSession=saved;loadRemoteForAdmin().then(()=>showApp(true)).catch(()=>sessionStorage.removeItem('starro_admin_session'));}}catch(e){}
