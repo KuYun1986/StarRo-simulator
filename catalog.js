@@ -11,12 +11,16 @@ const safeImage=s=>{
 };
 const normalize=s=>clean(s).toLocaleLowerCase('zh-TW').replace(/\s+/g,'');
 const eqName=s=>normalize(s).replace(/^(?:\+\d+\s*|[a-ds]階\s*)/i,'').replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
+const autoRefByName=(()=>{
+  const entries=Object.entries(window.StarroReferenceItems||{});
+  const normalized=new Map();
+  for(const [name,info] of entries)if(!normalized.has(eqName(name)))normalized.set(eqName(name),info);
+  return normalized;
+})();
 const equipDetail=name=>{
   const supplemental=window.StarroReferenceLookup?.details(name)||{};
   const auto=window.StarroReferenceItems||{};
-  const key=Object.prototype.hasOwnProperty.call(auto,name)?name:
-    Object.keys(auto).find(x=>eqName(x)===eqName(name));
-  const imported=key?auto[key]:{};
+  const imported=auto[name]||autoRefByName.get(eqName(name))||{};
   const allManual=catalog().equipmentDetails||{};
   const manual=allManual[name]||Object.entries(allManual).find(([n])=>eqName(n)===eqName(name))?.[1]||{};
   const sources=[...(Array.isArray(supplemental.sources)?supplemental.sources:[]),
@@ -31,7 +35,7 @@ const equipDetail=name=>{
 };
 const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
-  return '<div class="catalog-cover">'+(url?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+esc(url)+'" alt="">':icon)+'</div>';
+  return '<div class="catalog-cover">'+(url?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" data-fallback-icon="'+esc(icon)+'" src="'+esc(url)+'" alt="">':icon)+'</div>';
 };
 const state={tab:'all',view:'items',page:1,pageSize:36,slots:[],query:'',groups:[],progress:'all',gachaTypes:[]};
 const slots=['全部','頭上','頭中','頭下','鎧甲','武器','盾牌','披肩','鞋子','飾品','影子裝備','卡片','其他'];
@@ -109,7 +113,7 @@ function equipmentDetailHtml(item){
     rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+
     '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
     detailSection('已登錄取得來源',registeredSources(item.name).length?registeredSources(item.name):['尚未登錄取得方式或轉蛋來源，不代表沒有其他取得途徑'])+
-    (info.referenceUrl?'<div class="catalog-detail-section"><h3>來源與資料核對</h3><p class="catalog-notpicked">本頁已核對公開道具編號、種類、規格和轉蛋來源。完整遊戲效果請以原站與遊戲內資料為準。</p><a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">查看參考站道具百科（編號 '+esc(info.itemId||'')+'）</a></div>':'');
+    (info.referenceUrl?'<div class="catalog-detail-section"><h3>來源與資料核對</h3><p class="catalog-notpicked">'+esc(info.sourceLabel||'公開道具百科；資料以遊戲內為準')+'。部分名稱或圖示由參考站提供，無法確認的掉落來源不會推測。</p><a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">開啟原始道具百科（編號 '+esc(info.itemId||'')+'）</a></div>':'');
 }
 function collectionEquipmentHtml(items){
   return items.length?'<div class="catalog-equipment-list">'+items.map(name=>{
@@ -314,14 +318,21 @@ function openDetail(kind,i){
     html=detailHeader(entry.name,imageFor(entry.name,entry.image),'collection')+
       detailSection('收藏效果',[entry.effect||'尚無效果說明'])+
       '<div class="catalog-detail-section"><h3>所需裝備／卡片（點選可查詳細資料與其他收藏）</h3>'+collectionEquipmentHtml(req)+'</div>'+
-      detailSection('已建立的轉蛋來源',sources.map(x=>x.pool+'｜'+x.drop.name+(x.drop.rate?'｜'+x.drop.rate:'') ))+
+      detailSection('需求道具的已知取得來源',[...new Set(req.flatMap(raw=>{
+        const name=clean(raw).replace(/\\s*[×x*]\\s*\\d+(?:\\.\\d+)?$/i,'');
+        return registeredSources(name).map(s=>name+'｜'+s);
+      }))].slice(0,100))+
+      detailSection('後台建立的轉蛋關聯',sources.map(x=>x.pool+'｜'+x.drop.name+(x.drop.rate?'｜'+x.drop.rate:'') ))+
       '<div class="catalog-detail-section"><button class="catalog-detail-btn" type="button" id="catalogToggleSelected" data-key="'+esc(keyOf(entry))+'">'+(has?'取消勾選':'✓ 標記已收藏')+'</button></div>';
   }else if(kind==='equipment'){
     html=equipmentDetailHtml(entry);
   }else if(kind==='pool'){
     html=detailHeader(entry.name,imageFor(entry.name,entry.image),'gacha')+
       detailSection('轉蛋類型／編號',[entry.type||'其他',entry.id||'未提供編號'])+
-      detailSection('轉蛋獎品',entry.items.map(x=>x.name+(x.rate?'｜'+x.rate:'') ));
+      '<div class="catalog-detail-section"><h3>轉蛋獎品（點選可看圖片、來源與詳細內容）</h3><div class="catalog-equipment-list">'+
+      entry.items.map(x=>'<button type="button" class="catalog-equipment-row" data-equipment-name="'+esc(x.name)+'">'+
+        imageHtml(imageFor(x.name,equipDetail(x.name).image||x.image),'🛡️')+
+        '<span><b>'+esc(x.name)+'</b><small>'+esc(x.rate||'尚無已確認機率')+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
   }else{
     html=detailHeader(entry.name,imageFor(entry.name,entry.images[0]),'gacha')+
       detailSection('出現轉蛋',entry.sources.map(x=>x.pool+'｜'+x.type+(x.rate?'｜'+x.rate:'') ));
@@ -410,6 +421,13 @@ function init(){
   });
   $('catalogDialogClose').onclick=()=>$('catalogDialog').close();
   $('catalogDialog').onclick=e=>{if(e.target===$('catalogDialog'))$('catalogDialog').close()};
+  document.addEventListener('error',e=>{
+    const img=e.target;
+    if(!(img instanceof HTMLImageElement)||!img.matches('.catalog-cover img'))return;
+    const cover=img.parentElement;if(!cover)return;
+    cover.textContent=img.dataset.fallbackIcon||'🛡️';
+    cover.setAttribute('aria-label','暫無可用圖片');
+  },true);
   $('catalogDialogContent').addEventListener('click',e=>{
     const itemBtn=e.target.closest('[data-equipment-name]');
     if(itemBtn){
