@@ -485,7 +485,7 @@ function catalogThumb(it){
 
 const COLLECTION_LOCAL_KEY="starro_collection_selected";
 let existingSelected=[];
-try{const x=JSON.parse(localStorage.getItem(COLLECTION_LOCAL_KEY)||"[]");if(Array.isArray(x))existingSelected=x;}catch(e){}
+try{const x=JSON.parse(localStorage.getItem(COLLECTION_LOCAL_KEY)||"[]");if(Array.isArray(x))existingSelected=x.map(normalizedProgressKey).filter(Boolean);}catch(e){}
 const selected=new Set(existingSelected);
 let onlySelected=false;
 const activeSubcats=new Set();
@@ -768,7 +768,8 @@ const ALIAS={
 };
 const CONDITIONAL=["每","當","時","機率","精煉","Base","base","基礎","習得","裝備一件","達到","以上","以下","依照","根據"];
 
-function keyOf(item){return (item.group==="特殊收藏"?"JRO收藏":item.group)+"|"+item.row+"|"+item.name}
+function normalizedProgressKey(key){return typeof key==="string"?key.replace(/^JRO收藏\|/,"特殊收藏|"):""}
+function keyOf(item){return (item.group==="JRO收藏"?"特殊收藏":item.group)+"|"+item.row+"|"+item.name}
 function subcatOf(item){
   const m=String(item.game||"").match(/^\[[^\]]+\]([^\-\d]+)/);
   return m?m[1]:"其他";
