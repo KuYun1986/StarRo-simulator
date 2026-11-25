@@ -116,3 +116,5 @@ test('bulk simulation pauses cloud until explicit save',async()=>{
  assert.equal(h.writes(),0);assert.deepEqual([...h.remote().selected],[A]);
  h.click('collectionCloudSave');await h.settle();assert.deepEqual([...h.remote().selected],[A,B].sort());assert.equal(h.writes(),1);
 });
+test('immediate restore after adding a collection flushes pending autosave first',async()=>{const h=mock({local:[A],remote:{selected:[A]}});await h.settle();h.selected.add(B);h.context.window.StarroCollectionCloud.scheduleSave();h.click('collectionCloudLoad');await h.settle();assert.deepEqual([...h.remote().selected],[A,B].sort());assert.ok(h.selected.has(B));});
+test('manual save followed by restore preserves new selection',async()=>{const h=mock({local:[A],remote:{selected:[A]}});await h.settle();h.selected.add(B);h.click('collectionCloudSave');await h.settle();h.click('collectionCloudLoad');await h.settle();assert.ok(h.selected.has(B));assert.equal(h.remote().selected.length,2);});

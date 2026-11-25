@@ -6,7 +6,7 @@ const login=el('collectionGoogleLogin'),logout=el('collectionGoogleLogout');
 const saveBtn=el('collectionCloudSave'),loadBtn=el('collectionCloudLoad'),status=el('collectionCloudStatus');
 if(!login||!logout||!saveBtn||!loadBtn||!status)return;
 const KEY='starro_collection_selected';
-let db=null,user=null,epoch=0,busy=false,writing=false,autosave=false,timer=null,revision=0,pending=false,providerDisabled=false;
+let db=null,user=null,epoch=0,busy=false,writing=false,autosave=false,timer=null,revision=0,pending=false,providerDisabled=false,dirty=false,verified=null;
 function say(message,level='info'){status.textContent=message;status.dataset.state=level;}
 function errMessage(e){
  const s=String(e?.message||e||'未知錯誤'),code=String(e?.code||'');
@@ -61,7 +61,7 @@ async function getRemote(){
  .eq('user_id',user.id).maybeSingle();
  if(error)throw error;return data;
 }
-function pauseAutosave(){autosave=false;pending=false;revision++;clearDelay();if(user)say('本機收藏已變更；雲端存檔保留，請手動儲存或載入。');}
+function pauseAutosave(){dirty=true;autosave=false;pending=false;revision++;clearDelay();if(user)say('本機收藏已變更；雲端存檔保留，請手動儲存或載入。');}
 async function persist(allowEmpty=false){
  if(!db||!user||busy){pending=true;return;}
  if(writing){pending=true;return;}
@@ -82,7 +82,7 @@ async function persist(allowEmpty=false){
    if(!saved||!equal(copy,saved.selected))throw Error('雲端寫入後核對不一致，請保留本機備份並重新儲存');
    if(epoch!==version||!user||user.id!==account||!autosave)return;
    if(!pending&&revision===captured){
-    autosave=true;
+    autosave=true;dirty=false;verified=copy;
     say('✅ Google 雲端已儲存 '+copy.length+' 項（'+
       new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false})+'）','success');
    }
@@ -92,7 +92,7 @@ async function persist(allowEmpty=false){
  }finally{writing=false;show();}
 }
 function scheduleSave(){
- revision++;storeLocal();
+ revision++;dirty=true;storeLocal();
  if(!user){say('✅ 本機已儲存；登入 Google 後可同步');return;}
  if(!snapshot().length){pauseAutosave();say('本機收藏為 0 項，雲端原存檔保留；如需清空雲端請手動儲存。');return;}
  if(!autosave){say('本機已更新，與雲端尚未同步。請選擇「儲存到雲端」或「載入雲端進度」。');return;}
@@ -106,19 +106,20 @@ async function activate(session){
   show();return;
  }
  if(user?.id===next.id)return;
- user=next;autosave=false;
+ user=next;autosave=false;dirty=false;verified=null;
  const version=++epoch;busy=true;clearDelay();show();
  say('Google 已登入：'+(next.email||'使用者')+'，正在核對收藏進度…');
  try{
   const remote=await getRemote();
   if(epoch!==version)return;
   const local=snapshot();
-  if(remote)checkedList(remote.selected);
+  if(remote)verified=checkedList(remote.selected);
+  dirty=!equal(local,verified||[]);
   if(!remote){
    if(local.length)say('Google 已登入，雲端目前無資料。本機有 '+local.length+' 項，按「儲存到雲端」建立備份。');
    else{autosave=true;say('✅ Google 已登入；首次勾選將自動儲存。','success');}
   }else if(!local.length){
-   applyCloud(remote.selected);autosave=true;
+   applyCloud(remote.selected);autosave=true;dirty=false;
    say('✅ 已載入 Google 雲端 '+snapshot().length+' 項收藏','success');
   }else if(equal(local,remote.selected)){
    autosave=true;say('✅ 本機與 Google 雲端一致（'+local.length+' 項）','success');
@@ -131,6 +132,7 @@ async function activate(session){
 }
 async function loadCloud(){
  if(!user||busy||writing)return;
+ if(timer!==null&&autosave&&dirty){clearDelay();await persist();if(dirty)return;}
  clearDelay();autosave=false;pending=false;busy=true;show();const version=epoch,startRevision=revision;
  try{
   const remote=await getRemote();
@@ -143,7 +145,8 @@ async function loadCloud(){
      !confirm('雲端有 '+next.length+' 項、本機有 '+local.length+' 項。確定用雲端進度取代本機勾選嗎？')){
     say('已取消載入，保留本機進度');return;
   }
-  revision++;applyCloud(next);autosave=true;
+  if(verified&&equal(local,verified)&&!equal(next,verified)){say('雲端存檔與本次已核對的保存結果不同，已保留本機進度；請重新儲存。','error');return;}
+  revision++;applyCloud(next);autosave=true;dirty=false;verified=next;
   say('✅ 成功還原 Google 雲端 '+snapshot().length+' 項收藏','success');
  }catch(e){
   if(epoch===version)say('❌ 雲端載入失敗：'+errMessage(e)+' 本機進度仍保留','error');
@@ -204,7 +207,7 @@ saveBtn.addEventListener('click',()=>{
  let count;try{count=checkedList(snapshot()).length;}catch(e){say(errMessage(e),'error');return;}
  if(!confirm('將本機 '+count+' 項收藏儲存到 Google 雲端？如原本有雲端資料將被覆蓋。'))return;
  if(count===0&&!confirm('再次確認：這會清空雲端收藏存檔，確定繼續？'))return;
- autosave=true;void persist(count===0);
+ autosave=true;dirty=true;say('正在儲存 '+count+' 項收藏，請等待雲端核對完成…');void persist(count===0);
 });
 loadBtn.addEventListener('click',()=>{void loadCloud();});
 window.StarroCollectionCloud={scheduleSave,pauseAutosave,save:()=>persist(false),load:loadCloud};
