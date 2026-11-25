@@ -1,0 +1,29 @@
+name: Inspect public reference data (read only)
+on:
+  push:
+    paths: [.github/workflows/inspect-reference-metadata.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Read public reference structure
+        run: |
+          python3 - <<'PY'
+          import re,urllib.request,collections,html
+          url='https://ro-collectitem-yuno.netlify.app/'
+          req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; StarRo-reference-inspection)'})
+          try:
+            with urllib.request.urlopen(req, timeout=25) as res:
+              body=res.read(1200000).decode('utf-8','replace')
+              print('SITE',res.status,'LENGTH',len(body))
+          except Exception as e:print('FETCH_FAIL',type(e).__name__,str(e));raise SystemExit(0)
+          for pattern in [r'<script[^>]*>',r'<link[^>]*>',r'https?://[^\s"\'<>]{5,180}',r'(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:\[|\{)',r'\b(?:ITEMS|itemsData|equipmentData|gachaData|itemDatabase|SOURCE|sources|imageBase|imageUrl|image_url|iconUrl)\b']:
+            hits=re.findall(pattern,body,re.I)
+            print('PATTERN',pattern[:45],'COUNT',len(hits),'SAMPLES',list(dict.fromkeys(hits))[:35])
+          for term in ['道具百科','itemDetails','itemDatabase','itemInfo','itemDb','equipData','gachaPools','sourceText','itemIcon','item_img','itemImage','imageUrl','圖片','取得來源']:
+            at=body.find(term)
+            if at>=0: print('TERM',term,'AT',at,'SNIP',re.sub(r'\s+',' ',body[max(0,at-160):at+290])[:450])
+          PY
