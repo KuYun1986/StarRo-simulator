@@ -38,7 +38,7 @@
  </section>
  <section class="catalog-simulation" aria-label="收藏效果統計">
   <div class="catalog-sim-title"><h2>收藏效果統計</h2><span>全站已勾選收藏即時統計</span></div>
-  <div class="catalog-cloud-tools catalog-bulk-tools"><button type="button" id="simSelectAll">✓ 一鍵全選</button><button type="button" id="simClearAll">清除收藏</button><span id="simBulkStatus" role="status">適用全站收藏，不限目前篩選。</span></div>
+  
   <div class="catalog-sim-kpis" aria-live="polite">
    <div><span>資料庫收藏</span><b id="simTotal">0</b></div>
    <div><span>已勾選收藏</span><b id="simSelected">0</b></div>
@@ -163,6 +163,7 @@
   <div id="catalogViewSwitch" class="catalog-view-switch" hidden><button type="button" class="active" data-view="items">以獎品查詢</button><button type="button" data-view="pools">以轉蛋查詢</button></div>
   <div id="catalogSearchSummary" class="catalog-search-summary" aria-live="polite"></div>
   <div class="catalog-network-search"><span>站內找不到？可直接查詢其他 RO 道具資料。</span><a id="catalogOnlineSearch" href="https://www.divine-pride.net/database/item" target="_blank" rel="noopener noreferrer">🌐 搜尋網路裝備資訊</a></div>
+  <div class="catalog-cloud-tools catalog-bulk-tools"><button type="button" id="simSelectAll" disabled>✓ 一鍵全選</button><button type="button" id="simClearAll">清除收藏</button><span id="simBulkScope">請先選擇收藏分類或篩選條件。</span><span id="simBulkStatus" role="status"></span></div>
   <div class="catalog-status"><span id="catalogStatus" role="status">載入收藏資料中…</span><button id="catalogReset" type="button">清除條件</button></div>
  </section>
  <section id="catalogResults" class="catalog-grid" aria-label="查詢結果"></section>
@@ -178,7 +179,7 @@
 <script src="starro-online-lookup.js?v=20261125-online"></script>
 <script src="collection-simulation-core.js?v=20261125-sim1"></script>
 <script src="collection-export.js?v=20261125-export1"></script>
-<script src="catalog.js?v=20261125-bulk-cloud2"></script>
+<script src="catalog.js?v=20261125-filtered-bulk1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="collection-cloud.js?v=20261125-bulk-cloud2"></script>
 <footer style="max-width:1460px;margin:24px auto;padding:14px 20px;text-align:center;color:#294657;background:#f1f6f8;border:1px solid #c4d5dc;border-radius:12px;font:14px/1.8 system-ui,sans-serif">StarRo 繁星收藏專區｜<a style="color:#174d70" href="privacy.html">隱私權政策</a>｜<a style="color:#174d70" href="terms.html">服務條款</a></footer>

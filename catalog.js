@@ -469,7 +469,7 @@ function renderSimulation(collections){
   const cap=id=>Math.max(0,Math.floor(Number($(id).value)||0));
   const n=cap('simNormalCap'),s=cap('simSpecialCap');
   for(const [id,value] of Object.entries({simTotal:fmt(sim.total),simSelected:fmt(sim.count),simNormal:fmt(sim.normal)+' / '+fmt(n),simSpecial:fmt(sim.special)+' / '+fmt(s),simSaved:fmt(sim.saved)}))$(id).textContent=value;
-  $('simSelectAll').disabled=sim.count===sim.total; $('simClearAll').disabled=sim.count===0;
+  $('simClearAll').disabled=sim.count===0;
   $('simNormal').classList.toggle('over-cap',sim.normal>n);$('simSpecial').classList.toggle('over-cap',sim.special>s);
   $('simEffectCount').textContent='（'+sim.entries.length+' 項）';$('simConditionCount').textContent='（'+sim.conditions.length+' 組）';
   $('simStats').innerHTML=sim.entries.length?sim.entries.map(([k,v])=>'<div class="catalog-sim-stat"><span>'+esc(k.replace(/%$/,''))+'</span><b>'+(v>0?'+':'')+esc(fmt(v))+(k.endsWith('%')?'%':'')+'</b></div>').join(''):'<div class="catalog-sim-empty">勾選收藏後會顯示總能力</div>';
@@ -479,6 +479,7 @@ function render(){
   cachedEquipmentEntries=null;
   const collections=allCollections(),allPools=pools();
   renderSimulation(collections);
+  renderBulkScope(collections);
   renderRequiredSummary(collections);
   renderCharacterCalculator();
   collectionCovers=window.StarroReferenceLookup.buildCollectionCovers(collections,catalog());
@@ -623,16 +624,32 @@ function exportCollectionExcel(){
   downloadCollectionFile(window.StarroCollectionExport.workbook(sheets),'繁星收藏_'+stamp+'.xlsx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   $('simSaveStatus').textContent='已產生 Excel 匯出檔案';
 }
+function bulkScope(collections){
+  if(!['all','collection','special'].includes(state.tab))return {active:false,items:[]};
+  const active=state.tab==='special'||state.groups.length>0||state.slots.length>0||Boolean(state.query.trim())||state.progress!=='all';
+  return {active,items:active?collections.filter(collectionFilters):[]};
+}
+function renderBulkScope(collections){
+  const scope=bulkScope(collections),remaining=scope.items.filter(it=>!selected.has(keyOf(it))).length;
+  $('simSelectAll').disabled=!scope.active||remaining===0;
+  $('simSelectAll').textContent='✓ 一鍵全選'+(scope.active?'（'+remaining.toLocaleString('zh-TW')+'）':'');
+  $('simBulkScope').textContent=scope.active
+    ?'符合條件的收藏 '+scope.items.length.toLocaleString('zh-TW')+' 項；尚未勾選 '+remaining.toLocaleString('zh-TW')+' 項（含所有分頁）'
+    :'請先選擇收藏分類、特殊收藏或其他篩選條件；不會直接全選全站。';
+}
 function bulkSelect(all){
-  const next=all?new Set(allCollections().map(keyOf)):new Set();
-  if(!confirm(all?'一鍵全選全站 '+next.size+' 項收藏？可能超過容量上限。':'確定清除本機所有收藏勾選？不會清除雲端存檔。'))return;
+  const scope=bulkScope(allCollections());
+  const additions=scope.items.filter(it=>!selected.has(keyOf(it)));
+  if(all&&(!scope.active||!additions.length))return;
+  const next=all?new Set([...selected,...additions.map(keyOf)]):new Set();
+  if(!confirm(all?'勾選目前篩選條件下尚未勾選的 '+additions.length+' 項收藏？其他已選收藏將保留。可能超過容量上限。':'確定清除本機所有收藏勾選？不會清除雲端存檔。'))return;
   window.StarroCollectionCloud?.pauseAutosave();
   try{
     localStorage.setItem('starro_collection_previous_selection',JSON.stringify([...selected]));
     localStorage.setItem(progressKey,JSON.stringify([...next]));
   }catch(e){$('simBulkStatus').textContent='本機保存失敗，未變更收藏。';return;}
   selected=next;state.page=1;render();
-  $('simBulkStatus').textContent=(all?'已全選 '+next.size+' 項收藏。':'已清除本機收藏。')+' 雲端存檔保留，需手動儲存才會覆蓋。';
+  $('simBulkStatus').textContent=(all?'已新增勾選 '+additions.length+' 項符合條件的收藏；目前共 '+next.size+' 項。':'已清除本機收藏。')+' 雲端存檔保留，需手動儲存才會覆蓋。';
 }
 function init(){
   $('simSelectAll').onclick=()=>bulkSelect(true);
