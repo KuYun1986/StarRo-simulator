@@ -192,6 +192,12 @@ const server=http.createServer((req,res)=>{
     assert.ok(await admin.locator('#airPricesAdminPanel').count());
     assert.ok(await admin.locator('#catManage').count(), 'catalog admin missing');
     await admin.locator('[data-pane="equipment"]').click();
+    await admin.locator('#catEquipName').fill('破壞斧[2]');
+    await admin.locator('#catEquipImportRef').click();
+    assert.equal(await admin.locator('#catEquipId').inputValue(),'1341','reference item ID not filled');
+    assert.ok((await admin.locator('#catEquipImage').inputValue()).includes('/item-icons/1341.png'),'reference image not filled');
+    assert.ok((await admin.locator('#catEquipSources').inputValue()).includes('狙擊轉蛋'),'reference gacha not filled');
+    await admin.locator('#catEquipReset').click();
     await admin.locator('#catEquipName').fill('驗收測試戒指');
     await admin.locator('#catEquipId').fill('123456');
     await admin.locator('#catEquipSources').fill('測試副本獎勵');
