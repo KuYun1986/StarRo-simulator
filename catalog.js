@@ -106,11 +106,12 @@ function equipmentDetailHtml(item){
   const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['參考資料版本',info.sourceLabel||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],['能力／效果',info.stats||'尚未登錄裝備效果']];
   const ref=typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?info.referenceUrl:'';
   const sourceSite=typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?info.referenceSite:'';
+  const online=window.StarroOnlineLookup?.render(item.name,info.itemId,ref||sourceSite)||'';
   return detailHeader(item.name,src,'equipment')+
     (ref?'<p class="catalog-item-reference"><a href="'+esc(ref)+'" target="_blank" rel="noopener noreferrer">🔗 '+(ref===sourceSite?'查看參考網站':'查看道具資料頁')+'</a></p>':'')+
     (!ref&&sourceSite?'<p class="catalog-item-reference"><a href="'+esc(sourceSite)+'" target="_blank" rel="noopener noreferrer">🔗 道具資料參考網站（非直達此道具）</a></p>':'')+
     '<div class="catalog-detail-section"><h3>裝備詳細資料</h3><dl class="catalog-equipment-meta">'+
-    rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+
+    rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+online+
     '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
     detailSection('已登錄取得來源',registeredSources(item.name).length?registeredSources(item.name):['尚未登錄取得方式或轉蛋來源，不代表沒有其他取得途徑'])+
     (info.referenceUrl?'<div class="catalog-detail-section"><h3>來源與資料核對</h3><p class="catalog-notpicked">'+esc(info.sourceLabel||'公開道具百科；資料以遊戲內為準')+'。部分名稱或圖示由參考站提供，無法確認的掉落來源不會推測。</p><a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">開啟原始道具百科（編號 '+esc(info.itemId||'')+'）</a></div>':'');
@@ -191,7 +192,7 @@ function selectedRequiredPanel(item){
  (required.length?required.map(raw=>{
    const name=clean(raw).replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
    const sources=registeredSources(name);
-   return '<div class="catalog-source-line"><button type="button" data-equipment-name="'+esc(name)+'">'+esc(raw)+' <span aria-hidden="true">›</span></button>'+
+   return '<div class="catalog-source-line"><button type="button" data-equipment-name="'+esc(name)+'">'+imageHtml(imageFor(name,equipDetail(name).image),'🛡️')+'<span>'+esc(raw)+'</span> <span aria-hidden="true">›</span></button>'+
    '<small>'+esc(sources.length?sources.slice(0,3).join('、'):'尚未登錄取得來源')+'</small></div>';
  }).join(''):'<p>此收藏尚無需求道具資料</p>')+'</div>';
 }
@@ -342,9 +343,11 @@ function openDetail(kind,i){
       const reference=typeof detail.referenceUrl==='string'&&/^https:\/\//i.test(detail.referenceUrl)?detail.referenceUrl:'';
       if(reference)html+='<p class="catalog-item-reference"><a href="'+esc(reference)+'" target="_blank" rel="noopener noreferrer">🔗 查看道具資料來源</a></p>';
       html+=detailSection('其他已登錄來源',[detail.source,...(Array.isArray(detail.sources)?detail.sources:[])].filter(Boolean));
+      html+=window.StarroOnlineLookup?.render(entry.name,detail.itemId,detail.referenceUrl||detail.referenceSite)||'';
     }
     const related=allCollections().filter(x=>(x.required||[]).some(r=>eqName(r)===eqName(entry.name)));
     html+=detailSection('相關收藏',related.slice(0,30).map(x=>x.name));
+    if(!html.includes('starro-online-lookup'))html+=window.StarroOnlineLookup?.render(entry.name,detail?.itemId,detail?.referenceUrl||detail?.referenceSite)||'';
   }
   $('catalogDialogContent').innerHTML=html;
   const dialog=$('catalogDialog');
