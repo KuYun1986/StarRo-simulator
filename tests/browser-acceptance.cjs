@@ -101,7 +101,13 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('#catalogResults button[data-action="collection"]').count()>=1,'unified search did not include related collection');
         await p.locator('#catalogReset').click();
         await p.locator('#catalogTabGacha').click();
-        assert.ok((await p.locator('#catalogGachaType').isVisible()),'gacha filter missing');
+        assert.ok((await p.locator('#catalogGachaMenu').isVisible()),'gacha filter missing');
+        await p.locator('#catalogGachaMenu summary').click();
+        await p.locator('#catalogGachaTypes input[value="XR"]').check();
+        await p.locator('#catalogGachaTypes input[value="紅利轉蛋"]').check();
+        assert.ok((await p.locator('#catalogGachaLabel').textContent()).includes('XR'),'gacha multiselect missing');
+        await p.locator('#catalogReset').click();
+        assert.equal(await p.locator('#catalogGachaTypes input:checked').count(),0,'gacha filters not cleared');
         await p.evaluate(()=>{
           const cfg=window.StarroConfig.all();
           cfg.features.catalog.gachaPools=[{key:'test-pool',name:'XR測試轉蛋',type:'XR',id:'XR-TEST',items:[{name:'翡翠戒指-LT[1]',rate:'1%',image:''}]}];
