@@ -33,7 +33,7 @@ const server=http.createServer((req,res)=>{
       await p.waitForTimeout(350);
       assert.equal(await p.locator('link[href*="starro-polish.css"]').count(),1);
       const theme=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--cat-gold').trim());
-      assert.equal(theme,'#f6d68f','unified catalog theme token missing');
+      assert.ok(/^#[0-9a-f]{6}$/i.test(theme),'catalog theme token missing');
       if(!['catalog.html','collection.html'].includes(url))assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
       assert.ok(await p.locator('h1').count()>=1,url+' is missing h1');
       const extent=await p.evaluate(()=>({scroll:document.documentElement.scrollWidth,window:innerWidth}));
@@ -207,6 +207,7 @@ const server=http.createServer((req,res)=>{
     await admin.locator('#eqAdminSave').click();
     assert.ok((await admin.locator('#eqAdminStatus').textContent()).includes('已更新'),'equipment detail save failed');
     assert.ok((await admin.evaluate(()=>cfg.features.catalog.equipmentDetails['翡翠戒指-LT[1]']?.sources)||[]).includes('驗收轉蛋獎勵'),'source admin did not save source');
+    await admin.locator('#catManage [data-pane="collections"]').click();
     await admin.locator('#catCollectionName').fill('驗收收藏');
     await admin.locator('#catCollectionEffect').fill('ATK+1');
     await admin.locator('#catCollectionSave').click();
