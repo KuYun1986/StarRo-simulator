@@ -79,3 +79,41 @@ body #catEquipmentAdmin :is(input,select,textarea){
 body th{background:#e4edf2!important}
 
 /* Portable CSS, no layout or font-size changes; mobile uses the same palette. */
+
+
+/* Text legibility after changing the original dark panels to the gentle palette.
+   Scope to PT reference and drop-rate calculator, without recoloring special,
+   cost, rarity or computed result text. */
+body #dropRateSimulator .drop-checks label{
+  background:#e7eff4!important;
+  border-color:#ccdce5!important;
+  color:#334e62!important;
+}
+body #dropRateSimulator .row>span,
+body #dropRateSimulator .stat .label,
+body #dropRateSimulator .stat .tiny,
+body #dropRateSimulator>p.tiny{
+  color:#405b70!important;
+}
+body #dropRateSimulator .stat .tiny{line-height:1.9}
+body #dropRateSimulator span[style*="color:#ff5f6d"],
+body #dropRateSimulator span[style*="color:#f7c65c"]{
+  background:#2d4457!important;
+  border-radius:5px;
+  padding:1px 4px;
+}
+body #biosTalismanSimulator .tal-config-block{
+  background:#e7eff4!important;
+  border-color:#cfdee6!important;
+}
+body #biosTalismanSimulator .tal-config-block .bio-note,
+body #biosTalismanSimulator .tal-config-block .bio-table th,
+body #biosTalismanSimulator .tal-config-block .bio-table td{
+  color:#3b5569!important;
+}
+body #biosTalismanSimulator .tal-config-block .bio-table th{
+  background:#dce8ef!important;
+}
+body #biosTalismanSimulator .tal-config-block .bio-table tbody tr:nth-child(even){
+  background:#edf4f7!important;
+}
