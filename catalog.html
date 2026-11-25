@@ -39,7 +39,15 @@
     </div>
    </details>
    <select id="catalogProgress" aria-label="收藏狀態"><option value="all">所有進度</option><option value="saved">已勾選收藏</option><option value="unsaved">尚未勾選</option></select>
-   <select id="catalogGachaType" aria-label="轉蛋類型" hidden><option value="all">所有轉蛋</option><option value="XR">XR</option><option value="紅利轉蛋">紅利轉蛋</option><option value="商城轉蛋">商城轉蛋</option><option value="其他">其他</option></select>
+   <details class="catalog-filter-menu" id="catalogGachaMenu" hidden>
+    <summary id="catalogGachaLabel">轉蛋分類：全部</summary>
+    <div id="catalogGachaTypes" class="catalog-filter-menu__options" role="group" aria-label="勾選轉蛋分類">
+      <label><input type="checkbox" value="XR"> XR</label>
+      <label><input type="checkbox" value="紅利轉蛋"> 紅利轉蛋</label>
+      <label><input type="checkbox" value="商城轉蛋"> 商城轉蛋</label>
+      <label><input type="checkbox" value="其他"> 其他</label>
+    </div>
+   </details>
   </div>
   <div class="catalog-filters">
    <details class="catalog-filter-menu" id="catalogSlotMenu">
