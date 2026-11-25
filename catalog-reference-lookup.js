@@ -39,11 +39,16 @@
    return out;
  }
  function ability(info){return info.effect?(info.effect+(info.effectRecord?'（外部版本參考，繁星尚未核對）':'')):'尚無可核對的裝備能力資料';}
- // Existing special-collection rules mark the first requirement as the UR/XR representative.
+ // Ordinary special collections use the first UR/XR; ascended collections use the second UR (sixth requirement).
+ const isAscended=item=>/^昇華(?:●|[\s・．.]|$)/.test(String(item?.name||''));
+ function representative(item){
+   const req=Array.isArray(item?.required)?item.required:[];
+   return isAscended(item)?(req[5]||''):(req[0]||item?.name||'');
+ }
  // Use only that actual item (never guess another image by similar name).
  function collectionCover(item,resolve,original=''){
    if(!item||!['特殊收藏','JRO收藏'].includes(item.group))return original;
-   const name=Array.isArray(item.required)&&item.required.length?item.required[0]:item.name;
+   const name=representative(item);
    if(!name)return original;
    return (typeof resolve==='function'?resolve(name):details(name).image)||original;
  }
@@ -76,14 +81,14 @@
      for(const name of names){const x=resolve(name);if(!x.url)continue;const id=identity(x.url);if(seen.has(id))continue;seen.add(id);out.push({...x,id});}
      return out;
    };
-   // Reserve each special collection's designated first UR/XR representative.
+   // Reserve each special collection's designated UR/XR representative (sixth requirement for ascended).
    // A duplicate may use another explicitly UR/XR requirement; never use an unrelated icon.
    const waiting=[];
    for(const it of rows.filter(isSpecial)){
-     const req=it.required||[],primary=resolve(req[0]||it.name),k=collectionKey(it);
+     const primary=resolve(representative(it)),k=collectionKey(it);
      const id=primary.url&&identity(primary.url);
      if(id&&!used.has(id)){used.add(id);assigned.set(k,primary.url);}
-     else waiting.push(it);
+     else if(!isAscended(it))waiting.push(it);
    }
    for(const it of waiting){
      const options=uniqueOptions((it.required||[]).slice(1)).filter(x=>x.rarity&&!used.has(x.id));

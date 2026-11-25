@@ -112,3 +112,16 @@ test('collection covers are globally unique, special reserved, and maximize elig
  assert.equal(result.size,new Set(result.values()).size);
  assert.deepEqual([...lookup.buildCollectionCovers([...rows].reverse(),config)].sort(),[...result].sort());
 });
+
+test('昇華 uses the sixth requirement (second UR), not the original UR or second listed item',()=>{
+ const lookup=require('../catalog-reference-lookup.js');
+ const original={group:'特殊收藏',row:1,name:'奴隸的反撲',required:['奴隸的項圈','紅色貓耳魔女帽']};
+ const ascended={group:'特殊收藏',row:2,name:'昇華●奴隸的反撲',required:['奴隸的項圈','紅色貓耳魔女帽','披肩','皇冠','手杖','(IRO) 流放忍者之眼 [1]']};
+ const config={images:{'奴隸的項圈':'https://example.com/original.png','紅色貓耳魔女帽':'https://example.com/wrong.png','(IRO) 流放忍者之眼 [1]':'https://example.com/ascended.png'}};
+ const result=lookup.buildCollectionCovers([original,ascended],config);
+ assert.equal(result.get(lookup.collectionKey(original)),config.images['奴隸的項圈']);
+ assert.equal(result.get(lookup.collectionKey(ascended)),config.images['(IRO) 流放忍者之眼 [1]']);
+ assert.equal(lookup.collectionCover(ascended,n=>config.images[n]),config.images['(IRO) 流放忍者之眼 [1]']);
+ delete config.images['(IRO) 流放忍者之眼 [1]'];
+ assert.equal(lookup.buildCollectionCovers([original,ascended],config).get(lookup.collectionKey(ascended)),undefined);
+});
