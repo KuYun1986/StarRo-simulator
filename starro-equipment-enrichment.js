@@ -93,6 +93,10 @@ const VERIFIED={
 };
 const verified=new Map(Object.entries(VERIFIED).map(([name,data])=>[key(name),{...data,matchedName:name}]));
 function officialEffect(name){
+  // More verified TWRO notices supplement the original curated excerpts.
+  const published=root.StarroOfficialEquipment?.lookup(name);
+  if(published)return {text:published.effect,url:published.source,
+    matchedName:published.name,partial:true,publisher:published.publisher};
   const n=stripQuantity(name);
   let found=verified.get(key(n));
   if(found)return {...found,partial:true};
@@ -102,12 +106,13 @@ function officialEffect(name){
   found=verified.get(key(noRank));
   return found?{...found,partial:true,prefixAdjusted:true}:null;
 }
-function sourceFooter(){
+function sourceFooter(record){
+  const url=record?.url||U;
   return '<div class="starro-data-source-note"><b>資料來源：</b>'+
-   '<a href="'+U+'" target="_blank" rel="noopener noreferrer">RO仙境傳說Online 官方裝備說明與改造資料</a>；'+
-   '<a href="https://event.gnjoy.com.tw/RoZ/RoZ_ItemSearch" target="_blank" rel="noopener noreferrer">官方道具查詢平台</a>；'+
-   '<a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">轉蛋及道具來源參考資料</a>。'+
-   '能力以所屬伺服器遊戲內實際設定為準；官方摘錄不代表已驗證私人伺服器數值。</div>';
+   '<a href="'+url+'" target="_blank" rel="noopener noreferrer">台灣 RO 官方裝備公告（查核摘要）</a>；'+
+   '<a href="https://event.gnjoy.com.tw/Ro/RoItemSearch" target="_blank" rel="noopener noreferrer">官方裝備道具查詢平台</a>；'+
+   '<a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">既有轉蛋／道具來源參考</a>。'+
+   '官方效果摘要並非完整詞條；不同伺服器的實際能力以遊戲內為準。</div>';
 }
 function isGachaSource(source){
   return /轉蛋|扭蛋/.test(String(source||''));

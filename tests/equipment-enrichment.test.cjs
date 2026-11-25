@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
+const official=require('../starro-official-equipment.js');
 const helper=require('../starro-equipment-enrichment.js');
 test('LT suffix is removed only in the correct slot position, not loosely',()=>{
  assert.equal(helper.isLT('翡翠戒指-LT[1]'),true);
@@ -25,7 +26,10 @@ test('refinement and rank only strip on LT original candidate matching',()=>{
  assert.equal(helper.matchesBase('阿斯特莉亞鎧甲-LT[1]','阿斯特莉亞斗篷[1]'),false);
 });
 test('never use original non-LT ability as LT effect',()=>{
- assert.equal(helper.officialEffect('翡翠戒指-LT[1]'),null);
+ const emerald=helper.officialEffect('翡翠戒指-LT[1]');
+ assert.ok(emerald?.text.includes('All State+5'));
+ assert.ok(emerald.url.includes('ro.gnjoy.com.tw'));
+ assert.equal(official.entries,14);
  assert.equal(helper.officialEffect('翡翠戒指[1]'),null);
  const official=helper.officialEffect('A階 阿斯特莉亞鎧甲-LT[1]');
  assert.ok(official&&official.text.includes('MaxHP'));
@@ -38,4 +42,16 @@ test('only explicit gacha sources are inherited',()=>{
  assert.equal(helper.isGachaSource('商城直接販售'),false);
  assert.ok(helper.conversionNote.includes('改造升級成 LT'));
  assert.ok(helper.sourceFooter().includes('資料來源'));
+});
+
+test('official sourced effect excerpts include verified bonus and source URL',()=>{
+ for(const name of ['翡翠戒指-LT[1]','翡翠耳環-LT[1]','翡翠玉結晶戰靴-LT[1]',
+  '魔力之星-LT[1]','深紅寶石胸針-LT[1]','時光超越者之戒-LT[1]']){
+  const entry=helper.officialEffect(name);
+  assert.ok(entry?.text.length>45,name+' official extract missing');
+  assert.ok(entry.url.startsWith('https://ro.gnjoy.com.tw/'),name+' official reference missing');
+ }
+ assert.equal(helper.officialEffect('不存在的 LT[1]'),null);
+ assert.ok(helper.sourceFooter(helper.officialEffect('時光超越者之戒-LT[1]')).includes('216130'));
+ assert.ok(helper.sourceFooter().includes('Ro/RoItemSearch'));
 });
