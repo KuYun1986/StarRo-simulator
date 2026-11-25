@@ -10,7 +10,7 @@ const safeImage=s=>{
   return '';
 };
 const normalize=s=>clean(s).toLocaleLowerCase('zh-TW').replace(/\s+/g,'');
-const eqName=s=>normalize(s).replace(/^(?:\+\d+\s*|[a-ds]階\s*)/i,'').replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
+const eqName=s=>window.StarroReferenceLookup.itemKey(s);
 const autoRefByName=(()=>{
   const entries=Object.entries(window.StarroReferenceItems||{});
   const normalized=new Map();

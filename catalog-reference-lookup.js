@@ -9,12 +9,38 @@
     .replace(/^\s*(?:(?:\+\d+|[A-DＳS]階|\([A-D]級\))\s*)+/i,'')
     .toLocaleLowerCase('zh-TW').replace(/[\s\u200b\ufeff]/g,'').replace(/[－–—]/g,'-');
  }
+ let cachedIndex=null,exactIndex=new Map(),zeroIndex=new Map();
+ function buildNameIndex(index){
+   if(cachedIndex===index)return;
+   cachedIndex=index;exactIndex=new Map();zeroIndex=new Map();
+   const add=(map,key,id)=>{if(!key)return;if(!map.has(key))map.set(key,new Set());map.get(key).add(String(id));};
+   for(const [id,row] of Object.entries(index.items||{})){
+     for(const name of [row.name,row.alias]){
+       const k=canonical(name);if(!k)continue;
+       add(exactIndex,k,id);add(zeroIndex,k.replace(/\[0\]$/,''),id);
+     }
+   }
+   for(const [name,id] of Object.entries(index.byName||{})){
+     if(!index.items[id])continue;
+     const k=canonical(name);add(exactIndex,k,id);add(zeroIndex,k.replace(/\[0\]$/,''),id);
+   }
+ }
  function find(name){
    const index=global.StarroReferenceIndex;
-   if(!index?.items||!index.byName)return null;
+   if(!index?.items)return null;
+   buildNameIndex(index);
    const k=canonical(name);
-   const id=index.byName[k]||aliases[k];
-   return id?index.items[id]||null:null;
+   if(!k)return null;
+   if(aliases[k]&&index.items[aliases[k]])return index.items[aliases[k]];
+   const exact=exactIndex.get(k);
+   if(exact)return exact.size===1?index.items[[...exact][0]]||null:null;
+   // Only [0] and omitted slot are equivalent; never collapse [1], [2], LT or different server prefixes.
+   const loose=zeroIndex.get(k.replace(/\[0\]$/,''));
+   return loose?.size===1?index.items[[...loose][0]]||null:null;
+ }
+ function itemKey(name){
+   const row=find(name);
+   return row?.itemId?'id:'+row.itemId:canonical(name);
  }
  // Normalize the same egg across the server index, legacy import and CMS.
  function dedupeSources(values){
@@ -151,8 +177,16 @@
      return false;
    }
    for(const row of ordinary)place(row,new Set());
+   // A custom collection may supply a unique explicit cover; never duplicate an assigned icon.
+   for(const url of assigned.values())used.add(identity(url));
+   for(const it of rows){
+     const key=collectionKey(it);
+     if(it.group!=='自訂收藏'||assigned.has(key))continue;
+     const url=safe(it.image)||safe(images.get(canonical(it.name)));
+     if(url&&!used.has(identity(url))){used.add(identity(url));assigned.set(key,url);}
+   }
    return assigned;
  }
- global.StarroReferenceLookup=Object.freeze({canonical,find,details,merge,ability,collectionCover,collectionKey,buildCollectionCovers,dedupeSources});
+ global.StarroReferenceLookup=Object.freeze({canonical,find,itemKey,details,merge,ability,collectionCover,collectionKey,buildCollectionCovers,dedupeSources});
  if(typeof module!=='undefined'&&module.exports)module.exports=global.StarroReferenceLookup;
 })(typeof window==='undefined'?globalThis:window);

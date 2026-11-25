@@ -136,3 +136,19 @@ test('deduplicate UR and other gacha tiers without merging different issues or I
  assert.ok(rows.includes('禁咒轉蛋｜SSS獎｜編號 61966'));
  assert.equal(lookup.dedupeSources(['紅利轉蛋（1）｜UR獎｜編號 1','紅利轉蛋（1）｜UR獎｜編號 2']).length,2);
 });
+
+test('zero-slot alias uses the same StarRO item ID, preserves slotted and LT variants, rejects ambiguity',()=>{
+ const lookup=require('../catalog-reference-lookup.js');
+ globalThis.StarroReferenceIndex={items:{'410088':{itemId:'410088',name:'(JRO)動力耳麥裝置',type:'頭飾',gacha:[{name:'紅利轉蛋-XR（24）',tier:'SS',boxId:'62200'},{name:'紅利轉蛋-XR（21）',tier:'SS',boxId:'62197'},{name:'紅利轉蛋-XR（17）',tier:'SS',boxId:'62193'},{name:'紅利轉蛋（14）',tier:'SSS',boxId:'62127'},{name:'紅利轉蛋（13）',tier:'SS',boxId:'62126'}]},'18655':{itemId:'18655',name:'(JRO)俠盜單眼眼鏡',gacha:[{name:'紅利轉蛋（12）',tier:'S',boxId:'62125'}]}},byName:{}};
+ assert.equal(lookup.find('(JRO) 動力耳麥裝置 [0]').itemId,'410088');
+ assert.equal(lookup.find('+10 （JRO） 動力耳麥裝置 ［０］').itemId,'410088');
+ assert.equal(lookup.details('(JRO) 動力耳麥裝置 [0]').sources.length,5);
+ assert.equal(lookup.itemKey('(JRO) 俠盜單眼眼鏡 [0]'),lookup.itemKey('(JRO)俠盜單眼眼鏡'));
+ assert.equal(lookup.find('(JRO) 動力耳麥裝置 [1]'),null);
+ assert.equal(lookup.find('(JRO) 動力耳麥裝置-LT [0]'),null);
+ assert.equal(lookup.find('(IRO) 動力耳麥裝置 [0]'),null);
+ globalThis.StarroReferenceIndex={items:{'1':{itemId:'1',name:'測試'},'2':{itemId:'2',name:'測試[0]'},'3':{itemId:'3',name:'測試[1]'}},byName:{}};
+ assert.equal(lookup.find('測試[0]').itemId,'2');
+ assert.equal(lookup.find('測試[1]').itemId,'3');
+ delete globalThis.StarroReferenceIndex;
+});
