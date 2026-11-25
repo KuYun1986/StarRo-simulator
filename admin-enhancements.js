@@ -18,7 +18,7 @@
     {key:'cash', icon:'💳', label:'現金區', href:'CASH.html', visible:true, note:'儲值級距 / 紅利'},
     {key:'shadow', icon:'💎', label:'影子區', href:'shadow.html', visible:true, note:'影子結晶 / 試算'}
   ];
-  const DEFAULT_SHADOW = { enabled:true, title:'影子裝備實驗室', desc:'影子結晶、升級素質與測傷區統一成實驗室風格，像遊戲內專門研究傷害與結晶的介面。', side:'影子區適合後續再加更多圖表或職業預設模板，現在先把整體視覺統一成同一套 RO 風。', action1Text:'💰 前往裝備成本區', action1Href:'equipment.html', action2Text:'🔐 管理後台', action2Href:'admin.html' };
+  const DEFAULT_SHADOW = { enabled:true, title:'影子裝備實驗室', desc:'影子結晶、升級素質與原有傷害倍率比較統一成實驗室風格。', side:'影子區適合後續再加更多圖表或職業預設模板，現在先把整體視覺統一成同一套 RO 風。', action1Text:'💰 前往裝備成本區', action1Href:'equipment.html', action2Text:'🔐 管理後台', action2Href:'admin.html' };
 
   function esc(s){return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function clone(v){return JSON.parse(JSON.stringify(v));}
