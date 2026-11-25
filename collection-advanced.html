@@ -473,7 +473,7 @@ section{padding:12px;min-width:0}
 <script src="reference-items.js?v=20261125-reference"></script>
 <script src="starro-equipment-enrichment.js?v=20261125-starro-primary-v2"></script>
 <script src="catalog-reference-data.js?v=20261125-starro-primary-v2"></script>
-<script src="catalog-reference-lookup.js?v=20261125-ascended-cover1"></script>
+<script src="catalog-reference-lookup.js?v=20261125-gacha-source-dedup2"></script>
 <script src="starro-online-lookup.js?v=20261125-online"></script>
 <script>
 /* ITEMS moved to collection-data.js */
@@ -742,27 +742,9 @@ function itemSourceData(raw){
  return {name,info,gacha,explicit,derived,official:info.effectRecord||null};
 }
 function mergedItemSources(d){
- const entries=new Map();
- for(const raw of [...d.explicit,...d.gacha.map(x=>x.name+'｜'+x.type+(x.rate?'｜'+x.rate:''))]){
-   const str=String(raw).trim();
-   const m=str.match(/(紅利轉蛋\s*[-－]?\s*XR|XR轉蛋\s*[-－]?|紅利轉蛋)\s*[（(]\s*(\d+)\s*[）)]/i);
-   if(!m){entries.set(str,str);continue;}
-   const xr=/XR/i.test(m[1]), name=(xr?'XR轉蛋-':'紅利轉蛋')+'（'+m[2]+'）';
-   const tail=str.slice(m.index+m[0].length);
-   const rank=tail.match(/(?:^|[\s（(｜|])\s*(XR|UR|SSR|SR|R|N)\s*獎?(?=$|[\s）)｜|])/i)?.[1]?.toUpperCase();
-   const id=tail.match(/編號\s*[:：]?\s*(\d+)/)?.[1];
-   if(!rank){entries.set(str,str);continue;}
-   const key=name+'｜'+rank+'獎';
-   const label=key+(id?'｜編號 '+id:'');
-   if(!entries.has(key)||id)entries.set(key,label);
- }
- const all=[...entries.values()];
- const enrich=window.StarroEquipmentEnrichment;
- if(d.derived)for(const source of d.derived.sources){
-   const text='非LT原版「'+d.derived.base+'」｜'+source;
-   if(!all.includes(text))all.push(text);
- }
- return all;
+ const values=[...d.explicit,...d.gacha.map(x=>x.name+'｜'+x.type+(x.rate?'｜'+x.rate:''))];
+ if(d.derived)for(const source of d.derived.sources)values.push('非LT原版「'+d.derived.base+'」｜'+source);
+ return window.StarroReferenceLookup.dedupeSources(values);
 }
 function sourceSummary(raw){
  const d=itemSourceData(raw);

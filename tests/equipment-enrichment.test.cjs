@@ -125,3 +125,14 @@ test('昇華 uses the sixth requirement (second UR), not the original UR or seco
  delete config.images['(IRO) 流放忍者之眼 [1]'];
  assert.equal(lookup.buildCollectionCovers([original,ascended],config).get(lookup.collectionKey(ascended)),undefined);
 });
+
+test('deduplicate UR and other gacha tiers without merging different issues or IDs',()=>{
+ const lookup=require('../catalog-reference-lookup.js');
+ const rows=lookup.dedupeSources(['紅利轉蛋-XR（3）（UR獎）','轉蛋：紅利轉蛋-XR（03）（UR）｜編號 62179','XR轉蛋-（3）｜UR賞','紅利轉蛋-XR（3）','紅利轉蛋（10）（UR）｜編號 62123','禁咒轉蛋（SSS獎）','轉蛋：禁咒轉蛋（SSS）｜編號 61966','紅利轉蛋-XR（3）｜XR獎']);
+ assert.equal(rows.length,4);
+ assert.ok(rows.includes('紅利轉蛋-XR（3）｜UR獎｜編號 62179'));
+ assert.ok(rows.includes('紅利轉蛋-XR（3）｜XR獎'));
+ assert.ok(rows.includes('紅利轉蛋（10）｜UR獎｜編號 62123'));
+ assert.ok(rows.includes('禁咒轉蛋｜SSS獎｜編號 61966'));
+ assert.equal(lookup.dedupeSources(['紅利轉蛋（1）｜UR獎｜編號 1','紅利轉蛋（1）｜UR獎｜編號 2']).length,2);
+});

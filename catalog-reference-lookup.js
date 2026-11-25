@@ -16,11 +16,50 @@
    const id=index.byName[k]||aliases[k];
    return id?index.items[id]||null:null;
  }
+ // Normalize the same egg across the server index, legacy import and CMS.
+ function dedupeSources(values){
+   const groups=new Map(),other=new Set();
+   for(const raw of values||[]){
+     if(typeof raw!=='string'||!raw.trim())continue;
+     const text=raw.trim().normalize('NFKC');
+     const prefix=text.match(/^非LT原版「([^」]+)」\s*\|\s*/i);
+     const body=text.replace(/^非LT原版「[^」]+」\s*\|\s*/i,'').replace(/\s*\(取得後需改造升級為 LT\)$/i,'').replace(/^(?:轉蛋|扭蛋)\s*:\s*/,'');
+     const egg=body.match(/^((?:紅利轉蛋\s*[-–—]?\s*XR|XR轉蛋\s*[-–—]?|紅利轉蛋|[^|()]*?(?:轉蛋|扭蛋)))\s*(?:\(\s*(\d+)\s*\))?/i);
+     if(!egg){other.add(raw.trim());continue;}
+     let name=egg[1].replace(/\s+/g,'').replace(/[–—]/g,'-');
+     if(/^(?:紅利轉蛋-?XR|XR轉蛋-?)$/i.test(name))name='紅利轉蛋-XR';
+     if(egg[2])name+='（'+Number(egg[2])+'）';
+     const tail=body.slice(egg[0].length);
+     const rank=tail.match(/(?:^|[\s(|])\s*(XR|UR|SSS|SSR|SS|SR|S|R|N)\s*(?:獎|賞)?(?=$|[\s)|])/i)?.[1]?.toUpperCase()||'';
+     const id=tail.match(/編號\s*:?\s*(\d+)/)?.[1]||'';
+     const rate=tail.match(/(\d+(?:\.\d+)?)\s*%/)?.[0]||'';
+     const key=(prefix?.[1]||'')+'|'+name;
+     if(!groups.has(key))groups.set(key,{name,prefix:prefix?.[1]||'',records:[]});
+     groups.get(key).records.push({rank,id,rate});
+   }
+   const result=[];
+   for(const g of groups.values()){
+     const ranked=g.records.filter(x=>x.rank);
+     const ranks=[...new Set(ranked.map(x=>x.rank))];
+     const use=ranks.length?ranks:[''];
+     for(const rank of use){
+       const exact=g.records.filter(x=>x.rank===rank);
+       const unknown=use.length===1?g.records.filter(x=>!x.rank):[];
+       const records=[...exact,...unknown];
+       const ids=[...new Set(records.map(x=>x.id).filter(Boolean))];
+       for(const id of ids.length?ids:['']){
+         const rate=records.find(x=>(!x.id||x.id===id)&&x.rate)?.rate||'';
+         result.push((g.prefix?'非LT原版「'+g.prefix+'」｜':'')+g.name+(rank?'｜'+rank+'獎':'')+(id?'｜編號 '+id:'')+(rate?'｜'+rate:''));
+       }
+     }
+   }
+   return [...result,...other];
+ }
  function details(name){
    const data=find(name);
    if(!data)return {};
    const gacha=Array.isArray(data.gacha)?data.gacha:[];
-   const sources=[...new Set(gacha.filter(x=>x&&x.name).map(x=>x.name+(x.tier?'（'+x.tier+'獎）':'')))];
+   const sources=dedupeSources(gacha.filter(x=>x&&x.name).map(x=>x.name+(x.tier?'｜'+x.tier+'獎':'')+(x.boxId?'｜編號 '+x.boxId:'')));
    return {itemId:data.itemId||'',type:data.type||'',alias:data.alias||'',image:data.image||'',stats:data.stats||'',description:data.description||'',effect:data.effect||'',
      sourceLabel:data.sourceLabel||'',sourceUrl:data.sourceUrl||'',referenceSite:global.StarroReferenceIndex.site||site,sources,gacha};
  }
@@ -29,7 +68,7 @@
    const primary=details(name),id=primary.itemId||manual.itemId||imported.itemId||'',ext=fallback[id];
    const out={};
    for(const row of [imported,primary,manual])for(const [k,v] of Object.entries(row))if(nonempty(v))out[k]=v;
-   out.sources=[...new Set([...(primary.sources||[]),...(imported.sources||[]),...(manual.sources||[]),manual.source].filter(x=>typeof x==='string'&&x.trim()))];
+   out.sources=dedupeSources([...(primary.sources||[]),...(imported.sources||[]),...(manual.sources||[]),manual.source]);
    const abilityPattern=/(?:ATK|MATK|MHP|MSP|MaxHP|MaxSP|MDEF|STR|DEX|技能傷害|物理傷害|魔法傷害|技能後延遲|固定詠唱)\s*[+＋-－]|(?:傷害|抗性|暴擊|詠唱|延遲).*(?:[+＋-－]|增加|減少)/i;
    const existing=out.effect||(abilityPattern.test(out.stats||'')?out.stats:'');
    if(existing){out.effect=existing;if(existing===out.stats)out.stats='';out.effectRecord=null;}
@@ -114,6 +153,6 @@
    for(const row of ordinary)place(row,new Set());
    return assigned;
  }
- global.StarroReferenceLookup=Object.freeze({canonical,find,details,merge,ability,collectionCover,collectionKey,buildCollectionCovers});
+ global.StarroReferenceLookup=Object.freeze({canonical,find,details,merge,ability,collectionCover,collectionKey,buildCollectionCovers,dedupeSources});
  if(typeof module!=='undefined'&&module.exports)module.exports=global.StarroReferenceLookup;
 })(typeof window==='undefined'?globalThis:window);

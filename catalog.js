@@ -197,7 +197,7 @@ function ltInheritedGacha(name){
  const direct=baseDetail.sources.filter(enrich.isGachaSource);
  const related=equipmentEntries().find(x=>eqName(x.name)===eqName(base));
  const gacha=(related?.sources||[]).map(x=>x.pool+(x.rate?'（'+x.rate+'）':''));
- const sources=[...new Set([...direct,...gacha].filter(enrich.isGachaSource))];
+ const sources=window.StarroReferenceLookup.dedupeSources([...direct,...gacha].filter(enrich.isGachaSource));
  return sources.length?{base,sources}:null;
 }
 function registeredSources(name){
@@ -207,7 +207,7 @@ function registeredSources(name){
  const gacha=related?.sources.map(x=>x.pool+(x.rate?'（'+x.rate+'）':''))||[];
  const inherited=ltInheritedGacha(name);
  const linked=inherited?.sources.map(source=>'非LT原版「'+inherited.base+'」｜'+source+'（取得後需改造升級為 LT）')||[];
- return [...new Set([...explicit,...gacha,...linked])];
+ return window.StarroReferenceLookup.dedupeSources([...explicit,...gacha,...linked]);
 }
 function selectedRequiredPanel(item){
  const required=item.required||[];
@@ -343,15 +343,10 @@ function groupedRequiredSources(req){
   const names=[...new Set(req.map(raw=>clean(raw).replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'')))];
   return '<div class="catalog-detail-section"><h3>需求道具的已知取得來源</h3>'+names.map(name=>{
     const derived=ltInheritedGacha(name);
-    const rows=new Map();
-    for(const raw of registeredSources(name)){
-      const source=raw.replace(/^非LT原版「[^」]+」｜/,'').replace(/（取得後需改造升級為 LT）$/,'');
-      const key=source.replace(/^轉蛋[：:]\s*/,'').replace(/\s*｜\s*編號\s*\d+\s*$/,'').replace(/(SSS|SS|S)獎(?=[）)])/g,'$1').replace(/[\s（）()]/g,'');
-      if(!rows.has(key)||(!/編號/.test(rows.get(key))&&/編號/.test(source)))rows.set(key,source);
-    }
+    const rows=window.StarroReferenceLookup.dedupeSources(registeredSources(name));
     return '<section style="margin:14px 0;padding:14px;border:1px solid #b8c8d8;border-radius:10px;background:#f4f7fb;color:#24384c;overflow-wrap:anywhere"><h4 style="margin:0 0 8px;font-size:1.08rem;color:#173653">'+esc(name)+'</h4>'+
       (derived?'<p style="margin:0 0 8px;color:#42566b">原始道具：'+esc(derived.base)+'</p>':'')+
-      (rows.size?'<ul style="margin:0;padding-left:1.3em;line-height:1.65">'+[...rows.values()].map(s=>'<li style="margin:4px 0;color:#24384c">'+esc(s)+'</li>').join('')+'</ul>':'<p>尚未登錄取得來源</p>')+
+      (rows.length?'<ul style="margin:0;padding-left:1.3em;line-height:1.65">'+rows.map(s=>'<li style="margin:4px 0;color:#24384c">'+esc(s)+'</li>').join('')+'</ul>':'<p>尚未登錄取得來源</p>')+
       (derived?'<p style="margin:10px 0 0;color:#42566b">※ 取得原始道具後，需改造升級為 LT。</p>':'')+'</section>';
   }).join('')+'</div>';
 }
@@ -367,7 +362,7 @@ function openDetail(kind,i){
       detailSection('收藏效果',[entry.effect||'尚無效果說明'])+
       '<div class="catalog-detail-section"><h3>所需裝備／卡片（點選可查詳細資料與其他收藏）</h3>'+collectionEquipmentHtml(req)+'</div>'+
       groupedRequiredSources(req)+
-      detailSection('後台建立的轉蛋關聯',sources.map(x=>x.pool+'｜'+x.drop.name+(x.drop.rate?'｜'+x.drop.rate:'')+(x.ltDerived?'｜非LT原版，須改造升級為 LT':'')))+
+
       '<div class="catalog-detail-section"><button class="catalog-detail-btn" type="button" id="catalogToggleSelected" data-key="'+esc(keyOf(entry))+'">'+(has?'取消勾選':'✓ 標記已收藏')+'</button></div>';
   }else if(kind==='equipment'){
     html=equipmentDetailHtml(entry);
@@ -380,13 +375,13 @@ function openDetail(kind,i){
         '<span><b>'+esc(x.name)+'</b><small>'+esc(x.rate||'尚無已確認機率')+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</div></div>';
   }else{
     html=detailHeader(entry.name,imageFor(entry.name,entry.images[0]),'gacha')+
-      detailSection('出現轉蛋',entry.sources.map(x=>x.pool+'｜'+x.type+(x.rate?'｜'+x.rate:'') ));
+      detailSection('出現轉蛋及已登錄來源',registeredSources(entry.name));
     const detail=equipDetail(entry.name);
     if(detail&&Object.keys(detail).length){
       html+=detailSection('道具詳細資料',[detail.type&&'分類：'+detail.type,detail.itemId&&'編號：'+detail.itemId,detail.description,window.StarroReferenceLookup.ability(detail),detail.stats].filter(Boolean));
       const reference=typeof detail.referenceUrl==='string'&&/^https:\/\//i.test(detail.referenceUrl)?detail.referenceUrl:'';
       // Detail source links are consolidated into the final source footer.
-      html+=detailSection('其他已登錄來源',[detail.source,...(Array.isArray(detail.sources)?detail.sources:[])].filter(Boolean));
+
       html+=window.StarroOnlineLookup?.render(entry.name,detail.itemId,detail.referenceUrl||detail.referenceSite)||'';
     }
     const related=allCollections().filter(x=>(x.required||[]).some(r=>eqName(r)===eqName(entry.name)));
