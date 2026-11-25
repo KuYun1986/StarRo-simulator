@@ -304,3 +304,56 @@ body .wrap #list .item .badge:not(.jro){
   background:#edf3f7!important;
   border-color:#cadbe4!important;
 }
+
+
+/* Collection atlas: readable source item names and acquisition descriptions on light cards. */
+body .catalog-app .catalog-selected-sources {
+  background:#edf5f9!important;
+  border-color:#b9cfdd!important;
+  color:#273f52!important;
+}
+body .catalog-app .catalog-selected-sources > b {
+  color:#60472e!important;
+  font-size:13px;
+  line-height:1.55;
+}
+body .catalog-app .catalog-selected-sources .catalog-source-line {
+  border-top-color:#c7d9e5!important;
+  gap:5px;
+}
+body .catalog-app .catalog-selected-sources .catalog-source-line button {
+  background:#fff!important;
+  color:#263f53!important;
+  border:1px solid #b9cdd9!important;
+  font-size:13px!important;
+  line-height:1.55!important;
+  font-weight:800!important;
+  text-align:left;
+  width:100%;
+  min-height:38px;
+}
+body .catalog-app .catalog-selected-sources .catalog-source-line button > span:not(.catalog-cover) {
+  color:#263f53!important;
+  -webkit-text-fill-color:#263f53!important;
+}
+body .catalog-app .catalog-selected-sources .catalog-source-line button:hover {
+  background:#e1edf4!important;
+  border-color:#7e9eb4!important;
+}
+body .catalog-app .catalog-selected-sources .catalog-source-line small {
+  display:block;
+  color:#293f52!important;
+  -webkit-text-fill-color:#293f52!important;
+  opacity:1!important;
+  background:transparent!important;
+  font-size:12.5px!important;
+  line-height:1.7!important;
+  font-weight:650;
+  overflow-wrap:anywhere;
+  white-space:normal;
+}
+body .catalog-app .catalog-card__effect {
+  color:#3d5568!important;
+  -webkit-text-fill-color:#3d5568!important;
+  line-height:1.7;
+}

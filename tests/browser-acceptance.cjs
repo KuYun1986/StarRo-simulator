@@ -177,6 +177,24 @@ const server=http.createServer((req,res)=>{
         assert.ok((await p.locator('.catalog-card').count())>=1,'catalog search did not return existing collection');
         await p.locator('.catalog-card input[data-pick-key]').first().check();
         assert.ok((await p.locator('.catalog-selected-sources').textContent()).includes('所需道具與已登錄來源'),'selected catalog item-source panel missing');
+
+        // Contrast regression: source summaries must be legible on light collection cards,
+        // including iPhone-sized layouts. WCAG AA for small body text is >= 4.5:1.
+        const sourceContrast=await p.locator('.catalog-selected-sources .catalog-source-line small').first().evaluate(el=>{
+          const panel=el.closest('.catalog-selected-sources');
+          const rgb=str=>(str.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
+          const luminance=str=>{
+            const [r,g,b]=rgb(str).map(c=>{const v=c/255;return v<=0.04045?v/12.92:((v+0.055)/1.055)**2.4});
+            return 0.2126*r+0.7152*g+0.0722*b;
+          };
+          const fg=luminance(getComputedStyle(el).color);
+          const bg=luminance(getComputedStyle(panel).backgroundColor);
+          return (Math.max(fg,bg)+0.05)/(Math.min(fg,bg)+0.05);
+        });
+        assert.ok(sourceContrast>=4.5,'collection source summary too faint: '+sourceContrast.toFixed(2)+':1');
+        const sourceItemColor=await p.locator('.catalog-selected-sources .catalog-source-line button > span').first().evaluate(el=>getComputedStyle(el).color);
+        assert.ok(/^rgb\(3[0-9], 6[0-9], 8[0-9]\)$/.test(sourceItemColor)||sourceItemColor==='rgb(38, 63, 83)','source item name should be dark and readable');
+
         await p.locator('.catalog-source-line button').first().click();
         assert.ok(await p.locator('#catalogDialog').isVisible(),'source item detail dialog missing');
         assert.ok((await p.locator('#catalogDialogContent').textContent()).includes('已登錄取得來源'));
