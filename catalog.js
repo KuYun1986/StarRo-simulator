@@ -30,7 +30,8 @@ const equipDetail=name=>{
     sources:[...new Set(sources.filter(x=>typeof x==='string'&&x.trim()))],
     image:manual.image||imported.image||supplemental.image||'',
     referenceSite:supplemental.referenceSite||'',
-    sourceLabel:supplemental.sourceLabel||''
+    sourceLabel:supplemental.sourceLabel||'',
+    officialEffect:window.StarroEquipmentEnrichment?.officialEffect(name)||null
   };
 };
 const imageHtml=(src,icon='🎁')=>{
@@ -103,7 +104,11 @@ function relatedCollectionHtml(items){
 }
 function equipmentDetailHtml(item){
   const info=equipDetail(item.name),src=imageFor(item.name,info.image||item.sources[0]?.image);
-  const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['參考資料版本',info.sourceLabel||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],['能力／效果',info.stats||'尚未登錄裝備效果']];
+  const basic=info.stats||'', verified=info.officialEffect;
+  const actualAbility=/(?:ATK|MATK|MHP|MSP|MaxHP|MaxSP|P\.ATK|S\.MATK|全種族|全階級|技能傷害|技能後延遲|暴擊傷害|物理傷害|魔法傷害|固定詠唱|變動詠唱)\s*[+＋-－]|(?:傷害|抗性|攻速|暴擊|詠唱|延遲|能力值).*(?:[+＋-－]|增加|減少)/i.test(basic);
+  const ability=actualAbility?basic:(verified?.text?verified.text+'（官方公告重點摘錄，非完整詞條）':'官方完整能力尚未核對');
+  const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],
+    ['能力／效果',ability],['基本資料',actualAbility?'請見能力／效果':(basic||'尚未提供')]];
   const ref=typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?info.referenceUrl:'';
   const sourceSite=typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?info.referenceSite:'';
   const online=window.StarroOnlineLookup?.render(item.name,info.itemId,ref||sourceSite)||'';
@@ -134,10 +139,16 @@ function inSlot(text){
 }
 function collectionSource(item){
   const req=(item.required||[]).map(eqName);
+  const requirements=item.required||[];
+  const enrich=window.StarroEquipmentEnrichment;
   const out=[];
   for(const pool of pools()){
     for(const drop of pool.items){
-      if(req.includes(eqName(drop.name))){out.push({pool:pool.name,type:pool.type||'其他',drop});}
+      if(req.includes(eqName(drop.name))){
+        out.push({pool:pool.name,type:pool.type||'其他',drop,ltDerived:false});
+      }else if(enrich&&requirements.some(raw=>enrich.matchesBase(raw,drop.name))){
+        out.push({pool:pool.name,type:pool.type||'其他',drop,ltDerived:true});
+      }
     }
   }
   return out;
@@ -179,21 +190,41 @@ function itemFilters(it){
 function button(label,action,datum){
   return '<button type="button" data-action="'+esc(action)+'" data-id="'+esc(datum)+'">'+esc(label)+'</button>';
 }
+// LT conversion only inherits actual GACHA entries of the exact same original
+// item; the original's equipment EFFECTS are never copied onto the LT item.
+function ltInheritedGacha(name){
+ const enrich=window.StarroEquipmentEnrichment;
+ if(!enrich?.isLT(name))return null;
+ const refs=window.StarroReferenceItems||{};
+ const manuals=catalog().equipmentDetails||{};
+ const poolNames=pools().flatMap(p=>(p.items||[]).map(x=>x.name));
+ const base=enrich.findBase(name,[...Object.keys(refs),...Object.keys(manuals),...poolNames]);
+ if(!base)return null;
+ const baseDetail=equipDetail(base);
+ const direct=baseDetail.sources.filter(enrich.isGachaSource);
+ const related=equipmentEntries().find(x=>eqName(x.name)===eqName(base));
+ const gacha=(related?.sources||[]).map(x=>x.pool+(x.rate?'（'+x.rate+'）':''));
+ const sources=[...new Set([...direct,...gacha].filter(enrich.isGachaSource))];
+ return sources.length?{base,sources}:null;
+}
 function registeredSources(name){
  const detail=equipDetail(name);
  const explicit=[detail.source,detail.sources,detail.obtain,detail.obtainFrom].flat().filter(x=>typeof x==='string'&&x.trim());
  const related=equipmentEntries().find(x=>eqName(x.name)===eqName(name));
  const gacha=related?.sources.map(x=>x.pool+(x.rate?'（'+x.rate+'）':''))||[];
- return [...new Set([...explicit,...gacha])];
+ const inherited=ltInheritedGacha(name);
+ const linked=inherited?.sources.map(source=>'非LT原版「'+inherited.base+'」｜'+source+'（取得後需改造升級為 LT）')||[];
+ return [...new Set([...explicit,...gacha,...linked])];
 }
 function selectedRequiredPanel(item){
  const required=item.required||[];
  return '<div class="catalog-selected-sources"><b>📍 所需道具與已登錄來源</b>'+
  (required.length?required.map(raw=>{
    const name=clean(raw).replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
-   const sources=registeredSources(name);
+   const sources=registeredSources(name),derived=ltInheritedGacha(name);
    return '<div class="catalog-source-line"><button type="button" data-equipment-name="'+esc(name)+'">'+imageHtml(imageFor(name,equipDetail(name).image),'🛡️')+'<span>'+esc(raw)+'</span> <span aria-hidden="true">›</span></button>'+
-   '<small>'+esc(sources.length?sources.slice(0,3).join('、'):'尚未登錄取得來源')+'</small></div>';
+   '<small>'+esc(sources.length?sources.slice(0,3).join('、'):'尚未登錄取得來源')+'</small>'+
+   (derived?'<small class="starro-lt-note">⚒ '+esc(window.StarroEquipmentEnrichment.conversionNote)+'</small>':'')+'</div>';
  }).join(''):'<p>此收藏尚無需求道具資料</p>')+'</div>';
 }
 
@@ -329,7 +360,7 @@ function openDetail(kind,i){
         const name=clean(raw).replace(/\\s*[×x*]\\s*\\d+(?:\\.\\d+)?$/i,'');
         return registeredSources(name).map(s=>name+'｜'+s);
       }))].slice(0,100))+
-      detailSection('後台建立的轉蛋關聯',sources.map(x=>x.pool+'｜'+x.drop.name+(x.drop.rate?'｜'+x.drop.rate:'') ))+
+      detailSection('後台建立的轉蛋關聯',sources.map(x=>x.pool+'｜'+x.drop.name+(x.drop.rate?'｜'+x.drop.rate:'')+(x.ltDerived?'｜非LT原版，須改造升級為 LT':'')))+
       '<div class="catalog-detail-section"><button class="catalog-detail-btn" type="button" id="catalogToggleSelected" data-key="'+esc(keyOf(entry))+'">'+(has?'取消勾選':'✓ 標記已收藏')+'</button></div>';
   }else if(kind==='equipment'){
     html=equipmentDetailHtml(entry);
@@ -355,6 +386,7 @@ function openDetail(kind,i){
     html+=detailSection('相關收藏',related.slice(0,30).map(x=>x.name));
     if(!html.includes('starro-online-lookup'))html+=window.StarroOnlineLookup?.render(entry.name,detail?.itemId,detail?.referenceUrl||detail?.referenceSite)||'';
   }
+  html+=window.StarroEquipmentEnrichment?.sourceFooter()||'';
   $('catalogDialogContent').innerHTML=html;
   const dialog=$('catalogDialog');
   if(!dialog.open)dialog.showModal();
