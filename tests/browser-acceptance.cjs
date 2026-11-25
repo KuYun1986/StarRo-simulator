@@ -53,6 +53,22 @@ const server=http.createServer((req,res)=>{
       }
       if(url==='collection-advanced.html'){
         assert.equal(await p.locator('#jroMvpBox').count(),0,'JRO search should be moved out of collection');
+        assert.equal(await p.locator('#subcatMenu:not([open])').count(),1,'subcategory menu should start collapsed');
+        assert.equal(await p.locator('#specialMenu:not([open])').count(),1,'special category menu should start collapsed');
+        await p.locator('#subcatMenu > summary').click();
+        const subcatInputs=p.locator('#subcatChips input[type="checkbox"]');
+        assert.ok(await subcatInputs.count()>=2,'subcategory checkbox choices missing');
+        await subcatInputs.first().check();
+        assert.ok((await p.locator('#subcatMeta').textContent()).includes('已選 1 種'));
+        await p.locator('#subcatClear').click();
+        assert.equal(await p.locator('#subcatChips input:checked').count(),0,'subcategory clear failed');
+        await p.locator('#specialMenu > summary').click();
+        const specialInputs=p.locator('#specialChips input[type="checkbox"]');
+        assert.ok(await specialInputs.count()>=1,'special category checkbox choices missing');
+        await specialInputs.first().check();
+        assert.ok((await p.locator('#specialMeta').textContent()).includes('已選 1 類'));
+        await p.locator('#specialClearChoices').click();
+        assert.equal(await p.locator('#specialChips input:checked').count(),0,'special category clear failed');
       }
       if(url==='equipment.html'){
         assert.ok(await p.locator('#serviceMultiOptions').count());
