@@ -277,9 +277,22 @@ function unifiedResults(collections,allPools){
   return {entries,counts:{collection:collectionsFound.length,equipment:equipmentFound.length,
     gacha:dropsFound.length+poolsFound.length},pools:poolsFound,drops:dropsFound};
 }
+const SIM_CAP_KEY='starro_collection_gallery_caps';
+function renderSimulation(collections){
+  const sim=window.StarroCollectionSimulation.calculate(collections,selected);
+  const fmt=n=>Number(n).toLocaleString('zh-TW',{maximumFractionDigits:4});
+  const cap=id=>Math.max(0,Math.floor(Number($(id).value)||0));
+  const n=cap('simNormalCap'),s=cap('simSpecialCap');
+  for(const [id,value] of Object.entries({simTotal:fmt(sim.total),simSelected:fmt(sim.count),simNormal:fmt(sim.normal)+' / '+fmt(n),simSpecial:fmt(sim.special)+' / '+fmt(s),simSaved:fmt(sim.saved)}))$(id).textContent=value;
+  $('simNormal').classList.toggle('over-cap',sim.normal>n);$('simSpecial').classList.toggle('over-cap',sim.special>s);
+  $('simEffectCount').textContent='（'+sim.entries.length+' 項）';$('simConditionCount').textContent='（'+sim.conditions.length+' 組）';
+  $('simStats').innerHTML=sim.entries.length?sim.entries.map(([k,v])=>'<div class="catalog-sim-stat"><span>'+esc(k.replace(/%$/,''))+'</span><b>'+(v>0?'+':'')+esc(fmt(v))+(k.endsWith('%')?'%':'')+'</b></div>').join(''):'<div class="catalog-sim-empty">勾選收藏後會顯示總能力</div>';
+  $('simConditions').innerHTML=sim.conditions.length?sim.conditions.map(x=>'<div class="catalog-sim-condition"><b>'+esc(x.name)+'</b>'+esc(x.effects)+'</div>').join(''):'<div class="catalog-sim-empty">目前沒有條件式效果</div>';
+}
 function render(){
   cachedEquipmentEntries=null;
   const collections=allCollections(),allPools=pools();
+  renderSimulation(collections);
   collectionCovers=window.StarroReferenceLookup.buildCollectionCovers(collections,catalog());
   $('catalogTotal').textContent=collections.length.toLocaleString('zh-TW');
   $('catalogPoolTotal').textContent=allPools.length.toLocaleString('zh-TW');
@@ -402,6 +415,11 @@ function openDetail(kind,i){
   if(!dialog.open)dialog.showModal();
 }
 function init(){
+  try{const caps=JSON.parse(localStorage.getItem(SIM_CAP_KEY)||'{}');for(const id of ['simNormalCap','simSpecialCap'])if(Number.isFinite(caps[id]))$(id).value=caps[id];}catch(e){}
+  for(const id of ['simNormalCap','simSpecialCap'])$(id).addEventListener('input',()=>{
+    try{localStorage.setItem(SIM_CAP_KEY,JSON.stringify({simNormalCap:Number($('simNormalCap').value),simSpecialCap:Number($('simSpecialCap').value)}));}catch(e){}
+    renderSimulation(allCollections());
+  });
   const slotChoices=slots.slice(1);
   $('catalogSlots').innerHTML=slotChoices.map(x=>'<label><input type="checkbox" value="'+esc(x)+'"> '+esc(x)+'</label>').join('');
   const syncLabels=()=>{

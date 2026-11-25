@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="starro-global-navigation.css?v=20261125-unified1">
 <script defer src="starro-global-navigation.js?v=20261125-unified1"></script>
 <link rel="stylesheet" href="starro-contrast-aa.css?v=20261125-aa1">
+<link rel="stylesheet" href="catalog-simulation.css?v=20261125-sim1">
 </head>
 <body>
 <main class="catalog-app">
@@ -35,6 +36,22 @@
  <section class="catalog-hero">
   <div><p class="catalog-eyebrow">STARRO COLLECTION INDEX</p><h1>收藏、裝備、轉蛋查詢。</h1><p>使用明亮柔和的圖鑑介面，查詢收藏條件、裝備詳情、其他收藏需求與轉蛋來源。</p></div>
   <div class="catalog-counts"><div><b id="catalogTotal">—</b><span>收藏項目</span></div><div><b id="catalogPoolTotal">—</b><span>轉蛋池</span></div></div>
+ </section>
+ <section class="catalog-simulation" aria-label="收藏模擬效果">
+  <div class="catalog-sim-title"><h2>收藏模擬效果</h2><span>全站已勾選收藏即時統計</span></div>
+  <div class="catalog-sim-kpis" aria-live="polite">
+   <div><span>資料庫收藏</span><b id="simTotal">0</b></div>
+   <div><span>已勾選收藏</span><b id="simSelected">0</b></div>
+   <div><span>普通收藏使用格</span><b id="simNormal">0 / 1,000</b></div>
+   <div><span>特殊收藏使用格</span><b id="simSpecial">0 / 600</b></div>
+   <div><span>重複道具節省格數</span><b id="simSaved">0</b></div>
+  </div>
+  <details class="catalog-sim-settings"><summary>收藏格數設定</summary><div><label>普通格子 <input id="simNormalCap" type="number" min="0" step="1" value="1000"></label><label>特殊格子 <input id="simSpecialCap" type="number" min="0" step="1" value="600"></label></div></details>
+  <details class="catalog-sim-effects" open><summary>已選收藏總能力 <span id="simEffectCount"></span></summary>
+   <p>只加總明確的直接能力；條件、機率、精煉或裝備數量相關效果另外列出。</p>
+   <div id="simStats" class="catalog-sim-stats" aria-live="polite"></div>
+  </details>
+  <details class="catalog-sim-effects"><summary>條件式效果 <span id="simConditionCount"></span></summary><div id="simConditions" class="catalog-sim-conditions"></div></details>
  </section>
  <section class="catalog-controls" aria-label="搜尋與篩選">
   <div class="catalog-tabs" role="tablist" aria-label="查詢模式">
@@ -88,6 +105,7 @@
 <script src="catalog-reference-data.js?v=20261125-starro-primary-v2"></script>
 <script src="catalog-reference-lookup.js?v=20261125-jro-drilling1"></script>
 <script src="starro-online-lookup.js?v=20261125-online"></script>
-<script src="catalog.js?v=20261125-special-tab1"></script>
+<script src="collection-simulation-core.js?v=20261125-sim1"></script>
+<script src="catalog.js?v=20261125-sim1"></script>
 </body>
 </html>

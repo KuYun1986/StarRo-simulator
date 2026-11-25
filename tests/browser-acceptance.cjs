@@ -281,6 +281,10 @@ const server=http.createServer((req,res)=>{
         await p.locator('#catalogSearch').fill(legacyName);
         assert.equal(await p.locator('#catalogResults input[data-pick-key]:checked').count(),1,'Legacy Special collection progress missing in gallery');
         assert.ok((await p.locator('#catalogResults').textContent()).includes('特殊收藏'),'Special collection display name missing');
+        assert.equal(await p.locator('#simSelected').textContent(),'1');
+        assert.ok((await p.locator('#simSpecial').textContent()).startsWith('5 /'));
+        await p.locator('#catalogResults input[data-pick-key]:checked').uncheck();
+        assert.equal(await p.locator('#simSelected').textContent(),'0');
       }
       await p.screenshot({path:path.join(screenshots,url.replace('.html','')+'-'+mode+'.png'),fullPage:false});
       details.push({page:url,mode,nav,viewport:extent.window,pageWidth:extent.scroll,errors:errors.slice(0,8)});
