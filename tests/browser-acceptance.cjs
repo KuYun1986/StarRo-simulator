@@ -68,6 +68,7 @@ const server=http.createServer((req,res)=>{
         await p.reload({waitUntil:'domcontentloaded'});
         await p.locator('#search').fill(original);
         assert.ok(await p.locator('#list input[data-key]:checked').count()>=1,'Legacy JRO collection progress was not migrated');
+        await p.locator('#search').fill(''); // Restore all subcategories before the multi-select test.
         assert.ok(await p.locator('#groupFilter option[value="特殊收藏"]').count(),'special group filter missing');
         assert.equal(await p.locator('#subcatMenu:not([open])').count(),1,'subcategory menu should start collapsed');
         assert.equal(await p.locator('#specialMenu:not([open])').count(),1,'special category menu should start collapsed');
