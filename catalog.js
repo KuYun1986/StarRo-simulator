@@ -77,7 +77,7 @@ function equipmentDetailHtml(item){
     '<div class="catalog-detail-section"><h3>裝備詳細資料</h3><dl class="catalog-equipment-meta">'+
     rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+
     '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
-    detailSection('出現轉蛋／獎品來源（'+item.sources.length+'）',item.sources.map(x=>x.pool+'｜'+x.type+(x.rate?'｜'+x.rate:'')));
+    detailSection('已登錄取得來源',registeredSources(item.name).length?registeredSources(item.name):['尚未登錄取得方式或轉蛋來源，不代表沒有其他取得途徑']);
 }
 function collectionEquipmentHtml(items){
   return items.length?'<div class="catalog-equipment-list">'+items.map(name=>{
@@ -142,6 +142,24 @@ function itemFilters(it){
 function button(label,action,datum){
   return '<button type="button" data-action="'+esc(action)+'" data-id="'+esc(datum)+'">'+esc(label)+'</button>';
 }
+function registeredSources(name){
+ const detail=equipDetail(name);
+ const explicit=[detail.source,detail.sources,detail.obtain,detail.obtainFrom].flat().filter(x=>typeof x==='string'&&x.trim());
+ const related=equipmentEntries().find(x=>eqName(x.name)===eqName(name));
+ const gacha=related?.sources.map(x=>x.pool+(x.rate?'（'+x.rate+'）':''))||[];
+ return [...new Set([...explicit,...gacha])];
+}
+function selectedRequiredPanel(item){
+ const required=item.required||[];
+ return '<div class="catalog-selected-sources"><b>📍 所需道具與已登錄來源</b>'+
+ (required.length?required.map(raw=>{
+   const name=clean(raw).replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
+   const sources=registeredSources(name);
+   return '<div class="catalog-source-line"><button type="button" data-equipment-name="'+esc(name)+'">'+esc(raw)+' <span aria-hidden="true">›</span></button>'+
+   '<small>'+esc(sources.length?sources.slice(0,3).join('、'):'尚未登錄取得來源')+'</small></div>';
+ }).join(''):'<p>此收藏尚無需求道具資料</p>')+'</div>';
+}
+
 function renderCollectionCard(item,i){
   const k=keyOf(item),has=selected.has(k),sourceCount=collectionSource(item).length;
   return '<article class="catalog-card"><div class="catalog-card__top">'+imageHtml(imageFor(item.name,item.image),'📚')+
@@ -149,7 +167,8 @@ function renderCollectionCard(item,i){
     '<div class="catalog-card__effect">'+esc(item.effect||'尚無效果說明')+'</div><div class="catalog-card__meta">'+
     '<span class="catalog-chip">'+esc(item.group||'自訂收藏')+'</span><span class="catalog-chip">佔格 '+esc(item.slot||0)+'</span>'+
     (sourceCount?'<span class="catalog-chip">'+sourceCount+' 筆轉蛋關聯</span>':'')+
-    '</div></div><div class="catalog-card__bottom"><span class="'+(has?'catalog-picked':'catalog-notpicked')+'">'+(has?'✓ 已勾選':'○ 尚未勾選')+'</span>'+
+    '</div>'+(has?selectedRequiredPanel(item):'')+'</div><div class="catalog-card__bottom">'+
+    '<label class="catalog-pick"><input type="checkbox" data-pick-key="'+esc(k)+'" '+(has?'checked':'')+'><span>'+(has?'已收藏':'勾選收藏')+'</span></label>'+
     button('查看詳情','collection',String(i))+'</div></article>';
 }
 function renderPoolCard(p,i){
@@ -332,7 +351,21 @@ function init(){
     syncLabels();
     render();
   };
+  $('catalogResults').addEventListener('change',e=>{
+    const pick=e.target.closest('input[data-pick-key]');if(!pick)return;
+    if(pick.checked)selected.add(pick.dataset.pickKey);else selected.delete(pick.dataset.pickKey);
+    localStorage.setItem(progressKey,JSON.stringify([...selected]));
+    render();
+  });
   $('catalogResults').addEventListener('click',e=>{
+    const itemButton=e.target.closest('button[data-equipment-name]');
+    if(itemButton){
+      const item=equipmentEntries().find(x=>eqName(x.name)===eqName(itemButton.dataset.equipmentName));
+      const fallback=item||{name:itemButton.dataset.equipmentName,collections:[],sources:[]};
+      $('catalogDialogContent').innerHTML=equipmentDetailHtml(fallback);
+      $('catalogDialog').showModal();
+      return;
+    }
     const b=e.target.closest('button[data-action]');if(b)openDetail(b.dataset.action,Number(b.dataset.id));
   });
   $('catalogDialogClose').onclick=()=>$('catalogDialog').close();
