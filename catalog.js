@@ -16,7 +16,7 @@ const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
   return '<div class="catalog-cover">'+(url?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+esc(url)+'" alt="">':icon)+'</div>';
 };
-const state={tab:'all',view:'items',page:1,pageSize:36,slots:[],query:'',groups:[],progress:'all',gachaType:'all'};
+const state={tab:'all',view:'items',page:1,pageSize:36,slots:[],query:'',groups:[],progress:'all',gachaTypes:[]};
 const slots=['全部','頭上','頭中','頭下','鎧甲','武器','盾牌','披肩','鞋子','飾品','影子裝備','卡片','其他'];
 const keyOf=it=>it.group+'|'+it.row+'|'+it.name;
 const progressKey='starro_collection_selected';
@@ -127,13 +127,13 @@ function collectionFilters(item){
   return !q||normalize([item.name,item.effect,item.game,item.dc,...(item.required||[]),typeof JRO_NAME_PREFIX!=='undefined'?(JRO_NAME_PREFIX[keyOf(item)]||''):''].join(' ')).includes(q);
 }
 function gachaFilters(p){
-  if(state.gachaType!=='all'&&state.gachaType!==(p.type||'其他'))return false;
+  if(state.gachaTypes.length&&!state.gachaTypes.includes(p.type||'其他'))return false;
   if(!inSlot([p.name,...(p.items||[]).map(x=>x.name)].join(' ')))return false;
   const q=normalize(state.query);
   return !q||normalize([p.name,p.id||'',p.type,...(p.items||[]).map(x=>x.name)].join(' ')).includes(q);
 }
 function itemFilters(it){
-  const matchingSources=it.sources.filter(x=>state.gachaType==='all'||x.type===state.gachaType);
+  const matchingSources=it.sources.filter(x=>!state.gachaTypes.length||state.gachaTypes.includes(x.type));
   if(!matchingSources.length)return false;
   if(!inSlot(it.name))return false;
   const q=normalize(state.query);
@@ -206,7 +206,7 @@ function render(){
     $(id).classList.toggle('active',state.tab===key);
     $(id).setAttribute('aria-selected',String(state.tab===key));
   }
-  $('catalogGachaType').hidden=!gacha;
+  $('catalogGachaMenu').hidden=!gacha;
   $('catalogGroupMenu').hidden=gacha||equipment;
   $('catalogProgress').hidden=gacha||equipment;
   $('catalogViewSwitch').hidden=!gacha;
@@ -287,6 +287,9 @@ function init(){
     $('catalogSlotLabel').textContent=state.slots.length
       ? '裝備分類：'+(state.slots.length<=2?state.slots.join('、'):'已選 '+state.slots.length+' 種')
       : '裝備分類：全部';
+    $('catalogGachaLabel').textContent=state.gachaTypes.length
+      ? '轉蛋分類：'+(state.gachaTypes.length<=2?state.gachaTypes.join('、'):'已選 '+state.gachaTypes.length+' 種')
+      : '轉蛋分類：全部';
     $('catalogGroupLabel').textContent=state.groups.length
       ? '收藏分類：'+(state.groups.length<=2?state.groups.join('、'):'已選 '+state.groups.length+' 種')
       : '收藏分類：全部';
@@ -299,8 +302,12 @@ function init(){
     state.groups=[...$('catalogGroups').querySelectorAll('input:checked')].map(x=>x.value);
     state.page=1;syncLabels();render();
   });
+  $('catalogGachaTypes').addEventListener('change',()=>{
+    state.gachaTypes=[...$('catalogGachaTypes').querySelectorAll('input:checked')].map(x=>x.value);
+    state.page=1;syncLabels();render();
+  });
   document.addEventListener('click',event=>{
-    for(const id of ['catalogGroupMenu','catalogSlotMenu']){
+    for(const id of ['catalogGroupMenu','catalogSlotMenu','catalogGachaMenu']){
       const menu=$(id);
       if(menu.open&&!menu.contains(event.target))menu.open=false;
     }
@@ -312,16 +319,16 @@ function init(){
   $('catalogTabEquipment').onclick=()=>{state.tab='equipment';state.page=1;render()};
   $('catalogViewSwitch').addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b){state.view=b.dataset.view;state.page=1;render()}});
   $('catalogSearch').addEventListener('input',e=>{state.query=e.target.value;state.page=1;render()});
-  for(const [id,key] of [['catalogProgress','progress'],['catalogGachaType','gachaType']]){
+  for(const [id,key] of [['catalogProgress','progress']]){
     $(id).onchange=e=>{state[key]=e.target.value;state.page=1;render()};
   }
   $('catalogPrev').onclick=()=>{state.page--;render();window.scrollTo({top:250,behavior:'smooth'})};
   $('catalogNext').onclick=()=>{state.page++;render();window.scrollTo({top:250,behavior:'smooth'})};
   $('catalogReset').onclick=()=>{
-    Object.assign(state,{query:'',groups:[],progress:'all',gachaType:'all',slots:[],page:1});
+    Object.assign(state,{query:'',groups:[],progress:'all',gachaTypes:[],slots:[],page:1});
     ['catalogSearch'].forEach(id=>$(id).value='');
-    ['catalogProgress','catalogGachaType'].forEach(id=>$(id).value='all');
-    document.querySelectorAll('#catalogSlots input,#catalogGroups input').forEach(x=>x.checked=false);
+    ['catalogProgress'].forEach(id=>$(id).value='all');
+    document.querySelectorAll('#catalogSlots input,#catalogGroups input,#catalogGachaTypes input').forEach(x=>x.checked=false);
     syncLabels();
     render();
   };
