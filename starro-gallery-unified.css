@@ -1,0 +1,81 @@
+/* StarRo shared field-guide palette, matching the bright collection encyclopedia.
+ * Applied last to the simulator pages and admin; catalog.css already owns the gallery.
+ * Game-specific success/warning semantics and canvases remain untouched.
+ */
+:root{
+ color-scheme:light;
+ --cat-bg:#f7f8f5;--cat-panel:#fff;--cat-line:#dbe4e5;--cat-gold:#bc7d43;--cat-blue:#597db1;
+ --ux-bg:#f7f8f5;--ux-panel:#fff;--ux-panel2:#f8fafb;--ux-border:#dbe4e5;
+ --ux-text:#2b3c4b;--ux-muted:#617688;--ux-gold:#bc7d43;--ux-blue:#597db1;--ux-teal:#427b70;
+ --ux-glow:0 9px 27px rgba(44,79,102,.10);
+ --bg:#f7f8f5;--card:#fff;--card2:#f8fafb;--panel:#fff;--panel2:#f8fafb;
+ --line:#dbe4e5;--text:#304653;--muted:#647b8c;--gold:#bc7d43;--blue:#597db1;
+ --ro-bg:#f7f8f5;--ro-bg-2:#f1f5f2;--ro-panel:#fff;--ro-panel-2:#f8fafb;
+ --ro-line:#d6e1e3;--ro-line-soft:#e5ecee;--ro-gold:#bc7d43;
+ --ro-gold-soft:#ca9971;--ro-blue:#597db1;--ro-cyan:#4b8699;--ro-shadow:0 9px 27px rgba(44,79,102,.10);
+}
+html{background:#f7f8f5}
+body{
+ color:#304653!important;
+ background:radial-gradient(ellipse at 7% 8%,#eaf1ec 0,transparent 38%),
+ radial-gradient(ellipse at 95% 4%,#f7e9d9 0,transparent 35%),#f7f8f5!important;
+}
+body::before{opacity:.035!important}
+:is(.wrap,.content,main){color:#304653}
+:is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box,.stat,.metric,.home-card,.login-card,.ro-lobby,.ro-portal,.feature-table,.cat-manage){
+ background:#fff!important;color:#304653!important;
+ border:1px solid #dbe4e5!important;
+ box-shadow:0 9px 27px rgba(44,79,102,.10)!important;
+}
+:is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box,.stat,.metric,.cat-manage):is(:hover,:focus-within){border-color:#c3d9d4!important}
+:is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box,.stat,.metric) :is(h1,h2,h3){color:#304a59!important}
+:is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box,.stat,.metric) :is(.muted,.tiny,.sub,.note,.label){color:#647b8c}
+:is(.starro-navigation,.topnav,.page-links,.ro-page-hero,.ux-section-index,.ux-admin-tools){
+ background:#fff!important;color:#304653!important;
+ border-color:#d9e4e5!important;box-shadow:0 8px 26px rgba(44,79,102,.08)!important;
+}
+:is(.starro-navigation,.topnav,.page-links,.ux-section-index__links) a,
+:is(.starro-navigation,.topnav,.page-links) a:visited{
+ color:#48667a!important;background:#f8fafb!important;
+ border-color:#d9e2e5!important;box-shadow:none!important;
+}
+:is(.starro-navigation,.topnav,.page-links) a[aria-current="page"]{
+ background:#dcebe4!important;border-color:#adcbbb!important;color:#365e50!important;
+}
+:is(.starro-navigation,.topnav,.page-links) a:hover,
+.ux-section-index__links a:hover{background:#edf5f3!important;border-color:#b9d6cb!important}
+:is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+ background:#f8fafb!important;color:#38536a!important;
+ border:1px solid #d4dfe4!important;
+}
+:is(input[type="checkbox"],input[type="radio"]){accent-color:#427b70}
+:is(input:not([type="checkbox"]),select,textarea)::placeholder{color:#8095a2!important}
+:is(button,a,input,select,textarea):focus-visible{outline:3px solid #8eb6bd!important;outline-offset:2px}
+:is(.chip,.compact-choice,.catalog-chip):not(.active){
+ background:#eff3f5!important;color:#536f80!important;border-color:#d9e2e6!important;
+}
+.chip.active{background:#dcebe4!important;color:#365e50!important;border-color:#adcbbb!important;box-shadow:none!important}
+.chip small{background:#e3eaeb!important;color:#5e7381!important}
+:is(.ux-section-index__title,.ux-admin-tools__title){color:#a47652!important}
+:is(.ux-section-index__links a,.game-page-link){color:#48667a!important;background:#f7fafb!important;border-color:#d7e1e4!important}
+:is(.btn.primary,.primary):not(.badge){background:#41786e!important;color:#fff!important;border-color:#559286!important}
+:is(.btn.ghost,.btn.blue):not(.primary){background:#e3efed!important;color:#3e7069!important;border-color:#bad6d1!important}
+:is(.stat,.metric) b{color:#426f77}
+:is(th){background:#ecf3f4;color:#4a6c7b}
+:is(td){color:#405b69}
+:is(.catalog-selected-sources,.item-sources){background:#f5f9f8!important;border-color:#d5e5e0!important;color:#466474!important}
+:is(.req-total-card,.req-summary-list,.required-list){border-color:#e1e8eb;color:#486578}
+:is(.catalog-filter-menu>summary){background:#f5f8f9;color:#486477;border-color:#d5e1e4}
+:is(.catalog-filter-menu__options,.compact-options){background:#fff;color:#405c6b;border-color:#d8e4e5;box-shadow:0 14px 28px rgba(44,79,102,.13)}
+:is(.catalog-filter-menu__options label,.compact-choice){background:#f7fafb;color:#486578}
+#adminApp .topbar{background:rgba(255,255,255,.96)!important;border-color:#dce5e8!important}
+#adminApp .topbar :is(a,b,span,h1){color:#304653}
+#biosAdminPanel,#serviceRulesAdminPanel,#airPricesAdminPanel{background:#fff!important}
+#biosAdminPanel h2,#serviceRulesAdminPanel h2,#airPricesAdminPanel h2{color:#a47652!important}
+#biosAdminPanel textarea,#serviceRulesAdminPanel textarea{background:#f8fafb!important;color:#405b69!important;border-color:#d4dfe4!important}
+#versionDialog{background:#fffdfa!important;color:#304653!important;border-color:#d3dfdf!important}
+#versionDialog::backdrop{background:rgba(36,57,72,.55)}
+@media(max-width:760px){
+ :is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box){border-radius:14px!important}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
