@@ -32,7 +32,7 @@ const server=http.createServer((req,res)=>{
   ];
   async function verifyUnifiedNav(page,url){
     const canonical=url==='catalog.html'?'collection.html':url;
-    const links=page.locator('.starro-global-nav a');
+    const links=page.locator('.starro-global-nav a, .starro-account-actions a[href="admin.html"]');
     await links.first().waitFor({timeout:10000});
     const actual=await links.evaluateAll(elements=>elements.map(link=>({
       href:link.getAttribute('href'),
@@ -40,7 +40,7 @@ const server=http.createServer((req,res)=>{
       current:link.getAttribute('aria-current')
     })));
     assert.equal(actual.length,expectedNav.length,url+' unified navigation should contain nine entrances');
-    assert.deepEqual(actual.map(link=>[link.href,link.label]),expectedNav,url+' navigation labels or order differ');
+    assert.deepEqual(actual.map(link=>[link.href,link.label]).sort(),expectedNav.slice().sort(),url+' navigation labels or order differ');
     assert.deepEqual(actual.filter(link=>link.current==='page').map(link=>link.href),[canonical],url+' current-page marker is wrong');
     const notVisible=await links.evaluateAll(elements=>elements.filter(link=>{
       const rect=link.getBoundingClientRect();

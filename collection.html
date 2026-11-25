@@ -11,8 +11,8 @@
 <script src="starro-official-equipment.js?v=20261125-verified3"></script>
 <script src="starro-config.js"></script>
 <link rel="stylesheet" href="starro-soft-backgrounds.css?v=20261125-sources-readability">
-<link rel="stylesheet" href="starro-global-navigation.css?v=20261125-unified1">
-<script defer src="starro-global-navigation.js?v=20261125-zone2"></script>
+<link rel="stylesheet" href="starro-global-navigation.css?v=20261125-topactions">
+<script defer src="starro-global-navigation.js?v=20261125-topactions"></script>
 <link rel="stylesheet" href="starro-contrast-aa.css?v=20261125-aa1">
 <link rel="stylesheet" href="catalog-simulation.css?v=20261125-bulk-cloud2">
 </head>
@@ -20,6 +20,7 @@
 <main class="catalog-app">
  <header class="catalog-head">
   <div class="catalog-brand"><a href="index.html">✦ StarRo</a><span>收藏專區</span></div>
+  <div class="starro-account-actions"><button type="button" id="collectionGoogleLogin"><span class="starro-google-mark" aria-hidden="true">G</span> Google 登入</button><button type="button" id="collectionGoogleLogout" style="display:none">Google 已登入・登出</button></div>
   <nav class="catalog-topnav starro-global-nav" data-starro-unified-nav aria-label="全站分區導覽">
 <a href="index.html">🏠 主頁</a>
 <a href="game.html">🎮 遊戲區</a>
@@ -52,7 +53,7 @@
    <div id="simStats" class="catalog-sim-stats" aria-live="polite"></div>
   </details>
   <details class="catalog-sim-effects"><summary>條件式效果 <span id="simConditionCount"></span></summary><div id="simConditions" class="catalog-sim-conditions"></div></details>
-<details class="catalog-sim-effects"><summary>💾 收藏保存與匯出</summary><div class="catalog-cloud-tools"><button type="button" id="simLocalSave">保存本機進度</button><button type="button" id="simExportExcel">匯出 Excel (.xlsx)</button><button type="button" id="simExportBackup">下載備份</button><button type="button" id="simImportBackup">還原備份</button><input id="simBackupFile" type="file" accept=".json,application/json" hidden></div><p id="simSaveStatus" role="status">勾選時會自動保存到本機。</p><h3>☁️ Google 雲端登入與保存</h3><div class="catalog-cloud-tools"><button type="button" id="collectionGoogleLogin">使用 Google 登入</button><button type="button" id="collectionCloudSave" style="display:none">儲存到雲端</button><button type="button" id="collectionCloudLoad" style="display:none">載入雲端進度</button><button type="button" id="collectionGoogleLogout" style="display:none">登出</button></div><p id="collectionCloudStatus" role="status">未登入・目前進度僅保存在此瀏覽器</p></details><details class="catalog-sim-effects"><summary>📦 已選收藏需求道具 <span id="simRequiredCount"></span></summary><p>預設勾選為已有，取消勾選標記缺少。</p><div id="simRequiredList" class="catalog-sim-required"></div></details><details class="catalog-sim-effects"><summary>❗ 缺少道具 <span id="simMissingCount"></span></summary><div id="simMissingList" class="catalog-sim-required"></div></details><div class="charcalc">
+<details class="catalog-sim-effects"><summary>💾 收藏保存與匯出</summary><div class="catalog-cloud-tools"><button type="button" id="simLocalSave">保存本機進度</button><button type="button" id="simExportExcel">匯出 Excel (.xlsx)</button><button type="button" id="simExportBackup">下載備份</button><button type="button" id="simImportBackup">還原備份</button><input id="simBackupFile" type="file" accept=".json,application/json" hidden></div><p id="simSaveStatus" role="status">勾選時會自動保存到本機。</p><h3>☁️ Google 雲端登入與保存</h3><div class="catalog-cloud-tools"><button type="button" id="collectionCloudSave" style="display:none">儲存到雲端</button><button type="button" id="collectionCloudLoad" style="display:none">載入雲端進度</button></div><p id="collectionCloudStatus" role="status">未登入・目前進度僅保存在此瀏覽器</p></details><details class="catalog-sim-effects"><summary>📦 已選收藏需求道具 <span id="simRequiredCount"></span></summary><p>預設勾選為已有，取消勾選標記缺少。</p><div id="simRequiredList" class="catalog-sim-required"></div></details><details class="catalog-sim-effects"><summary>❗ 缺少道具 <span id="simMissingCount"></span></summary><div id="simMissingList" class="catalog-sim-required"></div></details><div class="charcalc">
 <details id="characterCalcDetails">
 <summary>🧮 角色素質計算機</summary>
 <div class="charcalc-note">

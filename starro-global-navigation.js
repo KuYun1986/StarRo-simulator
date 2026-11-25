@@ -14,6 +14,13 @@
         frag.appendChild(link);
       }
       nav.replaceChildren(frag);
+      const admin=nav.querySelector('a[href="admin.html"]');
+      let actions=nav.parentElement.querySelector(':scope > .starro-account-actions');
+      if(!actions){actions=document.createElement('div');actions.className='starro-account-actions';nav.before(actions);}
+      if(admin)actions.appendChild(admin);
+      if(!actions.querySelector('#collectionGoogleLogin')&&!actions.querySelector('#collectionGoogleLogout')){
+        const google=document.createElement('a');google.className='starro-google-entry';google.href='collection.html?login=1';google.textContent='G  Google 登入';actions.prepend(google);
+      }
     }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
