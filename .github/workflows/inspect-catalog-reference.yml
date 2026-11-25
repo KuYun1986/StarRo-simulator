@@ -18,7 +18,7 @@ jobs:
           try:
               req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
               with urllib.request.urlopen(req,timeout=20) as res:
-                  body=res.read(500000).decode('utf-8','replace')
+                  body=res.read(10000000).decode('utf-8','replace')
                   print('STATUS',res.status,'URL',res.url,'LENGTH',len(body))
               print('REFERENCE_SNAPSHOT_DATE: 2026-11-25')
               with open('reference-site.html','w',encoding='utf-8') as fp:fp.write(body)
@@ -44,6 +44,29 @@ jobs:
                   i=body.find(token)
                   print('MARKER', token, i, body[max(0,i-120):i+260].replace('\\n',' ') if i>=0 else '')
               print('RAW_DATA_OBJECTS:',[(m.group(1),m.start()) for m in list(re.finditer(r'(?:const|let)\\s+(\\w+)\\s*=\\s*[\\[{]',body))[:65]])
+              import json
+              m=re.search(r'<script id="encyclopedia-data" type="application/json">(.*?)</script>',body,re.S)
+              print('ENCYCLOPEDIA JSON FOUND:', bool(m))
+              if m:
+                  encyclopedia=json.loads(m.group(1))
+                  print('ENCYCLOPEDIA ITEMS:',len(encyclopedia.get('items',{})))
+                  entries={}
+                  for item_id,item in encyclopedia.get('items',{}).items():
+                      icon=str(item.get('icon') or '')
+                      if not icon.startswith('item-icons/') or not re.fullmatch(r'item-icons/[0-9]+\\.(?:png|webp|jpg)',icon):icon=''
+                      source=item.get('source') or {}
+                      entries[item_id]={
+                          'name':str(item.get('name') or ''),
+                          'alias':str(item.get('alias') or ''),
+                          'kind':str(item.get('kind') or ''),
+                          'image':'https://ro-collectitem-yuno.netlify.app/'+icon if icon else '',
+                          'sourceLabel':str(source.get('label') or ''),
+                          'sourceUrl':str(source.get('url') or ''),
+                          'gacha':[{k:v.get(k,'') for k in ('egg','box_id','channel','tier')} for v in item.get('gacha_sources',[]) if isinstance(v,dict)][:80]
+                      }
+                  with open('reference-metadata.json','w',encoding='utf-8') as f:json.dump({'origin':'https://ro-collectitem-yuno.netlify.app/','items':entries},f,ensure_ascii=False,separators=(',',':'))
+                  print('EXAMPLE META:',[(k,v['name'],v['kind'],len(v['gacha'])) for k,v in list(entries.items())[:8]])
+
           except Exception as e:print('FETCH ERROR',type(e).__name__,str(e))
           PY
 
@@ -52,5 +75,7 @@ jobs:
         if: always()
         with:
           name: reference-site-snapshot
-          path: reference-site.html
+          path: |
+            reference-site.html
+            reference-metadata.json
           retention-days: 1
