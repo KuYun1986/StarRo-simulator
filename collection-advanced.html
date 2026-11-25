@@ -300,7 +300,7 @@ section{padding:12px;min-width:0}
 <select id="groupFilter">
 <option value="all">全部收藏</option>
 <option value="普通收藏">普通收藏</option>
-<option value="JRO收藏">JRO收藏</option>
+<option value="特殊收藏">特殊收藏</option>
 <option value="自訂收藏">自訂收藏</option>
 </select>
 <button class="primary" id="selectVisible">勾選目前結果</button>
@@ -754,7 +754,7 @@ const ALIAS={
 };
 const CONDITIONAL=["每","當","時","機率","精煉","Base","base","基礎","習得","裝備一件","達到","以上","以下","依照","根據"];
 
-function keyOf(item){return item.group+"|"+item.row+"|"+item.name}
+function keyOf(item){return (item.group==="特殊收藏"?"JRO收藏":item.group)+"|"+item.row+"|"+item.name}
 function subcatOf(item){
   const m=String(item.game||"").match(/^\[[^\]]+\]([^\-\d]+)/);
   return m?m[1]:"其他";
@@ -986,7 +986,7 @@ function renderList(){
       <div>
         <div class="item-title">
           <span class="item-title-main">${catalogThumb(it)}${jroIconHtml(it.name)}${JRO_NAME_PREFIX[k]?`<span class="item-prefix">${esc(JRO_NAME_PREFIX[k])}</span>`:""}<span>${esc(it.name)}</span></span>
-          <span class="badge ${it.group==="JRO收藏"?"jro":""}">${esc(it.group)}</span>
+          <span class="badge ${it.group==="特殊收藏"?"jro":""}">${esc(it.group)}</span>
           <span class="badge">佔格 ${Number(it.slot||0)}</span>
           <span class="badge">${esc(SUBCAT_LABELS[subcatOf(it)]||subcatOf(it))}</span>
         </div>
@@ -1242,7 +1242,7 @@ function exportSelectedExcel(){
     </tr>`).join("");
 
   const normalUsed=picked.filter(it=>it.group==="普通收藏").reduce((a,it)=>a+(Number(it.slot)||0),0);
-  const jroUsed=picked.filter(it=>it.group==="JRO收藏").reduce((a,it)=>a+(Number(it.slot)||0),0);
+  const jroUsed=picked.filter(it=>it.group==="特殊收藏").reduce((a,it)=>a+(Number(it.slot)||0),0);
 
   const book=`<!doctype html>
 <html>
@@ -1425,7 +1425,7 @@ function updateSummary(){
   $("#selectedCount").textContent=selected.size.toLocaleString();
 
   const normal=calcUsedSlots("普通收藏");
-  const jro=calcUsedSlots("JRO收藏");
+  const jro=calcUsedSlots("特殊收藏");
 
   const normalUsed=normal.used;
   const jroUsed=jro.used;
