@@ -179,7 +179,7 @@ const server=http.createServer((req,res)=>{
     await admin.locator('#eqAdminSources').fill('驗收轉蛋獎勵');
     await admin.locator('#eqAdminSave').click();
     assert.ok((await admin.locator('#eqAdminStatus').textContent()).includes('已更新'),'equipment detail save failed');
-    assert.ok((await admin.evaluate(()=>window.StarroConfig.get('features.catalog.equipmentDetails',{})['翡翠戒指-LT[1]']?.sources)||[]).includes('驗收轉蛋獎勵'),'source admin did not save source');
+    assert.ok((await admin.evaluate(()=>cfg.features.catalog.equipmentDetails['翡翠戒指-LT[1]']?.sources)||[]).includes('驗收轉蛋獎勵'),'source admin did not save source');
     await admin.locator('#catCollectionName').fill('驗收收藏');
     await admin.locator('#catCollectionEffect').fill('ATK+1');
     await admin.locator('#catCollectionSave').click();
