@@ -124,3 +124,63 @@ body .wrap .layout :is(input:not([type="checkbox"]),select,textarea){
  background:#f7fafb!important;color:#375266!important;
  border-color:#d2dee3!important;
 }
+
+/* Admin catalog workbench: no isolated navy island within the light field guide. */
+body #adminApp .sidebar{
+ background:#ffffff!important;color:#304653!important;
+ border-right:1px solid #dce5e9!important;
+ box-shadow:4px 0 24px rgba(44,79,102,.06)!important;
+}
+body #adminApp .sidebar :is(h1,h2,h3,b,span,.label,.tiny){color:#4b6575}
+body #adminApp .nav button{
+ background:#f6fafb!important;color:#476476!important;
+ border:1px solid #d9e3e7!important;
+}
+body #adminApp .nav button:is(:hover,.active){
+ background:#dcebe4!important;color:#365f55!important;
+ border-color:#adcfc4!important;
+}
+body #adminApp .side-footer{
+ border-color:#dce5e9!important;color:#607787!important;
+}
+body #catManage,body #catEquipmentAdmin,body #adminApp .cat-manage{
+ background:#fff!important;color:#304653!important;
+ border:1px solid #d7e3e5!important;
+ box-shadow:0 10px 28px rgba(44,79,102,.10)!important;
+}
+body #catManage :is(h2,h3),body #catEquipmentAdmin :is(h2,h3){
+ color:#344f61!important;
+}
+body #catManage :is(p,label,.tiny),body #catEquipmentAdmin :is(p,label,.tiny){
+ color:#60788a!important;
+}
+body #catManage :is(input,select,textarea),body #catEquipmentAdmin :is(input,select,textarea){
+ background:#f7fafb!important;color:#385567!important;
+ border-color:#d4e1e6!important;
+}
+body #catManage .cat-manage-tabs{
+ border-color:#dce6e8!important;
+}
+body #catManage .cat-manage-tabs button{
+ background:#f3f7f8!important;color:#4f6b7b!important;
+ border-color:#d4e2e5!important;
+}
+body #catManage .cat-manage-tabs button.active{
+ background:#dcebe4!important;color:#365f55!important;
+ border-color:#adcfc4!important;
+}
+body #catManage .cat-manage-buttons button:not(.primary),
+body #catEquipmentAdmin .cat-manage-buttons button:not(.primary){
+ background:#eff5f6!important;color:#507080!important;
+ border-color:#d5e2e7!important;
+}
+body #catManage .cat-manage-buttons .danger,
+body #catEquipmentAdmin .cat-manage-buttons .danger{
+ color:#b35058!important;
+}
+body #catManage .cat-manage-buttons .primary,
+body #catEquipmentAdmin .cat-manage-buttons .primary{
+ background:#427b70!important;color:#fff!important;
+ border-color:#5b998b!important;
+}
+body #catManageStatus{color:#427b70!important;border-color:#dce5e8!important}
