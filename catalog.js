@@ -345,6 +345,22 @@ function detailSection(title,items){
   '<ul class="catalog-detail-list">'+items.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul>':
   '<p class="catalog-notpicked">目前沒有已建立的資料</p>')+'</div>';
 }
+function groupedRequiredSources(req){
+  const names=[...new Set(req.map(raw=>clean(raw).replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'')))];
+  return '<div class="catalog-detail-section"><h3>需求道具的已知取得來源</h3>'+names.map(name=>{
+    const derived=ltInheritedGacha(name);
+    const rows=new Map();
+    for(const raw of registeredSources(name)){
+      const source=raw.replace(/^非LT原版「[^」]+」｜/,'').replace(/（取得後需改造升級為 LT）$/,'');
+      const key=source.replace(/^轉蛋[：:]\s*/,'').replace(/\s*｜\s*編號\s*\d+\s*$/,'').replace(/(SSS|SS|S)獎(?=[）)])/g,'$1').replace(/[\s（）()]/g,'');
+      if(!rows.has(key)||(!/編號/.test(rows.get(key))&&/編號/.test(source)))rows.set(key,source);
+    }
+    return '<section style="margin:14px 0;padding:14px;border:1px solid #b8c8d8;border-radius:10px;background:#f4f7fb;color:#24384c;overflow-wrap:anywhere"><h4 style="margin:0 0 8px;font-size:1.08rem;color:#173653">'+esc(name)+'</h4>'+
+      (derived?'<p style="margin:0 0 8px;color:#42566b">原始道具：'+esc(derived.base)+'</p>':'')+
+      (rows.size?'<ul style="margin:0;padding-left:1.3em;line-height:1.65">'+[...rows.values()].map(s=>'<li style="margin:4px 0;color:#24384c">'+esc(s)+'</li>').join('')+'</ul>':'<p>尚未登錄取得來源</p>')+
+      (derived?'<p style="margin:10px 0 0;color:#42566b">※ 取得原始道具後，需改造升級為 LT。</p>':'')+'</section>';
+  }).join('')+'</div>';
+}
 function openDetail(kind,i){
   const row=rendered[i];if(!row)return;
   const entry=state.tab==='all'?row.entry:row;
@@ -356,10 +372,7 @@ function openDetail(kind,i){
     html=detailHeader(entry.name,imageFor(entry.name,entry.image),'collection')+
       detailSection('收藏效果',[entry.effect||'尚無效果說明'])+
       '<div class="catalog-detail-section"><h3>所需裝備／卡片（點選可查詳細資料與其他收藏）</h3>'+collectionEquipmentHtml(req)+'</div>'+
-      detailSection('需求道具的已知取得來源',[...new Set(req.flatMap(raw=>{
-        const name=clean(raw).replace(/\\s*[×x*]\\s*\\d+(?:\\.\\d+)?$/i,'');
-        return registeredSources(name).map(s=>name+'｜'+s);
-      }))].slice(0,100))+
+      groupedRequiredSources(req)+
       detailSection('後台建立的轉蛋關聯',sources.map(x=>x.pool+'｜'+x.drop.name+(x.drop.rate?'｜'+x.drop.rate:'')+(x.ltDerived?'｜非LT原版，須改造升級為 LT':'')))+
       '<div class="catalog-detail-section"><button class="catalog-detail-btn" type="button" id="catalogToggleSelected" data-key="'+esc(keyOf(entry))+'">'+(has?'取消勾選':'✓ 標記已收藏')+'</button></div>';
   }else if(kind==='equipment'){
