@@ -1,4 +1,4 @@
-.jro-mvp-box{grid-column:1/-1;margin:10px 0 18px;padding:20px;background:linear-gradient(130deg,#1b304b,#101e31);border:1px solid #607da0;border-radius:18px}
+.jro-mvp-box{grid-column:1/-1;position:relative;z-index:3;isolation:isolate;scroll-margin-top:160px;margin:10px 0 18px;padding:20px;background:linear-gradient(130deg,#1b304b,#101e31);border:1px solid #607da0;border-radius:18px}
 .jro-mvp-box h2{color:#f4d58e;margin:0 0 7px}.jro-mvp-box p{color:#afc8e1;line-height:1.6;font-size:13px}
 .jro-mvp-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
 .jro-mvp-controls input,.jro-mvp-controls select{min-height:44px;border:1px solid #567494;background:#0a1c2d;color:#f6faff;border-radius:10px;padding:9px 12px}
@@ -17,3 +17,8 @@
 .jro-meta{font-size:12px;color:#9dbbd8}.jro-mvp-meta{font-size:13px;color:#a8c9e6}
 .jro-card.jro-sealed{color:#f5b6a7}
 @media(max-width:700px){.jro-mvp-box{padding:13px}.jro-mvp-controls{display:grid;grid-template-columns:1fr}.jro-mvp-controls input,.jro-mvp-controls select{width:100%;min-width:0;font-size:16px}.jro-enchant-choices{display:none}}
+
+/* Keep the search controls clickable above the neighboring navigation on narrow layouts. */
+.jro-mvp-controls{position:relative;z-index:4}
+.jro-mvp-controls>*{position:relative;z-index:5;min-width:0}
+@media(max-width:700px){.jro-mvp-box{scroll-margin-top:24px}.jro-mvp-controls{grid-auto-rows:minmax(44px,auto)}.jro-mvp-controls button{width:100%}}
