@@ -452,6 +452,7 @@ section{padding:12px;min-width:0}
 </div>
 </div>
 <script src="collection-data.js?v=20261017-0208"></script>
+<script src="reference-items.js?v=20261125-reference"></script>
 <script>
 /* ITEMS moved to collection-data.js */
 const $=s=>document.querySelector(s);
@@ -683,7 +684,12 @@ function itemSourceData(raw){
  const name=parseRequiredItem(raw).name;
  const cfg=window.StarroConfig?.get('features.catalog',{})||{};
  const details=cfg.equipmentDetails||{};
- const info=details[name]||Object.entries(details).find(([key])=>normalizeReqForSource(key)===normalizeReqForSource(name))?.[1]||{};
+ const imported=window.StarroReferenceItems||{};
+ const importedItem=imported[name]||Object.entries(imported).find(([key])=>normalizeReqForSource(key)===normalizeReqForSource(name))?.[1]||{};
+ const manual=details[name]||Object.entries(details).find(([key])=>normalizeReqForSource(key)===normalizeReqForSource(name))?.[1]||{};
+ const info={...importedItem,...manual,
+   sources:[...new Set([...(importedItem.sources||[]),...(manual.sources||[]),manual.source].filter(Boolean))],
+   image:manual.image||importedItem.image||''};
  const pools=Array.isArray(cfg.gachaPools)?cfg.gachaPools:[];
  const gacha=[];
  for(const pool of pools)for(const item of (Array.isArray(pool.items)?pool.items:[])){
