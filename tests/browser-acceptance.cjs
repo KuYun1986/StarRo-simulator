@@ -172,6 +172,14 @@ const server=http.createServer((req,res)=>{
     assert.ok(await admin.locator('#serviceRulesAdminPanel').count());
     assert.ok(await admin.locator('#airPricesAdminPanel').count());
     assert.ok(await admin.locator('#catManage').count(), 'catalog admin missing');
+    await admin.locator('[data-pane="equipment"]').click();
+    await admin.locator('#catEquipName').fill('驗收測試戒指');
+    await admin.locator('#catEquipId').fill('123456');
+    await admin.locator('#catEquipSources').fill('測試副本獎勵');
+    await admin.locator('#catEquipReference').fill('https://ro-collectitem-yuno.netlify.app/');
+    await admin.locator('#catEquipSave').click();
+    await admin.waitForFunction(()=>document.querySelector('#catEquipSaved')?.options.length>1);
+    assert.ok((await admin.locator('#catEquipSaved option').count())>=2,'item metadata editor failed');
     assert.ok(await admin.locator('#catEquipmentAdmin').count(), 'equipment detail editor missing');
     await admin.locator('#eqAdminName').fill('翡翠戒指-LT[1]');
     await admin.locator('#eqAdminType').selectOption('飾品');
