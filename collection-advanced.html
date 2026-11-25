@@ -250,6 +250,24 @@ section{padding:12px;min-width:0}
 .compact-filter .special-tools button,.filter-clear{height:auto;min-height:36px}
 @media(min-width:700px){.compact-options{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
+<style>
+.item-detail-link{height:auto!important;min-height:29px;padding:3px 7px!important;max-width:100%;white-space:normal;text-align:left;border:1px solid #496b8b!important;background:#1b3652!important;color:#cde7ff!important;border-radius:7px!important;font-size:12px!important;line-height:1.4;cursor:pointer}
+.item-detail-link:hover{border-color:#f6d68f!important;color:#fff!important}
+.item-sources{margin:9px 0 4px;padding:10px;border:1px solid #4b6984;background:#0a1c2c;border-radius:10px}
+.item-sources>b{font-size:12px;color:#f4d38d}
+.item-source-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid #334b65}
+.item-source-row:last-child{border:0}.item-source-row small{color:#b3cee7;text-align:right;line-height:1.5}
+.item-detail-dialog{width:min(660px,94vw);max-height:85dvh;overflow-y:auto;padding:24px;background:#0e1f33;color:#eef6ff;border:1px solid #698dae;border-radius:17px;box-shadow:0 25px 70px #0009}
+.item-detail-dialog::backdrop{background:#020915c9;backdrop-filter:blur(5px)}
+.item-detail-close{float:right;height:38px;border-color:#5a799a;background:#1b3550;color:#fff}
+.item-detail-heading{display:flex;gap:14px;align-items:center;margin:15px 0 22px}
+.item-detail-heading h2{margin:0;color:#f4d38d;font-size:22px}.item-detail-heading p{margin:5px 0;color:#afc6df;font-size:13px}
+.item-detail-image,.item-detail-placeholder{width:76px;height:76px;object-fit:contain;background:#203851;border:1px solid #537693;border-radius:12px;display:grid;place-items:center;font-size:30px}
+.item-detail-row{display:grid;grid-template-columns:120px 1fr;gap:12px;border-top:1px solid #344d66;padding:12px 0;font-size:13px;line-height:1.65}
+.item-detail-row b{color:#f4d38d}.item-detail-dialog h3{color:#f4d38d;margin:16px 0 8px;font-size:15px}
+.item-detail-dialog li{padding:4px 0;line-height:1.7;font-size:13px}.source-not-found{font-size:13px;color:#acbed2}
+@media(max-width:550px){.item-source-row{flex-wrap:wrap;gap:3px}.item-source-row small{text-align:left}.item-detail-dialog{padding:16px}.item-detail-row{grid-template-columns:1fr;gap:3px}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -334,6 +352,10 @@ section{padding:12px;min-width:0}
   </details>
 </div>
 
+<dialog id="itemDetailDialog" class="item-detail-dialog" aria-labelledby="itemDetailTitle">
+ <button type="button" class="item-detail-close" aria-label="關閉道具詳細資料" onclick="document.getElementById('itemDetailDialog').close()">✕</button>
+ <div id="itemDetailContent"></div>
+</dialog>
 <div class="layout">
 <section>
 <div class="section-head">
@@ -568,7 +590,7 @@ function renderRequiredPanels(){
     return `<label class="req-total-card ${owned?"":"req-summary-missing"}">
       <span class="req-total-main">
         <input class="req-owned-check" type="checkbox" data-name="${esc(name)}" ${owned?"checked":""}>
-        <span class="req-summary-name${markClass}">${esc(name)}${suffix}</span>
+        <span class="req-summary-name${markClass}">${itemDetailButton(name)}${suffix}</span>
         ${badge}
       </span>
       <span class="req-summary-qty">× ${Number(info.qty).toLocaleString("zh-TW",{maximumFractionDigits:2})}</span>
@@ -653,6 +675,53 @@ function isPureXRCollection(it){
   return /^XR轉[（(]\d+[）)]/.test(prefix);
 }
 
+function normalizeReqForSource(raw){
+ return parseRequiredItem(raw).name.replace(/\s+/g,' ').trim().toLocaleLowerCase('zh-TW');
+}
+function itemSourceData(raw){
+ const name=parseRequiredItem(raw).name;
+ const cfg=window.StarroConfig?.get('features.catalog',{})||{};
+ const details=cfg.equipmentDetails||{};
+ const info=details[name]||Object.entries(details).find(([key])=>normalizeReqForSource(key)===normalizeReqForSource(name))?.[1]||{};
+ const pools=Array.isArray(cfg.gachaPools)?cfg.gachaPools:[];
+ const gacha=[];
+ for(const pool of pools)for(const item of (Array.isArray(pool.items)?pool.items:[])){
+   if(normalizeReqForSource(item.name)===normalizeReqForSource(name))
+     gacha.push({name:pool.name||'未命名轉蛋',type:pool.type||'其他',rate:item.rate||''});
+ }
+ const explicit=[info.source,info.sources,info.obtain,info.obtainFrom].flat().filter(x=>typeof x==='string'&&x.trim());
+ return {name,info,gacha,explicit};
+}
+function sourceSummary(raw){
+ const d=itemSourceData(raw);
+ const labels=[...d.explicit,...d.gacha.map(x=>x.name+(x.rate?'（'+x.rate+'）':''))];
+ return labels.length?labels.slice(0,3).join('、')+(labels.length>3?' 等 '+labels.length+' 項':''):'尚未登錄取得來源';
+}
+function itemDetailButton(raw){
+ const name=parseRequiredItem(raw).name;
+ return '<button type="button" class="item-detail-link" data-item-detail="'+esc(name)+'" aria-label="查看'+esc(name)+'的詳細資料">'+esc(name)+' <span aria-hidden="true">›</span></button>';
+}
+function showItemDetail(raw){
+ const d=itemSourceData(raw),info=d.info;
+ const related=ITEMS.filter(it=>(it.required||[]).some(x=>normalizeReqForSource(x)===normalizeReqForSource(d.name)));
+ const images=window.StarroConfig?.get('features.catalog.images',{})||{};
+ const src=info.image||images[d.name]||'';
+ const safe=/^https:\/\//i.test(src)||/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(src)&&src.length<90000;
+ const image=safe?'<img class="item-detail-image" src="'+esc(src)+'" alt="" loading="lazy">':'<span class="item-detail-placeholder">🛡️</span>';
+ const row=(title,val)=>'<div class="item-detail-row"><b>'+esc(title)+'</b><span>'+esc(val||'尚未登錄')+'</span></div>';
+ const sources=[...d.explicit,...d.gacha.map(x=>x.name+'｜'+x.type+(x.rate?'｜'+x.rate:''))];
+ document.getElementById('itemDetailContent').innerHTML=
+  '<div class="item-detail-heading">'+image+'<div><h2 id="itemDetailTitle">'+esc(d.name)+'</h2><p>道具資料與已知來源</p></div></div>'+
+  row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',info.stats)+
+  '<h3>已登錄取得來源</h3>'+(sources.length?'<ul>'+sources.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="source-not-found">尚未登錄取得方式或轉蛋來源，不能視為沒有掉落來源。</p>')+
+  '<h3>相關收藏（'+related.length+'）</h3>'+(related.length?'<ul>'+related.slice(0,40).map(x=>'<li>'+esc(x.name)+'</li>').join('')+'</ul>':'<p class="source-not-found">目前沒有其他相關收藏紀錄</p>');
+ document.getElementById('itemDetailDialog').showModal();
+}
+document.addEventListener('click',e=>{
+ const button=e.target.closest('[data-item-detail]');
+ if(button){e.preventDefault();e.stopPropagation();showItemDetail(button.dataset.itemDetail);}
+});
+
 function renderRequiredWithMarks(it){
   const reqs=it.required||[];
   const pureXR=isPureXRCollection(it);
@@ -669,7 +738,7 @@ function renderRequiredWithMarks(it){
       suffix=' <b>（UR賞）</b>';
     }
 
-    return `<span class="req-item"${style}>${esc(x)}${suffix}</span>`;
+    return `<span class="req-item"${style}>${itemDetailButton(x)}${suffix}</span>`;
   }).join("");
 }
 
@@ -912,8 +981,8 @@ function renderList(){
   }
   $("#list").innerHTML=arr.map(it=>{
     const k=keyOf(it), checked=selected.has(k)?"checked":"";
-    return `<label class="item">
-      <input type="checkbox" data-key="${esc(k)}" ${checked}>
+    return `<div class="item">
+      <input type="checkbox" aria-label="勾選收藏 ${esc(it.name)}" data-key="${esc(k)}" ${checked}>
       <div>
         <div class="item-title">
           <span class="item-title-main">${catalogThumb(it)}${jroIconHtml(it.name)}${JRO_NAME_PREFIX[k]?`<span class="item-prefix">${esc(JRO_NAME_PREFIX[k])}</span>`:""}<span>${esc(it.name)}</span></span>
@@ -929,14 +998,15 @@ function renderList(){
               : `<span class="idtxt">無需求資料</span>`}
           </div>
         </div>
+        ${selected.has(k)?`<div class="item-sources"><b>📍 需求道具及已登錄來源</b>${(it.required||[]).length?(it.required||[]).map(raw=>`<div class="item-source-row">${itemDetailButton(raw)}<small>${esc(sourceSummary(raw))}</small></div>`).join(""):"<p>此收藏沒有需求道具紀錄</p>"}</div>`:""}
       </div>
-    </label>`;
+    </div>`;
   }).join("");
   $("#list").querySelectorAll('input[type="checkbox"]').forEach(ch=>{
     ch.addEventListener("change",()=>{
       if(ch.checked)selected.add(ch.dataset.key);else selected.delete(ch.dataset.key);
       save();updateSummary();renderTotals();renderRequiredPanels();
-      if(onlySelected)renderList();
+      renderList();
     });
   });
   renderRequiredPanels();
