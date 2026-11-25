@@ -78,7 +78,7 @@ function resetPool(){
 }
 function fillCollection(){
  const x=model().items.find(x=>x.id===$('catCollectionSelect').value);if(!x){resetCollection();return}
- $('catCollectionName').value=x.name;$('catCollectionGroup').value=x.group||'普通收藏';
+ $('catCollectionName').value=x.name;$('catCollectionGroup').value=x.group==='JRO收藏'?'特殊收藏':(x.group||'普通收藏');
  $('catCollectionGame').value=x.game||'';$('catCollectionSlot').value=x.slot||0;
  $('catCollectionEffect').value=x.effect||'';$('catCollectionRequired').value=(x.required||[]).join('\n');
  $('catCollectionImage').value=x.image?.startsWith('data:')?'':x.image||'';$('catCollectionFile').value='';
