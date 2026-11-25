@@ -147,3 +147,8 @@ body{background:radial-gradient(ellipse at 7% 8%,#eaf1ec 0,transparent 38%),radi
 .catalog-dialog .starro-online-lookup{margin:18px 0}
 .catalog-dialog .starro-online-links{display:flex;flex-wrap:wrap}
 @media(max-width:520px){.catalog-dialog .starro-online-links{display:grid;grid-template-columns:1fr 1fr}.catalog-source-line .catalog-cover{width:24px;height:24px;flex-basis:24px}}
+
+.catalog-network-search{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:10px 0 1px;padding:9px 11px;background:#0b2035;border:1px solid #355b7e;border-radius:10px;font-size:12px;color:#bfd5ec}
+.catalog-network-search a{border:1px solid #6586a5;border-radius:9px;padding:8px 12px;background:#234361;color:#f5e0a7;text-decoration:none;font-weight:850;overflow-wrap:anywhere}
+.catalog-network-search a:hover{border-color:#f1d18a;background:#305674;color:#fff3d2}
+@media(max-width:510px){.catalog-network-search{align-items:stretch}.catalog-network-search a{width:100%;text-align:center}}
