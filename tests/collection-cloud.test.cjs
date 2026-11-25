@@ -4,7 +4,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'collection-cloud.js'),'utf8');
 const A='普通收藏|1|甲',B='特殊收藏|2|乙';
-function mock({local=[],remote=null,logged=true,error=null}={}){
+function mock({local=[],remote=null,logged=true,error=null,backend=null}={}){
  const ids=['collectionGoogleLogin','collectionGoogleLogout','collectionCloudSave','collectionCloudLoad','collectionCloudStatus'];
  const els=Object.fromEntries(ids.map(id=>[id,{style:{},dataset:{},disabled:false,textContent:'',listeners:{},addEventListener(e,fn){this.listeners[e]=fn}}]));
  const selected=new Set(local),storage=new Map();let row=remote,writes=0;
@@ -32,6 +32,13 @@ function mock({local=[],remote=null,logged=true,error=null}={}){
   confirm:()=>true,
   setTimeout:fn=>{Promise.resolve().then(fn);return 1},clearTimeout(){},
   URLSearchParams,console
+ };
+ if(backend)context.fetch=async(url)=>{
+   if(String(url).includes('/auth/v1/settings'))return{ok:true,json:async()=>({external:{google:backend.google}})};
+   if(String(url).includes('/rest/v1/collection_progress'))return{
+     status:backend.missing?404:401,json:async()=>({code:backend.missing?'PGRST205':'PGRST301'})
+   };
+   throw Error('Unexpected public diagnostics URL');
  };
  vm.runInNewContext(source,context,{filename:'collection-cloud.js'});
  return{els,selected,storage,context,remote:()=>row,writes:()=>writes,
@@ -75,4 +82,14 @@ test('eleven pages include the same ten valid section routes',()=>{
   assert.ok(nav,'navigation missing in '+name);
   assert.deepEqual([...nav[0].matchAll(/href="([^"]+)"/g)].map(x=>x[1]),routes,'routes differ in '+name);
  }
+});
+
+test('disabled Google provider and missing cloud table show specific problems while preserving local progress',async()=>{
+ const h=mock({local:[A],logged:false,backend:{google:false,missing:true}});
+ await h.settle();
+ assert.equal(h.els.collectionGoogleLogin.disabled,true);
+ assert.match(h.els.collectionCloudStatus.textContent,/Google 登入尚未啟用/);
+ assert.match(h.els.collectionCloudStatus.textContent,/collection_progress_setup.sql/);
+ assert.ok(h.selected.has(A));
+ assert.equal(h.writes(),0);
 });
