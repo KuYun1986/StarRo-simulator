@@ -36,8 +36,8 @@ jobs:
               print('SCRIPTS:',re.findall(r'<script[^>]+src=["\']([^"\']+)',body,re.I)[:30])
               print('IMAGES:',re.findall(r'<img[^>]+src=["\']([^"\']+)',body,re.I)[:15])
               print('SNIPPET:',body[:500])
-              for pattern in [r'(?i)const\\s+(\\w*(?:item|gacha|image|source|db|map)\\w*)\\s*=',r'(?i)let\\s+(\\w*(?:item|gacha|image|source|db|map)\\w*)\\s*=',r'(?i)(https?://[^\\s"\\']+\\.(?:png|jpg|webp))']:
-                  print('VARIABLES:', re.findall(pattern,body)[:65])
+              names = re.findall(r'(?:const|let)\s+([A-Za-z_$][\w$]*)\s*=',body)
+              print('VARIABLES:',[n for n in names if any(w in n.lower() for w in ['item','gacha','image','source','db','map'])][:65])
               for token in ['道具百科','取得來源','來源','itemDatabase','itemData','ITEM_DB','itemDb','gachaData','itemImage']:
                   i=body.find(token)
                   print('MARKER', token, i, body[max(0,i-120):i+260].replace('\\n',' ') if i>=0 else '')
