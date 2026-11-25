@@ -32,6 +32,8 @@ const server=http.createServer((req,res)=>{
       assert.equal(resp.status(),200);
       await p.waitForTimeout(350);
       assert.equal(await p.locator('link[href*="starro-polish.css"]').count(),1);
+      const theme=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--cat-gold').trim());
+      assert.equal(theme,'#f6d68f','unified catalog theme token missing');
       if(!['catalog.html','collection.html'].includes(url))assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
       assert.ok(await p.locator('h1').count()>=1,url+' is missing h1');
       const extent=await p.evaluate(()=>({scroll:document.documentElement.scrollWidth,window:innerWidth}));
@@ -79,12 +81,19 @@ const server=http.createServer((req,res)=>{
           const cfg=window.StarroConfig.all();
           cfg.features.catalog.items=[{group:'自訂收藏',row:982345,name:'驗收新增收藏',effect:'ATK+1',slot:1,required:['驗收裝備'],image:''}];
           cfg.features.catalog.images['驗收新增收藏']='https://example.com/test-icon.webp';
+          cfg.features.catalog.equipmentDetails={驗收裝備:{type:'測試裝備',source:'驗收取得來源',description:'測試說明',stats:'ATK+1'}};
           window.StarroConfig.replace(cfg);
         });
         await p.locator('#search').fill('驗收新增收藏');
         await p.locator('#list .item').first().waitFor({timeout:10000});
         assert.ok((await p.locator('#list').textContent()).includes('驗收新增收藏'));
         assert.ok((await p.locator('#list .collection-thumb').count())>=1,'added collection image missing');
+        await p.locator('#list input[data-key]').first().check();
+        assert.ok((await p.locator('.item-sources').textContent()).includes('驗收取得來源'),'checked collection sources missing');
+        await p.locator('.item-sources button[data-item-detail]').first().click();
+        assert.ok(await p.locator('#itemDetailDialog').isVisible(),'required item dialog missing');
+        assert.ok((await p.locator('#itemDetailContent').textContent()).includes('驗收取得來源'));
+        await p.locator('.item-detail-close').click();
         await p.locator('#search').fill('');
       }
       if(url==='catalog.html'||url==='collection.html'){
@@ -99,6 +108,12 @@ const server=http.createServer((req,res)=>{
         assert.equal(await p.locator('#catalogSlots input:checked').count(),0,'reset filters failed');
         await p.locator('#catalogSearch').fill('翡翠LT收藏組合');
         assert.ok((await p.locator('.catalog-card').count())>=1,'catalog search did not return existing collection');
+        await p.locator('.catalog-card input[data-pick-key]').first().check();
+        assert.ok((await p.locator('.catalog-selected-sources').textContent()).includes('尚未登錄取得來源'),'selected catalog requirement source preview missing');
+        await p.locator('.catalog-source-line button').first().click();
+        assert.ok(await p.locator('#catalogDialog').isVisible(),'source item detail dialog missing');
+        assert.ok((await p.locator('#catalogDialogContent').textContent()).includes('已登錄取得來源'));
+        await p.locator('#catalogDialogClose').click();
         await p.locator('button[data-action="collection"]').first().click();
         assert.ok(await p.locator('#catalogDialog').isVisible(),'collection detail missing');
         assert.ok(await p.locator('.catalog-equipment-row').count()>=1,'required equipment links missing');
@@ -161,8 +176,10 @@ const server=http.createServer((req,res)=>{
     await admin.locator('#eqAdminName').fill('翡翠戒指-LT[1]');
     await admin.locator('#eqAdminType').selectOption('飾品');
     await admin.locator('#eqAdminStats').fill('ATK+10');
+    await admin.locator('#eqAdminSources').fill('驗收轉蛋獎勵');
     await admin.locator('#eqAdminSave').click();
     assert.ok((await admin.locator('#eqAdminStatus').textContent()).includes('已更新'),'equipment detail save failed');
+    assert.ok((await admin.evaluate(()=>window.StarroConfig.get('features.catalog.equipmentDetails',{})['翡翠戒指-LT[1]']?.sources)||[]).includes('驗收轉蛋獎勵'),'source admin did not save source');
     await admin.locator('#catCollectionName').fill('驗收收藏');
     await admin.locator('#catCollectionEffect').fill('ATK+1');
     await admin.locator('#catCollectionSave').click();
