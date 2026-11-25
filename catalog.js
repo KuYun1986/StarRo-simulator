@@ -632,27 +632,33 @@ function bulkScope(collections){
 function renderBulkScope(collections){
   const scope=bulkScope(collections),remaining=scope.items.filter(it=>!selected.has(keyOf(it))).length;
   $('simSelectAll').disabled=!scope.active||remaining===0;
+  const picked=scope.items.length-remaining;
+  $('simClearFiltered').disabled=!scope.active||picked===0;
+  $('simClearFiltered').textContent='清除勾選'+(scope.active?'（'+picked.toLocaleString('zh-TW')+'）':'');
   $('simSelectAll').textContent='✓ 一鍵全選'+(scope.active?'（'+remaining.toLocaleString('zh-TW')+'）':'');
   $('simBulkScope').textContent=scope.active
     ?'符合條件的收藏 '+scope.items.length.toLocaleString('zh-TW')+' 項；尚未勾選 '+remaining.toLocaleString('zh-TW')+' 項（含所有分頁）'
     :'請先選擇收藏分類、特殊收藏或其他篩選條件；不會直接全選全站。';
 }
-function bulkSelect(all){
+function bulkSelect(all,filteredClear=false){
   const scope=bulkScope(allCollections());
   const additions=scope.items.filter(it=>!selected.has(keyOf(it)));
+  const removals=new Set(scope.items.map(keyOf).filter(k=>selected.has(k)));
   if(all&&(!scope.active||!additions.length))return;
-  const next=all?new Set([...selected,...additions.map(keyOf)]):new Set();
-  if(!confirm(all?'勾選目前篩選條件下尚未勾選的 '+additions.length+' 項收藏？其他已選收藏將保留。可能超過容量上限。':'確定清除本機所有收藏勾選？不會清除雲端存檔。'))return;
+  if(filteredClear&&(!scope.active||!removals.size))return;
+  const next=all?new Set([...selected,...additions.map(keyOf)]):filteredClear?new Set([...selected].filter(k=>!removals.has(k))):new Set();
+  if(!confirm(all?'勾選目前篩選條件下尚未勾選的 '+additions.length+' 項收藏？其他已選收藏將保留。可能超過容量上限。':filteredClear?'取消目前篩選結果中的 '+removals.size+' 項收藏勾選？其他收藏及雲端存檔保留。':'確定清除本機所有收藏勾選？不會清除雲端存檔。'))return;
   window.StarroCollectionCloud?.pauseAutosave();
   try{
     localStorage.setItem('starro_collection_previous_selection',JSON.stringify([...selected]));
     localStorage.setItem(progressKey,JSON.stringify([...next]));
   }catch(e){$('simBulkStatus').textContent='本機保存失敗，未變更收藏。';return;}
   selected=next;state.page=1;render();
-  $('simBulkStatus').textContent=(all?'已新增勾選 '+additions.length+' 項符合條件的收藏；目前共 '+next.size+' 項。':'已清除本機收藏。')+' 雲端存檔保留，需手動儲存才會覆蓋。';
+  $('simBulkStatus').textContent=(all?'已新增勾選 '+additions.length+' 項符合條件的收藏；目前共 '+next.size+' 項。':filteredClear?'已取消 '+removals.size+' 項符合條件的收藏；目前共 '+next.size+' 項。':'已清除本機收藏。')+' 雲端存檔保留，需手動儲存才會覆蓋。';
 }
 function init(){
   $('simSelectAll').onclick=()=>bulkSelect(true);
+  $('simClearFiltered').onclick=()=>bulkSelect(false,true);
   $('simClearAll').onclick=()=>bulkSelect(false);
   $('simLocalSave').onclick=()=>{try{saveLocalProgress();}catch(e){$('simSaveStatus').textContent='本機保存失敗，請檢查瀏覽器儲存權限。';}};
   $('simExportExcel').onclick=()=>{try{exportCollectionExcel();}catch(e){$('simSaveStatus').textContent='Excel 匯出失敗：'+e.message;}};

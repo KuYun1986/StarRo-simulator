@@ -303,6 +303,10 @@ const server=http.createServer((req,res)=>{
         assert.ok(saved.every(k=>k===ordinary||k.startsWith('特殊收藏|')),'selection must not affect unrelated collections');
         assert.ok(await p.locator('#simSelectAll').isDisabled());
         p.once('dialog',d=>d.accept());
+        await p.locator('#simClearFiltered').click();
+        assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('starro_collection_selected'))),[ordinary]);
+        assert.ok(await p.locator('#simClearFiltered').isDisabled());
+        p.once('dialog',d=>d.accept());
         await p.locator('#simClearAll').click();
         assert.equal(await p.locator('#simSelected').textContent(),'0');
         await p.locator('summary').filter({hasText:'收藏保存與匯出'}).click();
