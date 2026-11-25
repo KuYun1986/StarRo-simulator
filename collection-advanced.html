@@ -705,9 +705,26 @@ function itemSourceData(raw){
  const explicit=[info.source,info.sources,info.obtain,info.obtainFrom].flat().filter(x=>typeof x==='string'&&x.trim());
  return {name,info,gacha,explicit};
 }
+function mergedItemSources(d){
+ const entries=new Map();
+ for(const raw of [...d.explicit,...d.gacha.map(x=>x.name+'｜'+x.type+(x.rate?'｜'+x.rate:''))]){
+   const str=String(raw).trim();
+   const m=str.match(/(紅利轉蛋\s*[-－]?\s*XR|XR轉蛋\s*[-－]?|紅利轉蛋)\s*[（(]\s*(\d+)\s*[）)]/i);
+   if(!m){entries.set(str,str);continue;}
+   const xr=/XR/i.test(m[1]), name=(xr?'XR轉蛋-':'紅利轉蛋')+'（'+m[2]+'）';
+   const tail=str.slice(m.index+m[0].length);
+   const rank=tail.match(/(?:^|[\s（(｜|])\s*(XR|UR|SSR|SR|R|N)\s*獎?(?=$|[\s）)｜|])/i)?.[1]?.toUpperCase();
+   const id=tail.match(/編號\s*[:：]?\s*(\d+)/)?.[1];
+   if(!rank){entries.set(str,str);continue;}
+   const key=name+'｜'+rank+'獎';
+   const label=key+(id?'｜編號 '+id:'');
+   if(!entries.has(key)||id)entries.set(key,label);
+ }
+ return [...entries.values()];
+}
 function sourceSummary(raw){
  const d=itemSourceData(raw);
- const labels=[...d.explicit,...d.gacha.map(x=>x.name+(x.rate?'（'+x.rate+'）':''))];
+ const labels=mergedItemSources(d);
  return labels.length?labels.slice(0,3).join('、')+(labels.length>3?' 等 '+labels.length+' 項':''):'尚未登錄取得來源';
 }
 function itemDetailButton(raw){
@@ -722,7 +739,7 @@ function showItemDetail(raw){
  const safe=/^https:\/\//i.test(src)||/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(src)&&src.length<90000;
  const image=safe?'<img class="item-detail-image" src="'+esc(src)+'" alt="" loading="lazy">':'<span class="item-detail-placeholder">🛡️</span>';
  const row=(title,val)=>'<div class="item-detail-row"><b>'+esc(title)+'</b><span>'+esc(val||'尚未登錄')+'</span></div>';
- const sources=[...d.explicit,...d.gacha.map(x=>x.name+'｜'+x.type+(x.rate?'｜'+x.rate:''))];
+ const sources=mergedItemSources(d);
  document.getElementById('itemDetailContent').innerHTML=
   '<div class="item-detail-heading">'+image+'<div><h2 id="itemDetailTitle">'+esc(d.name)+'</h2><p>道具資料與已知來源</p></div></div>'+
   row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',info.stats)+
