@@ -1,0 +1,19 @@
+.jro-mvp-box{grid-column:1/-1;margin:10px 0 18px;padding:20px;background:linear-gradient(130deg,#1b304b,#101e31);border:1px solid #607da0;border-radius:18px}
+.jro-mvp-box h2{color:#f4d58e;margin:0 0 7px}.jro-mvp-box p{color:#afc8e1;line-height:1.6;font-size:13px}
+.jro-mvp-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+.jro-mvp-controls input,.jro-mvp-controls select{min-height:44px;border:1px solid #567494;background:#0a1c2d;color:#f6faff;border-radius:10px;padding:9px 12px}
+.jro-mvp-controls input{flex:2;min-width:200px}.jro-mvp-controls select{flex:1;min-width:170px}
+.jro-mvp-controls button{min-height:42px;border:1px solid #6b8da8;border-radius:10px;background:#254664;color:#fff;padding:8px 14px;font-weight:800}
+.jro-enchant-choices{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.jro-enchant-choices button{display:flex;gap:7px;align-items:center;background:#122c45;border:1px solid #52718f;color:#dbeaf9;border-radius:9px;padding:7px 11px;font-size:13px;cursor:pointer}
+.jro-enchant-choices button.active{background:#476886;border-color:#f4d58e;color:#fff}
+.jro-inline-icon{width:24px;height:24px;object-fit:contain;vertical-align:middle}.jro-inline-icon.lg{width:30px;height:30px}
+.jro-mvp-tablewrap{overflow-x:auto;max-height:600px;overflow-y:auto;border:1px solid #405b75;border-radius:12px;margin-top:12px}
+.jro-mvp-table{width:100%;min-width:700px;border-collapse:collapse;background:#0d1c2d}
+.jro-mvp-table th{position:sticky;top:0;background:#284361;color:#f7e2ac;text-align:left;font-size:13px}
+.jro-mvp-table td,.jro-mvp-table th{padding:12px 14px;border-bottom:1px solid #29435f;vertical-align:top;line-height:1.6}
+.jro-mvp-table tbody tr:nth-child(even){background:#14283c}
+.jro-mvp-table td:nth-child(1){min-width:155px}.jro-mvp-table td:nth-child(2){min-width:190px}
+.jro-meta{font-size:12px;color:#9dbbd8}.jro-mvp-meta{font-size:13px;color:#a8c9e6}
+.jro-card.jro-sealed{color:#f5b6a7}
+@media(max-width:700px){.jro-mvp-box{padding:13px}.jro-mvp-controls{display:grid;grid-template-columns:1fr}.jro-mvp-controls input,.jro-mvp-controls select{width:100%;min-width:0;font-size:16px}.jro-enchant-choices{display:none}}
