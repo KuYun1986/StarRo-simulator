@@ -121,3 +121,14 @@ body{background:radial-gradient(ellipse at 7% 8%,#eaf1ec 0,transparent 38%),radi
 .catalog-search-summary:empty{display:none}
 .catalog-search-summary b{background:#1b3856;border:1px solid #4a7396;color:#e5f2ff;border-radius:8px;padding:5px 9px}
 @media(max-width:750px){.catalog-searchrow>.catalog-filter-menu{min-width:0}.catalog-filter-menu__options{width:max(100%,215px)}}
+
+/* Checked collections: acquisition-source preview and direct item details */
+.catalog-selected-sources{margin:11px 0 0;padding:10px;border:1px solid #50708f;background:#0a1b2d;border-radius:11px;display:grid;gap:7px}
+.catalog-selected-sources>b{font-size:12px;color:#f6d68f}
+.catalog-source-line{display:flex;flex-direction:column;align-items:flex-start;gap:3px;border-top:1px solid #314b65;padding-top:7px}
+.catalog-source-line button{border:1px solid #56799c;background:#173750;color:#e4f3ff;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:850;text-align:left;line-height:1.55}
+.catalog-source-line button:hover{border-color:#f6d68f}
+.catalog-source-line small{font-size:11px;color:#aec9e3;overflow-wrap:anywhere;line-height:1.5}
+.catalog-pick{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#dce8f6;font-weight:800;cursor:pointer;white-space:nowrap}
+.catalog-pick input{width:17px;height:17px;accent-color:#e9ce8c;cursor:pointer}
+@media(max-width:510px){.catalog-selected-sources{padding:8px}.catalog-source-line button{font-size:11px}.catalog-pick{font-size:11px}}
