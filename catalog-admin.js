@@ -9,7 +9,7 @@ const html=[
 '<nav class="cat-manage-tabs"><button type="button" data-pane="collections" class="active">📚 收藏</button><button type="button" data-pane="gacha">🎁 轉蛋池</button><button type="button" data-pane="pictures">🖼️ 圖片</button></nav>',
 '<div class="cat-manage-pane" data-pane-content="collections">',
 '<label>選擇自訂收藏<select id="catCollectionSelect"><option value="">＋ 新增一筆收藏</option></select></label>',
-'<div class="cat-manage-grid"><label>收藏名稱<input id="catCollectionName" maxlength="120"></label><label>分類<select id="catCollectionGroup"><option>普通收藏</option><option>JRO收藏</option><option>自訂收藏</option></select></label>',
+'<div class="cat-manage-grid"><label>收藏名稱<input id="catCollectionName" maxlength="120"></label><label>分類<select id="catCollectionGroup"><option>普通收藏</option><option>特殊收藏</option><option>自訂收藏</option></select></label>',
 '<label>遊戲分類／編號<input id="catCollectionGame" placeholder="[A]裝備-999"></label><label>佔用格數<input id="catCollectionSlot" type="number" min="0" max="100" value="1"></label></div>',
 '<label>效果<textarea id="catCollectionEffect" rows="2"></textarea></label>',
 '<label>需求裝備／卡片（每行一種）<textarea id="catCollectionRequired" rows="4"></textarea></label>',
