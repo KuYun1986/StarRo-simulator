@@ -17,7 +17,7 @@ jobs:
           req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; StarRo-reference-inspection)'})
           try:
             with urllib.request.urlopen(req, timeout=25) as res:
-              body=res.read(1200000).decode('utf-8','replace')
+              body=res.read(12000000).decode('utf-8','replace')
               print('SITE',res.status,'LENGTH',len(body))
           except Exception as e:print('FETCH_FAIL',type(e).__name__,str(e));raise SystemExit(0)
           for pattern in [r'<script[^>]*>',r'<link[^>]*>',r'https?://[^\s"\'<>]{5,180}',r'(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:\[|\{)',r'\b(?:ITEMS|itemsData|equipmentData|gachaData|itemDatabase|SOURCE|sources|imageBase|imageUrl|image_url|iconUrl)\b']:
