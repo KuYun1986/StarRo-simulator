@@ -197,7 +197,8 @@ function ltInheritedGacha(name){
  const refs=window.StarroReferenceItems||{};
  const manuals=catalog().equipmentDetails||{};
  const poolNames=pools().flatMap(p=>(p.items||[]).map(x=>x.name));
- const base=enrich.findBase(name,[...Object.keys(refs),...Object.keys(manuals),...poolNames]);
+ const indexNames=Object.values(window.StarroReferenceIndex?.items||{}).map(item=>item.name).filter(Boolean);
+ const base=enrich.findBase(name,[...Object.keys(refs),...Object.keys(manuals),...indexNames,...poolNames]);
  if(!base)return null;
  const baseDetail=equipDetail(base);
  const direct=baseDetail.sources.filter(enrich.isGachaSource);

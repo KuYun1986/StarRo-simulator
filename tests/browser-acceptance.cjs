@@ -192,6 +192,8 @@ const server=http.createServer((req,res)=>{
         const inheritedPanel=await p.locator('.catalog-selected-sources').first().textContent();
         assert.ok(inheritedPanel.includes('翡翠戒指[1]')&&inheritedPanel.includes('改造升級'),
           'LT item did not inherit verified original gacha source with conversion note');
+        const atlasName=await p.evaluate(()=>window.StarroEquipmentEnrichment.findBase('月全蝕魔力外袍-LT[1]',Object.values(window.StarroReferenceIndex?.items||{}).map(x=>x.name)));
+        assert.equal(atlasName?.replace(/\s+/g,''),'月全蝕魔力外袍[1]','indexed source base missing for LT');
 
         // Contrast regression: source summaries must be legible on light collection cards,
         // including iPhone-sized layouts. WCAG AA for small body text is >= 4.5:1.

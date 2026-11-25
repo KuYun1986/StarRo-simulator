@@ -725,6 +725,7 @@ function itemSourceData(raw){
  let derived=null;
  if(enrich?.isLT(name)){
    const candidates=[...Object.keys(imported),...Object.keys(details),
+     ...Object.values(window.StarroReferenceIndex?.items||{}).map(item=>item.name).filter(Boolean),
      ...pools.flatMap(pool=>(pool.items||[]).map(drop=>drop.name))];
    const base=enrich.findBase(name,candidates);
    if(base){
