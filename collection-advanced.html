@@ -1459,11 +1459,11 @@ $("#clear").addEventListener("click",()=>{
 
 
 syncAddedCollectionItems();
+$("#subcatClear").addEventListener("click",()=>{activeSubcats.clear();renderSubcats();renderSpecials();renderList();});
+$("#specialClearChoices").addEventListener("click",()=>{activeSpecials.clear();renderSpecials();renderList();});
 document.addEventListener('starro-config-applied',()=>{
   syncAddedCollectionItems();
-  $("#subcatClear").addEventListener("click",()=>{activeSubcats.clear();renderSubcats();renderSpecials();renderList();});
-$("#specialClearChoices").addEventListener("click",()=>{activeSpecials.clear();renderSpecials();renderList();});
-updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
+  updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 });
 updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 </script>
