@@ -7,6 +7,16 @@ on:
 permissions:
   contents: read
 jobs:
+  collection-cloud-readiness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Probe live Supabase Google provider and collection progress table
+        run: node tests/collection-cloud-readiness.cjs
   acceptance:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -25,9 +35,6 @@ jobs:
         run: node --test tests/service-config-regression.test.cjs
       - name: Run Chromium desktop/mobile acceptance tests
         run: node tests/browser-acceptance.cjs
-      - name: Probe production Google Auth and collection table readiness (informational)
-        if: always()
-        run: node tests/collection-cloud-readiness.cjs
       - name: Check public Pages deployment (informational)
         if: always()
         shell: bash
