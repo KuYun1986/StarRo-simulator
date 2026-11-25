@@ -445,15 +445,18 @@ function renderCharacterCalculator(){
 
 const missingKey='starro_collection_missing_required_v147';
 function missingSet(){try{return new Set(JSON.parse(localStorage.getItem(missingKey)||'[]'))}catch(e){return new Set()}}
-function renderRequiredSummary(collections){
-  const counts=new Map(),missing=missingSet();
+function requiredCounts(collections){
+  const counts=new Map();
   for(const it of collections)if(selected.has(keyOf(it)))for(const raw of it.required||[]){
     const s=String(raw||'').trim();if(!s)continue;
     const m=s.match(/^(.*?)(?:\s*(?:×|x|X|\*)\s*(\d+(?:\.\d+)?))$/);
     const name=(m?m[1]:s).trim(),qty=m?Number(m[2])||1:1;
     counts.set(name,(counts.get(name)||0)+qty);
   }
-  const rows=[...counts].sort((a,b)=>a[0].localeCompare(b[0],'zh-Hant')),lack=rows.filter(([n])=>missing.has(n));
+  return [...counts].sort((a,b)=>a[0].localeCompare(b[0],'zh-Hant'));
+}
+function renderRequiredSummary(collections){
+  const missing=missingSet(),rows=requiredCounts(collections),lack=rows.filter(([n])=>missing.has(n));
   $('simRequiredCount').textContent='（'+rows.length+' 種）';$('simMissingCount').textContent='（'+lack.length+' 種）';
   $('simRequiredList').innerHTML=rows.length?rows.map(([n,q])=>'<label><input type="checkbox" data-missing-name="'+esc(n)+'" '+(!missing.has(n)?'checked':'')+'><span>'+esc(n)+'</span><b>× '+esc(q)+'</b></label>').join(''):'<p>尚未勾選收藏</p>';
   $('simMissingList').innerHTML=lack.length?lack.map(([n,q])=>'<div><span>'+esc(n)+'</span><b>× '+esc(q)+'</b></div>').join(''):'<p>目前沒有標記缺少的道具</p>';
@@ -598,7 +601,45 @@ function openDetail(kind,i){
   const dialog=$('catalogDialog');
   if(!dialog.open)dialog.showModal();
 }
+function saveLocalProgress(){
+  localStorage.setItem(progressKey,JSON.stringify([...selected]));
+  $('simSaveStatus').textContent='本機已保存 '+selected.size+' 項收藏';
+}
+function downloadCollectionFile(data,name,type){
+  const url=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function exportCollectionExcel(){
+  const collections=allCollections(),picked=collections.filter(it=>selected.has(keyOf(it))),sim=window.StarroCollectionSimulation.calculate(collections,selected),missing=missingSet();
+  const stamp=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Taipei'});
+  const sheets=[
+    {name:'收藏總覽',rows:[['統計項目','數值'],['資料庫收藏',sim.total],['已勾選收藏',sim.count],['普通使用格',sim.normal],['普通容量',Number($('simNormalCap').value)],['特殊使用格',sim.special],['特殊容量',Number($('simSpecialCap').value)],['重複道具節省格',sim.saved],['匯出日期',stamp]]},
+    {name:'已選收藏',rows:[['分類','收藏名稱','效果','原始佔格','需求道具','收藏識別碼'],...picked.map(it=>[it.group,it.name,it.effect,Number(it.slot)||0,(it.required||[]).join('；'),keyOf(it)])]},
+    {name:'總能力',rows:[['能力','加成','單位'],...sim.entries.map(([k,v])=>[k.replace(/%$/,''),v,k.endsWith('%')?'%':'數值'])]},
+    {name:'條件式效果',rows:[['收藏名稱','效果'],...sim.conditions.map(x=>[x.name,x.effects])]},
+    {name:'需求與缺少道具',rows:[['道具名稱','需求數量','持有狀態'],...requiredCounts(collections).map(([n,q])=>[n,q,missing.has(n)?'缺少':'已有'])]}
+  ];
+  downloadCollectionFile(window.StarroCollectionExport.workbook(sheets),'繁星收藏_'+stamp+'.xlsx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  $('simSaveStatus').textContent='已產生 Excel 匯出檔案';
+}
 function init(){
+  $('simLocalSave').onclick=()=>{try{saveLocalProgress();}catch(e){$('simSaveStatus').textContent='本機保存失敗，請檢查瀏覽器儲存權限。';}};
+  $('simExportExcel').onclick=()=>{try{exportCollectionExcel();}catch(e){$('simSaveStatus').textContent='Excel 匯出失敗：'+e.message;}};
+  $('simExportBackup').onclick=()=>downloadCollectionFile(JSON.stringify({version:1,selected:[...selected],missing:[...missingSet()]},null,2),'繁星收藏備份.json','application/json');
+  $('simImportBackup').onclick=()=>$('simBackupFile').click();
+  $('simBackupFile').addEventListener('change',async e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    try{const d=JSON.parse(await file.text()),values=Array.isArray(d)?d:d.selected;if(!Array.isArray(values)||values.some(v=>typeof v!=='string'))throw Error('備份格式錯誤');
+      const valid=new Set(allCollections().map(keyOf)),next=new Set(values.map(normalizeSavedKey).filter(k=>valid.has(k)));
+      if(values.length&&!next.size)throw Error('找不到符合的收藏識別碼');
+      if(!confirm('將本機收藏替換為備份中的 '+next.size+' 項？'))return;
+      selected=next;
+      if(Array.isArray(d.missing))localStorage.setItem(missingKey,JSON.stringify(d.missing.filter(x=>typeof x==='string')));
+      saveLocalProgress();render();
+      // Restore remains local until the user explicitly saves to cloud or edits again.
+      $('simSaveStatus').textContent='已還原 '+next.size+' 項本機收藏；如需雲端備份，請按儲存到雲端。';
+    }catch(err){$('simSaveStatus').textContent='還原失敗：'+err.message;}finally{e.target.value='';}
+  });
   $('simRequiredList').addEventListener('change',e=>{const t=e.target.closest('[data-missing-name]');if(!t)return;const m=missingSet();if(t.checked)m.delete(t.dataset.missingName);else m.add(t.dataset.missingName);try{localStorage.setItem(missingKey,JSON.stringify([...m]));}catch(e){}renderRequiredSummary(allCollections());});
   $('charCalcLevel').addEventListener('input',e=>{charCalcInput.level=e.target.value;saveCharCalc();renderCharacterCalculator();});
   $('charCalcReset').addEventListener('click',()=>{charCalcInput={level:275};saveCharCalc();renderCharacterCalculator();});

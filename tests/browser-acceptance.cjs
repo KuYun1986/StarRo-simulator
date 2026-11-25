@@ -283,8 +283,13 @@ const server=http.createServer((req,res)=>{
         assert.ok((await p.locator('#catalogResults').textContent()).includes('特殊收藏'),'Special collection display name missing');
         assert.equal(await p.locator('#simSelected').textContent(),'1');
         assert.equal(await p.locator('#simSpecial').textContent(),'5 / 800');
-        await p.locator('#catalogResults input[data-pick-key]:checked').uncheck();
+        await p.locator('#catalogResults input[data-pick-key]:checked').click();
         assert.equal(await p.locator('#simSelected').textContent(),'0');
+        await p.locator('summary').filter({hasText:'收藏保存與匯出'}).click();
+        assert.ok(await p.locator('#collectionGoogleLogin').count());
+        const download= p.waitForEvent('download');
+        await p.locator('#simExportExcel').click();
+        assert.match((await download).suggestedFilename(),/\.xlsx$/);
       }
       await p.screenshot({path:path.join(screenshots,url.replace('.html','')+'-'+mode+'.png'),fullPage:false});
       details.push({page:url,mode,nav,viewport:extent.window,pageWidth:extent.scroll,errors:errors.slice(0,8)});
