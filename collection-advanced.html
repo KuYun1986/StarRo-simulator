@@ -268,6 +268,7 @@ section{padding:12px;min-width:0}
 .item-detail-dialog li{padding:4px 0;line-height:1.7;font-size:13px}.source-not-found{font-size:13px;color:#acbed2}
 @media(max-width:550px){.item-source-row{flex-wrap:wrap;gap:3px}.item-source-row small{text-align:left}.item-detail-dialog{padding:16px}.item-detail-row{grid-template-columns:1fr;gap:3px}}
 </style>
+<style>.item-detail-reference{display:inline-block;padding:8px 11px;background:#244969;color:#ffe5a5;border:1px solid #698aaa;border-radius:9px;text-decoration:none;font-weight:800}.item-source-row small{line-height:1.55}</style>
 </head>
 <body>
 <div class="wrap">
@@ -714,6 +715,7 @@ function showItemDetail(raw){
   '<div class="item-detail-heading">'+image+'<div><h2 id="itemDetailTitle">'+esc(d.name)+'</h2><p>道具資料與已知來源</p></div></div>'+
   row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',info.stats)+
   '<h3>已登錄取得來源</h3>'+(sources.length?'<ul>'+sources.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="source-not-found">尚未登錄取得方式或轉蛋來源，不能視為沒有掉落來源。</p>')+
+  (typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?'<p><a class="item-detail-reference" href="'+esc(info.referenceUrl)+'" target="_blank" rel="noopener noreferrer">🔗 查看道具原始參考資料</a></p>':'')+
   '<h3>相關收藏（'+related.length+'）</h3>'+(related.length?'<ul>'+related.slice(0,40).map(x=>'<li>'+esc(x.name)+'</li>').join('')+'</ul>':'<p class="source-not-found">目前沒有其他相關收藏紀錄</p>');
  document.getElementById('itemDetailDialog').showModal();
 }
