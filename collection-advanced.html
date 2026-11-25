@@ -797,7 +797,7 @@ function showItemDetail(raw){
 
   (window.StarroOnlineLookup?.render(d.name,info.itemId,info.referenceUrl||info.referenceSite)||'')+
   '<h3>相關收藏（'+related.length+'）</h3>'+(related.length?'<ul>'+related.slice(0,40).map(x=>'<li>'+esc(x.name)+'</li>').join('')+'</ul>':'<p class="source-not-found">目前沒有其他相關收藏紀錄</p>')+
-  (window.StarroEquipmentEnrichment?.sourceFooter(d.official,info.referenceUrl||info.referenceSite)||'');
+  (window.StarroEquipmentEnrichment?.sourceFooter(d.official,info.referenceUrl||info.referenceSite,d.name)||'');
  document.getElementById('itemDetailDialog').showModal();
 }
 document.addEventListener('click',e=>{

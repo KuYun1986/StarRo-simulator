@@ -389,7 +389,8 @@ function openDetail(kind,i){
   const detailInfo=kind==='equipment'?equipDetail(entry.name):kind==='drop'?equipDetail(entry.name):null;
   html+=window.StarroEquipmentEnrichment?.sourceFooter(
     detailInfo?.officialEffect,
-    detailInfo?.referenceUrl||detailInfo?.referenceSite||''
+    detailInfo?.referenceUrl||detailInfo?.referenceSite||'',
+    entry.name
   )||'';
   $('catalogDialogContent').innerHTML=html;
   const dialog=$('catalogDialog');
