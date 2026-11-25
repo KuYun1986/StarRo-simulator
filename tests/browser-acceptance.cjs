@@ -23,6 +23,32 @@ const server=http.createServer((req,res)=>{
   const browser=await chromium.launch({headless:true});
   const failures=[],details=[];
   const pages=['index.html','game.html','enchant.html','identify.html','collection.html','collection-advanced.html','equipment.html','CASH.html','shadow.html','catalog.html'];
+  const expectedNav=[
+    ['index.html','🏠 主頁'],['game.html','🎮 遊戲區'],
+    ['enchant.html','✨ 附魔區'],['identify.html','🔍 洗詞鑑定區'],
+    ['collection.html','📚 收藏圖鑑'],['collection-advanced.html','🧮 收藏模擬'],
+    ['equipment.html','💰 裝備成本區'],['CASH.html','💳 現金區'],
+    ['shadow.html','💎 影子區'],['admin.html','🔐 管理後台']
+  ];
+  async function verifyUnifiedNav(page,url){
+    const canonical=url==='catalog.html'?'collection.html':url;
+    const links=page.locator('.starro-global-nav a');
+    await links.first().waitFor({timeout:10000});
+    const actual=await links.evaluateAll(elements=>elements.map(link=>({
+      href:link.getAttribute('href'),
+      label:link.textContent.trim(),
+      current:link.getAttribute('aria-current')
+    })));
+    assert.equal(actual.length,expectedNav.length,url+' unified navigation should contain ten entrances');
+    assert.deepEqual(actual.map(link=>[link.href,link.label]),expectedNav,url+' navigation labels or order differ');
+    assert.deepEqual(actual.filter(link=>link.current==='page').map(link=>link.href),[canonical],url+' current-page marker is wrong');
+    const notVisible=await links.evaluateAll(elements=>elements.filter(link=>{
+      const rect=link.getBoundingClientRect();
+      const style=getComputedStyle(link);
+      return !rect.width || !rect.height || style.display==='none'||style.visibility==='hidden';
+    }).length);
+    assert.equal(notVisible,0,url+' has hidden navigation entrances');
+  }
   async function check(url,mode){
     const ctx=await browser.newContext(mode==='mobile'?{...devices['iPhone 13'],locale:'zh-TW'}:{viewport:{width:1440,height:900},deviceScaleFactor:1,locale:'zh-TW'});
     const p=await ctx.newPage();
@@ -31,6 +57,7 @@ const server=http.createServer((req,res)=>{
       const resp=await p.goto(base+'/'+url,{waitUntil:'domcontentloaded',timeout:35000});
       assert.equal(resp.status(),200);
       await p.waitForTimeout(350);
+      await verifyUnifiedNav(p,url);
       assert.equal(await p.locator('link[href*="starro-polish.css"]').count(),1);
       const isCatalog=url==='collection.html'||url==='catalog.html';
       if(!isCatalog){
@@ -224,6 +251,7 @@ const server=http.createServer((req,res)=>{
   admin.on('pageerror',e=>adminErrors.push(e.message));
   try{
     await admin.goto(base+'/admin.html',{waitUntil:'domcontentloaded'});
+    await verifyUnifiedNav(admin,'admin.html');
     await admin.locator('#previewBtn').click();
     await admin.locator('#adminUxTools').waitFor();
     assert.ok(await admin.locator('#biosAdminPanel').count());
