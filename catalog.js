@@ -41,7 +41,9 @@ function imageFor(name,explicit=''){
   const url=explicit||images[name]||known;
   return safeImage(url);
 }
+let cachedEquipmentEntries=null;
 function equipmentEntries(){
+  if(cachedEquipmentEntries)return cachedEquipmentEntries;
   const m=new Map();
   const all=allCollections();
   for(const col of all)for(const requirement of (col.required||[])){
@@ -57,7 +59,7 @@ function equipmentEntries(){
     if(!m.has(key))m.set(key,{name:item.name,collections:[],sources:[]});
     m.get(key).sources.push({pool:pool.name,type:pool.type||'其他',rate:item.rate||'',image:item.image||''});
   }
-  return [...m.values()].sort((a,b)=>b.collections.length-a.collections.length||a.name.localeCompare(b.name,'zh-Hant'));
+  return cachedEquipmentEntries=[...m.values()].sort((a,b)=>b.collections.length-a.collections.length||a.name.localeCompare(b.name,'zh-Hant'));
 }
 function equipmentFilters(item){
   if(!inSlot(item.name+' '+(equipDetail(item.name).type||'')))return false;
@@ -216,6 +218,7 @@ function unifiedResults(collections,allPools){
     gacha:dropsFound.length+poolsFound.length},pools:poolsFound,drops:dropsFound};
 }
 function render(){
+  cachedEquipmentEntries=null;
   const collections=allCollections(),allPools=pools();
   $('catalogTotal').textContent=collections.length.toLocaleString('zh-TW');
   $('catalogPoolTotal').textContent=allPools.length.toLocaleString('zh-TW');
