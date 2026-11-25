@@ -227,3 +227,102 @@ body #adminApp .feature-row .feature-summary{
     line-height:1.65!important;
   }
 }
+
+
+/* Round 2: all remaining confirmed contrast violations plus text on
+   composite/overlapping surfaces axe-core could not fully determine. */
+body .wrap #dropRateSimulator p span[style*="color:#ff5f6d"]{
+  background:#142936!important;
+  border-radius:5px;
+  padding:2px 5px;
+}
+body .wrap :is(.refine-green){
+  background:#234334!important;
+  border-radius:5px;
+  padding:2px 5px;
+}
+body .wrap article > p.tiny{
+  background:#f7fafc!important;
+  color:#405a6b!important;
+}
+body .wrap #biosTalismanSimulator > .bio-note,
+body .wrap :is(#rmExpected0Label,#rmExpected10Label,#rmExpectedCurrentLabel){
+  color:#40576a!important;
+}
+body .wrap #visibleCount{color:#3c5669!important}
+body .wrap .quick-calc-result{background:#182d3b!important}
+body .wrap #serviceFeeSimulator div[style*="background:#0b1523"] :is(h3,.tiny){
+  color:#edf6fb!important;
+}
+body .wrap #crystalStatTotals,
+body .wrap #crystalFinalStatTotals{
+  display:inline-block;
+  width:fit-content;
+  background:#183445!important;
+  border-radius:8px;
+  padding:5px 12px;
+}
+body .wrap #crystalSimulator .note div[style*="color:#ffd54a"]{
+  display:block;
+  width:fit-content;
+  background:#4b3a22!important;
+  border-radius:7px;
+  padding:5px 9px;
+}
+
+/* Long list/character calculation panels previously used navy text on navy
+   subpanels (or bright text on newly pale overlays). */
+body .wrap .req-total-card{
+  background:#f5f9fb!important;
+  color:#334e60!important;
+  border-color:#c9dbe4!important;
+}
+body .wrap .req-summary-qty{
+  color:#40596c!important;
+}
+body .wrap .req-summary-name:not(.req-agg-prize):not(.req-agg-blue){
+  color:#344f62!important;
+}
+body .wrap .req-summary-missing .req-summary-name,
+body .wrap .req-agg-prize,
+body .wrap .req-special-badge.prize{
+  color:#ab3143!important;
+}
+body .wrap .req-agg-blue,
+body .wrap .req-special-badge.blue{
+  color:#235d88!important;
+}
+body .wrap .req-special-badge.prize{
+  background:#fbecef!important;
+}
+body .wrap .req-special-badge.blue{
+  background:#e6f1f9!important;
+}
+body .wrap .charcalc,
+body .wrap .charcalc-row,
+body .wrap .charcalc-pointcard{
+  background:#eef4f7!important;
+  color:#344e61!important;
+  border-color:#cbdbe5!important;
+}
+body .wrap .charcalc-row .cc-label,
+body .wrap .charcalc-head,
+body .wrap .charcalc-note,
+body .wrap .charcalc-pointcard .k{
+  color:#40596c!important;
+}
+body .wrap .charcalc-row .cc-add{
+  color:#235d88!important;
+}
+body .wrap .charcalc-row .cc-total,
+body .wrap .charcalc-pointcard .okv{
+  color:#226349!important;
+}
+body .wrap .charcalc-row input,
+body .wrap .charcalc-levelrow input{
+  background:#fff!important;color:#314f62!important;
+}
+body .catalog-app .catalog-eyebrow{color:#795324!important}
+body .catalog-app .catalog-hero p:not(.catalog-eyebrow){
+  color:#405a5a!important;
+}
