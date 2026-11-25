@@ -172,3 +172,37 @@ body{
  :is(.topnav,.starro-navigation,.starro-section-shortcuts,.page-links){gap:6px}
  :is(.card,.panel,.section,.layout>section,.subcats,.special-box,.req-summary-box){box-shadow:0 8px 22px rgba(0,0,0,.20)}
 }
+
+/* StarRo / 圖鑑共同配色：深海藍＋暖金；所有主頁維持相同視覺語言。 */
+:root{
+  --ux-bg:#07121f;--ux-panel:#112033;--ux-panel2:#172d45;--ux-border:#395671;
+  --ux-text:#f2f7ff;--ux-muted:#b9cee4;--ux-gold:#f6d68f;--ux-blue:#9dc6fb;
+  --bg:#07121f;--panel:#112033;--panel2:#172d45;--line:#395671;--text:#f2f7ff;
+}
+body{
+  background:radial-gradient(circle at 15% -5%,rgba(23,64,107,.42),transparent 33%),
+   linear-gradient(180deg,#0a1726,#07101d)!important;
+  color:#f2f7ff;
+}
+:is(.card,.panel,.section,.summary,.metric,.stat,.login-card,.ro-lobby,.ro-portal,.subcats,.special-box){
+  border-color:#395671!important;
+}
+:is(.card,.panel,.section,.ro-lobby,.login-card){
+  box-shadow:0 13px 26px rgba(0,0,0,.24);
+}
+:is(.card h2,.panel h2,.section h2,.ro-page-hero-title h1){
+  color:#f6d68f;
+}
+:is(.topnav,.starro-navigation,.page-links) a[aria-current="page"]{
+  border-color:#dfc180!important;color:#ffe1a6!important;background:#253a4f!important;
+}
+:is(.btn.primary,button.primary):not(:disabled){
+  border-color:#587e9e;background:#264f71;color:#f5faff;
+}
+:is(input[type="search"],input[type="text"],input[type="number"],select,textarea){
+  border-color:#476684;background-color:#0b1a2a;color:#f0f7ff;
+}
+:where(.note,.muted,.tiny,.sub){color:#b9cee4}
+@media(max-width:760px){
+  :is(.topnav,.starro-navigation,.page-links){gap:6px}
+}
