@@ -30,8 +30,14 @@ jobs:
           match=re.search(r'<script[^>]+id=["\']encyclopedia-data["\'][^>]*>(.*?)</script>',body,re.I|re.S)
           print('SCRIPT-START',body.find('encyclopedia-data'),repr(body[body.find('encyclopedia-data')-60:body.find('encyclopedia-data')+260]))
           print('SCRIPT-END',body.find('</script>'),'MATCH',bool(match))
+          if not match:
+            start=body.find('<script id="encyclopedia-data" type="application/json">')
+            if start>=0:
+              start=body.find('>',start)+1
+              try: obj,consumed=json.JSONDecoder().raw_decode(body[start:]);match=True;print('PARSED_JSON',consumed,'REMAINING',len(body)-start-consumed)
+              except Exception as error: print('JSON_PARSE_ERROR',type(error).__name__,str(error),'TAIL',repr(body[-220:]));match=False
           if match:
-            obj=json.loads(html.unescape(match.group(1)))
+            if match is not True:obj=json.loads(html.unescape(match.group(1)))
             print('ENCYCLOPEDIA TOP',type(obj).__name__,list(obj)[:20] if isinstance(obj,dict) else len(obj))
             def sample(v,name):
               if isinstance(v,dict):
