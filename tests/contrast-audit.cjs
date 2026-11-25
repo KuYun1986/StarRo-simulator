@@ -21,7 +21,7 @@ const server=http.createServer((req,res)=>{
  }catch(e){res.writeHead(500);res.end(String(e));}
 });
 const pages=['index.html','game.html','enchant.html','identify.html','collection.html',
- 'catalog.html','collection-advanced.html','equipment.html','CASH.html','shadow.html','admin.html'];
+ 'catalog.html','equipment.html','CASH.html','shadow.html','admin.html'];
 function summarize(out,file,mode,state,axeResult){
  const problems=axeResult.violations.flatMap(v=>v.nodes.map(n=>({
   id:v.id,impact:v.impact,page:file,mode,state,

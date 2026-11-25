@@ -1,7 +1,7 @@
-/* Single source of truth for StarRo's ten cross-section entrances. */
+/* Single source of truth for StarRo's nine cross-section entrances. */
 (function(){
   'use strict';
-  const links=[["index.html","🏠 主頁"],["game.html","🎮 遊戲區"],["enchant.html","✨ 附魔區"],["identify.html","🔍 洗詞鑑定區"],["collection.html","📚 收藏圖鑑"],["collection-advanced.html","🧮 收藏模擬"],["equipment.html","💰 裝備成本區"],["CASH.html","💳 現金區"],["shadow.html","💎 影子區"],["admin.html","🔐 管理後台"]];
+  const links=[["index.html","🏠 主頁"],["game.html","🎮 遊戲區"],["enchant.html","✨ 附魔區"],["identify.html","🔍 洗詞鑑定區"],["collection.html","📚 收藏專區"],["equipment.html","💰 裝備成本區"],["CASH.html","💳 現金區"],["shadow.html","💎 影子區"],["admin.html","🔐 管理後台"]];
   function init(){
     const page=decodeURIComponent(location.pathname.split('/').pop()||'index.html');
     const active=page==='catalog.html'?'collection.html':page;

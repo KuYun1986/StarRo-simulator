@@ -22,11 +22,11 @@ const server=http.createServer((req,res)=>{
   const base='http://127.0.0.1:'+server.address().port;
   const browser=await chromium.launch({headless:true});
   const failures=[],details=[];
-  const pages=['index.html','game.html','enchant.html','identify.html','collection.html','collection-advanced.html','equipment.html','CASH.html','shadow.html','catalog.html'];
+  const pages=['index.html','game.html','enchant.html','identify.html','collection.html','equipment.html','CASH.html','shadow.html','catalog.html'];
   const expectedNav=[
     ['index.html','🏠 主頁'],['game.html','🎮 遊戲區'],
     ['enchant.html','✨ 附魔區'],['identify.html','🔍 洗詞鑑定區'],
-    ['collection.html','📚 收藏圖鑑'],['collection-advanced.html','🧮 收藏模擬'],
+    ['collection.html','📚 收藏專區'],
     ['equipment.html','💰 裝備成本區'],['CASH.html','💳 現金區'],
     ['shadow.html','💎 影子區'],['admin.html','🔐 管理後台']
   ];
@@ -39,7 +39,7 @@ const server=http.createServer((req,res)=>{
       label:link.textContent.trim(),
       current:link.getAttribute('aria-current')
     })));
-    assert.equal(actual.length,expectedNav.length,url+' unified navigation should contain ten entrances');
+    assert.equal(actual.length,expectedNav.length,url+' unified navigation should contain nine entrances');
     assert.deepEqual(actual.map(link=>[link.href,link.label]),expectedNav,url+' navigation labels or order differ');
     assert.deepEqual(actual.filter(link=>link.current==='page').map(link=>link.href),[canonical],url+' current-page marker is wrong');
     const notVisible=await links.evaluateAll(elements=>elements.filter(link=>{
@@ -293,6 +293,11 @@ const server=http.createServer((req,res)=>{
     await ctx.close();
   }
   for(const mode of ['desktop','mobile'])for(const page of pages)await check(page,mode);
+  const redirectPage=await browser.newPage();
+  await redirectPage.goto(base+'/collection-advanced.html?tab=special',{waitUntil:'domcontentloaded'});
+  await redirectPage.waitForURL('**/collection.html?tab=special');
+  await redirectPage.locator('#catalogTabSpecial[aria-selected="true"]').waitFor();
+  await redirectPage.close();
   // Admin preview requires no credentials; must not perform a cloud save.
   const ctx=await browser.newContext({viewport:{width:1440,height:900}});
   const admin=await ctx.newPage();const adminErrors=[];

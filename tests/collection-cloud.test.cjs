@@ -73,9 +73,9 @@ test('logged-out edits remain on device',async()=>{
  assert.equal(h.writes(),0);
  assert.deepEqual(JSON.parse(h.storage.get('starro_collection_selected')),[A]);
 });
-test('eleven pages include the same ten valid section routes',()=>{
- const files=['index.html','game.html','enchant.html','identify.html','collection.html','catalog.html','collection-advanced.html','equipment.html','CASH.html','shadow.html','admin.html'];
- const routes=['index.html','game.html','enchant.html','identify.html','collection.html','collection-advanced.html','equipment.html','CASH.html','shadow.html','admin.html'];
+test('ten pages include the same nine valid section routes',()=>{
+ const files=['index.html','game.html','enchant.html','identify.html','collection.html','catalog.html','equipment.html','CASH.html','shadow.html','admin.html'];
+ const routes=['index.html','game.html','enchant.html','identify.html','collection.html','equipment.html','CASH.html','shadow.html','admin.html'];
  for(const name of files){
   const html=fs.readFileSync(path.join(root,name),'utf8');
   const nav=html.match(/<nav\b[^>]*data-starro-unified-nav[^>]*>[\s\S]*?<\/nav>/);

@@ -277,6 +277,188 @@ function unifiedResults(collections,allPools){
   return {entries,counts:{collection:collectionsFound.length,equipment:equipmentFound.length,
     gacha:dropsFound.length+poolsFound.length},pools:poolsFound,drops:dropsFound};
 }
+const fmt=v=>Number.isInteger(v)?String(v):String(Math.round(v*10000)/10000);
+const CHAR_CALC_KEY="starro_collection_charcalc_v158";
+const CHAR_BASIC=["STR","AGI","VIT","INT","DEX","LUK"];
+const CHAR_TRAIT=["POW","STA","WIS","SPL","CON","CRT"];
+const CHAR_COMBAT=["ATK","MATK","P.ATK","S.MATK","CRI","C.RATE","HIT","FLEE","DEF","MDEF","MHP","MSP","ASPD"];
+const CHAR_PCT=[
+  ["ATK%","ATK %"],["MATK%","MATK %"],["MHP%","MHP %"],["MSP%","MSP %"],
+  ["爆擊傷害%","爆擊傷害 %"],["遠距離傷害%","遠距離傷害 %"],
+  ["近距離傷害%","近距離傷害 %"],["技能終傷%","技能終傷 %"],["技能後延遲%","技能後延遲 %"]
+];
+let charCalcInput={level:275};
+try{
+  const x=JSON.parse(localStorage.getItem(CHAR_CALC_KEY)||"{}");
+  if(x&&typeof x==="object") charCalcInput=x;
+}catch(e){}
+if(!Number.isFinite(Number(charCalcInput.level))) charCalcInput.level=275;
+
+
+function normalStatAvailable(level){
+  level=Math.max(1,Math.min(275,Math.floor(Number(level)||275)));
+  // 轉生角色 Lv1 起始 100 點；200 後一般素質點不再增加。
+  let pts=100;
+  const cap=Math.min(level,200);
+  for(let x=1;x<cap;x++){
+    if(x<100) pts+=Math.floor(x/5)+3;
+    else if(x<=150) pts+=Math.floor(x/10)+13;
+    else pts+=Math.floor((x-150)/7)+28;
+  }
+  return pts;
+}
+
+function normalStatCostTo(target){
+  let v=Math.max(1,Math.min(130,Math.floor(Number(target)||1)));
+  let cost=0;
+  for(let low=1;low<v;low++){
+    if(low<100) cost+=2+Math.floor((low-1)/10);
+    else cost+=16+4*Math.floor((low-100)/5);
+  }
+  return cost;
+}
+
+function traitAvailable(level){
+  level=Math.max(1,Math.min(275,Math.floor(Number(level)||275)));
+  if(level<200) return 0;
+  const gainedLevels=level-200;
+  return 7 + gainedLevels*3 + Math.floor(gainedLevels/5)*4;
+}
+
+function basicStatInputValue(key){
+  const raw=charCalcInput[key];
+  if(raw===undefined || raw===null || raw==="") return 1;
+  return Math.max(1,Math.min(130,Math.floor(Number(raw)||1)));
+}
+
+function traitStatInputValue(key){
+  const raw=charCalcInput[key];
+  if(raw===undefined || raw===null || raw==="") return 0;
+  return Math.max(0,Math.min(110,Math.floor(Number(raw)||0)));
+}
+
+function renderStatPointSummary(){
+  const level=Math.max(1,Math.min(275,Math.floor(Number(charCalcInput.level)||275)));
+  const basicAvail=normalStatAvailable(level);
+  const basicUsed=CHAR_BASIC.reduce((s,k)=>s+normalStatCostTo(basicStatInputValue(k)),0);
+  const basicRemain=basicAvail-basicUsed;
+
+  const traitAvail=traitAvailable(level);
+  const traitUsed=CHAR_TRAIT.reduce((s,k)=>s+traitStatInputValue(k),0);
+  const traitRemain=traitAvail-traitUsed;
+
+  const set=(id,val,bad=false)=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=Number(val).toLocaleString();
+    el.classList.toggle("badv",bad);
+    el.classList.toggle("okv",!bad && id.includes("Remain"));
+  };
+  set("charBasicAvailable",basicAvail);
+  set("charBasicUsed",basicUsed);
+  set("charBasicRemain",basicRemain,basicRemain<0);
+  set("charTraitAvailable",traitAvail);
+  set("charTraitUsed",traitUsed);
+  set("charTraitRemain",traitRemain,traitRemain<0);
+
+  const lv=document.getElementById("charCalcLevel");
+  if(lv && String(lv.value)!==String(level)) lv.value=level;
+}
+
+function saveCharCalc(){
+  try{localStorage.setItem(CHAR_CALC_KEY,JSON.stringify(charCalcInput));}catch(e){}
+}
+
+function getSelectedCollectionStatMap(){return new Map(window.StarroCollectionSimulation.calculate(allCollections(),selected).entries);}
+
+function collectionStatBonus(key,map){
+  let v=Number(map.get(key)||0);
+
+  // All / AllState 套用至六大基本素質
+  if(CHAR_BASIC.includes(key)){
+    v+=Number(map.get("ALL")||0);
+    v+=Number(map.get("All")||0);
+    v+=Number(map.get("全能力")||0);
+  }
+
+  // 全特殊屬性、四轉特殊屬性套用至 POW~CRT
+  if(CHAR_TRAIT.includes(key)){
+    v+=Number(map.get("全特殊屬性")||0);
+    v+=Number(map.get("四轉特殊屬性")||0);
+  }
+  return v;
+}
+
+function charNumber(key){
+  const n=Number(charCalcInput[key]);
+  return Number.isFinite(n)?n:0;
+}
+
+function charRow(key,label,map,isPct=false){
+  const add=collectionStatBonus(key,map);
+  let base=charNumber(key);
+  let inputValue=charCalcInput[key];
+
+  if(CHAR_BASIC.includes(key)){
+    base=basicStatInputValue(key);
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=1;
+  }else if(CHAR_TRAIT.includes(key)){
+    base=traitStatInputValue(key);
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=0;
+  }else{
+    if(inputValue===undefined || inputValue===null || inputValue==="") inputValue=0;
+  }
+
+  const total=base+add;
+  const addTxt=(add>0?"+":"")+fmt(add)+(isPct?"%":"");
+  const totalTxt=fmt(total)+(isPct?"%":"");
+  return `<div class="charcalc-row">
+    <span class="cc-label">${esc(label)}</span>
+    <input class="charcalc-input" data-char-key="${esc(key)}" type="number" step="${CHAR_BASIC.includes(key)||CHAR_TRAIT.includes(key)?1:0.1}" value="${esc(inputValue)}">
+    <span class="cc-add">${addTxt}</span>
+    <span class="cc-total">${totalTxt}</span>
+  </div>`;
+}
+
+function renderCharacterCalculator(){
+  const map=getSelectedCollectionStatMap();
+  const basic=$("charCalcBasic"),trait=$("charCalcTrait"),combat=$("charCalcCombat"),pct=$("charCalcPct");
+  if(!basic||!trait||!combat||!pct) return;
+
+  basic.innerHTML=CHAR_BASIC.map(k=>charRow(k,k,map,false)).join("");
+  trait.innerHTML=CHAR_TRAIT.map(k=>charRow(k,k,map,false)).join("");
+  combat.innerHTML=CHAR_COMBAT.map(k=>charRow(k,k,map,false)).join("");
+  pct.innerHTML=CHAR_PCT.map(([k,label])=>charRow(k,label,map,true)).join("");
+
+  document.querySelectorAll(".charcalc-input").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      const key=inp.dataset.charKey;
+      charCalcInput[key]=inp.value;
+      saveCharCalc();
+      renderCharacterCalculator();
+    });
+  });
+
+  renderStatPointSummary();
+}
+
+
+const missingKey='starro_collection_missing_required_v147';
+function missingSet(){try{return new Set(JSON.parse(localStorage.getItem(missingKey)||'[]'))}catch(e){return new Set()}}
+function renderRequiredSummary(collections){
+  const counts=new Map(),missing=missingSet();
+  for(const it of collections)if(selected.has(keyOf(it)))for(const raw of it.required||[]){
+    const s=String(raw||'').trim();if(!s)continue;
+    const m=s.match(/^(.*?)(?:\s*(?:×|x|X|\*)\s*(\d+(?:\.\d+)?))$/);
+    const name=(m?m[1]:s).trim(),qty=m?Number(m[2])||1:1;
+    counts.set(name,(counts.get(name)||0)+qty);
+  }
+  const rows=[...counts].sort((a,b)=>a[0].localeCompare(b[0],'zh-Hant')),lack=rows.filter(([n])=>missing.has(n));
+  $('simRequiredCount').textContent='（'+rows.length+' 種）';$('simMissingCount').textContent='（'+lack.length+' 種）';
+  $('simRequiredList').innerHTML=rows.length?rows.map(([n,q])=>'<label><input type="checkbox" data-missing-name="'+esc(n)+'" '+(!missing.has(n)?'checked':'')+'><span>'+esc(n)+'</span><b>× '+esc(q)+'</b></label>').join(''):'<p>尚未勾選收藏</p>';
+  $('simMissingList').innerHTML=lack.length?lack.map(([n,q])=>'<div><span>'+esc(n)+'</span><b>× '+esc(q)+'</b></div>').join(''):'<p>目前沒有標記缺少的道具</p>';
+}
+window.StarroCollectionProgressAdapter={keys:()=>new Set(allCollections().map(keyOf)),snapshot:()=>[...selected],apply:values=>{selected=new Set(values);render();}};
 const SIM_CAP_KEY='starro_collection_gallery_caps';
 function renderSimulation(collections){
   const sim=window.StarroCollectionSimulation.calculate(collections,selected);
@@ -293,6 +475,8 @@ function render(){
   cachedEquipmentEntries=null;
   const collections=allCollections(),allPools=pools();
   renderSimulation(collections);
+  renderRequiredSummary(collections);
+  renderCharacterCalculator();
   collectionCovers=window.StarroReferenceLookup.buildCollectionCovers(collections,catalog());
   $('catalogTotal').textContent=collections.length.toLocaleString('zh-TW');
   $('catalogPoolTotal').textContent=allPools.length.toLocaleString('zh-TW');
@@ -415,6 +599,9 @@ function openDetail(kind,i){
   if(!dialog.open)dialog.showModal();
 }
 function init(){
+  $('simRequiredList').addEventListener('change',e=>{const t=e.target.closest('[data-missing-name]');if(!t)return;const m=missingSet();if(t.checked)m.delete(t.dataset.missingName);else m.add(t.dataset.missingName);try{localStorage.setItem(missingKey,JSON.stringify([...m]));}catch(e){}renderRequiredSummary(allCollections());});
+  $('charCalcLevel').addEventListener('input',e=>{charCalcInput.level=e.target.value;saveCharCalc();renderCharacterCalculator();});
+  $('charCalcReset').addEventListener('click',()=>{charCalcInput={level:275};saveCharCalc();renderCharacterCalculator();});
   try{const caps=JSON.parse(localStorage.getItem(SIM_CAP_KEY)||'{}');for(const id of ['simNormalCap','simSpecialCap'])if(Number.isFinite(caps[id]))$(id).value=id==='simSpecialCap'&&caps[id]===600?800:caps[id];}catch(e){}
   for(const id of ['simNormalCap','simSpecialCap'])$(id).addEventListener('input',()=>{
     try{localStorage.setItem(SIM_CAP_KEY,JSON.stringify({simNormalCap:Number($('simNormalCap').value),simSpecialCap:Number($('simSpecialCap').value)}));}catch(e){}
@@ -476,6 +663,7 @@ function init(){
     const pick=e.target.closest('input[data-pick-key]');if(!pick)return;
     if(pick.checked)selected.add(pick.dataset.pickKey);else selected.delete(pick.dataset.pickKey);
     localStorage.setItem(progressKey,JSON.stringify([...selected]));
+    window.StarroCollectionCloud?.scheduleSave();
     render();
   });
   $('catalogResults').addEventListener('click',e=>{
@@ -516,6 +704,7 @@ function init(){
     const b=e.target.closest('#catalogToggleSelected');if(!b)return;
     if(selected.has(b.dataset.key))selected.delete(b.dataset.key);else selected.add(b.dataset.key);
     localStorage.setItem(progressKey,JSON.stringify([...selected]));
+    window.StarroCollectionCloud?.scheduleSave();
     b.textContent=selected.has(b.dataset.key)?'取消勾選':'✓ 標記已收藏';
     render();
   });

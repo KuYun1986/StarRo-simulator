@@ -1,4 +1,4 @@
-# 收藏模擬 Google 登入與雲端儲存設定
+# 收藏專區 Google 登入與雲端儲存設定
 
 前端已接上 OAuth、進度上傳／載入、勾選變動自動同步、衝突保護與錯誤訊息。
 Google Provider 和 Supabase 資料表需要該專案的管理權限；GitHub Pages 無法直接建立。
@@ -10,7 +10,7 @@ Google Provider 和 Supabase 資料表需要該專案的管理權限；GitHub Pa
    https://xjcllclduebjjqmauqsh.supabase.co/auth/v1/callback
 3. Supabase → Authentication → URL Configuration：
    Site URL = https://kuyun1986.github.io/StarRo-simulator/
-   Redirect URLs 包含 https://kuyun1986.github.io/StarRo-simulator/collection-advanced.html
+   Redirect URLs 包含 https://kuyun1986.github.io/StarRo-simulator/collection.html
 
 ## 資料表
 
@@ -20,8 +20,8 @@ RLS 規則限定 authenticated 使用者只能讀寫自己的 collection_progres
 
 ## 驗收流程
 
-1. 在 Safari 或 Chrome 開啟收藏模擬，先勾選幾項。
-2. 使用 Google 登入、完成授權、回到收藏模擬。
+1. 在 Safari 或 Chrome 開啟收藏專區，先勾選幾項。
+2. 使用 Google 登入、完成授權、回到收藏專區。
 3. 若雲端尚無資料，按「儲存到雲端」，看到成功項目數。
 4. 用另一個裝置同一帳號登入，應從雲端載入收藏。
 5. 再次勾選時應自動同步；可手動按「載入雲端進度」。

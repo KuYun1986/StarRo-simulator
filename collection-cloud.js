@@ -22,10 +22,11 @@ function errMessage(e){
    return '無法連線至 Supabase，請檢查網路；本機收藏仍保留。';
  return s;
 }
-function keys(){return new Set(ITEMS.map(keyOf));}
+const adapter=window.StarroCollectionProgressAdapter;
+function keys(){return adapter?adapter.keys():new Set(ITEMS.map(keyOf));}
 function normalize(v){return typeof v==='string'?v.replace(/^JRO收藏\|/,'特殊收藏|'):'';}
 function snapshot(){
- const valid=keys();return [...selected].map(normalize).filter(k=>valid.has(k)).sort();
+ const valid=keys();return (adapter?adapter.snapshot():[...selected]).map(normalize).filter(k=>valid.has(k)).sort();
 }
 function equal(a,b){const valid=keys();return JSON.stringify(a)===JSON.stringify(
  (Array.isArray(b)?b:[]).map(normalize).filter(k=>valid.has(k)).sort());}
@@ -40,8 +41,10 @@ function show(){
  login.disabled=providerDisabled||busy;
 }
 function applyCloud(progress){
- const valid=keys();selected.clear();
- for(const value of Array.isArray(progress)?progress:[]){const k=normalize(value);if(valid.has(k))selected.add(k);}
+ const valid=keys(),next=[];
+ for(const value of Array.isArray(progress)?progress:[]){const k=normalize(value);if(valid.has(k))next.push(k);}
+ if(adapter){adapter.apply(next);storeLocal();return;}
+ selected.clear();for(const k of next)selected.add(k);
  storeLocal();
  updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderRequiredPanels();
 }

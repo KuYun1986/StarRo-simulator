@@ -12,7 +12,7 @@
     identify:{file:'identify.html',label:'洗詞鑑定區',icon:'🔍',title:'🔍 繁星洗詞鑑定區',subtitle:'古雲防上頭用V777（機率僅供參考，實際依遊戲為主）',blocks:[
       ['huajinArmor','🔥 華金一條龍(鎧甲/戰靴)'],['huajinAccessory','💎 華金一條龍(耳環/飾品)'],['auctionNeedle','🪡 競標針'],['weaponIdentify','🗡️ 進階武器鑑定'],['weaponChip','💠 武器指定晶片'],['midIdentify','🎀 頭中鑑定棒'],['midBook','📕 頭中指定書'],['lowIdentify','🎗️ 頭下鑑定棒'],['lowBook','📙 頭下指定書'],['shoeIdentify','👟 鞋子鑑定棒'],['shoeBook','📘 鞋子指定書'],['accIdentify','🪄 飾品鑑定棒'],['accBook','📖 飾品指定魔法書']
     ]},
-    collection:{file:'collection.html',label:'收藏區',icon:'📚',title:'⭐ 繁星收藏模擬',subtitle:'',blockMode:'selectors',blocks:[
+    collection:{file:'collection.html',label:'收藏專區',icon:'📚',title:'⭐ 繁星收藏專區',subtitle:'',blockMode:'selectors',blocks:[
       ['toolbar','收藏工具列','.wrap > .toolbar'],['subcats','子分類','.wrap > .subcats'],['special','自選特定分類','.wrap > .special-box'],['jroMvp','JRO 附魔 × MVP 卡片查詢','#jroMvpBox'],['summary','收藏摘要','.wrap > .summary'],['owned','已選收藏總道具','.wrap > .req-summary-box|0'],['missing','已選收藏所缺道具','.wrap > .req-summary-box|1'],['layout','收藏清單 / 能力 / 計算機','.wrap > .layout']
     ]},
     equipment:{file:'equipment.html',label:'裝備成本區',icon:'💰',title:'💰 繁星裝備成本區',subtitle:'',blocks:[
