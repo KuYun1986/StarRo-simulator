@@ -79,3 +79,48 @@ body::before{opacity:.035!important}
  :is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box){border-radius:14px!important}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+
+/* Contrast QA: legacy simulator inline styles use !important dark gradients.
+   Stronger selectors are required to keep text readable in the new light field guide. */
+body .wrap .card,body .wrap section.card,body .wrap .grid>.card,
+body .wrap .panel,body .wrap .section,body .wrap .summary,
+body .wrap .toolbar,body .wrap .layout>section,
+body .content .card,body .content .panel,body .content .section,
+body #dropRateSimulator,body #talismanCostSimulator,
+body .wrap .stat,body .wrap .metric,
+body .wrap .feature-table,body .wrap .req-summary-box{
+ background:#fff!important;
+ color:#304653!important;
+ border-color:#d8e3e6!important;
+ box-shadow:0 9px 27px rgba(44,79,102,.10)!important;
+}
+body .wrap .card :is(h1,h2,h3),
+body .wrap .panel :is(h1,h2,h3),
+body .wrap .layout>section :is(h1,h2,h3){
+ color:#314e5f!important;
+}
+body .wrap .card :is(.tiny,.muted,.note,.sub,.hint,.help),
+body .wrap .panel :is(.tiny,.muted,.note,.sub,.hint,.help),
+body .wrap .layout>section :is(.tiny,.muted,.note,.sub,.hint,.help){
+ color:#637d8d!important;
+}
+body .wrap .card .stat,body .wrap .card .statgrid>.stat,
+body .wrap .card .result,body .wrap .card .result-box,
+body .wrap .card .summary-card,body .wrap .layout .stat,
+body .wrap .layout .result{
+ background:#f3f7f8!important;color:#38556a!important;
+ border-color:#d5e2e6!important;
+}
+body .wrap .card .stat :is(.label,.tiny,.sub,.muted),
+body .wrap .card .result :is(.label,.tiny,.sub,.muted){
+ color:#617a8b!important;
+}
+body .wrap .card .stat :is(b,strong,.value),
+body .wrap .card .result :is(b,strong,.value){
+ color:#3b7379;
+}
+body .wrap .card :is(input:not([type="checkbox"]),select,textarea),
+body .wrap .layout :is(input:not([type="checkbox"]),select,textarea){
+ background:#f7fafb!important;color:#375266!important;
+ border-color:#d2dee3!important;
+}
