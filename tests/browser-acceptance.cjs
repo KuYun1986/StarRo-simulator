@@ -47,6 +47,7 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('#jroMvpRows tr').count()>40,'JRO MVP rows missing');
         await p.locator('#jroMvpSearch').fill('英雄的凱歌');
         assert.ok((await p.locator('#jroMvpMeta').textContent()).includes('顯示 '),'JRO filtered count missing');
+        await p.locator('#jroMvpClear').evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest'}));
         await p.locator('#jroMvpClear').click();
         assert.ok(await p.locator('#jroMvpSearch').inputValue()==='','JRO clear failed');
       }
