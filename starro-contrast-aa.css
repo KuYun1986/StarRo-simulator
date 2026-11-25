@@ -326,3 +326,36 @@ body .catalog-app .catalog-eyebrow{color:#795324!important}
 body .catalog-app .catalog-hero p:not(.catalog-eyebrow){
   color:#405a5a!important;
 }
+
+
+/* LT conversion notes and source credits: accessible on pale backgrounds. */
+body .starro-lt-note{
+  display:block;
+  color:#57421e!important;
+  -webkit-text-fill-color:#57421e!important;
+  background:#fff1cf!important;
+  border:1px solid #dfcb99!important;
+  padding:6px 9px;
+  border-radius:7px;
+  font-size:12px;
+  font-weight:750;
+  line-height:1.7;
+  white-space:normal;
+}
+body .starro-data-source-note{
+  display:block;
+  margin-top:22px;
+  padding:12px 14px;
+  border:1px solid #c8dae3;
+  border-radius:10px;
+  background:#eef4f8!important;
+  color:#3a5265!important;
+  font-size:12px;
+  line-height:1.75;
+}
+body .starro-data-source-note b{color:#2c485b!important}
+body .starro-data-source-note a{
+  color:#235c87!important;
+  text-decoration:underline!important;
+  text-underline-offset:2px;
+}

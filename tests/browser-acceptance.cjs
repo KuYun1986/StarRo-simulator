@@ -144,6 +144,18 @@ const server=http.createServer((req,res)=>{
         assert.ok((await p.locator('#itemDetailContent').textContent()).includes('驗收取得來源'));
         await p.locator('.item-detail-close').click();
         await p.locator('#search').fill('');
+        await p.locator('#search').fill('翡翠LT收藏組合');
+        await p.locator('#list .item').first().waitFor({timeout:6000});
+        const firstPick=p.locator('#list input[data-key]').first();
+        if(!await firstPick.isChecked())await firstPick.check();
+        const ltPanel=await p.locator('#list .item-sources').first().textContent();
+        assert.ok(ltPanel.includes('翡翠戒指[1]')&&ltPanel.includes('改造升級'),
+          'advanced collection LT source mapping/upgrade notice missing');
+        await p.locator('#list .item-sources button[data-item-detail]').first().click();
+        assert.ok((await p.locator('#itemDetailContent').textContent()).includes('資料來源'),
+          'item details should cite equipment source at the end');
+        await p.locator('.item-detail-close').click();
+        await p.locator('#search').fill('');
       }
       if(url==='catalog.html'||url==='collection.html'){
         const ref=await p.evaluate(()=>{
@@ -177,6 +189,9 @@ const server=http.createServer((req,res)=>{
         assert.ok((await p.locator('.catalog-card').count())>=1,'catalog search did not return existing collection');
         await p.locator('.catalog-card input[data-pick-key]').first().check();
         assert.ok((await p.locator('.catalog-selected-sources').textContent()).includes('所需道具與已登錄來源'),'selected catalog item-source panel missing');
+        const inheritedPanel=await p.locator('.catalog-selected-sources').first().textContent();
+        assert.ok(inheritedPanel.includes('翡翠戒指[1]')&&inheritedPanel.includes('改造升級'),
+          'LT item did not inherit verified original gacha source with conversion note');
 
         // Contrast regression: source summaries must be legible on light collection cards,
         // including iPhone-sized layouts. WCAG AA for small body text is >= 4.5:1.

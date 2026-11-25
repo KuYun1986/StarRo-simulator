@@ -52,6 +52,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run collection Google sync and navigation unit tests
         run: node --test tests/collection-cloud.test.cjs
+      - name: Test strict LT source matching and official effect data
+        run: node --test tests/equipment-enrichment.test.cjs
       - name: Run materials regression tests
         run: node --test tests/service-config-regression.test.cjs
       - name: Run Chromium desktop/mobile acceptance tests
