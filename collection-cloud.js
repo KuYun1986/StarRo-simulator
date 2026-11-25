@@ -15,10 +15,11 @@
     renderTotals();renderRequiredPanels();
   };
   const validKeys=()=>new Set(ITEMS.map(keyOf));
+  const normalizeProgress=k=>typeof k==='string'?k.replace(/^JRO收藏\|/,'特殊收藏|'):'';
   const current=()=>[...selected].filter(k=>validKeys().has(k));
   const apply=keys=>{
     selected.clear();
-    (Array.isArray(keys)?keys:[]).forEach(k=>{if(validKeys().has(k))selected.add(k);});
+    (Array.isArray(keys)?keys:[]).forEach(old=>{const k=normalizeProgress(old);if(validKeys().has(k))selected.add(k);});
     try{localStorage.setItem(localKey,JSON.stringify(current()));}catch(e){}
     redraw();
   };
@@ -80,7 +81,7 @@
         loading=false;
         setStatus('已登入 '+(user.email||'Google')+'，雲端尚無進度');
         if(local.length)await cloudSave();
-      }else if(!local.length||JSON.stringify(local.slice().sort())===JSON.stringify((data.selected||[]).slice().sort())){
+      }else if(!local.length||JSON.stringify(local.slice().sort())===JSON.stringify((data.selected||[]).map(normalizeProgress).slice().sort())){
         apply(data.selected);setStatus('✅ 已同步 '+current().length+' 項收藏');
       }else{
         // Never silently discard existing progress on either side.
