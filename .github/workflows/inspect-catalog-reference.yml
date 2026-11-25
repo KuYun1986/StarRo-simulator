@@ -20,6 +20,7 @@ jobs:
               with urllib.request.urlopen(req,timeout=20) as res:
                   body=res.read(500000).decode('utf-8','replace')
                   print('STATUS',res.status,'URL',res.url,'LENGTH',len(body))
+              with open('reference-site.html','w',encoding='utf-8') as fp:fp.write(body)
               class Parser(HTMLParser):
                   def __init__(self):super().__init__();self.tags=[];self.active=False
                   def handle_starttag(self,t,a):
@@ -44,3 +45,11 @@ jobs:
               print('RAW_DATA_OBJECTS:',[(m.group(1),m.start()) for m in list(re.finditer(r'(?:const|let)\\s+(\\w+)\\s*=\\s*[\\[{]',body))[:65]])
           except Exception as e:print('FETCH ERROR',type(e).__name__,str(e))
           PY
+
+      - name: Save public HTML for structured factual matching
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reference-site-snapshot
+          path: reference-site.html
+          retention-days: 1
