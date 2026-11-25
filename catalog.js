@@ -159,7 +159,7 @@ function allItems(){
   return [...map.values()];
 }
 function collectionFilters(item){
-  if(state.groups.length&&!state.groups.includes(item.group))return false;
+  if(state.tab==='special' ? !['特殊收藏','JRO收藏'].includes(item.group) : state.groups.length&&!state.groups.includes(item.group))return false;
   const chosen=selected.has(keyOf(item));
   if(state.progress==='saved'&&!chosen)return false;
   if(state.progress==='unsaved'&&chosen)return false;
@@ -284,13 +284,13 @@ function render(){
   $('catalogTotal').textContent=collections.length.toLocaleString('zh-TW');
   $('catalogPoolTotal').textContent=allPools.length.toLocaleString('zh-TW');
   const unified=state.tab==='all',gacha=state.tab==='gacha',equipment=state.tab==='equipment';
-  const tabs={all:'catalogTabAll',collection:'catalogTabCollection',equipment:'catalogTabEquipment',gacha:'catalogTabGacha'};
+  const tabs={all:'catalogTabAll',collection:'catalogTabCollection',special:'catalogTabSpecial',equipment:'catalogTabEquipment',gacha:'catalogTabGacha'};
   for(const [key,id] of Object.entries(tabs)){
     $(id).classList.toggle('active',state.tab===key);
     $(id).setAttribute('aria-selected',String(state.tab===key));
   }
   $('catalogGachaMenu').hidden=!gacha;
-  $('catalogGroupMenu').hidden=gacha||equipment;
+  $('catalogGroupMenu').hidden=gacha||equipment||state.tab==='special';
   $('catalogProgress').hidden=gacha||equipment;
   $('catalogViewSwitch').hidden=!gacha;
   $('catalogViewSwitch').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
@@ -436,6 +436,7 @@ function init(){
   syncLabels();
   $('catalogTabAll').onclick=()=>{state.tab='all';state.page=1;render()};
   $('catalogTabCollection').onclick=()=>{state.tab='collection';state.page=1;render()};
+  $('catalogTabSpecial').onclick=()=>{state.tab='special';state.page=1;render()};
   $('catalogTabGacha').onclick=()=>{state.tab='gacha';state.page=1;render()};
   $('catalogTabEquipment').onclick=()=>{state.tab='equipment';state.page=1;render()};
   $('catalogViewSwitch').addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b){state.view=b.dataset.view;state.page=1;render()}});
@@ -504,6 +505,7 @@ function init(){
   window.addEventListener('storage',e=>{if(e.key===progressKey){selected=loadSaved();render()}});
   const params=new URLSearchParams(location.search);
   if(params.get('tab')==='collection')state.tab='collection';
+  if(params.get('tab')==='special')state.tab='special';
   if(params.get('tab')==='gacha')state.tab='gacha';
   if(params.get('tab')==='equipment')state.tab='equipment';
   if(params.get('q')){state.query=params.get('q');$('catalogSearch').value=state.query}

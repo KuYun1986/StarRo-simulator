@@ -272,6 +272,11 @@ const server=http.createServer((req,res)=>{
           return it.name;
         });
         await p.reload({waitUntil:'domcontentloaded'});
+        await p.locator('#catalogTabSpecial').click();
+        assert.equal(await p.locator('#catalogTabSpecial').getAttribute('aria-selected'),'true');
+        assert.equal(await p.locator('#catalogGroupMenu').isVisible(),false);
+        assert.ok(await p.locator('#catalogResults .catalog-card').count()>0);
+        assert.ok((await p.locator('#catalogResults .catalog-card').allTextContents()).every(t=>t.includes('特殊收藏')),'special shortcut must show special collections only');
         await p.locator('#catalogTabCollection').click();
         await p.locator('#catalogSearch').fill(legacyName);
         assert.equal(await p.locator('#catalogResults input[data-pick-key]:checked').count(),1,'Legacy Special collection progress missing in gallery');
