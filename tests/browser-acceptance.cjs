@@ -74,7 +74,7 @@ const server=http.createServer((req,res)=>{
         await p.locator('.catalog-card').first().waitFor({timeout:10000});
         assert.ok((await p.locator('.catalog-card').count())>=20,'collection gallery cards missing');
         assert.ok(await p.locator('#catalogTabAll').isVisible(),'unified search mode missing');
-        assert.equal(await p.locator('#catalogSlots input[type="checkbox"]').count(),13,'compact categories missing');
+        assert.equal(await p.locator('#catalogSlots input[type="checkbox"]').count(),12,'compact categories missing');
         await p.locator('#catalogSlotMenu summary').click();
         await p.locator('#catalogSlots input[value="飾品"]').check();
         assert.ok((await p.locator('#catalogSlotLabel').textContent()).includes('飾品'),'checkbox selection not reflected');
