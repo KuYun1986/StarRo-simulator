@@ -59,7 +59,15 @@ const server=http.createServer((req,res)=>{
         assert.ok((await p.locator('#jroSlots').count())===1,'Special Collection capacity field missing');
         const special=await p.evaluate(()=>{const list=ITEMS.filter(x=>x.group==='特殊收藏');return {count:list.length,key:list.length?keyOf(list[0]):''}});
         assert.ok(special.count>=190,'special collection rename failed');
-        assert.ok(special.key.startsWith('JRO收藏|'),'legacy progress key was not preserved');
+        assert.ok(special.key.startsWith('特殊收藏|'),'Special collection key has not been normalized');
+        const original=await p.evaluate(()=>{
+          const it=ITEMS.find(x=>x.group==='特殊收藏');
+          localStorage.setItem('starro_collection_selected',JSON.stringify(['JRO收藏|'+it.row+'|'+it.name]));
+          return it.name;
+        });
+        await p.reload({waitUntil:'domcontentloaded'});
+        await p.locator('#search').fill(original);
+        assert.ok(await p.locator('#list input[data-key]:checked').count()>=1,'Legacy JRO collection progress was not migrated');
         assert.ok(await p.locator('#groupFilter option[value="特殊收藏"]').count(),'special group filter missing');
         assert.equal(await p.locator('#subcatMenu:not([open])').count(),1,'subcategory menu should start collapsed');
         assert.equal(await p.locator('#specialMenu:not([open])').count(),1,'special category menu should start collapsed');
@@ -128,7 +136,7 @@ const server=http.createServer((req,res)=>{
         await p.locator('#catalogSearch').fill('翡翠LT收藏組合');
         assert.ok((await p.locator('.catalog-card').count())>=1,'catalog search did not return existing collection');
         await p.locator('.catalog-card input[data-pick-key]').first().check();
-        assert.ok((await p.locator('.catalog-selected-sources').textContent()).includes('尚未登錄取得來源'),'selected catalog requirement source preview missing');
+        assert.ok((await p.locator('.catalog-selected-sources').textContent()).includes('所需道具與已登錄來源'),'selected catalog item-source panel missing');
         await p.locator('.catalog-source-line button').first().click();
         assert.ok(await p.locator('#catalogDialog').isVisible(),'source item detail dialog missing');
         assert.ok((await p.locator('#catalogDialogContent').textContent()).includes('已登錄取得來源'));
@@ -171,6 +179,11 @@ const server=http.createServer((req,res)=>{
         await p.locator('#catalogDialogClose').click();
         await p.locator('#catalogViewSwitch [data-view="pools"]').click();
         assert.ok((await p.locator('#catalogResults').textContent()).includes('XR測試轉蛋'));
+        await p.locator('button[data-action="pool"]').first().click();
+        assert.ok(await p.locator('#catalogDialogContent button[data-equipment-name]').count()>=1,'Gacha prize buttons missing');
+        await p.locator('#catalogDialogContent button[data-equipment-name]').first().click();
+        assert.ok((await p.locator('#catalogDialogContent').textContent()).includes('裝備詳細資料'),'Gacha prize did not open equipment detail');
+        await p.locator('#catalogDialogClose').click();
       }
       await p.screenshot({path:path.join(screenshots,url.replace('.html','')+'-'+mode+'.png'),fullPage:false});
       details.push({page:url,mode,nav,viewport:extent.window,pageWidth:extent.scroll,errors:errors.slice(0,8)});
