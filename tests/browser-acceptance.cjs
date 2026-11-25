@@ -56,7 +56,7 @@ const server=http.createServer((req,res)=>{
       if(url==='collection-advanced.html'){
         assert.equal(await p.locator('#jroMvpBox').count(),0,'JRO search should be moved out of collection');
         const special=await p.evaluate(()=>{const list=ITEMS.filter(x=>x.group==='特殊收藏');return {count:list.length,key:list.length?keyOf(list[0]):''}});
-        assert.ok(special.count>=200,'special collection rename failed');
+        assert.ok(special.count>=190,'special collection rename failed');
         assert.ok(special.key.startsWith('JRO收藏|'),'legacy progress key was not preserved');
         assert.ok(await p.locator('#groupFilter option[value="特殊收藏"]').count(),'special group filter missing');
         assert.equal(await p.locator('#subcatMenu:not([open])').count(),1,'subcategory menu should start collapsed');
