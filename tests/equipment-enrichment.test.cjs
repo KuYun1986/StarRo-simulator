@@ -144,11 +144,26 @@ test('zero-slot alias uses the same StarRO item ID, preserves slotted and LT var
  assert.equal(lookup.find('+10 （JRO） 動力耳麥裝置 ［０］').itemId,'410088');
  assert.equal(lookup.details('(JRO) 動力耳麥裝置 [0]').sources.length,5);
  assert.equal(lookup.itemKey('(JRO) 俠盜單眼眼鏡 [0]'),lookup.itemKey('(JRO)俠盜單眼眼鏡'));
- assert.equal(lookup.find('(JRO) 動力耳麥裝置 [1]'),null);
+ assert.equal(lookup.find('(JRO) 動力耳麥裝置 [1]').itemId,'410088');
+ assert.equal(lookup.details('(JRO) 動力耳麥裝置 [1]').sources.length,5);
+ assert.ok(lookup.socketNote('(JRO) 動力耳麥裝置 [1]').includes('打洞'));
+ assert.equal(lookup.socketNote('(JRO) 動力耳麥裝置 [0]'),'');
+ assert.equal(lookup.find('(JRO) 動力耳麥裝置 [2]'),null);
  assert.equal(lookup.find('(JRO) 動力耳麥裝置-LT [0]'),null);
  assert.equal(lookup.find('(IRO) 動力耳麥裝置 [0]'),null);
  globalThis.StarroReferenceIndex={items:{'1':{itemId:'1',name:'測試'},'2':{itemId:'2',name:'測試[0]'},'3':{itemId:'3',name:'測試[1]'}},byName:{}};
  assert.equal(lookup.find('測試[0]').itemId,'2');
  assert.equal(lookup.find('測試[1]').itemId,'3');
+ delete globalThis.StarroReferenceIndex;
+});
+
+test('StarRO drilling falls back from JRO [1] to unique zero-slot base, but respects a real slotted record',()=>{
+ const lookup=require('../catalog-reference-lookup.js');
+ globalThis.StarroReferenceIndex={items:{'1':{itemId:'1',name:'(JRO)測試[0]'},'2':{itemId:'2',name:'(JRO)獨立[0]'},'3':{itemId:'3',name:'(JRO)獨立[1]'},'4':{itemId:'4',name:'(IRO)測試[0]'},'5':{itemId:'5',name:'(JRO)衝突[0]'},'6':{itemId:'6',name:'(JRO)衝突'}},byName:{}};
+ assert.equal(lookup.find('(JRO)測試[1]').itemId,'1');
+ assert.equal(lookup.find('(JRO)獨立[1]').itemId,'3');
+ assert.equal(lookup.socketNote('(JRO)獨立[1]'),'');
+ assert.equal(lookup.find('(IRO)測試[1]'),null);
+ assert.equal(lookup.find('(JRO)衝突[1]'),null);
  delete globalThis.StarroReferenceIndex;
 });

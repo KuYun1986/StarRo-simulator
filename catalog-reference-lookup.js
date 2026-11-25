@@ -34,9 +34,24 @@
    if(aliases[k]&&index.items[aliases[k]])return index.items[aliases[k]];
    const exact=exactIndex.get(k);
    if(exact)return exact.size===1?index.items[[...exact][0]]||null:null;
-   // Only [0] and omitted slot are equivalent; never collapse [1], [2], LT or different server prefixes.
+   // JRO [1] may be made by drilling the identical unslotted base in StarRO.
+   // Prefer any exact real [1] record; do not confuse other slots or variants.
    const loose=zeroIndex.get(k.replace(/\[0\]$/,''));
-   return loose?.size===1?index.items[[...loose][0]]||null:null;
+   if(loose)return loose.size===1?index.items[[...loose][0]]||null:null;
+   if(/^\(jro\)/.test(k)&&/\[1\]$/.test(k)){
+     const base=zeroIndex.get(k.replace(/\[1\]$/,''));
+     if(base?.size===1)return index.items[[...base][0]]||null;
+   }
+   return null;
+ }
+ function socketNote(name){
+   const key=canonical(name),row=find(name);
+   if(!row||!/^\(jro\)/.test(key)||!/\[1\]$/.test(key))return '';
+   const names=[row.name,row.alias].map(canonical).filter(Boolean);
+   if(names.includes(key))return '';
+   const base=key.replace(/\[1\]$/,'');
+   if(!names.some(n=>n.replace(/\[0\]$/,'')===base))return '';
+   return '轉蛋來源為原版無洞裝備；繁星可另外打洞成 [1]。道具編號與能力為原版基礎資料，非轉蛋直接取得打洞版。';
  }
  function itemKey(name){
    const row=find(name);
@@ -86,7 +101,7 @@
    if(!data)return {};
    const gacha=Array.isArray(data.gacha)?data.gacha:[];
    const sources=dedupeSources(gacha.filter(x=>x&&x.name).map(x=>x.name+(x.tier?'｜'+x.tier+'獎':'')+(x.boxId?'｜編號 '+x.boxId:'')));
-   return {itemId:data.itemId||'',type:data.type||'',alias:data.alias||'',image:data.image||'',stats:data.stats||'',description:data.description||'',effect:data.effect||'',
+   return {itemId:data.itemId||'',type:data.type||'',alias:data.alias||'',image:data.image||'',stats:data.stats||'',description:data.description||'',effect:data.effect||'',socketNote:socketNote(name),
      sourceLabel:data.sourceLabel||'',sourceUrl:data.sourceUrl||'',referenceSite:global.StarroReferenceIndex.site||site,sources,gacha};
  }
  const nonempty=v=>v!=null&&(typeof v!=='string'||v.trim()!=='');
@@ -187,6 +202,6 @@
    }
    return assigned;
  }
- global.StarroReferenceLookup=Object.freeze({canonical,find,itemKey,details,merge,ability,collectionCover,collectionKey,buildCollectionCovers,dedupeSources});
+ global.StarroReferenceLookup=Object.freeze({canonical,find,itemKey,details,merge,ability,collectionCover,collectionKey,buildCollectionCovers,dedupeSources,socketNote});
  if(typeof module!=='undefined'&&module.exports)module.exports=global.StarroReferenceLookup;
 })(typeof window==='undefined'?globalThis:window);

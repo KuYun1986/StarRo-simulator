@@ -473,7 +473,7 @@ section{padding:12px;min-width:0}
 <script src="reference-items.js?v=20261125-reference"></script>
 <script src="starro-equipment-enrichment.js?v=20261125-starro-primary-v2"></script>
 <script src="catalog-reference-data.js?v=20261125-starro-primary-v2"></script>
-<script src="catalog-reference-lookup.js?v=20261125-slot-alias-audit1"></script>
+<script src="catalog-reference-lookup.js?v=20261125-jro-drilling1"></script>
 <script src="starro-online-lookup.js?v=20261125-online"></script>
 <script>
 /* ITEMS moved to collection-data.js */
@@ -769,7 +769,7 @@ function showItemDetail(raw){
  const effectText=window.StarroReferenceLookup.ability(info);
  document.getElementById('itemDetailContent').innerHTML=
   '<div class="item-detail-heading">'+image+'<div><h2 id="itemDetailTitle">'+esc(d.name)+'</h2><p>道具資料與已知來源</p></div></div>'+
-  row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',effectText)+row('基本資料',stats)+
+  row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',effectText)+row('基本資料',stats)+(info.socketNote?row('打洞說明',info.socketNote):'')+
   '<h3>已登錄取得來源</h3>'+(sources.length?'<ul>'+sources.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="source-not-found">尚未登錄取得方式或轉蛋來源，不能視為沒有掉落來源。</p>')+
   (d.derived?'<p class="starro-lt-note">⚒ '+esc(window.StarroEquipmentEnrichment.conversionNote)+'</p>':'')+
 

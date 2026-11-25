@@ -102,6 +102,7 @@ function equipmentDetailHtml(item){
   const info=equipDetail(item.name),src=imageFor(item.name,info.image||item.sources[0]?.image);
   const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['裝備描述',info.description||'尚未登錄裝備描述'],
     ['能力／效果',window.StarroReferenceLookup.ability(info)],['基本資料',info.stats||'尚未提供']];
+  if(info.socketNote)rows.push(['打洞說明',info.socketNote]);
   const ref=typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?info.referenceUrl:'';
   const sourceSite=typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?info.referenceSite:'';
   const online=window.StarroOnlineLookup?.render(item.name,info.itemId,ref||sourceSite)||'';
@@ -117,7 +118,7 @@ function collectionEquipmentHtml(items){
   return items.length?'<div class="catalog-equipment-list">'+items.map(name=>{
     const match=equipmentEntries().find(x=>eqName(x.name)===eqName(name));
     const related=match?.collections.length||0;
-    return '<button type="button" class="catalog-equipment-row" data-equipment-name="'+esc(match?.name||name)+'">'+
+    return '<button type="button" class="catalog-equipment-row" data-equipment-name="'+esc(name)+'">'+
       imageHtml(imageFor(name,equipDetail(name).image),'🛡️')+
       '<span><b>'+esc(name)+'</b><small>其他相關收藏 '+Math.max(0,related-1)+' 項'+(match?.sources.length?' · 轉蛋來源 '+match.sources.length+' 筆':'')+'</small></span><span aria-hidden="true">›</span></button>'
   }).join('')+'</div>':'<p class="catalog-notpicked">沒有需求裝備資料</p>';
@@ -344,9 +345,11 @@ function groupedRequiredSources(req){
   return '<div class="catalog-detail-section"><h3>需求道具的已知取得來源</h3>'+names.map(name=>{
     const derived=ltInheritedGacha(name);
     const rows=window.StarroReferenceLookup.dedupeSources(registeredSources(name));
+    const socketNote=window.StarroReferenceLookup.socketNote(name);
     return '<section style="margin:14px 0;padding:14px;border:1px solid #b8c8d8;border-radius:10px;background:#f4f7fb;color:#24384c;overflow-wrap:anywhere"><h4 style="margin:0 0 8px;font-size:1.08rem;color:#173653">'+esc(name)+'</h4>'+
       (derived?'<p style="margin:0 0 8px;color:#42566b">原始道具：'+esc(derived.base)+'</p>':'')+
       (rows.length?'<ul style="margin:0;padding-left:1.3em;line-height:1.65">'+rows.map(s=>'<li style="margin:4px 0;color:#24384c">'+esc(s)+'</li>').join('')+'</ul>':'<p>尚未登錄取得來源</p>')+
+      (socketNote?'<p style="margin:10px 0 0;color:#42566b">※ '+esc(socketNote)+'</p>':'')+
       (derived?'<p style="margin:10px 0 0;color:#42566b">※ 取得原始道具後，需改造升級為 LT。</p>':'')+'</section>';
   }).join('')+'</div>';
 }
@@ -378,7 +381,7 @@ function openDetail(kind,i){
       detailSection('出現轉蛋及已登錄來源',registeredSources(entry.name));
     const detail=equipDetail(entry.name);
     if(detail&&Object.keys(detail).length){
-      html+=detailSection('道具詳細資料',[detail.type&&'分類：'+detail.type,detail.itemId&&'編號：'+detail.itemId,detail.description,window.StarroReferenceLookup.ability(detail),detail.stats].filter(Boolean));
+      html+=detailSection('道具詳細資料',[detail.type&&'分類：'+detail.type,detail.itemId&&'編號：'+detail.itemId,detail.description,window.StarroReferenceLookup.ability(detail),detail.stats,detail.socketNote].filter(Boolean));
       const reference=typeof detail.referenceUrl==='string'&&/^https:\/\//i.test(detail.referenceUrl)?detail.referenceUrl:'';
       // Detail source links are consolidated into the final source footer.
 
@@ -461,7 +464,7 @@ function init(){
     if(itemButton){
       const item=equipmentEntries().find(x=>eqName(x.name)===eqName(itemButton.dataset.equipmentName));
       const fallback=item||{name:itemButton.dataset.equipmentName,collections:[],sources:[]};
-      $('catalogDialogContent').innerHTML=equipmentDetailHtml(fallback);
+      $('catalogDialogContent').innerHTML=equipmentDetailHtml({...fallback,name:itemButton.dataset.equipmentName});
       $('catalogDialog').showModal();
       return;
     }
