@@ -30,7 +30,7 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1 axe-core@4.10.3
           npx playwright install --with-deps chromium
       - name: Audit desktop and mobile color contrast including interactive panels
-        run: node tests/contrast-audit.cjs
+        run: CONTRAST_ENFORCE=1 node tests/contrast-audit.cjs
       - name: Upload full contrast audit report
         if: always()
         uses: actions/upload-artifact@v4
