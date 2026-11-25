@@ -415,7 +415,7 @@ function openDetail(kind,i){
   if(!dialog.open)dialog.showModal();
 }
 function init(){
-  try{const caps=JSON.parse(localStorage.getItem(SIM_CAP_KEY)||'{}');for(const id of ['simNormalCap','simSpecialCap'])if(Number.isFinite(caps[id]))$(id).value=caps[id];}catch(e){}
+  try{const caps=JSON.parse(localStorage.getItem(SIM_CAP_KEY)||'{}');for(const id of ['simNormalCap','simSpecialCap'])if(Number.isFinite(caps[id]))$(id).value=id==='simSpecialCap'&&caps[id]===600?800:caps[id];}catch(e){}
   for(const id of ['simNormalCap','simSpecialCap'])$(id).addEventListener('input',()=>{
     try{localStorage.setItem(SIM_CAP_KEY,JSON.stringify({simNormalCap:Number($('simNormalCap').value),simSpecialCap:Number($('simSpecialCap').value)}));}catch(e){}
     renderSimulation(allCollections());
