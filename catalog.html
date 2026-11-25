@@ -30,18 +30,30 @@
   <div class="catalog-searchrow">
    <label for="catalogSearch" class="visually-hidden">搜尋收藏／道具／轉蛋名稱</label>
    <input id="catalogSearch" type="search" placeholder="輸入收藏、裝備／卡片、效果、轉蛋名稱或編號，一次搜尋全部…" autocomplete="off">
-   <select id="catalogGroup" aria-label="收藏分類"><option value="all">全部分類</option><option value="普通收藏">普通收藏</option><option value="JRO收藏">JRO收藏</option><option value="自訂收藏">自訂收藏</option></select>
+   <details class="catalog-filter-menu" id="catalogGroupMenu">
+    <summary id="catalogGroupLabel">收藏分類：全部</summary>
+    <div class="catalog-filter-menu__options" id="catalogGroups" role="group" aria-label="勾選收藏分類">
+      <label><input type="checkbox" value="普通收藏"> 普通收藏</label>
+      <label><input type="checkbox" value="JRO收藏"> JRO 收藏</label>
+      <label><input type="checkbox" value="自訂收藏"> 自訂收藏</label>
+    </div>
+   </details>
    <select id="catalogProgress" aria-label="收藏狀態"><option value="all">所有進度</option><option value="saved">已勾選收藏</option><option value="unsaved">尚未勾選</option></select>
    <select id="catalogGachaType" aria-label="轉蛋類型" hidden><option value="all">所有轉蛋</option><option value="XR">XR</option><option value="紅利轉蛋">紅利轉蛋</option><option value="商城轉蛋">商城轉蛋</option><option value="其他">其他</option></select>
   </div>
-  <div class="catalog-filters"><span>常用部位：</span><div id="catalogSlots" class="catalog-slot-list"></div></div>
+  <div class="catalog-filters">
+   <details class="catalog-filter-menu" id="catalogSlotMenu">
+    <summary id="catalogSlotLabel">裝備分類：全部</summary>
+    <div id="catalogSlots" class="catalog-filter-menu__options" role="group" aria-label="勾選裝備分類"></div>
+   </details>
+  </div>
   <div id="catalogViewSwitch" class="catalog-view-switch" hidden><button type="button" class="active" data-view="items">以獎品查詢</button><button type="button" data-view="pools">以轉蛋查詢</button></div>
   <div id="catalogSearchSummary" class="catalog-search-summary" aria-live="polite"></div>
   <div class="catalog-status"><span id="catalogStatus" role="status">載入收藏資料中…</span><button id="catalogReset" type="button">清除條件</button></div>
  </section>
  <section id="catalogResults" class="catalog-grid" aria-label="查詢結果"></section>
  <nav class="catalog-pagination" aria-label="結果分頁"><button type="button" id="catalogPrev">← 上一頁</button><span id="catalogPage"></span><button type="button" id="catalogNext">下一頁 →</button></nav>
- <div class="catalog-info">同一個搜尋框可同時找收藏、需求裝備、轉蛋獎品與轉蛋池，點分類按鈕可縮小結果。收藏勾選狀態沿用本站原收藏模擬器的本機紀錄。轉蛋與圖片由管理後台維護，尚未建立圖片的資料會顯示預設圖示；不會使用未核實的獎品機率。</div>
+ <div class="catalog-info">同一個搜尋框可同時找收藏、需求裝備、轉蛋獎品與轉蛋池，分類使用下拉複選選單，可同時選擇多個項目。收藏勾選狀態沿用本站原收藏模擬器的本機紀錄。轉蛋與圖片由管理後台維護，尚未建立圖片的資料會顯示預設圖示；不會使用未核實的獎品機率。</div>
 </main>
 <dialog id="catalogDialog" class="catalog-dialog" aria-labelledby="catalogDialogTitle"><button type="button" class="catalog-close" id="catalogDialogClose" aria-label="關閉">✕</button><div id="catalogDialogContent"></div></dialog>
 <script src="collection-data.js?v=20261017-0208"></script>
