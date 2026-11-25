@@ -56,9 +56,9 @@ function imageFor(name,explicit=''){
   const url=images[name]||explicit||known;
   return safeImage(url);
 }
+let collectionCovers=new Map();
 function collectionImage(item){
-  const original=imageFor(item.name,item.image);
-  return window.StarroReferenceLookup.collectionCover(item,name=>imageFor(name,equipDetail(name).image),original);
+  return collectionCovers.get(window.StarroReferenceLookup.collectionKey(item))||'';
 }
 let cachedEquipmentEntries=null;
 function equipmentEntries(){
@@ -223,7 +223,7 @@ function selectedRequiredPanel(item){
 
 function renderCollectionCard(item,i){
   const k=keyOf(item),has=selected.has(k),sourceCount=collectionSource(item).length;
-  return '<article class="catalog-card"><div class="catalog-card__top">'+imageHtml(collectionImage(item),'📚')+
+  return '<article class="catalog-card"><div class="catalog-card__top">'+imageHtml(collectionImage(item),'')+
     '<div class="catalog-card__name">'+esc(item.name)+'</div></div><div class="catalog-card__body">'+
     '<div class="catalog-card__effect">'+esc(item.effect||'尚無效果說明')+'</div><div class="catalog-card__meta">'+
     '<span class="catalog-chip">'+esc(item.group||'自訂收藏')+'</span><span class="catalog-chip">佔格 '+esc(item.slot||0)+'</span>'+
@@ -279,6 +279,7 @@ function unifiedResults(collections,allPools){
 function render(){
   cachedEquipmentEntries=null;
   const collections=allCollections(),allPools=pools();
+  collectionCovers=window.StarroReferenceLookup.buildCollectionCovers(collections,catalog());
   $('catalogTotal').textContent=collections.length.toLocaleString('zh-TW');
   $('catalogPoolTotal').textContent=allPools.length.toLocaleString('zh-TW');
   const unified=state.tab==='all',gacha=state.tab==='gacha',equipment=state.tab==='equipment';

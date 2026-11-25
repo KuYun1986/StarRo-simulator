@@ -89,3 +89,26 @@ test('special collection uses its first UR/XR item image and preserves ordinary 
  assert.equal(lookup.collectionCover(item,()=>'', 'old'),'old');
  assert.equal(lookup.collectionCover({group:'特殊收藏',name:'XR裝備',required:[]},n=>n==='XR裝備'?'xr.png':''),'xr.png');
 });
+
+test('collection covers are globally unique, special reserved, and maximize eligible ordinary assignments',()=>{
+ const lookup=require('../catalog-reference-lookup.js');
+ const rows=[
+  {group:'特殊收藏',row:1,name:'不滅的審判',required:['阿穆']},
+  {group:'特殊收藏',row:2,name:'昇華',required:['阿穆']},
+  {group:'普通收藏',row:3,name:'彈性',required:['阿穆','甲','乙']},
+  {group:'普通收藏',row:4,name:'限制',required:['甲']},
+  {group:'普通收藏',row:5,name:'衝突',required:['阿穆']},
+  {group:'普通收藏',row:6,name:'僅材料',required:['材料']}
+ ];
+ const config={images:{阿穆:'https://example.com/a.png',甲:'https://example.com/b.png',乙:'https://example.com/c.png',材料:'https://example.com/d.png'},equipmentDetails:{材料:{type:'材料'}}};
+ const result=lookup.buildCollectionCovers(rows,config);
+ const get=i=>result.get(lookup.collectionKey(rows[i]));
+ assert.equal(get(0),'https://example.com/a.png');
+ assert.equal(get(1),undefined);
+ assert.equal(get(2),'https://example.com/c.png');
+ assert.equal(get(3),'https://example.com/b.png');
+ assert.equal(get(4),undefined);
+ assert.equal(get(5),undefined);
+ assert.equal(result.size,new Set(result.values()).size);
+ assert.deepEqual([...lookup.buildCollectionCovers([...rows].reverse(),config)].sort(),[...result].sort());
+});
