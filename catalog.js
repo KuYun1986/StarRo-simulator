@@ -11,7 +11,19 @@ const safeImage=s=>{
 };
 const normalize=s=>clean(s).toLocaleLowerCase('zh-TW').replace(/\s+/g,'');
 const eqName=s=>normalize(s).replace(/^(?:\+\d+\s*|[a-ds]階\s*)/i,'').replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
-const equipDetail=name=>(catalog().equipmentDetails||{})[name]||{};
+const equipDetail=name=>{
+  const auto=window.StarroReferenceItems||{};
+  const key=Object.prototype.hasOwnProperty.call(auto,name)?name:
+    Object.keys(auto).find(x=>eqName(x)===eqName(name));
+  const imported=key?auto[key]:{};
+  const manual=(catalog().equipmentDetails||{})[name]||{};
+  const sources=[...(Array.isArray(imported.sources)?imported.sources:[]),
+    ...(Array.isArray(manual.sources)?manual.sources:[]),
+    ...([manual.source].filter(Boolean))];
+  return {...imported,...manual,
+    sources:[...new Set(sources.filter(x=>typeof x==='string'&&x.trim()))],
+    image:manual.image||imported.image||''};
+};
 const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
   return '<div class="catalog-cover">'+(url?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+esc(url)+'" alt="">':icon)+'</div>';
