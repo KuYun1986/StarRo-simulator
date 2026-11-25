@@ -26,4 +26,20 @@ jobs:
           for term in ['道具百科','itemDetails','itemDatabase','itemInfo','itemDb','equipData','gachaPools','sourceText','itemIcon','item_img','itemImage','imageUrl','圖片','取得來源']:
             at=body.find(term)
             if at>=0: print('TERM',term,'AT',at,'SNIP',re.sub(r'\s+',' ',body[max(0,at-160):at+290])[:450])
+          import json
+          match=re.search(r'<script[^>]+id=["\']encyclopedia-data["\'][^>]*>([\\s\\S]*?)</script>',body,re.I)
+          if match:
+            obj=json.loads(html.unescape(match.group(1)))
+            print('ENCYCLOPEDIA TOP',type(obj).__name__,list(obj)[:20] if isinstance(obj,dict) else len(obj))
+            def sample(v,name):
+              if isinstance(v,dict):
+                print('OBJECT',name,'KEYS',list(v)[:24])
+                if v:
+                  k=next(iter(v));print('ENTRY',name,'KEY',str(k)[:90],'VALUE',str(v[k])[:1000])
+              elif isinstance(v,list):
+                print('LIST',name,'LEN',len(v),'SAMPLE',str(v[:2])[:1500])
+              else:print('VALUE',name,str(v)[:300])
+            if isinstance(obj,dict):
+              for k,v in obj.items():sample(v,k)
+            else:sample(obj,'root')
           PY
