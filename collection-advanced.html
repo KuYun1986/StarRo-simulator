@@ -471,7 +471,7 @@ section{padding:12px;min-width:0}
 </div>
 <script src="collection-data.js?v=20261017-0208"></script>
 <script src="reference-items.js?v=20261125-reference"></script>
-<script src="starro-equipment-enrichment.js?v=20261125-lt2"></script>
+<script src="starro-equipment-enrichment.js?v=20261125-lt3"></script>
 <script src="catalog-reference-data.js?v=20261125-full"></script>
 <script src="catalog-reference-lookup.js?v=20261125-full"></script>
 <script src="starro-online-lookup.js?v=20261125-online"></script>
@@ -793,12 +793,10 @@ function showItemDetail(raw){
   row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',effectText)+row('基本資料',completeEffect?'請見能力／效果':stats)+
   '<h3>已登錄取得來源</h3>'+(sources.length?'<ul>'+sources.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="source-not-found">尚未登錄取得方式或轉蛋來源，不能視為沒有掉落來源。</p>')+
   (d.derived?'<p class="starro-lt-note">⚒ '+esc(window.StarroEquipmentEnrichment.conversionNote)+'</p>':'')+
-  (typeof info.sourceLabel==='string'&&info.sourceLabel?'<p class="source-not-found">參考資料：'+esc(info.sourceLabel)+'</p>':'')+
-  (typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?'<p><a class="item-detail-reference" href="'+esc(info.referenceUrl)+'" target="_blank" rel="noopener noreferrer">🔗 查閱參考資料網站</a></p>':
-    (typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?'<p><a class="item-detail-reference" href="'+esc(info.referenceSite)+'" target="_blank" rel="noopener noreferrer">🔗 查閱資料參考網站（非直達此道具）</a></p>':''))+
+
   (window.StarroOnlineLookup?.render(d.name,info.itemId,info.referenceUrl||info.referenceSite)||'')+
   '<h3>相關收藏（'+related.length+'）</h3>'+(related.length?'<ul>'+related.slice(0,40).map(x=>'<li>'+esc(x.name)+'</li>').join('')+'</ul>':'<p class="source-not-found">目前沒有其他相關收藏紀錄</p>')+
-  (window.StarroEquipmentEnrichment?.sourceFooter()||'');
+  (window.StarroEquipmentEnrichment?.sourceFooter(d.official,info.referenceUrl||info.referenceSite)||'');
  document.getElementById('itemDetailDialog').showModal();
 }
 document.addEventListener('click',e=>{

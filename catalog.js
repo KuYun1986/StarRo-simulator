@@ -113,13 +113,12 @@ function equipmentDetailHtml(item){
   const sourceSite=typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?info.referenceSite:'';
   const online=window.StarroOnlineLookup?.render(item.name,info.itemId,ref||sourceSite)||'';
   return detailHeader(item.name,src,'equipment')+
-    (ref?'<p class="catalog-item-reference"><a href="'+esc(ref)+'" target="_blank" rel="noopener noreferrer">🔗 '+(ref===sourceSite?'查看參考網站':'查看道具資料頁')+'</a></p>':'')+
-    (!ref&&sourceSite?'<p class="catalog-item-reference"><a href="'+esc(sourceSite)+'" target="_blank" rel="noopener noreferrer">🔗 道具資料參考網站（非直達此道具）</a></p>':'')+
+
     '<div class="catalog-detail-section"><h3>裝備詳細資料</h3><dl class="catalog-equipment-meta">'+
     rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+online+
     '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
     detailSection('已登錄取得來源',registeredSources(item.name).length?registeredSources(item.name):['尚未登錄取得方式或轉蛋來源，不代表沒有其他取得途徑'])+
-    (info.referenceUrl?'<div class="catalog-detail-section"><h3>來源與資料核對</h3><p class="catalog-notpicked">'+esc(info.sourceLabel||'公開道具百科；資料以遊戲內為準')+'。部分名稱或圖示由參考站提供，無法確認的掉落來源不會推測。</p><a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">開啟原始道具百科（編號 '+esc(info.itemId||'')+'）</a></div>':'');
+    '';
 }
 function collectionEquipmentHtml(items){
   return items.length?'<div class="catalog-equipment-list">'+items.map(name=>{
@@ -386,7 +385,11 @@ function openDetail(kind,i){
     html+=detailSection('相關收藏',related.slice(0,30).map(x=>x.name));
     if(!html.includes('starro-online-lookup'))html+=window.StarroOnlineLookup?.render(entry.name,detail?.itemId,detail?.referenceUrl||detail?.referenceSite)||'';
   }
-  html+=window.StarroEquipmentEnrichment?.sourceFooter()||'';
+  const detailInfo=kind==='equipment'?equipDetail(entry.name):kind==='drop'?equipDetail(entry.name):null;
+  html+=window.StarroEquipmentEnrichment?.sourceFooter(
+    detailInfo?.officialEffect,
+    detailInfo?.referenceUrl||detailInfo?.referenceSite||''
+  )||'';
   $('catalogDialogContent').innerHTML=html;
   const dialog=$('catalogDialog');
   if(!dialog.open)dialog.showModal();
