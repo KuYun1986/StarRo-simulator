@@ -17,6 +17,27 @@ jobs:
           node-version: '22'
       - name: Probe live Supabase Google provider and collection progress table
         run: node tests/collection-cloud-readiness.cjs
+  contrast-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install contrast audit browser and engine
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1 axe-core@4.10.3
+          npx playwright install --with-deps chromium
+      - name: Audit desktop and mobile color contrast including interactive panels
+        run: node tests/contrast-audit.cjs
+      - name: Upload full contrast audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: starro-contrast-audit
+          path: acceptance-artifacts/contrast-report.json
+          retention-days: 14
   acceptance:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
