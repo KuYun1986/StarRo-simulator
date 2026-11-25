@@ -469,6 +469,7 @@ function renderSimulation(collections){
   const cap=id=>Math.max(0,Math.floor(Number($(id).value)||0));
   const n=cap('simNormalCap'),s=cap('simSpecialCap');
   for(const [id,value] of Object.entries({simTotal:fmt(sim.total),simSelected:fmt(sim.count),simNormal:fmt(sim.normal)+' / '+fmt(n),simSpecial:fmt(sim.special)+' / '+fmt(s),simSaved:fmt(sim.saved)}))$(id).textContent=value;
+  $('simSelectAll').disabled=sim.count===sim.total; $('simClearAll').disabled=sim.count===0;
   $('simNormal').classList.toggle('over-cap',sim.normal>n);$('simSpecial').classList.toggle('over-cap',sim.special>s);
   $('simEffectCount').textContent='（'+sim.entries.length+' 項）';$('simConditionCount').textContent='（'+sim.conditions.length+' 組）';
   $('simStats').innerHTML=sim.entries.length?sim.entries.map(([k,v])=>'<div class="catalog-sim-stat"><span>'+esc(k.replace(/%$/,''))+'</span><b>'+(v>0?'+':'')+esc(fmt(v))+(k.endsWith('%')?'%':'')+'</b></div>').join(''):'<div class="catalog-sim-empty">勾選收藏後會顯示總能力</div>';
@@ -622,7 +623,20 @@ function exportCollectionExcel(){
   downloadCollectionFile(window.StarroCollectionExport.workbook(sheets),'繁星收藏_'+stamp+'.xlsx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   $('simSaveStatus').textContent='已產生 Excel 匯出檔案';
 }
+function bulkSelect(all){
+  const next=all?new Set(allCollections().map(keyOf)):new Set();
+  if(!confirm(all?'一鍵全選全站 '+next.size+' 項收藏？可能超過容量上限。':'確定清除本機所有收藏勾選？不會清除雲端存檔。'))return;
+  window.StarroCollectionCloud?.pauseAutosave();
+  try{
+    localStorage.setItem('starro_collection_previous_selection',JSON.stringify([...selected]));
+    localStorage.setItem(progressKey,JSON.stringify([...next]));
+  }catch(e){$('simBulkStatus').textContent='本機保存失敗，未變更收藏。';return;}
+  selected=next;state.page=1;render();
+  $('simBulkStatus').textContent=(all?'已全選 '+next.size+' 項收藏。':'已清除本機收藏。')+' 雲端存檔保留，需手動儲存才會覆蓋。';
+}
 function init(){
+  $('simSelectAll').onclick=()=>bulkSelect(true);
+  $('simClearAll').onclick=()=>bulkSelect(false);
   $('simLocalSave').onclick=()=>{try{saveLocalProgress();}catch(e){$('simSaveStatus').textContent='本機保存失敗，請檢查瀏覽器儲存權限。';}};
   $('simExportExcel').onclick=()=>{try{exportCollectionExcel();}catch(e){$('simSaveStatus').textContent='Excel 匯出失敗：'+e.message;}};
   $('simExportBackup').onclick=()=>downloadCollectionFile(JSON.stringify({version:1,selected:[...selected],missing:[...missingSet()]},null,2),'繁星收藏備份.json','application/json');
@@ -633,6 +647,8 @@ function init(){
       const valid=new Set(allCollections().map(keyOf)),next=new Set(values.map(normalizeSavedKey).filter(k=>valid.has(k)));
       if(values.length&&!next.size)throw Error('找不到符合的收藏識別碼');
       if(!confirm('將本機收藏替換為備份中的 '+next.size+' 項？'))return;
+      window.StarroCollectionCloud?.pauseAutosave();
+      localStorage.setItem('starro_collection_previous_selection',JSON.stringify([...selected]));
       selected=next;
       if(Array.isArray(d.missing))localStorage.setItem(missingKey,JSON.stringify(d.missing.filter(x=>typeof x==='string')));
       saveLocalProgress();render();

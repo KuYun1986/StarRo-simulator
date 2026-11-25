@@ -93,3 +93,26 @@ test('disabled Google provider and missing cloud table show specific problems wh
  assert.ok(h.selected.has(A));
  assert.equal(h.writes(),0);
 });
+
+test('empty cloud never replaces nonempty local progress',async()=>{
+ const h=mock({local:[A],remote:{selected:[]}});await h.settle();
+ h.click('collectionCloudLoad');await h.settle();
+ assert.ok(h.selected.has(A));assert.match(h.els.collectionCloudStatus.textContent,/0 項/);assert.equal(h.writes(),0);
+});
+test('clearing the final selection never automatically erases cloud',async()=>{
+ const h=mock({local:[A],remote:{selected:[A]}});await h.settle();
+ h.selected.clear();h.context.window.StarroCollectionCloud.scheduleSave();await h.settle();
+ assert.deepEqual([...h.remote().selected],[A]);assert.equal(h.writes(),0);
+});
+test('unknown cloud collection key does not get silently discarded',async()=>{
+ const unknown='特殊收藏|99|新收藏';
+ const h=mock({local:[A],remote:{selected:[unknown]}});await h.settle();
+ h.click('collectionCloudLoad');await h.settle();
+ assert.ok(h.selected.has(A));assert.match(h.els.collectionCloudStatus.textContent,/尚未對應/);assert.equal(h.writes(),0);
+});
+test('bulk simulation pauses cloud until explicit save',async()=>{
+ const h=mock({local:[A],remote:{selected:[A]}});await h.settle();
+ h.context.window.StarroCollectionCloud.pauseAutosave();h.selected.add(B);h.context.window.StarroCollectionCloud.scheduleSave();await h.settle();
+ assert.equal(h.writes(),0);assert.deepEqual([...h.remote().selected],[A]);
+ h.click('collectionCloudSave');await h.settle();assert.deepEqual([...h.remote().selected],[A,B].sort());assert.equal(h.writes(),1);
+});

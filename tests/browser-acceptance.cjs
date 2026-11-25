@@ -285,6 +285,12 @@ const server=http.createServer((req,res)=>{
         assert.equal(await p.locator('#simSpecial').textContent(),'5 / 800');
         await p.locator('#catalogResults input[data-pick-key]:checked').click();
         assert.equal(await p.locator('#simSelected').textContent(),'0');
+        p.once('dialog',d=>d.accept());
+        await p.locator('#simSelectAll').click();
+        assert.equal(await p.locator('#simSelected').textContent(),await p.locator('#simTotal').textContent());
+        p.once('dialog',d=>d.accept());
+        await p.locator('#simClearAll').click();
+        assert.equal(await p.locator('#simSelected').textContent(),'0');
         await p.locator('summary').filter({hasText:'收藏保存與匯出'}).click();
         assert.ok(await p.locator('#collectionGoogleLogin').count());
         const download= p.waitForEvent('download');

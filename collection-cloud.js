@@ -25,11 +25,17 @@ function errMessage(e){
 const adapter=window.StarroCollectionProgressAdapter;
 function keys(){return adapter?adapter.keys():new Set(ITEMS.map(keyOf));}
 function normalize(v){return typeof v==='string'?v.replace(/^JRO收藏\|/,'特殊收藏|'):'';}
-function snapshot(){
- const valid=keys();return (adapter?adapter.snapshot():[...selected]).map(normalize).filter(k=>valid.has(k)).sort();
+function normalizeList(values){
+ if(!Array.isArray(values)||values.some(v=>typeof v!=='string'||!v.trim()))throw Error('收藏存檔格式不正確，已停止同步以保護資料');
+ return [...new Set(values.map(normalize))].sort();
 }
-function equal(a,b){const valid=keys();return JSON.stringify(a)===JSON.stringify(
- (Array.isArray(b)?b:[]).map(normalize).filter(k=>valid.has(k)).sort());}
+function snapshot(){return normalizeList(adapter?adapter.snapshot():[...selected]);}
+function checkedList(values){
+ const next=normalizeList(values),valid=keys(),unknown=next.filter(k=>!valid.has(k));
+ if(unknown.length)throw Error('有 '+unknown.length+' 項收藏尚未對應目前圖鑑；已停止同步，保留原本資料。請重新整理後再試');
+ return next;
+}
+function equal(a,b){return JSON.stringify(normalizeList(a))===JSON.stringify(normalizeList(b));}
 function storeLocal(){try{localStorage.setItem(KEY,JSON.stringify(snapshot()));}catch(e){say('本機儲存失敗：'+errMessage(e),'error');}}
 function show(){
  const logged=!!user;
@@ -41,8 +47,9 @@ function show(){
  login.disabled=providerDisabled||busy;
 }
 function applyCloud(progress){
- const valid=keys(),next=[];
- for(const value of Array.isArray(progress)?progress:[]){const k=normalize(value);if(valid.has(k))next.push(k);}
+ const next=checkedList(progress);
+ const previous=snapshot();
+ if(!equal(previous,next))localStorage.setItem('starro_collection_previous_selection',JSON.stringify(previous));
  if(adapter){adapter.apply(next);storeLocal();return;}
  selected.clear();for(const k of next)selected.add(k);
  storeLocal();
@@ -54,7 +61,8 @@ async function getRemote(){
  .eq('user_id',user.id).maybeSingle();
  if(error)throw error;return data;
 }
-async function persist(){
+function pauseAutosave(){autosave=false;pending=false;revision++;clearDelay();if(user)say('本機收藏已變更；雲端存檔保留，請手動儲存或載入。');}
+async function persist(allowEmpty=false){
  if(!db||!user||busy){pending=true;return;}
  if(writing){pending=true;return;}
  clearDelay();writing=true;show();
@@ -63,18 +71,22 @@ async function persist(){
   let captured;
   do{
    pending=false;captured=revision;
-   const copy=snapshot();
+   const copy=checkedList(snapshot());
+   if(!copy.length&&!allowEmpty){pauseAutosave();say('本機收藏為 0 項，已暫停自動同步，避免覆蓋雲端存檔。');return;}
    const {error}=await db.from('collection_progress').upsert({
     user_id:account,selected:copy,updated_at:new Date().toISOString()
    },{onConflict:'user_id'});
    if(error)throw error;
-   if(epoch!==version||!user||user.id!==account)return;
+   if(epoch!==version||!user||user.id!==account||!autosave)return;
+   const saved=await getRemote();
+   if(!saved||!equal(copy,saved.selected))throw Error('雲端寫入後核對不一致，請保留本機備份並重新儲存');
+   if(epoch!==version||!user||user.id!==account||!autosave)return;
    if(!pending&&revision===captured){
     autosave=true;
     say('✅ Google 雲端已儲存 '+copy.length+' 項（'+
       new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false})+'）','success');
    }
-  }while((pending||revision!==captured)&&version===epoch);
+  }while(autosave&&(pending||revision!==captured)&&version===epoch);
  }catch(e){
   if(epoch===version){autosave=false;say('❌ 雲端儲存失敗：'+errMessage(e)+' 本機進度仍保留','error');}
  }finally{writing=false;show();}
@@ -82,6 +94,7 @@ async function persist(){
 function scheduleSave(){
  revision++;storeLocal();
  if(!user){say('✅ 本機已儲存；登入 Google 後可同步');return;}
+ if(!snapshot().length){pauseAutosave();say('本機收藏為 0 項，雲端原存檔保留；如需清空雲端請手動儲存。');return;}
  if(!autosave){say('本機已更新，與雲端尚未同步。請選擇「儲存到雲端」或「載入雲端進度」。');return;}
  say('本機已儲存，正在同步 Google 雲端…');
  clearDelay();timer=setTimeout(()=>{void persist();},1000);
@@ -100,6 +113,7 @@ async function activate(session){
   const remote=await getRemote();
   if(epoch!==version)return;
   const local=snapshot();
+  if(remote)checkedList(remote.selected);
   if(!remote){
    if(local.length)say('Google 已登入，雲端目前無資料。本機有 '+local.length+' 項，按「儲存到雲端」建立備份。');
    else{autosave=true;say('✅ Google 已登入；首次勾選將自動儲存。','success');}
@@ -117,17 +131,19 @@ async function activate(session){
 }
 async function loadCloud(){
  if(!user||busy||writing)return;
- clearDelay();busy=true;show();const version=epoch;
+ clearDelay();autosave=false;pending=false;busy=true;show();const version=epoch,startRevision=revision;
  try{
   const remote=await getRemote();
   if(epoch!==version)return;
   if(!remote){say('雲端尚未建立進度，請先按「儲存到雲端」。');return;}
-  const local=snapshot();
-  if(local.length&&!equal(local,remote.selected)&&
-     !confirm('雲端與本機勾選不同。確定用雲端進度取代本機勾選嗎？')){
+  const next=checkedList(remote.selected),local=snapshot();
+  if(revision!==startRevision){say('載入期間本機收藏有變更，已取消還原，請再試一次。');return;}
+  if(!next.length&&local.length){say('雲端存檔目前為 0 項；已保留本機 '+local.length+' 項，避免空白存檔覆蓋。','error');return;}
+  if(local.length&&!equal(local,next)&&
+     !confirm('雲端有 '+next.length+' 項、本機有 '+local.length+' 項。確定用雲端進度取代本機勾選嗎？')){
     say('已取消載入，保留本機進度');return;
   }
-  revision++;applyCloud(remote.selected);autosave=true;
+  revision++;applyCloud(next);autosave=true;
   say('✅ 成功還原 Google 雲端 '+snapshot().length+' 項收藏','success');
  }catch(e){
   if(epoch===version)say('❌ 雲端載入失敗：'+errMessage(e)+' 本機進度仍保留','error');
@@ -185,11 +201,13 @@ logout.addEventListener('click',async()=>{
 });
 saveBtn.addEventListener('click',()=>{
  if(!user||busy||writing)return;
- if(!confirm('將本機 '+snapshot().length+' 項收藏儲存到 Google 雲端？如原本有雲端資料將被覆蓋。'))return;
- autosave=true;void persist();
+ let count;try{count=checkedList(snapshot()).length;}catch(e){say(errMessage(e),'error');return;}
+ if(!confirm('將本機 '+count+' 項收藏儲存到 Google 雲端？如原本有雲端資料將被覆蓋。'))return;
+ if(count===0&&!confirm('再次確認：這會清空雲端收藏存檔，確定繼續？'))return;
+ autosave=true;void persist(count===0);
 });
 loadBtn.addEventListener('click',()=>{void loadCloud();});
-window.StarroCollectionCloud={scheduleSave,save:persist,load:loadCloud};
+window.StarroCollectionCloud={scheduleSave,pauseAutosave,save:()=>persist(false),load:loadCloud};
 const query=new URLSearchParams(location.search),oauthError=query.get('error_description')||query.get('error');
 if(oauthError)say('❌ Google 授權失敗：'+errMessage(oauthError),'error');
 if(!window.supabase?.createClient||!cfg.url||!cfg.anonKey){
