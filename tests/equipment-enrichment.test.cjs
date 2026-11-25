@@ -31,10 +31,10 @@ test('never use original non-LT ability as LT effect',()=>{
  assert.ok(emerald.url.includes('ro.gnjoy.com.tw'));
  assert.equal(official.entries,14);
  assert.equal(helper.officialEffect('翡翠戒指[1]'),null);
- const official=helper.officialEffect('A階 阿斯特莉亞鎧甲-LT[1]');
- assert.ok(official&&official.text.includes('MaxHP'));
- assert.equal(official.partial,true);
- assert.ok(official.url.startsWith('https://ro.gnjoy.com.tw/'));
+ const armorEffect=helper.officialEffect('A階 阿斯特莉亞鎧甲-LT[1]');
+ assert.ok(armorEffect&&armorEffect.text.includes('MaxHP'));
+ assert.equal(armorEffect.partial,true);
+ assert.ok(armorEffect.url.startsWith('https://ro.gnjoy.com.tw/'));
 });
 test('only explicit gacha sources are inherited',()=>{
  assert.equal(helper.isGachaSource('轉蛋：魅力轉蛋（SSS）｜編號 62345'),true);
