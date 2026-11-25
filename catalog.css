@@ -132,3 +132,18 @@ body{background:radial-gradient(ellipse at 7% 8%,#eaf1ec 0,transparent 38%),radi
 .catalog-pick{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#dce8f6;font-weight:800;cursor:pointer;white-space:nowrap}
 .catalog-pick input{width:17px;height:17px;accent-color:#e9ce8c;cursor:pointer}
 @media(max-width:510px){.catalog-selected-sources{padding:8px}.catalog-source-line button{font-size:11px}.catalog-pick{font-size:11px}}
+
+/* STARRO EQUIPMENT DETAIL NIGHT PALETTE */
+.catalog-dialog :is(.catalog-equipment-row,.catalog-related__item){
+  background:linear-gradient(120deg,#1b3550,#13283f)!important;
+  color:#e8f3ff!important;border:1px solid #486a8b!important;
+}
+.catalog-dialog :is(.catalog-equipment-row,.catalog-related__item):hover{background:#264965!important;border-color:#e7cb90!important}
+.catalog-dialog :is(.catalog-equipment-row,.catalog-related__item) small{color:#b0c8df!important}
+.catalog-dialog .catalog-related__mark{background:#274666;color:#f4d28d}
+.catalog-source-line button{display:flex;align-items:center;gap:7px;max-width:100%}
+.catalog-source-line .catalog-cover{width:28px;height:28px;flex:0 0 28px;border-radius:7px;font-size:16px}
+.catalog-source-line button>span:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere}
+.catalog-dialog .starro-online-lookup{margin:18px 0}
+.catalog-dialog .starro-online-links{display:flex;flex-wrap:wrap}
+@media(max-width:520px){.catalog-dialog .starro-online-links{display:grid;grid-template-columns:1fr 1fr}.catalog-source-line .catalog-cover{width:24px;height:24px;flex-basis:24px}}
