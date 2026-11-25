@@ -297,6 +297,13 @@ function openDetail(kind,i){
   }else{
     html=detailHeader(entry.name,imageFor(entry.name,entry.images[0]),'gacha')+
       detailSection('出現轉蛋',entry.sources.map(x=>x.pool+'｜'+x.type+(x.rate?'｜'+x.rate:'') ));
+    const detail=equipDetail(entry.name);
+    if(detail&&Object.keys(detail).length){
+      html+=detailSection('道具詳細資料',[detail.description,detail.stats].filter(Boolean));
+      const reference=typeof detail.referenceUrl==='string'&&/^https:\/\//i.test(detail.referenceUrl)?detail.referenceUrl:'';
+      if(reference)html+='<p class="catalog-item-reference"><a href="'+esc(reference)+'" target="_blank" rel="noopener noreferrer">🔗 查看道具資料來源</a></p>';
+      html+=detailSection('其他已登錄來源',[detail.source,...(Array.isArray(detail.sources)?detail.sources:[])].filter(Boolean));
+    }
     const related=allCollections().filter(x=>(x.required||[]).some(r=>eqName(r)===eqName(entry.name)));
     html+=detailSection('相關收藏',related.slice(0,30).map(x=>x.name));
   }
