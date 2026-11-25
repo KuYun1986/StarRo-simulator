@@ -41,6 +41,18 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('#talismanCostSimulator').count());
         assert.ok(await p.locator('#bioMaterialRows tr').count()>0);
       }
+      if(url==='enchant.html'){
+        await p.locator('#jroMvpRows tr').first().waitFor({timeout:10000});
+        assert.ok(await p.locator('#jroMvpEnchant option').count()===9,'JRO enchant options missing');
+        assert.ok(await p.locator('#jroMvpRows tr').count()>40,'JRO MVP rows missing');
+        await p.locator('#jroMvpSearch').fill('英雄的凱歌');
+        assert.ok((await p.locator('#jroMvpMeta').textContent()).includes('顯示 '),'JRO filtered count missing');
+        await p.locator('#jroMvpClear').click();
+        assert.ok(await p.locator('#jroMvpSearch').inputValue()==='','JRO clear failed');
+      }
+      if(url==='collection-advanced.html'){
+        assert.equal(await p.locator('#jroMvpBox').count(),0,'JRO search should be moved out of collection');
+      }
       if(url==='equipment.html'){
         assert.ok(await p.locator('#serviceMultiOptions').count());
         assert.ok(await p.locator('#serviceMaterialsText').count());
@@ -61,6 +73,13 @@ const server=http.createServer((req,res)=>{
       if(url==='catalog.html'||url==='collection.html'){
         await p.locator('.catalog-card').first().waitFor({timeout:10000});
         assert.ok((await p.locator('.catalog-card').count())>=20,'collection gallery cards missing');
+        assert.ok(await p.locator('#catalogTabAll').isVisible(),'unified search mode missing');
+        assert.equal(await p.locator('#catalogSlots input[type="checkbox"]').count(),13,'compact categories missing');
+        await p.locator('#catalogSlotMenu summary').click();
+        await p.locator('#catalogSlots input[value="飾品"]').check();
+        assert.ok((await p.locator('#catalogSlotLabel').textContent()).includes('飾品'),'checkbox selection not reflected');
+        await p.locator('#catalogReset').click();
+        assert.equal(await p.locator('#catalogSlots input:checked').count(),0,'reset filters failed');
         await p.locator('#catalogSearch').fill('翡翠LT收藏組合');
         assert.ok((await p.locator('.catalog-card').count())>=1,'catalog search did not return existing collection');
         await p.locator('button[data-action="collection"]').first().click();
@@ -75,6 +94,11 @@ const server=http.createServer((req,res)=>{
         await p.locator('button[data-action="equipment"]').first().click();
         assert.ok(await p.locator('#catalogDialogContent').getByText('裝備詳細資料').count()>=1,'equipment details section missing');
         await p.locator('#catalogDialogClose').click();
+        await p.locator('#catalogReset').click();
+        await p.locator('#catalogTabAll').click();
+        await p.locator('#catalogSearch').fill('翡翠戒指-LT[1]');
+        assert.ok(await p.locator('#catalogResults button[data-action="equipment"]').count()>=1,'unified search did not include equipment');
+        assert.ok(await p.locator('#catalogResults button[data-action="collection"]').count()>=1,'unified search did not include related collection');
         await p.locator('#catalogReset').click();
         await p.locator('#catalogTabGacha').click();
         assert.ok((await p.locator('#catalogGachaType').isVisible()),'gacha filter missing');
