@@ -184,6 +184,7 @@ details.stat[open] > summary{
 <link rel="stylesheet" href="ro-front-theme.css">
 <link rel="stylesheet" href="front-cms.css">
 <link rel="stylesheet" href="starro-polish.css?v=20261125">
+<link rel="stylesheet" href="jro-mvp.css?v=20261125">
 </head>
 <body><div class="wrap">
 <h1>✨ 繁星附魔區</h1>
@@ -198,9 +199,24 @@ details.stat[open] > summary{
 <a href="CASH.html">💳 現金區</a>
 <a href="shadow.html">💎 影子區</a>
 </nav>
-<div class="starro-section-shortcuts" aria-label="本頁捷徑"><button onclick="jumpEnchant('龍甲附魔')">🐉 龍甲附魔</button><button onclick="jumpEnchant('善惡武器附魔')">⚔️ 善惡武器附魔</button><button onclick="jumpEnchant('時光超越靴附魔')">💎 時光超越靴附魔</button><button onclick="jumpEnchant('伊斯頭幻象附魔')">🪽 伊斯頭幻象附魔</button></div>
+<div class="starro-section-shortcuts" aria-label="本頁捷徑"><button onclick="jumpEnchant('龍甲附魔')">🐉 龍甲附魔</button><button onclick="jumpEnchant('善惡武器附魔')">⚔️ 善惡武器附魔</button><button onclick="jumpEnchant('時光超越靴附魔')">💎 時光超越靴附魔</button><button onclick="jumpEnchant('伊斯頭幻象附魔')">🪽 伊斯頭幻象附魔</button><button type="button" onclick="document.getElementById('jroMvpBox').scrollIntoView({behavior:'smooth',block:'start'})">🧿 JRO × MVP 查詢</button></div>
 <div class="sub">古雲防上頭用V777（機率僅供參考，實際依遊戲為主）</div>
 <div class="grid">
+<section class="jro-mvp-box" id="jroMvpBox">
+ <h2>🧿 JRO 附魔 × MVP 卡片查詢</h2>
+ <p>完整移自收藏區，保留 8 種 JRO 附魔、MVP 卡片及套裝效果。可以搜尋卡片、效果或附魔。</p>
+ <div class="jro-mvp-controls">
+  <input id="jroMvpSearch" type="search" placeholder="搜尋 JRO 附魔、MVP 卡片或效果…" aria-label="搜尋 JRO 卡片及效果">
+  <select id="jroMvpEnchant" aria-label="篩選 JRO 附魔"><option value="all">全部 8 種附魔</option></select>
+  <button id="jroMvpClear" type="button">清除搜尋</button>
+ </div>
+ <div class="jro-enchant-choices" id="jroMvpChoices"></div>
+ <div class="jro-mvp-meta" id="jroMvpMeta"></div>
+ <div class="jro-mvp-tablewrap"><table class="jro-mvp-table">
+   <thead><tr><th>附魔</th><th>JRO 卡片／裝備</th><th>套裝效果</th></tr></thead>
+   <tbody id="jroMvpRows"></tbody>
+ </table></div>
+</section>
 <section class="card" data-starro-feature="dragon">
 <h2>🐉 龍甲附魔</h2>
 <p class="tiny">⭐ 使用「洗到特級」時，若全程每個階段都第 1 次成功，才會送上全服即時戰報。</p>
@@ -2308,4 +2324,6 @@ document.addEventListener("starro-config-applied",()=>{
 <script src="ro-front-theme.js"></script>
 <script src="front-cms.js"></script>
 <script src="starro-polish.js?v=20261125"></script>
+<script src="jro-mvp-data.js?v=20261125"></script>
+<script src="jro-mvp.js?v=20261125"></script>
 </body></html>
