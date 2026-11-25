@@ -32,6 +32,12 @@ const server=http.createServer((req,res)=>{
       assert.equal(resp.status(),200);
       await p.waitForTimeout(350);
       assert.equal(await p.locator('link[href*="starro-polish.css"]').count(),1);
+      const isCatalog=url==='collection.html'||url==='catalog.html';
+      if(!isCatalog){
+        assert.equal(await p.locator('link[href*="starro-gallery-unified.css"]').count(),1,'shared gallery palette not linked');
+      }
+      const scheme=await p.evaluate(()=>getComputedStyle(document.documentElement).colorScheme);
+      assert.ok(scheme.includes('light'),'page did not adopt gallery light appearance');
       const theme=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--cat-gold').trim());
       assert.ok(/^#[0-9a-f]{6}$/i.test(theme),'catalog theme token missing');
       if(!['catalog.html','collection.html'].includes(url))assert.equal(await p.locator('script[src*="starro-polish.js"]').count(),1);
@@ -185,6 +191,16 @@ const server=http.createServer((req,res)=>{
         await p.locator('#catalogDialogContent button[data-equipment-name]').first().click();
         assert.ok((await p.locator('#catalogDialogContent').textContent()).includes('裝備詳細資料'),'Gacha prize did not open equipment detail');
         await p.locator('#catalogDialogClose').click();
+        const legacyName=await p.evaluate(()=>{
+          const it=ITEMS.find(x=>x.group==='特殊收藏');
+          localStorage.setItem('starro_collection_selected',JSON.stringify(['JRO收藏|'+it.row+'|'+it.name]));
+          return it.name;
+        });
+        await p.reload({waitUntil:'domcontentloaded'});
+        await p.locator('#catalogTabCollection').click();
+        await p.locator('#catalogSearch').fill(legacyName);
+        assert.equal(await p.locator('#catalogResults input[data-pick-key]:checked').count(),1,'Legacy Special collection progress missing in gallery');
+        assert.ok((await p.locator('#catalogResults').textContent()).includes('特殊收藏'),'Special collection display name missing');
       }
       await p.screenshot({path:path.join(screenshots,url.replace('.html','')+'-'+mode+'.png'),fullPage:false});
       details.push({page:url,mode,nav,viewport:extent.window,pageWidth:extent.scroll,errors:errors.slice(0,8)});
