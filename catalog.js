@@ -75,7 +75,9 @@ function relatedCollectionHtml(items){
 function equipmentDetailHtml(item){
   const info=equipDetail(item.name),src=imageFor(item.name,info.image||item.sources[0]?.image);
   const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],['能力／效果',info.stats||'尚未登錄裝備效果']];
+  const ref=typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?info.referenceUrl:'';
   return detailHeader(item.name,src,'equipment')+
+    (ref?'<p class="catalog-item-reference"><a href="'+esc(ref)+'" target="_blank" rel="noopener noreferrer">🔗 查看原始資料來源</a></p>':'')+
     '<div class="catalog-detail-section"><h3>裝備詳細資料</h3><dl class="catalog-equipment-meta">'+
     rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+
     '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
