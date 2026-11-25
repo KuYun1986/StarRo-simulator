@@ -465,7 +465,7 @@ function syncAddedCollectionItems(){
   const existing=new Set(ITEMS.map(keyOf));
   for(const x of custom){
     if(!x||typeof x.name!=='string'||!x.name.trim())continue;
-    const it={group:x.group||'自訂收藏',row:Number(x.row)||900000,dc:x.dc||'',game:x.game||'',
+    const it={group:x.group==='JRO收藏'?'特殊收藏':(x.group||'自訂收藏'),row:Number(x.row)||900000,dc:x.dc||'',game:x.game||'',
       name:x.name,effect:x.effect||'',slot:Number(x.slot)||0,
       required:Array.isArray(x.required)?x.required:[],image:x.image||''};
     const k=keyOf(it);if(existing.has(k))continue;
