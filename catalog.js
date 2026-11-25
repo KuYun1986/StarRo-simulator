@@ -12,17 +12,22 @@ const safeImage=s=>{
 const normalize=s=>clean(s).toLocaleLowerCase('zh-TW').replace(/\s+/g,'');
 const eqName=s=>normalize(s).replace(/^(?:\+\d+\s*|[a-ds]階\s*)/i,'').replace(/\s*[×x*]\s*\d+(?:\.\d+)?$/i,'');
 const equipDetail=name=>{
+  const supplemental=window.StarroReferenceLookup?.details(name)||{};
   const auto=window.StarroReferenceItems||{};
   const key=Object.prototype.hasOwnProperty.call(auto,name)?name:
     Object.keys(auto).find(x=>eqName(x)===eqName(name));
   const imported=key?auto[key]:{};
-  const manual=(catalog().equipmentDetails||{})[name]||{};
-  const sources=[...(Array.isArray(imported.sources)?imported.sources:[]),
-    ...(Array.isArray(manual.sources)?manual.sources:[]),
-    ...([manual.source].filter(Boolean))];
-  return {...imported,...manual,
+  const allManual=catalog().equipmentDetails||{};
+  const manual=allManual[name]||Object.entries(allManual).find(([n])=>eqName(n)===eqName(name))?.[1]||{};
+  const sources=[...(Array.isArray(supplemental.sources)?supplemental.sources:[]),
+    ...(Array.isArray(imported.sources)?imported.sources:[]),
+    ...(Array.isArray(manual.sources)?manual.sources:[]),manual.source];
+  return {...supplemental,...imported,...manual,
     sources:[...new Set(sources.filter(x=>typeof x==='string'&&x.trim()))],
-    image:manual.image||imported.image||''};
+    image:manual.image||imported.image||supplemental.image||'',
+    referenceSite:supplemental.referenceSite||'',
+    sourceLabel:supplemental.sourceLabel||''
+  };
 };
 const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
@@ -50,7 +55,7 @@ function imageFor(name,explicit=''){
   const images=catalog().images||{};
   const known=typeof JRO_MVP_ENCHANTS!=='undefined'
     ? JRO_MVP_ENCHANTS.find(x=>x.name===name)?.icon||'' : '';
-  const url=explicit||images[name]||known;
+  const url=images[name]||explicit||known;
   return safeImage(url);
 }
 let cachedEquipmentEntries=null;
@@ -66,6 +71,13 @@ function equipmentEntries(){
     const entry=m.get(key);
     if(!entry.collections.some(x=>keyOf(x)===keyOf(col)))entry.collections.push(col);
   }
+  // Reference encyclopedia items remain searchable even when no collection uses them.
+  const refItems=window.StarroReferenceIndex?.items||{};
+  for(const item of Object.values(refItems)){
+    if(!item||!item.name)continue;
+    const key=eqName(item.name);
+    if(!m.has(key))m.set(key,{name:item.name,collections:[],sources:[]});
+  }
   for(const pool of pools())for(const item of pool.items||[]){
     const key=eqName(item.name);
     if(!m.has(key))m.set(key,{name:item.name,collections:[],sources:[]});
@@ -77,7 +89,7 @@ function equipmentFilters(item){
   if(!inSlot(item.name+' '+(equipDetail(item.name).type||'')))return false;
   const q=normalize(state.query);
   const meta=equipDetail(item.name);
-  return !q||normalize([item.name,meta.type,meta.description,meta.stats,...item.collections.map(c=>c.name),...item.sources.map(s=>s.pool)].join(' ')).includes(q);
+  return !q||normalize([item.name,meta.type,meta.itemId,meta.description,meta.stats,meta.alias,...(meta.sources||[]),...item.collections.map(c=>c.name),...item.sources.map(s=>s.pool)].join(' ')).includes(q);
 }
 function relatedCollectionHtml(items){
   return items.length?'<div class="catalog-related">'+items.slice(0,80).map(x=>
@@ -86,10 +98,12 @@ function relatedCollectionHtml(items){
 }
 function equipmentDetailHtml(item){
   const info=equipDetail(item.name),src=imageFor(item.name,info.image||item.sources[0]?.image);
-  const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],['能力／效果',info.stats||'尚未登錄裝備效果']];
+  const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['參考資料版本',info.sourceLabel||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],['能力／效果',info.stats||'尚未登錄裝備效果']];
   const ref=typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?info.referenceUrl:'';
+  const sourceSite=typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?info.referenceSite:'';
   return detailHeader(item.name,src,'equipment')+
-    (ref?'<p class="catalog-item-reference"><a href="'+esc(ref)+'" target="_blank" rel="noopener noreferrer">🔗 查看原始資料來源</a></p>':'')+
+    (ref?'<p class="catalog-item-reference"><a href="'+esc(ref)+'" target="_blank" rel="noopener noreferrer">🔗 '+(ref===sourceSite?'查看參考網站':'查看道具資料頁')+'</a></p>':'')+
+    (!ref&&sourceSite?'<p class="catalog-item-reference"><a href="'+esc(sourceSite)+'" target="_blank" rel="noopener noreferrer">🔗 道具資料參考網站（非直達此道具）</a></p>':'')+
     '<div class="catalog-detail-section"><h3>裝備詳細資料</h3><dl class="catalog-equipment-meta">'+
     rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+
     '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
