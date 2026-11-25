@@ -234,6 +234,22 @@ section{padding:12px;min-width:0}
 <style>
 .collection-thumb{width:34px;height:34px;object-fit:contain;vertical-align:middle;border-radius:8px;background:#1e354f;border:1px solid #547596;margin-right:8px}
 </style>
+<style>
+.compact-filter{padding:8px 12px;min-width:0}
+.compact-filter details>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;font-size:14px;font-weight:800;color:#d7e8fa}
+.compact-filter details>summary::-webkit-details-marker{display:none}
+.compact-filter details>summary::after{content:"⌄";color:#f4cd85;font-size:20px}
+.compact-filter details[open]>summary::after{content:"⌃"}
+.compact-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:5px;max-height:250px;overflow-y:auto;margin:7px 0;padding:8px;border:1px solid #344762;border-radius:10px;background:#0c1828}
+.compact-choice{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:#e2efff;background:#17243a}
+.compact-choice:hover{background:#233f60}
+.compact-choice input{flex:0 0 18px;width:18px;height:18px;accent-color:#5fa7f5}
+.compact-choice span{flex:1;min-width:0;overflow-wrap:anywhere}
+.compact-choice small{color:#abc5e1;font-size:11px}
+.compact-filter .special-tools{margin:9px 0 2px}
+.compact-filter .special-tools button,.filter-clear{height:auto;min-height:36px}
+@media(min-width:700px){.compact-options{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -278,20 +294,21 @@ section{padding:12px;min-width:0}
 <label class="slot-input">普通格子 <input id="normalSlots" min="0" step="1" type="number" value="1000"/></label>
 <label class="slot-input">JRO格子 <input id="jroSlots" min="0" step="1" type="number" value="600"/></label>
 </div>
-<div class="subcats">
-<div class="subcat-title">子分類 <span id="subcatMeta"></span></div>
-<div class="chips" id="subcatChips"></div>
+<div class="subcats compact-filter">
+<details id="subcatMenu"><summary>📂 子分類 <span id="subcatMeta"></span></summary>
+<div class="compact-options" id="subcatChips" role="group" aria-label="子分類多選"></div>
+<button type="button" id="subcatClear" class="filter-clear">清除子分類勾選</button>
+</details>
 </div>
-<div class="special-box">
-<div class="special-head">
-<div class="special-title">自選特定分類（可複選） <span id="specialMeta"></span></div>
+<div class="special-box compact-filter">
+<details id="specialMenu"><summary>🎯 自選特定分類 <span id="specialMeta"></span></summary>
+<div class="compact-options" id="specialChips" role="group" aria-label="特定分類多選"></div>
 <div class="special-tools">
-<button class="primary" id="selectSpecialVisible">一鍵勾選所選分類</button>
-<button id="clearSpecialFilter">清除所選分類收藏</button>
+<button type="button" class="primary" id="selectSpecialVisible">一鍵勾選所選分類</button>
+<button type="button" id="clearSpecialFilter">清除所選分類收藏</button>
+<button type="button" id="specialClearChoices" class="filter-clear">取消全部分類篩選</button>
 </div>
-</div>
-<div class="note" style="margin:0 0 10px">可同時選多個分類；符合任一分類的收藏只顯示一次，不會重複。</div>
-<div class="chips" id="specialChips"></div>
+</details>
 </div>
 
 <div class="summary">
@@ -445,7 +462,7 @@ let existingSelected=[];
 try{const x=JSON.parse(localStorage.getItem(COLLECTION_LOCAL_KEY)||"[]");if(Array.isArray(x))existingSelected=x;}catch(e){}
 const selected=new Set(existingSelected);
 let onlySelected=false;
-let activeSubcat="all";
+const activeSubcats=new Set();
 const activeSpecials=new Set();
 
 const MISSING_REQ_KEY="starro_collection_missing_required_v147";
@@ -687,18 +704,16 @@ function getSubcatOptions(){
 }
 function renderSubcats(){
   const opts=getSubcatOptions();
-  if(activeSubcat!=="all" && !opts.some(x=>x.key===activeSubcat)) activeSubcat="all";
-  $("#subcatMeta").textContent=`(${opts.length})`;
-  const total=opts.reduce((a,b)=>a+b.count,0);
-  $("#subcatChips").innerHTML=[`<button class="chip ${activeSubcat==="all"?"active":""}" data-subcat="all">全部 <small>${total}</small></button>`].concat(
-    opts.map(x=>`<button class="chip ${activeSubcat===x.key?"active":""}" data-subcat="${esc(x.key)}">${esc(x.label)} <small>${x.count}</small></button>`)
-  ).join("");
-  $("#subcatChips").querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{
-    activeSubcat=btn.dataset.subcat;
-    renderSubcats();
-    renderList();
+  const allowed=new Set(opts.map(x=>x.key));
+  for(const key of [...activeSubcats])if(!allowed.has(key))activeSubcats.delete(key);
+  $("#subcatMeta").textContent=activeSubcats.size?"（已選 "+activeSubcats.size+" 種）":"（全部 "+opts.length+" 種）";
+  $("#subcatChips").innerHTML=opts.map(x=>`<label class="compact-choice"><input type="checkbox" data-subcat="${esc(x.key)}" ${activeSubcats.has(x.key)?"checked":""}><span>${esc(x.label)}</span><small>${x.count}</small></label>`).join("");
+  $("#subcatChips").querySelectorAll("input").forEach(el=>el.addEventListener("change",()=>{
+    if(el.checked)activeSubcats.add(el.dataset.subcat);else activeSubcats.delete(el.dataset.subcat);
+    renderSubcats();renderSpecials();renderList();
   }));
 }
+
 function save(){
  try{localStorage.setItem(COLLECTION_LOCAL_KEY,JSON.stringify([...selected]));}catch(e){}
  window.StarroCollectionCloud?.scheduleSave();
@@ -801,7 +816,7 @@ function getSpecialOptions(){
   for(const key of SPECIAL_ORDER) counter.set(key,0);
   for(const it of ITEMS){
     if(g!=="all"&&it.group!==g) continue;
-    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) continue;
+    if(activeSubcats.size && !activeSubcats.has(subcatOf(it))) continue;
     const reqText=(it.required||[]).join(" ");
     if(q && !(it.name+" "+it.effect+" "+it.dc+" "+it.game+" "+reqText).toLowerCase().includes(q)) continue;
     for(const key of SPECIAL_ORDER){
@@ -813,32 +828,13 @@ function getSpecialOptions(){
 function renderSpecials(){
   const opts=getSpecialOptions();
   const validKeys=new Set(opts.map(x=>x.key));
-  for(const key of [...activeSpecials]){
-    if(!validKeys.has(key)) activeSpecials.delete(key);
-  }
-
+  for(const key of [...activeSpecials])if(!validKeys.has(key))activeSpecials.delete(key);
   $("#specialMeta").textContent=activeSpecials.size
-    ? `（已選 ${activeSpecials.size} 類）`
-    : `（${opts.length} 類）`;
-
-  const total=opts.reduce((a,b)=>a+b.count,0);
-  $("#specialChips").innerHTML=[
-    `<button class="chip ${activeSpecials.size===0?"active":""}" data-special="all">全部 <small>${total}</small></button>`
-  ].concat(
-    opts.map(x=>`<button class="chip ${activeSpecials.has(x.key)?"active":""}" data-special="${esc(x.key)}">${esc(x.label)} <small>${x.count}</small></button>`)
-  ).join("");
-
-  $("#specialChips").querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{
-    const key=btn.dataset.special;
-    if(key==="all"){
-      activeSpecials.clear();
-    }else if(activeSpecials.has(key)){
-      activeSpecials.delete(key);
-    }else{
-      activeSpecials.add(key);
-    }
-    renderSpecials();
-    renderList();
+    ? "（已選 "+activeSpecials.size+" 類）" : "（全部 "+opts.length+" 類）";
+  $("#specialChips").innerHTML=opts.map(x=>`<label class="compact-choice"><input type="checkbox" data-special="${esc(x.key)}" ${activeSpecials.has(x.key)?"checked":""}><span>${esc(x.label)}</span><small>${x.count}</small></label>`).join("");
+  $("#specialChips").querySelectorAll("input").forEach(el=>el.addEventListener("change",()=>{
+    if(el.checked)activeSpecials.add(el.dataset.special);else activeSpecials.delete(el.dataset.special);
+    renderSpecials();renderList();
   }));
 }
 
@@ -879,7 +875,7 @@ function getVisible(){
     if(g!=="all"&&it.group!==g)return false;
     const k=keyOf(it);
     if(onlySelected&&!selected.has(k))return false;
-    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) return false;
+    if(activeSubcats.size && !activeSubcats.has(subcatOf(it))) return false;
     if(activeSpecials.size && ![...activeSpecials].some(key=>matchSpecial(it,key))) return false;
     if(!q)return true;
     const reqText=(it.required||[]).join(" ");
@@ -1434,7 +1430,7 @@ $("#clearSpecialFilter").addEventListener("click",()=>{
 
     const g=$("#groupFilter").value;
     if(g!=="all" && it.group!==g) continue;
-    if(activeSubcat!=="all" && subcatOf(it)!==activeSubcat) continue;
+    if(activeSubcats.size && !activeSubcats.has(subcatOf(it))) continue;
 
     const q=$("#search").value.trim().toLowerCase();
     if(q){
@@ -1465,7 +1461,9 @@ $("#clear").addEventListener("click",()=>{
 syncAddedCollectionItems();
 document.addEventListener('starro-config-applied',()=>{
   syncAddedCollectionItems();
-  updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
+  $("#subcatClear").addEventListener("click",()=>{activeSubcats.clear();renderSubcats();renderSpecials();renderList();});
+$("#specialClearChoices").addEventListener("click",()=>{activeSpecials.clear();renderSpecials();renderList();});
+updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 });
 updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();renderCharacterCalculator();renderRequiredPanels();
 </script>
