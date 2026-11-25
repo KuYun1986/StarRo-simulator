@@ -117,3 +117,82 @@ body #biosTalismanSimulator .tal-config-block .bio-table th{
 body #biosTalismanSimulator .tal-config-block .bio-table tbody tr:nth-child(even){
   background:#edf4f7!important;
 }
+
+
+/* JRO MVP readability on soft background — neutral controls, labels, and table only.
+   Preserve original special enchant/card colors and gameplay semantics. */
+body #jroMvpBox{
+  background:linear-gradient(140deg,#f2f7fa,#e8f0f5)!important;
+  border-color:#c8d8e1!important;
+  color:#31495c!important;
+  box-shadow:0 10px 28px rgba(48,79,101,.1);
+}
+body #jroMvpBox h2{
+  color:#805c37!important;
+}
+body #jroMvpBox p,
+body #jroMvpBox .jro-mvp-meta,
+body #jroMvpBox .jro-meta{
+  color:#4c6478!important;
+}
+body #jroMvpBox .jro-mvp-controls :is(input,select){
+  background:#f8fafc!important;
+  color:#2f485e!important;
+  border-color:#b8ccd9!important;
+}
+body #jroMvpBox .jro-mvp-controls :is(input,select)::placeholder{
+  color:#607689!important;
+  opacity:1;
+}
+body #jroMvpBox .jro-mvp-controls button{
+  background:#dceaf2!important;
+  color:#33546d!important;
+  border-color:#bdd0dc!important;
+}
+body #jroMvpBox .jro-enchant-choices button:not(.active){
+  background:#e0edf4!important;
+  color:#36566d!important;
+  border-color:#bdd1de!important;
+}
+body #jroMvpBox .jro-enchant-choices button.active{
+  background:#3d617b!important;
+  color:#fff!important;
+  border-color:#3d617b!important;
+}
+body #jroMvpBox .jro-mvp-tablewrap{
+  background:#f8fbfd!important;
+  border-color:#c9d9e3!important;
+}
+body #jroMvpBox .jro-mvp-table{
+  background:#f7fafc!important;
+}
+body #jroMvpBox .jro-mvp-table thead th{
+  background:#d8e6ef!important;
+  color:#29475c!important;
+  border-bottom-color:#b9cedc!important;
+}
+body #jroMvpBox .jro-mvp-table tbody tr:nth-child(odd){
+  background:#f8fbfd!important;
+}
+body #jroMvpBox .jro-mvp-table tbody tr:nth-child(even){
+  background:#eaf2f7!important;
+}
+body #jroMvpBox .jro-mvp-table tbody td{
+  border-bottom-color:#d3e1e9!important;
+}
+body #jroMvpBox .jro-mvp-table tbody td:not(.jro-sealed){
+  color:#304b5e!important;
+}
+/* Sealed cards keep their original rose text (#f5b6a7).
+   Darken only the sealed cell's backdrop for contrast. */
+body #jroMvpBox .jro-mvp-table tbody td.jro-sealed{
+  background:#613747!important;
+}
+body #jroMvpBox .jro-mvp-controls :is(input,select,button):focus-visible,
+body #jroMvpBox .jro-enchant-choices button:focus-visible{
+  outline:3px solid #779db8!important;
+  outline-offset:2px;
+}
+@media(max-width:700px){
+  body #jroMvpBox .jro-mvp-tablewrap{-webkit-overflow-scrolling:touch}
+}
