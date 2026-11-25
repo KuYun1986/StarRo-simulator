@@ -20,6 +20,7 @@ jobs:
               with urllib.request.urlopen(req,timeout=20) as res:
                   body=res.read(500000).decode('utf-8','replace')
                   print('STATUS',res.status,'URL',res.url,'LENGTH',len(body))
+              print('REFERENCE_SNAPSHOT_DATE: 2026-11-25')
               with open('reference-site.html','w',encoding='utf-8') as fp:fp.write(body)
               class Parser(HTMLParser):
                   def __init__(self):super().__init__();self.tags=[];self.active=False
