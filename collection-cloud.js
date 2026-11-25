@@ -6,7 +6,7 @@ const login=el('collectionGoogleLogin'),logout=el('collectionGoogleLogout');
 const saveBtn=el('collectionCloudSave'),loadBtn=el('collectionCloudLoad'),status=el('collectionCloudStatus');
 if(!login||!logout||!saveBtn||!loadBtn||!status)return;
 const KEY='starro_collection_selected';
-let db=null,user=null,epoch=0,busy=false,writing=false,autosave=false,timer=null,revision=0,pending=false;
+let db=null,user=null,epoch=0,busy=false,writing=false,autosave=false,timer=null,revision=0,pending=false,providerDisabled=false;
 function say(message,level='info'){status.textContent=message;status.dataset.state=level;}
 function errMessage(e){
  const s=String(e?.message||e||'未知錯誤'),code=String(e?.code||'');
@@ -37,6 +37,7 @@ function show(){
  saveBtn.style.display=logged?'':'none';
  loadBtn.style.display=logged?'':'none';
  saveBtn.disabled=busy||writing;loadBtn.disabled=busy||writing;
+ login.disabled=providerDisabled||busy;
 }
 function applyCloud(progress){
  const valid=keys();selected.clear();
@@ -129,8 +130,40 @@ async function loadCloud(){
   if(epoch===version)say('❌ 雲端載入失敗：'+errMessage(e)+' 本機進度仍保留','error');
  }finally{busy=false;show();}
 }
+// Read only public project capability metadata; never access private data or credentials.
+async function checkPublicBackend(){
+ if(typeof fetch!=='function'||!cfg.url||!cfg.anonKey)return;
+ const base=cfg.url.replace(/\/$/,'');
+ let googleDisabled=false,tableMissing=false;
+ try{
+  const response=await fetch(base+'/auth/v1/settings',{headers:{apikey:cfg.anonKey},cache:'no-store'});
+  if(response.ok){
+   const settings=await response.json();
+   googleDisabled=settings?.external?.google===false;
+  }
+ }catch(e){/* Offline clients may still have a valid cached session. */}
+ try{
+  const response=await fetch(base+'/rest/v1/collection_progress?select=user_id&limit=0',{
+   headers:{apikey:cfg.anonKey,Accept:'application/json'},cache:'no-store'
+  });
+  if(response.status===404){
+   const result=await response.json().catch(()=>({}));
+   tableMissing=result?.code==='PGRST205';
+  }
+ }catch(e){/* Authenticated operations report any real errors separately. */}
+ providerDisabled=googleDisabled;
+ show();
+ if(!user&&(googleDisabled||tableMissing)){
+  const reasons=[
+   googleDisabled?'Google 登入尚未啟用（Supabase → Authentication → Providers → Google）':null,
+   tableMissing?'收藏雲端資料表尚未建立（執行 collection_progress_setup.sql）':null
+  ].filter(Boolean);
+  say('❌ 雲端功能尚未完成設定：'+reasons.join('；')+'。目前收藏會保存在這台裝置。','error');
+ }
+}
 login.addEventListener('click',async()=>{
  if(!db){say('Google 登入服務尚未就緒，請檢查連線設定','error');return;}
+ if(providerDisabled){say('❌ 此 Supabase 專案尚未啟用 Google 登入。請管理員先在 Authentication → Providers → Google 啟用。','error');return;}
  login.disabled=true;say('正在前往 Google 授權畫面…');
  try{
   const {error}=await db.auth.signInWithOAuth({
@@ -138,7 +171,7 @@ login.addEventListener('click',async()=>{
   });
   if(error)throw error;
  }catch(e){say('❌ Google 登入失敗：'+errMessage(e),'error');}
- finally{login.disabled=false;}
+ finally{show();}
 });
 logout.addEventListener('click',async()=>{
  if(!db)return;clearDelay();
@@ -176,5 +209,6 @@ db.auth.getSession().then(({data,error})=>{
  if(error)throw error;
  if(data?.session?.user)return activate(data.session);
  if(!oauthError&&!user)say('尚未登入 Google；目前收藏進度保存在本機。');
-}).catch(e=>say('❌ Google 登入狀態檢查失敗：'+errMessage(e),'error'));
+}).catch(e=>say('❌ Google 登入狀態檢查失敗：'+errMessage(e),'error'))
+  .finally(()=>{void checkPublicBackend();});
 })();
