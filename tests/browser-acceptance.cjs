@@ -227,6 +227,10 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('.catalog-card').count()>=1,'equipment lookup missing');
         await p.locator('button[data-action="equipment"]').first().click();
         assert.ok(await p.locator('#catalogDialogContent').getByText('裝備詳細資料').count()>=1,'equipment details section missing');
+        const officialText=await p.locator('#catalogDialogContent').textContent();
+        assert.ok(officialText.includes('All State+5'),'verified official LT ability not displayed');
+        const citation=await p.locator('#catalogDialogContent .starro-data-source-note a[href*="ro.gnjoy.com.tw"]').first().getAttribute('href');
+        assert.ok(citation?.includes('205519'),'specific official source URL is not in detail footer');
         assert.ok(await p.locator('#catalogDialogContent a[href*="google.com/search"]').count()>=1,'online equipment name search missing');
         await p.locator('#catalogDialogClose').click();
         await p.locator('#catalogReset').click();

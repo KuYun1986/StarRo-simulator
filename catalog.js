@@ -377,7 +377,7 @@ function openDetail(kind,i){
     if(detail&&Object.keys(detail).length){
       html+=detailSection('道具詳細資料',[detail.description,detail.stats].filter(Boolean));
       const reference=typeof detail.referenceUrl==='string'&&/^https:\/\//i.test(detail.referenceUrl)?detail.referenceUrl:'';
-      if(reference)html+='<p class="catalog-item-reference"><a href="'+esc(reference)+'" target="_blank" rel="noopener noreferrer">🔗 查看道具資料來源</a></p>';
+      // Detail source links are consolidated into the final source footer.
       html+=detailSection('其他已登錄來源',[detail.source,...(Array.isArray(detail.sources)?detail.sources:[])].filter(Boolean));
       html+=window.StarroOnlineLookup?.render(entry.name,detail.itemId,detail.referenceUrl||detail.referenceSite)||'';
     }

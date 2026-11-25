@@ -111,7 +111,7 @@ function sourceFooter(record,reference){
   const extra=typeof reference==='string'&&/^https:\/\//i.test(reference)
     ?'；<a href="'+reference.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" target="_blank" rel="noopener noreferrer">既有道具參考連結</a>':'';
   return '<div class="starro-data-source-note"><b>資料來源：</b>'+
-   '<a href="'+url+'" target="_blank" rel="noopener noreferrer">台灣 RO 官方裝備公告（查核摘要）</a>；'+
+   (record?.url?'<a href="'+url+'" target="_blank" rel="noopener noreferrer">台灣 RO 官方裝備公告（查核摘要）</a>；':'此裝備尚無可核對的官方完整能力說明；')+
    '<a href="https://event.gnjoy.com.tw/Ro/RoItemSearch" target="_blank" rel="noopener noreferrer">官方裝備道具查詢平台</a>；'+
    '<a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">既有轉蛋／道具來源參考</a>'+extra+'。'+
    '官方效果摘要並非完整詞條；不同伺服器的實際能力以遊戲內為準。</div>';
