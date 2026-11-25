@@ -21,7 +21,7 @@
    const sources=[...new Set(gacha.filter(x=>x&&x.name)
      .map(x=>x.name+(x.tier?'（'+x.tier+'獎）':'')))];
    return {
-     itemId:data.itemId||'',type:data.type||'',image:data.image||'',
+     itemId:data.itemId||'',type:data.type||'',alias:data.alias||'',image:data.image||'',
      sourceLabel:data.sourceLabel||'',
      sourceUrl:data.sourceUrl||'',referenceSite:global.StarroReferenceIndex.site||'',
      sources,gacha
