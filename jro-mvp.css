@@ -22,3 +22,8 @@
 .jro-mvp-controls{position:relative;z-index:4}
 .jro-mvp-controls>*{position:relative;z-index:5;min-width:0}
 @media(max-width:700px){.jro-mvp-box{scroll-margin-top:24px}.jro-mvp-controls{grid-auto-rows:minmax(44px,auto)}.jro-mvp-controls button{width:100%}}
+
+/* Constrain the full-width grid item. The wide MVP table scrolls inside the panel. */
+.jro-mvp-box{min-width:0;max-width:100%;width:100%;overflow:hidden}
+.jro-mvp-tablewrap{min-width:0;max-width:100%;width:100%;overflow-x:auto}
+.jro-mvp-controls{min-width:0;max-width:100%}
