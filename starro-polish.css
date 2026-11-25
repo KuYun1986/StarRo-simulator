@@ -206,3 +206,44 @@ body{
 @media(max-width:760px){
   :is(.topnav,.starro-navigation,.page-links){gap:6px}
 }
+
+/* STARRO GALLERY PALETTE — unified across simulator, search and admin pages. */
+:root{
+ --ux-bg:#07121f;--ux-panel:#112033;--ux-panel2:#15283e;--ux-border:#38516d;
+ --ux-text:#f2f7ff;--ux-muted:#b9cee4;--ux-gold:#f6d68f;--ux-blue:#9dc6fb;
+ --ux-teal:#7fd9c2;--ux-glow:0 14px 32px rgba(2,8,20,.32),inset 0 1px 0 rgba(255,255,255,.045);
+ --ro-bg:#07121f;--ro-bg-2:#0d1b2c;--ro-panel:#112033;--ro-panel-2:#0d1b2c;
+ --ro-line:#38516d;--ro-line-soft:#2e4662;--ro-gold:#f6d68f;--ro-gold-soft:#dfbe79;
+ --ro-blue:#9dc6fb;--bg:#07121f;--card:#112033;--card2:#15283e;--panel:#112033;
+ --panel2:#15283e;--line:#38516d;--text:#f2f7ff;--muted:#b9cee4;--gold:#f6d68f;--blue:#9dc6fb;
+}
+body{
+ background:radial-gradient(circle at 14% -7%,rgba(55,106,166,.20),transparent 32%),
+ radial-gradient(circle at 95% 0,rgba(190,147,72,.10),transparent 29%),
+ linear-gradient(180deg,#081724,#07121f 65%,#08111d)!important;
+ color:#f2f7ff;
+}
+:is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box,.stat,.metric,.cat-manage){
+ border-color:rgba(111,151,191,.36)!important;
+ box-shadow:var(--ux-glow);
+}
+:is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box){
+ background-color:#112033;
+}
+:is(.starro-navigation,.topnav,.page-links) a[aria-current="page"],
+:is(.starro-navigation,.topnav,.page-links) a[aria-current="page"]:hover{
+ border-color:#dcbf82!important;
+ background:linear-gradient(130deg,#394d5b,#243a52)!important;
+ color:#ffe5aa!important;
+}
+:is(button,.btn):focus-visible,:is(a,input,select,textarea):focus-visible{
+ outline:2px solid #f6d68f!important;outline-offset:3px;
+}
+:is(.chip,.compact-choice,.catalog-chip){transition:background-color .16s,border-color .16s}
+.chip:not(.active){background:#173049!important;color:#daeafb!important;border-color:#4c6785!important}
+.chip.active{background:#e5c47f!important;color:#18273a!important;border-color:#efd8a1!important;box-shadow:0 5px 15px rgba(218,175,103,.15)!important}
+.chip small{background:rgba(120,153,187,.18)!important;color:inherit!important}
+.catalog-selected-sources,.item-sources{border-color:#4a6d8d!important}
+@media(max-width:640px){
+ .ux-section-index__links a,.catalog-topnav a{min-height:40px}
+}
