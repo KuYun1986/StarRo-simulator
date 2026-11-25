@@ -141,6 +141,11 @@ const server=http.createServer((req,res)=>{
         assert.ok((await p.locator('#catalogSlotLabel').textContent()).includes('飾品'),'checkbox selection not reflected');
         await p.locator('#catalogReset').click();
         assert.equal(await p.locator('#catalogSlots input:checked').count(),0,'reset filters failed');
+        await p.locator('#catalogSearch').fill('網路測試裝備名稱');
+        const onlineHref=await p.locator('#catalogOnlineSearch').getAttribute('href');
+        assert.ok(onlineHref?.includes('google.com/search')&&onlineHref.includes(encodeURIComponent('網路測試裝備名稱')),'external fallback search did not encode item name');
+        await p.locator('#catalogReset').click();
+        assert.ok(await p.locator('#catalogGroups input[value="特殊收藏"]').count()===1,'Special Collection category missing');
         await p.locator('#catalogSearch').fill('翡翠LT收藏組合');
         assert.ok((await p.locator('.catalog-card').count())>=1,'catalog search did not return existing collection');
         await p.locator('.catalog-card input[data-pick-key]').first().check();
