@@ -93,7 +93,8 @@ function equipmentDetailHtml(item){
     '<div class="catalog-detail-section"><h3>裝備詳細資料</h3><dl class="catalog-equipment-meta">'+
     rows.map(([a,b])=>'<div><dt>'+esc(a)+'</dt><dd>'+esc(b)+'</dd></div>').join('')+'</dl></div>'+
     '<div class="catalog-detail-section"><h3>被哪些收藏需要？（'+item.collections.length+'）</h3>'+relatedCollectionHtml(item.collections)+'</div>'+
-    detailSection('已登錄取得來源',registeredSources(item.name).length?registeredSources(item.name):['尚未登錄取得方式或轉蛋來源，不代表沒有其他取得途徑']);
+    detailSection('已登錄取得來源',registeredSources(item.name).length?registeredSources(item.name):['尚未登錄取得方式或轉蛋來源，不代表沒有其他取得途徑'])+
+    (info.referenceUrl?'<div class="catalog-detail-section"><h3>來源與資料核對</h3><p class="catalog-notpicked">本頁已核對公開道具編號、種類、規格和轉蛋來源。完整遊戲效果請以原站與遊戲內資料為準。</p><a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">查看參考站道具百科（編號 '+esc(info.itemId||'')+'）</a></div>':'');
 }
 function collectionEquipmentHtml(items){
   return items.length?'<div class="catalog-equipment-list">'+items.map(name=>{
