@@ -56,6 +56,10 @@ function imageFor(name,explicit=''){
   const url=images[name]||explicit||known;
   return safeImage(url);
 }
+function collectionImage(item){
+  const original=imageFor(item.name,item.image);
+  return window.StarroReferenceLookup.collectionCover(item,name=>imageFor(name,equipDetail(name).image),original);
+}
 let cachedEquipmentEntries=null;
 function equipmentEntries(){
   if(cachedEquipmentEntries)return cachedEquipmentEntries;
@@ -219,7 +223,7 @@ function selectedRequiredPanel(item){
 
 function renderCollectionCard(item,i){
   const k=keyOf(item),has=selected.has(k),sourceCount=collectionSource(item).length;
-  return '<article class="catalog-card"><div class="catalog-card__top">'+imageHtml(imageFor(item.name,item.image),'📚')+
+  return '<article class="catalog-card"><div class="catalog-card__top">'+imageHtml(collectionImage(item),'📚')+
     '<div class="catalog-card__name">'+esc(item.name)+'</div></div><div class="catalog-card__body">'+
     '<div class="catalog-card__effect">'+esc(item.effect||'尚無效果說明')+'</div><div class="catalog-card__meta">'+
     '<span class="catalog-chip">'+esc(item.group||'自訂收藏')+'</span><span class="catalog-chip">佔格 '+esc(item.slot||0)+'</span>'+
@@ -358,7 +362,7 @@ function openDetail(kind,i){
   if(kind==='collection'){
     const req=entry.required||[],sources=collectionSource(entry);
     const has=selected.has(keyOf(entry));
-    html=detailHeader(entry.name,imageFor(entry.name,entry.image),'collection')+
+    html=detailHeader(entry.name,collectionImage(entry),'collection')+
       detailSection('收藏效果',[entry.effect||'尚無效果說明'])+
       '<div class="catalog-detail-section"><h3>所需裝備／卡片（點選可查詳細資料與其他收藏）</h3>'+collectionEquipmentHtml(req)+'</div>'+
       groupedRequiredSources(req)+
@@ -486,7 +490,7 @@ function init(){
     const relatedBtn=e.target.closest('[data-collection-key]');
     if(relatedBtn){
       const item=allCollections().find(x=>keyOf(x)===relatedBtn.dataset.collectionKey);
-      if(item)$('catalogDialogContent').innerHTML=detailHeader(item.name,imageFor(item.name,item.image),'collection')+
+      if(item)$('catalogDialogContent').innerHTML=detailHeader(item.name,collectionImage(item),'collection')+
         detailSection('收藏效果',[item.effect||''])+
         '<div class="catalog-detail-section"><h3>需求裝備</h3>'+collectionEquipmentHtml(item.required||[])+'</div>';
       return;

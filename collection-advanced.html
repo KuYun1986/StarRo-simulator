@@ -473,7 +473,7 @@ section{padding:12px;min-width:0}
 <script src="reference-items.js?v=20261125-reference"></script>
 <script src="starro-equipment-enrichment.js?v=20261125-starro-primary-v2"></script>
 <script src="catalog-reference-data.js?v=20261125-starro-primary-v2"></script>
-<script src="catalog-reference-lookup.js?v=20261125-starro-primary-v2"></script>
+<script src="catalog-reference-lookup.js?v=20261125-special-cover1"></script>
 <script src="starro-online-lookup.js?v=20261125-online"></script>
 <script>
 /* ITEMS moved to collection-data.js */
@@ -498,7 +498,8 @@ function syncAddedCollectionItems(){
 }
 function catalogThumb(it){
   const images=window.StarroConfig?.get('features.catalog.images',{})||{};
-  const src=it.image||images[it.name]||'';
+  const original=it.image||images[it.name]||'';
+  const src=window.StarroReferenceLookup.collectionCover(it,name=>itemSourceData(name).info.image||images[name]||'',original);
   if(!/^https:\/\//i.test(src)&&!/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(src))return '';
   return '<img class="collection-thumb" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="" src="'+esc(src)+'">';
 }

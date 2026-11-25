@@ -39,6 +39,14 @@
    return out;
  }
  function ability(info){return info.effect?(info.effect+(info.effectRecord?'（外部版本參考，繁星尚未核對）':'')):'尚無可核對的裝備能力資料';}
- global.StarroReferenceLookup=Object.freeze({canonical,find,details,merge,ability});
+ // Existing special-collection rules mark the first requirement as the UR/XR representative.
+ // Use only that actual item (never guess another image by similar name).
+ function collectionCover(item,resolve,original=''){
+   if(!item||!['特殊收藏','JRO收藏'].includes(item.group))return original;
+   const name=Array.isArray(item.required)&&item.required.length?item.required[0]:item.name;
+   if(!name)return original;
+   return (typeof resolve==='function'?resolve(name):details(name).image)||original;
+ }
+ global.StarroReferenceLookup=Object.freeze({canonical,find,details,merge,ability,collectionCover});
  if(typeof module!=='undefined'&&module.exports)module.exports=global.StarroReferenceLookup;
 })(typeof window==='undefined'?globalThis:window);

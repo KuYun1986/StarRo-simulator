@@ -79,3 +79,13 @@ test('StarRO alias resolves exact item ID and never substitutes LT effects',()=>
  assert.equal(primary.effectRecord,null);
  delete globalThis.StarroReferenceIndex;
 });
+
+test('special collection uses its first UR/XR item image and preserves ordinary covers',()=>{
+ const lookup=require('../catalog-reference-lookup.js');
+ const item={group:'特殊收藏',name:'不滅的審判',required:['(JRO) 阿穆雷塔特 [1]','(JRO) 審判天秤 [1]']};
+ const resolve=n=>n===item.required[0]?'https://ro-collectitem-yuno.netlify.app/item-icons/490290.png':'';
+ assert.equal(lookup.collectionCover(item,resolve,'old'),'https://ro-collectitem-yuno.netlify.app/item-icons/490290.png');
+ assert.equal(lookup.collectionCover({...item,group:'普通收藏'},resolve,'old'),'old');
+ assert.equal(lookup.collectionCover(item,()=>'', 'old'),'old');
+ assert.equal(lookup.collectionCover({group:'特殊收藏',name:'XR裝備',required:[]},n=>n==='XR裝備'?'xr.png':''),'xr.png');
+});
