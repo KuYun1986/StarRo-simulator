@@ -41,7 +41,7 @@ const html=[
 '<label>資料參考網址（HTTPS；可貼該道具的實際資料頁）<input id="catEquipReference" type="url" placeholder="https://ro-collectitem-yuno.netlify.app/"></label>',
 '<label>道具圖片 URL（HTTPS）<input id="catEquipImage" type="url" placeholder="https://example.com/item.webp"></label>',
 '<label>或上傳圖片<input id="catEquipFile" type="file" accept="image/png,image/jpeg,image/webp"></label>',
-'<div class="cat-manage-buttons"><button type="button" class="primary" id="catEquipSave">儲存道具詳情</button><button type="button" id="catEquipReset">新增／清空</button><button type="button" id="catEquipDelete" class="danger">刪除此道具資料</button></div>',
+'<div class="cat-manage-buttons"><button type="button" id="catEquipImportRef">從參考網站帶入已核對資料</button><button type="button" class="primary" id="catEquipSave">儲存道具詳情</button><button type="button" id="catEquipReset">新增／清空</button><button type="button" id="catEquipDelete" class="danger">刪除此道具資料</button></div>',
 '<label>選擇已建立的道具資料<select id="catEquipSaved"><option value="">＋ 新增資料</option></select></label>',
 '<p>參考資料：<a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">RO 收藏／轉蛋查詢網站</a>。參考網址僅為查核入口，不會自動推定掉落率或來源。</p>',
 '</div>',
@@ -195,6 +195,18 @@ function init(){
  });
  $('catCollectionSelect').onchange=fillCollection;$('catPoolSelect').onchange=fillPool;
  $('catEquipSaved').onchange=fillEquip;
+ $('catEquipImportRef').onclick=()=>{
+   const name=$('catEquipName').value.trim();
+   if(!name){status('請先輸入道具名稱',true);return;}
+   const ref=window.StarroReferenceLookup?.details(name)||{};
+   if(!ref.itemId){status('參考資料沒有唯一符合「'+name+'」的道具，請核對名稱或改用手動編輯',true);return;}
+   if(!$('catEquipId').value)$('catEquipId').value=ref.itemId;
+   if(!$('catEquipType').value)$('catEquipType').value=ref.type||'';
+   if(!$('catEquipSources').value)$('catEquipSources').value=(ref.sources||[]).join('\n');
+   if(!$('catEquipImage').value&&ref.image)$('catEquipImage').value=ref.image;
+   if(!$('catEquipReference').value&&ref.sourceUrl)$('catEquipReference').value=ref.sourceUrl;
+   status('已從參考網站核對道具 ID、分類、圖片及轉蛋名稱；請再確認並按「儲存道具詳情」');
+ };
  $('catEquipReset').onclick=resetEquip;
  $('catEquipSave').onclick=()=>saveEquip().catch(err=>status(err.message,true));
  $('catEquipDelete').onclick=()=>{
