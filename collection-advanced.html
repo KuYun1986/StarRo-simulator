@@ -224,18 +224,7 @@ section{padding:12px;min-width:0}
 }
 </style>
 
-<style>
-.jro-mvp-box{margin:14px 0 18px;padding:14px;border:1px solid #2e4262;border-radius:14px;background:#0f1a2a}
-.jro-mvp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.jro-mvp-head h2{margin:0;font-size:20px}.jro-mvp-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.jro-mvp-controls input,.jro-mvp-controls select{height:38px;border-radius:9px;border:1px solid #33445f;background:#0b1421;color:#eef4ff;padding:0 10px}
-.jro-mvp-controls input{min-width:260px;flex:1}.jro-mvp-base{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:10px 0 12px}
-.jro-base-card{padding:10px;border:1px solid #2d405e;border-radius:10px;background:#101b2c;cursor:pointer}.jro-base-card.active{outline:2px solid #5aa9ff}
-.jro-base-card b{display:block;margin-bottom:4px}.jro-base-card small{color:#9eb0ca;line-height:1.45}.jro-mvp-tablewrap{overflow:auto;border:1px solid #2d405e;border-radius:10px;max-height:560px}
-.jro-mvp-table{width:100%;border-collapse:collapse;min-width:760px}.jro-mvp-table th,.jro-mvp-table td{padding:9px 10px;border-bottom:1px solid #24344d;vertical-align:top;text-align:left;line-height:1.45}
-.jro-mvp-table th{position:sticky;top:0;background:#142238;z-index:2}.jro-mvp-table tr:hover td{background:#132238}.jro-enchant{font-weight:800;white-space:nowrap}.jro-card{font-weight:700}.jro-sealed{color:#f6c76e}.jro-meta{color:#8fa2c1;font-size:12px}.jro-nores{padding:18px;text-align:center;color:#9eb0ca}.jro-with-icon{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}.jro-inline-icon{width:20px;height:20px;object-fit:contain;flex:0 0 20px;image-rendering:auto}.jro-inline-icon.lg{width:24px;height:24px;flex-basis:24px}.item-title-main{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.jro-base-card b .jro-with-icon{display:flex}.jro-enchant .jro-with-icon{white-space:nowrap}
-@media(max-width:650px){.jro-mvp-controls{display:grid;grid-template-columns:1fr}.jro-mvp-controls input{min-width:0;width:100%}}
-</style>
+
 
 
 <script src="starro-config.js"></script>
@@ -303,26 +292,6 @@ section{padding:12px;min-width:0}
 </div>
 <div class="note" style="margin:0 0 10px">可同時選多個分類；符合任一分類的收藏只顯示一次，不會重複。</div>
 <div class="chips" id="specialChips"></div>
-</div>
-
-<div class="jro-mvp-box" id="jroMvpBox">
-  <div class="jro-mvp-head">
-    <h2>🧿 JRO 附魔 × MVP 卡片查詢</h2>
-    <div class="jro-mvp-controls">
-      <input id="jroMvpSearch" type="search" placeholder="自行輸入：附魔、卡片、效果關鍵字…">
-      <select id="jroMvpEnchant"><option value="all">全部 8 種附魔</option></select>
-      <button id="jroMvpClear">清除搜尋</button>
-    </div>
-  </div>
-  <div class="note" style="margin:0 0 8px">可直接輸入「英雄的凱歌」、「烏龜將軍」、「MVP」、「封印」、「MaxHP」、「BOSS」等關鍵字。點上方附魔卡片可快速篩選。</div>
-  <div style="display:flex;justify-content:flex-end;margin:6px 0 8px">
-    <button type="button" id="jroEnchantToggle" aria-expanded="true" aria-controls="jroMvpCollapseArea">▲ 收合附魔</button>
-  </div>
-  <div id="jroMvpCollapseArea">
-    <div class="jro-mvp-base" id="jroMvpBase"></div>
-    <div class="jro-meta" id="jroMvpMeta"></div>
-    <div class="jro-mvp-tablewrap"><table class="jro-mvp-table"><thead><tr><th>附魔</th><th>JRO卡片／裝備</th><th>套裝效果</th></tr></thead><tbody id="jroMvpRows"></tbody></table></div>
-  </div>
 </div>
 
 <div class="summary">
@@ -1282,28 +1251,7 @@ function displayJroItemName(name){
   if(s.startsWith('(JRO)') || s.startsWith('（JRO）')) return s;
   return `(JRO)${s}`;
 }
-(function(){
- const byId=Object.fromEntries(JRO_MVP_ENCHANTS.map(x=>[x.id,x]));
- const base=document.getElementById('jroMvpBase'), rows=document.getElementById('jroMvpRows'), search=document.getElementById('jroMvpSearch'), sel=document.getElementById('jroMvpEnchant'), meta=document.getElementById('jroMvpMeta');
- if(!base||!rows)return;
- sel.innerHTML='<option value="all">全部 8 種附魔</option>'+JRO_MVP_ENCHANTS.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
- base.innerHTML=JRO_MVP_ENCHANTS.map(x=>`<div class="jro-base-card" data-jro-enchant="${x.id}"><b><span class="jro-with-icon">${jroIconHtml(x.name,'lg')}<span>${esc(x.name)}</span></span></b><small>${esc(x.base)}</small></div>`).join('');
- function render(){
-   const q=(search.value||'').trim().toLowerCase(); const eid=sel.value;
-   const out=JRO_MVP_ROWS.filter(r=>{
-     const e=byId[r[0]]; if(eid!=='all'&&r[0]!==eid)return false;
-     const label=displayJroItemName(r[1]);
-     if(!q)return true; return `${e.name} ${e.jp} ${r[1]} ${label} ${r[2]}`.toLowerCase().includes(q);
-   });
-   meta.textContent=`顯示 ${out.length} / ${JRO_MVP_ROWS.length} 筆套裝效果`;
-   rows.innerHTML=out.length?out.map(r=>{const e=byId[r[0]],label=displayJroItemName(r[1]),sealed=/封印/.test(r[1]);return `<tr><td class="jro-enchant"><span class="jro-with-icon">${jroIconHtml(e.name)}<span>${esc(e.name)}</span></span><div class="jro-meta">${esc(e.jp)}<br>本體：${esc(e.base)}</div></td><td class="jro-card ${sealed?'jro-sealed':''}">${esc(label)}</td><td>${esc(r[2])}</td></tr>`}).join(''):'<tr><td colspan="3" class="jro-nores">沒有符合的附魔／卡片</td></tr>';
-   base.querySelectorAll('.jro-base-card').forEach(c=>c.classList.toggle('active',eid===c.dataset.jroEnchant));
- }
- search.addEventListener('input',render);sel.addEventListener('change',render);
- document.getElementById('jroMvpClear').addEventListener('click',()=>{search.value='';sel.value='all';render();});
- base.addEventListener('click',e=>{const c=e.target.closest('[data-jro-enchant]');if(!c)return;sel.value=sel.value===c.dataset.jroEnchant?'all':c.dataset.jroEnchant;render();});
- render();
-})();
+
 
 async function importSelectedExcel(file){
   if(!file) return;
@@ -1512,18 +1460,7 @@ $("#clear").addEventListener("click",()=>{
 });
 
 
-(function initJroEnchantToggle(){
-  const btn = document.getElementById('jroEnchantToggle');
-  const content = document.getElementById('jroMvpCollapseArea');
-  if(!btn || !content) return;
 
-  btn.addEventListener('click', function(){
-    const isHidden = content.style.display === 'none';
-    content.style.display = isHidden ? '' : 'none';
-    btn.textContent = isHidden ? '▲ 收合附魔' : '▼ 展開附魔';
-    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-  });
-})();
 
 syncAddedCollectionItems();
 document.addEventListener('starro-config-applied',()=>{
