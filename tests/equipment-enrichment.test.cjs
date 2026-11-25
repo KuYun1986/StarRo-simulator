@@ -29,7 +29,7 @@ test('never use original non-LT ability as LT effect',()=>{
  const emerald=helper.officialEffect('翡翠戒指-LT[1]');
  assert.ok(emerald?.text.includes('All State+5'));
  assert.ok(emerald.url.includes('ro.gnjoy.com.tw'));
- assert.equal(official.entries,14);
+ assert.ok(official.entries>=23);
  assert.equal(helper.officialEffect('翡翠戒指[1]'),null);
  const armorEffect=helper.officialEffect('A階 阿斯特莉亞鎧甲-LT[1]');
  assert.ok(armorEffect&&armorEffect.text.includes('MaxHP'));
