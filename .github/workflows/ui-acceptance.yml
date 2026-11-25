@@ -50,6 +50,11 @@ jobs:
               fi
             fi
           } | tee acceptance-artifacts/live-deployment.txt
+      - name: Bundle tested source for reproduction
+        if: always()
+        run: |
+          mkdir -p acceptance-artifacts
+          tar -czf acceptance-artifacts/checkout-source.tgz --exclude=.git --exclude=acceptance-artifacts --exclude=node_modules .
       - name: Store screenshot and test reports
         uses: actions/upload-artifact@v4
         if: always()
