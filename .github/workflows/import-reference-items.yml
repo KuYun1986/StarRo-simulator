@@ -1,0 +1,42 @@
+name: Import referenced item metadata
+on:
+  push:
+    paths:
+      - tools/import-reference-encyclopedia.py
+      - .github/workflows/import-reference-items.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Import matched public item metadata
+        run: python tools/import-reference-encyclopedia.py
+      - name: Validate generated snapshot
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('reference-items.js').read_text(encoding='utf-8')
+          assert s.startswith('/* Factual matching')
+          assert s.count('referenceUrl')>=30
+          print('SNAPSHOT_BYTES',len(s.encode('utf-8')))
+          PY
+      - name: Commit factual metadata and icon links
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reference-items.js
+          if ! git diff --cached --quiet; then
+            git commit -m "Update matched item IDs, sources and remote icon references"
+            git push
+          else
+            echo "No source changes"
+          fi
