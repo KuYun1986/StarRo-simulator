@@ -42,6 +42,7 @@ test('only explicit gacha sources are inherited',()=>{
  assert.equal(helper.isGachaSource('商城直接販售'),false);
  assert.ok(helper.conversionNote.includes('改造升級成 LT'));
  assert.ok(helper.sourceFooter().includes('資料來源'));
+ assert.ok(helper.sourceFooter(null,'','翡翠戒指-LT[1]').includes('UrlQuery='+encodeURIComponent('翡翠戒指-LT[1]')),'official source search should be item-specific');
 });
 
 test('official sourced effect excerpts include verified bonus and source URL',()=>{
