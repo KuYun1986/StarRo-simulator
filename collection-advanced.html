@@ -720,7 +720,27 @@ function itemSourceData(raw){
      gacha.push({name:pool.name||'未命名轉蛋',type:pool.type||'其他',rate:item.rate||''});
  }
  const explicit=[info.source,info.sources,info.obtain,info.obtainFrom].flat().filter(x=>typeof x==='string'&&x.trim());
- return {name,info,gacha,explicit};
+ const enrich=window.StarroEquipmentEnrichment;
+ let derived=null;
+ if(enrich?.isLT(name)){
+   const candidates=[...Object.keys(imported),...Object.keys(details),
+     ...pools.flatMap(pool=>(pool.items||[]).map(drop=>drop.name))];
+   const base=enrich.findBase(name,candidates);
+   if(base){
+     const ref=imported[base]||Object.entries(imported).find(([k])=>normalizeReqForSource(k)===normalizeReqForSource(base))?.[1]||{};
+     const manualBase=details[base]||Object.entries(details).find(([k])=>normalizeReqForSource(k)===normalizeReqForSource(base))?.[1]||{};
+     const supplementBase=window.StarroReferenceLookup?.details(base)||{};
+     const originals=[
+       ...(ref.sources||[]),...(manualBase.sources||[]),...(supplementBase.sources||[]),
+       ref.source,manualBase.source,supplementBase.source,
+       ...pools.flatMap(pool=>(pool.items||[]).filter(drop=>
+         normalizeReqForSource(drop.name)===normalizeReqForSource(base))
+         .map(drop=>(pool.name||'轉蛋')+(drop.rate?'（'+drop.rate+'）':'')))
+     ].filter(x=>typeof x==='string'&&enrich.isGachaSource(x));
+     if(originals.length)derived={base,sources:[...new Set(originals)]};
+   }
+ }
+ return {name,info,gacha,explicit,derived,official:enrich?.officialEffect(name)||null};
 }
 function mergedItemSources(d){
  const entries=new Map();
@@ -737,12 +757,19 @@ function mergedItemSources(d){
    const label=key+(id?'｜編號 '+id:'');
    if(!entries.has(key)||id)entries.set(key,label);
  }
- return [...entries.values()];
+ const all=[...entries.values()];
+ const enrich=window.StarroEquipmentEnrichment;
+ if(d.derived)for(const source of d.derived.sources){
+   const text='非LT原版「'+d.derived.base+'」｜'+source;
+   if(!all.includes(text))all.push(text);
+ }
+ return all;
 }
 function sourceSummary(raw){
  const d=itemSourceData(raw);
  const labels=mergedItemSources(d);
- return labels.length?labels.slice(0,3).join('、')+(labels.length>3?' 等 '+labels.length+' 項':''):'尚未登錄取得來源';
+ const brief=labels.length?labels.slice(0,3).join('、')+(labels.length>3?' 等 '+labels.length+' 項':''):'尚未登錄取得來源';
+ return d.derived?brief+'｜⚒ '+window.StarroEquipmentEnrichment.conversionNote:brief;
 }
 function itemDetailButton(raw){
  const name=parseRequiredItem(raw).name;
@@ -757,15 +784,20 @@ function showItemDetail(raw){
  const image=safe?'<img class="item-detail-image" src="'+esc(src)+'" alt="" loading="lazy">':'<span class="item-detail-placeholder">🛡️</span>';
  const row=(title,val)=>'<div class="item-detail-row"><b>'+esc(title)+'</b><span>'+esc(val||'尚未登錄')+'</span></div>';
  const sources=mergedItemSources(d);
+ const stats=String(info.stats||'');
+ const completeEffect=/(?:ATK|MATK|MaxHP|MaxSP|技能傷害|物理傷害|魔法傷害|技能後延遲|固定詠唱)\s*[+＋-－]|(?:傷害|抗性|暴擊|詠唱|延遲).*(?:[+＋-－]|增加|減少)/i.test(stats);
+ const effectText=completeEffect?stats:(d.official?.text?d.official.text+'（官方公告重點摘錄，非完整詞條）':'官方完整能力尚未核對');
  document.getElementById('itemDetailContent').innerHTML=
   '<div class="item-detail-heading">'+image+'<div><h2 id="itemDetailTitle">'+esc(d.name)+'</h2><p>道具資料與已知來源</p></div></div>'+
-  row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',info.stats)+
+  row('分類',info.type)+row('道具編號',info.itemId)+row('詳細描述',info.description)+row('能力／效果',effectText)+row('基本資料',completeEffect?'請見能力／效果':stats)+
   '<h3>已登錄取得來源</h3>'+(sources.length?'<ul>'+sources.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<p class="source-not-found">尚未登錄取得方式或轉蛋來源，不能視為沒有掉落來源。</p>')+
+  (d.derived?'<p class="starro-lt-note">⚒ '+esc(window.StarroEquipmentEnrichment.conversionNote)+'</p>':'')+
   (typeof info.sourceLabel==='string'&&info.sourceLabel?'<p class="source-not-found">參考資料：'+esc(info.sourceLabel)+'</p>':'')+
   (typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?'<p><a class="item-detail-reference" href="'+esc(info.referenceUrl)+'" target="_blank" rel="noopener noreferrer">🔗 查閱參考資料網站</a></p>':
     (typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?'<p><a class="item-detail-reference" href="'+esc(info.referenceSite)+'" target="_blank" rel="noopener noreferrer">🔗 查閱資料參考網站（非直達此道具）</a></p>':''))+
   (window.StarroOnlineLookup?.render(d.name,info.itemId,info.referenceUrl||info.referenceSite)||'')+
-  '<h3>相關收藏（'+related.length+'）</h3>'+(related.length?'<ul>'+related.slice(0,40).map(x=>'<li>'+esc(x.name)+'</li>').join('')+'</ul>':'<p class="source-not-found">目前沒有其他相關收藏紀錄</p>');
+  '<h3>相關收藏（'+related.length+'）</h3>'+(related.length?'<ul>'+related.slice(0,40).map(x=>'<li>'+esc(x.name)+'</li>').join('')+'</ul>':'<p class="source-not-found">目前沒有其他相關收藏紀錄</p>')+
+  (window.StarroEquipmentEnrichment?.sourceFooter()||'');
  document.getElementById('itemDetailDialog').showModal();
 }
 document.addEventListener('click',e=>{
