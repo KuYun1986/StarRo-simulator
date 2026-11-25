@@ -49,5 +49,12 @@ jobs:
               else:print('VALUE',name,str(v)[:300])
             if isinstance(obj,dict):
               for k,v in obj.items():sample(v,k)
+            for item_id in ['1341','28573','490782']:
+              target=url+'item-icons/'+item_id+'.png'
+              try:
+                reqimg=urllib.request.Request(target,method='HEAD',headers={'User-Agent':'Mozilla/5.0'})
+                with urllib.request.urlopen(reqimg,timeout=12) as img:
+                  print('ICON_CHECK',item_id,img.status,img.headers.get('Content-Type'))
+              except Exception as err:print('ICON_CHECK',item_id,'FAILED',str(err)[:120])
             else:sample(obj,'root')
           PY
