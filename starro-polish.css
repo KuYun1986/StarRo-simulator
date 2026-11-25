@@ -98,3 +98,77 @@ details{border-radius:12px}details summary{cursor:pointer}
 .ux-section-index__search{display:block;width:min(390px,100%);margin:10px 0;padding:10px 12px;background:#0b1a2d;color:#f5faff;border:1px solid #557aa1;border-radius:10px;font-size:15px}
 .ux-section-index__count{font-size:12px;color:#a8c4e4;margin:0 0 8px;display:inline-block}
 .ux-section-index__links a[hidden]{display:none!important}
+
+
+/* StarRo unified catalog theme: all pages share the visual language of catalog.css */
+:root{
+  --cat-bg:#07121f;--cat-panel:#112033;--cat-panel-deep:#0d1b2c;
+  --cat-line:#38516d;--cat-gold:#f6d68f;--cat-blue:#9dc6fb;
+  --cat-text:#f2f7ff;--cat-muted:#b5cae3;
+  --bg:#07121f;--panel:#112033;--panel2:#15283e;
+  --line:#38516d;--text:#f2f7ff;--muted:#b5cae3;
+  --gold:#f6d68f;--blue:#9dc6fb;
+  --ux-bg:#07121f;--ux-panel:#112033;--ux-panel2:#15283e;
+  --ux-border:#38516d;--ux-text:#f2f7ff;--ux-muted:#b5cae3;
+  --ux-gold:#f6d68f;--ux-blue:#9dc6fb;
+}
+body{
+  color:#f2f7ff!important;
+  background:radial-gradient(circle at 15% -5%,#17406b6b,transparent 33%),linear-gradient(180deg,#0a1726,#07101d)!important;
+}
+:is(.card,.panel,.section,.toolbar,.summary,.layout>section,.subcats,.special-box,.req-summary-box,
+ .stat,.metric,.ro-lobby,.ro-portal,.home-card,.login-card,.feature-table,.cat-manage,.ux-admin-tools){
+  background:linear-gradient(145deg,#172d45,#101c2c 85%)!important;
+  color:#f2f7ff;
+  border-color:#395671!important;
+  box-shadow:0 13px 28px rgba(0,0,0,.22);
+}
+:is(.card,.panel,.section,.toolbar,.summary,.layout>section,.subcats,.special-box,.req-summary-box){border-radius:15px}
+:is(h1,h2,h3,.section-title,.section-heading,.title,.card-title){text-wrap:balance}
+:is(.card,.panel,.section,.layout>section) > :is(h2,h3){color:#f6d68f}
+:is(.card,.panel,.section) :is(.note,.tiny,.muted,.sub){color:#b5cae3}
+:is(.topnav,.starro-navigation,.starro-section-shortcuts,.page-links){
+  border-color:#395671!important;
+  background:linear-gradient(110deg,#172c44,#102033)!important;
+  border-radius:13px;
+}
+:is(.topnav,.starro-navigation,.starro-section-shortcuts,.page-links) a{
+  color:#e6f2ff;border-color:#52718f!important;background:#16283d!important;
+}
+:is(.topnav,.starro-navigation,.starro-section-shortcuts,.page-links) a[aria-current="page"]{
+  background:#243e52!important;border-color:#f6d68f!important;color:#ffe2a4!important;
+}
+:is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+  color:#eef7ff;
+  background:#0a192b;
+  border-color:#496683;
+}
+:is(input:not([type="checkbox"]):not([type="radio"]),select,textarea):focus-visible{
+  outline:2px solid #9dc6fb;outline-offset:2px;
+}
+:is(button,.btn,.button){border-color:#567593}
+:is(button,.btn,.button):not(.primary):not(.danger):not([disabled]){
+  color:#e6f3ff;
+  background-color:#19334f;
+}
+:is(button,.btn,.button).primary{color:#f1f8ff;border-color:#528eae;background:#285877}
+:is(button,.btn,.button):not([disabled]):hover{filter:brightness(1.09)}
+:is(.chip,.filter-chip){
+  background:#19334f!important;border-color:#52718f!important;color:#dbeafb!important;
+}
+:is(.chip,.filter-chip).active{background:#31597c!important;border-color:#f6d68f!important;color:#fff!important}
+:is(.badge,.pill,.tag){border-color:#52718f}
+:is(.list,.stats,.req-summary-list){scrollbar-color:#496a88 #0b1a29}
+:is(.item,.stat,.req-summary-row,.req-total-card){
+  border-color:#344d66!important;
+}
+:is(.item,.stat,.req-total-card):hover{background:#1a354f}
+:is(.required-items,.item-sources,.req-summary-box details,.charcalc){
+  background:#0d1d30;border-color:#4b6986;
+}
+:is(.item-detail-dialog,.catalog-dialog,#versionDialog)::backdrop{background:rgba(2,9,21,.8)}
+::selection{background:#3b608b;color:#fff}
+@media(max-width:640px){
+ :is(.topnav,.starro-navigation,.starro-section-shortcuts,.page-links){gap:6px}
+ :is(.card,.panel,.section,.layout>section,.subcats,.special-box,.req-summary-box){box-shadow:0 8px 22px rgba(0,0,0,.20)}
+}
