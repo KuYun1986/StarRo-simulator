@@ -273,6 +273,17 @@ section{padding:12px;min-width:0}
 <link rel="stylesheet" href="starro-soft-backgrounds.css?v=20261125-soft1">
 <link rel="stylesheet" href="starro-global-navigation.css?v=20261125-unified1">
 <script defer src="starro-global-navigation.js?v=20261125-unified1"></script>
+<style id="collectionCloudStatusStyles">
+#collectionCloudStatus[data-state="error"]{
+  display:inline-block;color:#963b48!important;background:#f8e9ec!important;
+  border:1px solid #e7bfc7;border-radius:8px;padding:8px 10px;
+}
+#collectionCloudStatus[data-state="success"]{
+  color:#286b59!important;background:#e3f1ea!important;
+  border-radius:8px;padding:6px 9px;
+}
+#collectionGoogleLogin:disabled{opacity:.6;cursor:not-allowed}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -1578,7 +1589,7 @@ updateSummary();renderSubcats();renderSpecials();renderList();renderTotals();ren
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-config.js"></script>
-<script src="collection-cloud.js?v=20261125-cloudfix2"></script>
+<script src="collection-cloud.js?v=20261125-readiness3"></script>
 <script src="front-cms.js"></script>
 <script src="starro-polish.js?v=20261125"></script>
 </body>
