@@ -55,6 +55,10 @@ const server=http.createServer((req,res)=>{
       }
       if(url==='collection-advanced.html'){
         assert.equal(await p.locator('#jroMvpBox').count(),0,'JRO search should be moved out of collection');
+        const special=await p.evaluate(()=>{const list=ITEMS.filter(x=>x.group==='特殊收藏');return {count:list.length,key:list.length?keyOf(list[0]):''}});
+        assert.ok(special.count>=200,'special collection rename failed');
+        assert.ok(special.key.startsWith('JRO收藏|'),'legacy progress key was not preserved');
+        assert.ok(await p.locator('#groupFilter option[value="特殊收藏"]').count(),'special group filter missing');
         assert.equal(await p.locator('#subcatMenu:not([open])').count(),1,'subcategory menu should start collapsed');
         assert.equal(await p.locator('#specialMenu:not([open])').count(),1,'special category menu should start collapsed');
         await p.locator('#subcatMenu > summary').click();
@@ -100,6 +104,9 @@ const server=http.createServer((req,res)=>{
         await p.locator('.catalog-card').first().waitFor({timeout:10000});
         assert.ok((await p.locator('.catalog-card').count())>=20,'collection gallery cards missing');
         assert.ok(await p.locator('#catalogTabAll').isVisible(),'unified search mode missing');
+        const reference=await p.evaluate(()=>window.StarroReferenceItems);
+        assert.ok(reference&&Object.keys(reference).length>=700,'referenced item metadata not loaded');
+        assert.ok(reference['翡翠戒指[1]']?.itemId==='28573','reference item id mismatch');
         assert.equal(await p.locator('#catalogSlots input[type="checkbox"]').count(),12,'compact categories missing');
         await p.locator('#catalogSlotMenu summary').click();
         await p.locator('#catalogSlots input[value="飾品"]').check();
