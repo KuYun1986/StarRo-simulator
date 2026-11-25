@@ -28,6 +28,8 @@ jobs:
             if at>=0: print('TERM',term,'AT',at,'SNIP',re.sub(r'\s+',' ',body[max(0,at-160):at+290])[:450])
           import json
           match=re.search(r'<script[^>]+id=["\']encyclopedia-data["\'][^>]*>(.*?)</script>',body,re.I|re.S)
+          print('SCRIPT-START',body.find('encyclopedia-data'),repr(body[body.find('encyclopedia-data')-60:body.find('encyclopedia-data')+260]))
+          print('SCRIPT-END',body.find('</script>'),'MATCH',bool(match))
           if match:
             obj=json.loads(html.unescape(match.group(1)))
             print('ENCYCLOPEDIA TOP',type(obj).__name__,list(obj)[:20] if isinstance(obj,dict) else len(obj))
