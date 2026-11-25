@@ -76,6 +76,7 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('#list input[data-key]:checked').count()>=1,'Legacy JRO collection progress was not migrated');
         await p.locator('#search').fill(''); // Restore all subcategories before the multi-select test.
         assert.ok(await p.locator('#groupFilter option[value="特殊收藏"]').count(),'special group filter missing');
+        assert.ok(await p.locator('script[src*="starro-online-lookup.js"]').count(),'advanced collection online lookup module missing');
         assert.equal(await p.locator('#subcatMenu:not([open])').count(),1,'subcategory menu should start collapsed');
         assert.equal(await p.locator('#specialMenu:not([open])').count(),1,'special category menu should start collapsed');
         await p.locator('#subcatMenu > summary').click();
@@ -147,6 +148,8 @@ const server=http.createServer((req,res)=>{
         await p.locator('.catalog-source-line button').first().click();
         assert.ok(await p.locator('#catalogDialog').isVisible(),'source item detail dialog missing');
         assert.ok((await p.locator('#catalogDialogContent').textContent()).includes('已登錄取得來源'));
+        assert.ok(await p.locator('#catalogDialogContent .starro-online-lookup').count()>=1,'online item research entry missing');
+        assert.ok(await p.locator('#catalogDialogContent a[href*="divine-pride.net/database/item"]').count()>=1,'Divine Pride lookup missing');
         await p.locator('#catalogDialogClose').click();
         await p.locator('button[data-action="collection"]').first().click();
         assert.ok(await p.locator('#catalogDialog').isVisible(),'collection detail missing');
@@ -159,6 +162,7 @@ const server=http.createServer((req,res)=>{
         assert.ok(await p.locator('.catalog-card').count()>=1,'equipment lookup missing');
         await p.locator('button[data-action="equipment"]').first().click();
         assert.ok(await p.locator('#catalogDialogContent').getByText('裝備詳細資料').count()>=1,'equipment details section missing');
+        assert.ok(await p.locator('#catalogDialogContent a[href*="google.com/search"]').count()>=1,'online equipment name search missing');
         await p.locator('#catalogDialogClose').click();
         await p.locator('#catalogReset').click();
         await p.locator('#catalogTabAll').click();
