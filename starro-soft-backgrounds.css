@@ -1,0 +1,81 @@
+/* StarRo gentle background palette — 2026-11-25.
+   SURFACES ONLY: retain all existing text, price, rarity, success/warning,
+   result, active-button, and special-item color definitions. */
+
+/* Only tokens used for neutral backgrounds are changed. */
+:root{
+  --bg:#e8eff3; --card:#f4f7f9; --card2:#eaf1f5;
+  --panel:#f4f7f9; --panel2:#eaf1f5;
+  --ux-bg:#e8eff3; --ux-panel:#f4f7f9; --ux-panel2:#eaf1f5;
+  --ro-bg:#e8eff3; --ro-bg-2:#e9f0f4;
+  --ro-panel:#f4f7f9; --ro-panel-2:#eaf1f5;
+  --cat-bg:#e8eff3; --cat-panel:#f4f7f9;
+  color-scheme:light;
+}
+
+html{background:#e8eff3!important}
+body{
+  background:
+    radial-gradient(ellipse 67% 34% at 8% 0%,rgba(191,213,224,.48),transparent 76%),
+    radial-gradient(ellipse 50% 32% at 96% 6%,rgba(218,205,213,.26),transparent 72%),
+    linear-gradient(165deg,#edf2f5 0%,#e7eef3 52%,#eaf0f1 100%)!important;
+}
+
+/* Main containers — deliberately do not set 'color' or semantic badge colors. */
+body :is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box,
+         .stat,.metric,.home-card,.login-card,.ro-lobby,.ro-portal,.feature-table,.cat-manage),
+body .wrap :is(.card,.panel,.section,.summary,.toolbar,.subcats,.special-box,.req-summary-box,
+               .stat,.metric,.home-card,.feature-table),
+body .content :is(.card,.panel,.section,.summary,.toolbar,.stat,.metric),
+body .wrap .layout>section,
+body #dropRateSimulator,body #talismanCostSimulator,
+body #catManage,body #catEquipmentAdmin,
+body #biosAdminPanel,body #serviceRulesAdminPanel,body #airPricesAdminPanel{
+  background:#f4f7f9!important;
+}
+
+/* Navigation, section headers, app panels and the management workspace. */
+body :is(.starro-navigation,.topnav,.page-links,.ro-page-hero,
+         .ux-section-index,.ux-admin-tools,.catalog-controls),
+body #adminApp .sidebar,body #adminApp .topbar{
+  background:#edf3f7!important;
+}
+body .catalog-hero{
+  background:linear-gradient(118deg,#e4eeef 0%,#e8eef4 55%,#f0ebed 100%)!important;
+}
+body :is(.catalog-card,.catalog-dialog,.item-detail-dialog,#versionDialog,
+         .catalog-filter-menu__options,.compact-options){
+  background:#f5f8fa!important;
+}
+
+/* Quiet secondary surfaces. Keep active/status/rarity buttons intact. */
+body .wrap .card :is(.stat,.metric,.summary-card,.result-box),
+body .wrap .layout :is(.stat,.metric,.summary-card,.result-box),
+body :is(.catalog-card__bottom,.catalog-selected-sources,.item-sources,
+         .catalog-network-search,.catalog-equipment-meta>div:nth-child(even),
+         .catalog-related__mark,.catalog-cover,.req-summary-list,.required-list),
+body .catalog-dialog :is(.catalog-equipment-row,.catalog-related__item){
+  background:#eaf1f5!important;
+}
+body .catalog-equipment-meta>div:nth-child(odd){
+  background:#f4f7f9!important;
+}
+
+/* Unselected navigation and filter controls only. */
+body :is(.starro-navigation,.topnav,.page-links,.ux-section-index__links)
+  a:not([aria-current="page"]):not(.active),
+body :is(.catalog-filter-menu>summary,.catalog-filter-menu__options label,
+         .catalog-source-line button,.ux-section-index__links a),
+body #adminApp .nav button:not(.active):not(:hover){
+  background:#edf3f7!important;
+}
+body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+         select,textarea),
+body .wrap :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea),
+body #catManage :is(input,select,textarea),
+body #catEquipmentAdmin :is(input,select,textarea){
+  background:#f0f5f8!important;
+}
+body th{background:#e4edf2!important}
+
+/* Portable CSS, no layout or font-size changes; mobile uses the same palette. */
