@@ -1,0 +1,78 @@
+name: Import public encyclopedia factual metadata
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/import-reference-encyclopedia.yml
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract public factual item metadata (without copying descriptions)
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json,re,collections,pathlib
+          site='https://ro-collectitem-yuno.netlify.app/'
+          req=urllib.request.Request(site,headers={'User-Agent':'Mozilla/5.0'})
+          with urllib.request.urlopen(req,timeout=35) as res:
+              body=res.read(10000000).decode('utf-8','replace')
+              if res.status != 200:raise RuntimeError('Unexpected status '+str(res.status))
+          match=re.search(r'<script id="encyclopedia-data" type="application/json">(.*?)</script>',body,re.S)
+          if not match:raise RuntimeError('No public encyclopedia JSON data found')
+          data=json.loads(match.group(1))
+          source_items=data.get('items',{})
+          if not isinstance(source_items,dict) or len(source_items)<100:raise RuntimeError('Incomplete item data')
+          items={}
+          possible=collections.defaultdict(set)
+          def norm(s):
+              return ''.join(str(s or '').lower().split()).replace('（','(').replace('）',')')
+          for item_id,row in source_items.items():
+              if not str(item_id).isdigit() or not isinstance(row,dict):continue
+              name=str(row.get('name') or '').strip()
+              if not name:continue
+              icon=str(row.get('icon') or '')
+              icon=icon if re.fullmatch(r'item-icons/[0-9]+\.(?:png|jpg|webp)',icon) else ''
+              raw_src=row.get('source') or {}
+              gacha=[]
+              for entry in row.get('gacha_sources') or []:
+                  if not isinstance(entry,dict):continue
+                  gacha.append({
+                      'name':str(entry.get('egg') or ''),
+                      'boxId':str(entry.get('box_id') or ''),
+                      'channel':str(entry.get('channel') or ''),
+                      'tier':str(entry.get('tier') or '')
+                  })
+              info={
+                  'itemId':str(item_id),'name':name,'alias':str(row.get('alias') or ''),
+                  'type':str(row.get('kind') or ''),
+                  'image':site+icon if icon else '',
+                  'sourceLabel':str(raw_src.get('label') or ''),
+                  'sourceUrl':str(raw_src.get('url') or '') if str(raw_src.get('url') or '').startswith('https://') else '',
+                  'gacha':gacha
+              }
+              items[item_id]=info
+              for n in [info['name'],info['alias']]:
+                  if n:possible[norm(n)].add(item_id)
+          by_name={name:next(iter(ids)) for name,ids in possible.items() if len(ids)==1}
+          payload={'site':site,'snapshot':'2026-11-25','items':items,'byName':by_name}
+          path=pathlib.Path('catalog-reference-data.js')
+          path.write_text('/* Factual names, IDs, gacha source labels, and image links from user-provided public reference; no copyrighted descriptions. */\nwindow.StarroReferenceIndex='+json.dumps(payload,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8')
+          print('Indexed',len(items),'items;',len(by_name),'unambiguous name/alias mappings; JS bytes:',path.stat().st_size)
+          try:
+              test_url=site+'item-icons/1341.png'
+              with urllib.request.urlopen(urllib.request.Request(test_url,headers={'User-Agent':'Mozilla/5.0'}),timeout=12) as res:
+                  print('Sample icon HTTP',res.status,'content-type',res.headers.get('Content-Type'))
+          except Exception as ex:
+              print('Icon test inconclusive:',str(ex)[:200])
+          PY
+      - name: Commit verified reference index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog-reference-data.js
+          if git diff --cached --quiet; then echo "No metadata changes"; exit 0; fi
+          git commit -m "Import public RO reference item IDs, icon URLs and gacha source names"
+          git push origin HEAD:main
