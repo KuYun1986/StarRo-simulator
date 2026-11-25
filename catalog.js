@@ -16,7 +16,7 @@ const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
   return '<div class="catalog-cover">'+(url?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+esc(url)+'" alt="">':icon)+'</div>';
 };
-const state={tab:'all',view:'items',page:1,pageSize:36,slot:'all',query:'',group:'all',progress:'all',gachaType:'all'};
+const state={tab:'all',view:'items',page:1,pageSize:36,slots:[],query:'',groups:[],progress:'all',gachaType:'all'};
 const slots=['全部','頭上','頭中','頭下','鎧甲','武器','盾牌','披肩','鞋子','飾品','影子裝備','卡片','其他'];
 const keyOf=it=>it.group+'|'+it.row+'|'+it.name;
 const progressKey='starro_collection_selected';
@@ -60,7 +60,7 @@ function equipmentEntries(){
   return [...m.values()].sort((a,b)=>b.collections.length-a.collections.length||a.name.localeCompare(b.name,'zh-Hant'));
 }
 function equipmentFilters(item){
-  if(state.slot!=='all'&&!inSlot(item.name+' '+(equipDetail(item.name).type||'')))return false;
+  if(!inSlot(item.name+' '+(equipDetail(item.name).type||'')))return false;
   const q=normalize(state.query);
   const meta=equipDetail(item.name);
   return !q||normalize([item.name,meta.type,meta.description,meta.stats,...item.collections.map(c=>c.name),...item.sources.map(s=>s.pool)].join(' ')).includes(q);
@@ -89,10 +89,11 @@ function collectionEquipmentHtml(items){
   }).join('')+'</div>':'<p class="catalog-notpicked">沒有需求裝備資料</p>';
 }
 function inSlot(text){
-  if(state.slot==='all')return true;
+  if(!state.slots.length)return true;
   const s=clean(text);
-  if(state.slot==='其他')return !slots.slice(1,-1).some(x=>s.includes(x));
-  return s.includes(state.slot);
+  return state.slots.some(slot=>slot==='其他'
+    ? !slots.slice(1,-1).some(x=>s.includes(x))
+    : s.includes(slot));
 }
 function collectionSource(item){
   const req=(item.required||[]).map(eqName);
@@ -117,24 +118,24 @@ function allItems(){
   return [...map.values()];
 }
 function collectionFilters(item){
-  if(state.group!=='all'&&state.group!==item.group)return false;
+  if(state.groups.length&&!state.groups.includes(item.group))return false;
   const chosen=selected.has(keyOf(item));
   if(state.progress==='saved'&&!chosen)return false;
   if(state.progress==='unsaved'&&chosen)return false;
-  if(state.slot!=='all'&&!inSlot((item.required||[]).join(' ')+' '+item.game+' '+item.name))return false;
+  if(!inSlot((item.required||[]).join(' ')+' '+item.game+' '+item.name))return false;
   const q=normalize(state.query);
   return !q||normalize([item.name,item.effect,item.game,item.dc,...(item.required||[]),typeof JRO_NAME_PREFIX!=='undefined'?(JRO_NAME_PREFIX[keyOf(item)]||''):''].join(' ')).includes(q);
 }
 function gachaFilters(p){
   if(state.gachaType!=='all'&&state.gachaType!==(p.type||'其他'))return false;
-  if(state.slot!=='all'&&!inSlot([p.name,...(p.items||[]).map(x=>x.name)].join(' ')))return false;
+  if(!inSlot([p.name,...(p.items||[]).map(x=>x.name)].join(' ')))return false;
   const q=normalize(state.query);
   return !q||normalize([p.name,p.id||'',p.type,...(p.items||[]).map(x=>x.name)].join(' ')).includes(q);
 }
 function itemFilters(it){
   const matchingSources=it.sources.filter(x=>state.gachaType==='all'||x.type===state.gachaType);
   if(!matchingSources.length)return false;
-  if(state.slot!=='all'&&!inSlot(it.name))return false;
+  if(!inSlot(it.name))return false;
   const q=normalize(state.query);
   return !q||normalize([it.name,...matchingSources.map(x=>x.pool)].join(' ')).includes(q);
 }
@@ -206,7 +207,7 @@ function render(){
     $(id).setAttribute('aria-selected',String(state.tab===key));
   }
   $('catalogGachaType').hidden=!gacha;
-  $('catalogGroup').hidden=gacha||equipment;
+  $('catalogGroupMenu').hidden=gacha||equipment;
   $('catalogProgress').hidden=gacha||equipment;
   $('catalogViewSwitch').hidden=!gacha;
   $('catalogViewSwitch').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
@@ -280,28 +281,48 @@ function openDetail(kind,i){
   if(!dialog.open)dialog.showModal();
 }
 function init(){
-  const slotButtons=['全部',...slots.slice(1)];
-  $('catalogSlots').innerHTML=slotButtons.map(x=>'<button type="button" class="'+(x==='全部'?'active':'')+'" data-slot="'+esc(x==='全部'?'all':x)+'">'+esc(x)+'</button>').join('');
-  $('catalogSlots').addEventListener('click',e=>{
-    const b=e.target.closest('button[data-slot]');if(!b)return;state.slot=b.dataset.slot;state.page=1;
-    $('catalogSlots').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));render();
+  const slotChoices=slots.slice(1);
+  $('catalogSlots').innerHTML=slotChoices.map(x=>'<label><input type="checkbox" value="'+esc(x)+'"> '+esc(x)+'</label>').join('');
+  const syncLabels=()=>{
+    $('catalogSlotLabel').textContent=state.slots.length
+      ? '裝備分類：'+(state.slots.length<=2?state.slots.join('、'):'已選 '+state.slots.length+' 種')
+      : '裝備分類：全部';
+    $('catalogGroupLabel').textContent=state.groups.length
+      ? '收藏分類：'+(state.groups.length<=2?state.groups.join('、'):'已選 '+state.groups.length+' 種')
+      : '收藏分類：全部';
+  };
+  $('catalogSlots').addEventListener('change',()=>{
+    state.slots=[...$('catalogSlots').querySelectorAll('input:checked')].map(x=>x.value);
+    state.page=1;syncLabels();render();
   });
+  $('catalogGroups').addEventListener('change',()=>{
+    state.groups=[...$('catalogGroups').querySelectorAll('input:checked')].map(x=>x.value);
+    state.page=1;syncLabels();render();
+  });
+  document.addEventListener('click',event=>{
+    for(const id of ['catalogGroupMenu','catalogSlotMenu']){
+      const menu=$(id);
+      if(menu.open&&!menu.contains(event.target))menu.open=false;
+    }
+  });
+  syncLabels();
   $('catalogTabAll').onclick=()=>{state.tab='all';state.page=1;render()};
   $('catalogTabCollection').onclick=()=>{state.tab='collection';state.page=1;render()};
   $('catalogTabGacha').onclick=()=>{state.tab='gacha';state.page=1;render()};
   $('catalogTabEquipment').onclick=()=>{state.tab='equipment';state.page=1;render()};
   $('catalogViewSwitch').addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b){state.view=b.dataset.view;state.page=1;render()}});
   $('catalogSearch').addEventListener('input',e=>{state.query=e.target.value;state.page=1;render()});
-  for(const [id,key] of [['catalogGroup','group'],['catalogProgress','progress'],['catalogGachaType','gachaType']]){
+  for(const [id,key] of [['catalogProgress','progress'],['catalogGachaType','gachaType']]){
     $(id).onchange=e=>{state[key]=e.target.value;state.page=1;render()};
   }
   $('catalogPrev').onclick=()=>{state.page--;render();window.scrollTo({top:250,behavior:'smooth'})};
   $('catalogNext').onclick=()=>{state.page++;render();window.scrollTo({top:250,behavior:'smooth'})};
   $('catalogReset').onclick=()=>{
-    Object.assign(state,{query:'',group:'all',progress:'all',gachaType:'all',slot:'all',page:1});
+    Object.assign(state,{query:'',groups:[],progress:'all',gachaType:'all',slots:[],page:1});
     ['catalogSearch'].forEach(id=>$(id).value='');
-    ['catalogGroup','catalogProgress','catalogGachaType'].forEach(id=>$(id).value='all');
-    $('catalogSlots').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.slot==='all'));
+    ['catalogProgress','catalogGachaType'].forEach(id=>$(id).value='all');
+    document.querySelectorAll('#catalogSlots input,#catalogGroups input').forEach(x=>x.checked=false);
+    syncLabels();
     render();
   };
   $('catalogResults').addEventListener('click',e=>{
