@@ -124,10 +124,10 @@ function sourceFooter(record,reference,itemName){
   const extra=typeof reference==='string'&&/^https:\/\//i.test(reference)
     ?'；<a href="'+reference.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" target="_blank" rel="noopener noreferrer">既有道具參考連結</a>':'';
   return '<div class="starro-data-source-note"><b>資料來源：</b>'+
-   (record?.url?'<a href="'+url+'" target="_blank" rel="noopener noreferrer">台灣 RO 官方裝備公告（查核摘要）</a>；':'此裝備尚無可核對的官方完整能力說明；')+
+   (record?.url?'<a href="'+url+'" target="_blank" rel="noopener noreferrer">外部裝備能力參考（非繁星核定）</a>；':'優先採用繁星資料；')+
    '<a href="https://event.gnjoy.com.tw/Ro/RoItemSearch'+(itemName?'?UrlQuery='+encodeURIComponent(itemName):'')+'" target="_blank" rel="noopener noreferrer">官方裝備道具查詢平台</a>；'+
-   '<a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">既有轉蛋／道具來源參考</a>'+extra+'。'+
-   '官方效果摘要並非完整詞條；不同伺服器的實際能力以遊戲內為準。</div>';
+   '<a href="https://ro-collectitem-yuno.netlify.app/" target="_blank" rel="noopener noreferrer">繁星專屬收藏圖鑑（主要資料來源）</a>'+extra+'。'+
+   '外部效果僅供參考；繁星實際能力與取得來源以伺服器設定為準。</div>';
 }
 function isGachaSource(source){
   return /轉蛋|扭蛋/.test(String(source||''));

@@ -23,16 +23,8 @@ const equipDetail=name=>{
   const imported=auto[name]||autoRefByName.get(eqName(name))||{};
   const allManual=catalog().equipmentDetails||{};
   const manual=allManual[name]||Object.entries(allManual).find(([n])=>eqName(n)===eqName(name))?.[1]||{};
-  const sources=[...(Array.isArray(supplemental.sources)?supplemental.sources:[]),
-    ...(Array.isArray(imported.sources)?imported.sources:[]),
-    ...(Array.isArray(manual.sources)?manual.sources:[]),manual.source];
-  return {...supplemental,...imported,...manual,
-    sources:[...new Set(sources.filter(x=>typeof x==='string'&&x.trim()))],
-    image:manual.image||imported.image||supplemental.image||'',
-    referenceSite:supplemental.referenceSite||'',
-    sourceLabel:supplemental.sourceLabel||'',
-    officialEffect:window.StarroEquipmentEnrichment?.officialEffect(name)||null
-  };
+  const info=window.StarroReferenceLookup.merge(name,imported,manual);
+  return {...info,officialEffect:info.effectRecord||null};
 };
 const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
@@ -104,11 +96,8 @@ function relatedCollectionHtml(items){
 }
 function equipmentDetailHtml(item){
   const info=equipDetail(item.name),src=imageFor(item.name,info.image||item.sources[0]?.image);
-  const basic=info.stats||'', verified=info.officialEffect;
-  const actualAbility=/(?:ATK|MATK|MHP|MSP|MaxHP|MaxSP|P\.ATK|S\.MATK|全種族|全階級|技能傷害|技能後延遲|暴擊傷害|物理傷害|魔法傷害|固定詠唱|變動詠唱)\s*[+＋-－]|(?:傷害|抗性|攻速|暴擊|詠唱|延遲|能力值).*(?:[+＋-－]|增加|減少)/i.test(basic);
-  const ability=actualAbility?basic:(verified?.text?verified.text+'（官方公告重點摘錄，非完整詞條）':'官方完整能力尚未核對');
-  const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['裝備描述',info.description||'尚未登錄完整裝備說明'],
-    ['能力／效果',ability],['基本資料',actualAbility?'請見能力／效果':(basic||'尚未提供')]];
+  const rows=[['裝備分類',info.type||'未登錄'],['裝備編號',info.itemId||'尚未提供'],['裝備描述',info.description||'尚未登錄裝備描述'],
+    ['能力／效果',window.StarroReferenceLookup.ability(info)],['基本資料',info.stats||'尚未提供']];
   const ref=typeof info.referenceUrl==='string'&&/^https:\/\//i.test(info.referenceUrl)?info.referenceUrl:'';
   const sourceSite=typeof info.referenceSite==='string'&&/^https:\/\//i.test(info.referenceSite)?info.referenceSite:'';
   const online=window.StarroOnlineLookup?.render(item.name,info.itemId,ref||sourceSite)||'';
@@ -389,7 +378,7 @@ function openDetail(kind,i){
       detailSection('出現轉蛋',entry.sources.map(x=>x.pool+'｜'+x.type+(x.rate?'｜'+x.rate:'') ));
     const detail=equipDetail(entry.name);
     if(detail&&Object.keys(detail).length){
-      html+=detailSection('道具詳細資料',[detail.description,detail.stats].filter(Boolean));
+      html+=detailSection('道具詳細資料',[detail.type&&'分類：'+detail.type,detail.itemId&&'編號：'+detail.itemId,detail.description,window.StarroReferenceLookup.ability(detail),detail.stats].filter(Boolean));
       const reference=typeof detail.referenceUrl==='string'&&/^https:\/\//i.test(detail.referenceUrl)?detail.referenceUrl:'';
       // Detail source links are consolidated into the final source footer.
       html+=detailSection('其他已登錄來源',[detail.source,...(Array.isArray(detail.sources)?detail.sources:[])].filter(Boolean));

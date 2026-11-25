@@ -63,3 +63,19 @@ test('official sourced effect excerpts include verified bonus and source URL',()
  assert.ok(helper.sourceFooter(helper.officialEffect('時光超越者之戒-LT[1]')).includes('216130'));
  assert.ok(helper.sourceFooter().includes('Ro/RoItemSearch'));
 });
+
+test('StarRO alias resolves exact item ID and never substitutes LT effects',()=>{
+ const lookup=require('../catalog-reference-lookup.js');
+ globalThis.StarroReferenceIndex={site:'https://ro-collectitem-yuno.netlify.app/',items:{'470120':{itemId:'470120',type:'鞋子',image:'https://ro-collectitem-yuno.netlify.app/item-icons/470120.png',gacha:[{name:'禁咒轉蛋',tier:'SSS'}]}},byName:{'機械鋁合金改造靴[1]':'470120'}};
+ const row=lookup.merge('機械鋁合金改造戰靴[1]');
+ assert.equal(row.itemId,'470120');
+ assert.ok(row.effect.includes('MDEF +10'));
+ assert.ok(lookup.ability(row).includes('繁星尚未核對'));
+ assert.ok(row.sources[0].includes('禁咒轉蛋'));
+ assert.equal(lookup.find('機械鋁合金改造戰靴-LT[1]'),null);
+ globalThis.StarroReferenceIndex.items['470120'].effect='繁星專屬 ATK +999';
+ const primary=lookup.merge('機械鋁合金改造戰靴[1]',{effect:'外部 ATK +1'});
+ assert.equal(primary.effect,'繁星專屬 ATK +999');
+ assert.equal(primary.effectRecord,null);
+ delete globalThis.StarroReferenceIndex;
+});

@@ -14,7 +14,7 @@ jobs:
       - name: Extract public factual item metadata (without copying descriptions)
         run: |
           python3 - <<'PY'
-          import urllib.request,json,re,collections,pathlib
+          import urllib.request,json,re,collections,pathlib,datetime
           site='https://ro-collectitem-yuno.netlify.app/'
           req=urllib.request.Request(site,headers={'User-Agent':'Mozilla/5.0'})
           with urllib.request.urlopen(req,timeout=35) as res:
@@ -29,6 +29,22 @@ jobs:
           possible=collections.defaultdict(set)
           def norm(s):
               return ''.join(str(s or '').lower().split()).replace('（','(').replace('）',')')
+          def facts(row):
+              # Keep concise factual stat/effect lines only, not flavor text or full copied descriptions.
+              desc=str(row.get('description') or '')
+              desc=re.sub(r'<br\\s*/?>','\\n',desc,flags=re.I)
+              desc=re.sub(r'<[^>]+>|\\^[0-9A-Fa-f]{6}','',desc)
+              stats=[]; effects=[]
+              for line in desc.splitlines():
+                  line=line.strip()
+                  if not line:continue
+                  if re.match(r'^(系列|種類|攻擊|防禦|重量|武器等級|防具等級|要求等級|裝備|洞數)\\s*[:：]',line):
+                      stats.append(line[:160])
+                  elif re.search(r'(?:[+＋-－]\\s*\\d|\\d+(?:\\.\\d+)?%|\\d+(?:\\.\\d+)?秒|Lv\\.?\\s*\\d)',line,re.I) and len(line)<=160:
+                      effects.append(line)
+                  elif re.search(r'(?:搭配|同時裝備|精煉|階級)',line) and len(line)<=80:
+                      effects.append(line)
+              return '；'.join(stats)[:800], '\\n'.join(effects)[:4000]
           for item_id,row in source_items.items():
               if not str(item_id).isdigit() or not isinstance(row,dict):continue
               name=str(row.get('name') or '').strip()
@@ -53,13 +69,14 @@ jobs:
                   'sourceUrl':str(raw_src.get('url') or '') if str(raw_src.get('url') or '').startswith('https://') else '',
                   'gacha':gacha
               }
+              info['stats'],info['effect']=facts(row)
               items[item_id]=info
               for n in [info['name'],info['alias']]:
                   if n:possible[norm(n)].add(item_id)
           by_name={name:next(iter(ids)) for name,ids in possible.items() if len(ids)==1}
-          payload={'site':site,'snapshot':'2026-11-25','items':items,'byName':by_name}
+          payload={'site':site,'snapshot':datetime.date.today().isoformat(),'items':items,'byName':by_name}
           path=pathlib.Path('catalog-reference-data.js')
-          path.write_text('/* Factual names, IDs, gacha source labels, and image links from user-provided public reference; no copyrighted descriptions. */\nwindow.StarroReferenceIndex='+json.dumps(payload,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8')
+          path.write_text('/* Factual identifiers, stat and ability extracts, and gacha metadata from the user-provided StarRO reference. */\nwindow.StarroReferenceIndex='+json.dumps(payload,ensure_ascii=False,separators=(',',':'))+';\n',encoding='utf-8')
           print('Indexed',len(items),'items;',len(by_name),'unambiguous name/alias mappings; JS bytes:',path.stat().st_size)
           try:
               test_url=site+'item-icons/1341.png'
