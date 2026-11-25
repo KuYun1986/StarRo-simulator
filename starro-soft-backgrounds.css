@@ -196,3 +196,111 @@ body #jroMvpBox .jro-enchant-choices button:focus-visible{
 @media(max-width:700px){
   body #jroMvpBox .jro-mvp-tablewrap{-webkit-overflow-scrolling:touch}
 }
+
+
+/* Collection search/checkbox legibility — 2026-11-25.
+   Neutral text only. Preserve special item, cost, rarity and badge colors. */
+/* Collection atlas / gacha lookup (collection.html and catalog.html) */
+body .catalog-app #catalogSearch,
+body .catalog-app .catalog-searchrow select{
+  color:#2a455a!important;
+  -webkit-text-fill-color:#2a455a!important;
+  caret-color:#2a455a!important;
+  background:#f7fafc!important;
+  border-color:#afc7d5!important;
+}
+body .catalog-app #catalogSearch::placeholder{
+  color:#587388!important;
+  -webkit-text-fill-color:#587388!important;
+  opacity:1!important;
+}
+body .catalog-app .catalog-filter-menu>summary{
+  color:#304c61!important;
+  background:#e8f0f5!important;
+  border-color:#bbd0dc!important;
+}
+body .catalog-app .catalog-filter-menu__options{
+  color:#304c61!important;
+  background:#f8fbfd!important;
+  border-color:#bed2df!important;
+}
+body .catalog-app .catalog-filter-menu__options label,
+body .catalog-app .catalog-filter-menu__options label span{
+  color:#304c61!important;
+  background:#edf4f8!important;
+}
+body .catalog-app .catalog-filter-menu__options label:hover{
+  color:#213c51!important;
+  background:#dcebf3!important;
+}
+body .catalog-app .catalog-filter-menu__options input[type="checkbox"],
+body .catalog-app .catalog-pick input[type="checkbox"]{
+  accent-color:#347d6d!important;
+}
+body .catalog-app .catalog-pick,
+body .catalog-app .catalog-search-summary,
+body .catalog-app .catalog-search-summary b{
+  color:#39566c!important;
+}
+body .catalog-app .catalog-search-summary b{
+  background:#e7f0f5!important;
+  border:1px solid #c2d5df!important;
+}
+body .catalog-app .catalog-pick{
+  background:transparent!important;
+}
+/* Advanced collection simulator */
+body .wrap .toolbar #search,
+body .wrap .toolbar :is(#groupFilter,#normalSlots,#jroSlots){
+  color:#2a455a!important;
+  -webkit-text-fill-color:#2a455a!important;
+  caret-color:#2a455a!important;
+  background:#f7fafc!important;
+  border-color:#b5cbd9!important;
+}
+body .wrap .toolbar #search::placeholder{
+  color:#587388!important;
+  -webkit-text-fill-color:#587388!important;
+  opacity:1!important;
+}
+body .wrap .toolbar .slot-input{
+  color:#405e73!important;
+}
+body .wrap .compact-filter details>summary,
+body .wrap .compact-filter details>summary :is(span,small){
+  color:#334f64!important;
+}
+body .wrap .compact-options{
+  background:#f7fafc!important;
+  border-color:#c8d9e3!important;
+}
+body .wrap .compact-options .compact-choice,
+body .wrap .compact-options .compact-choice span{
+  color:#334f64!important;
+  background:#eaf2f7!important;
+}
+body .wrap .compact-options .compact-choice:hover{
+  background:#dceaf2!important;
+}
+body .wrap .compact-options .compact-choice small{
+  color:#4e6c80!important;
+  background:#dce8ef!important;
+}
+body .wrap .compact-options .compact-choice input[type="checkbox"],
+body .wrap #list input[type="checkbox"],
+body .wrap .req-owned-check{
+  accent-color:#347d6d!important;
+}
+body .wrap #list .item .effect,
+body .wrap #list .item .item-source-row small{
+  color:#4c6476!important;
+}
+body .wrap #list .item .required-items{
+  color:#39586b!important;
+  background:#edf4f8!important;
+}
+body .wrap #list .item .badge:not(.jro){
+  color:#466477!important;
+  background:#edf3f7!important;
+  border-color:#cadbe4!important;
+}
