@@ -18,7 +18,7 @@ const imageHtml=(src,icon='🎁')=>{
 };
 const state={tab:'all',view:'items',page:1,pageSize:36,slots:[],query:'',groups:[],progress:'all',gachaTypes:[]};
 const slots=['全部','頭上','頭中','頭下','鎧甲','武器','盾牌','披肩','鞋子','飾品','影子裝備','卡片','其他'];
-const keyOf=it=>it.group+'|'+it.row+'|'+it.name;
+const keyOf=it=>(it.group==='特殊收藏'?'JRO收藏':it.group)+'|'+it.row+'|'+it.name;
 const progressKey='starro_collection_selected';
 function loadSaved(){try{const v=JSON.parse(localStorage.getItem(progressKey)||'[]');return new Set(Array.isArray(v)?v:[])}catch(e){return new Set()}}
 let selected=loadSaved();
@@ -28,7 +28,7 @@ function allCollections(){
   const base=typeof ITEMS!=='undefined'?ITEMS:[];
   const existing=new Set(base.map(keyOf));
   return base.concat(custom.filter(x=>x&&typeof x.name==='string'&&!existing.has(keyOf(x))).map((x,i)=>({
-    ...x,group:x.group||'自訂收藏',row:x.row||900000+i,slot:Number(x.slot)||0,required:Array.isArray(x.required)?x.required:[]
+    ...x,group:x.group==='JRO收藏'?'特殊收藏':(x.group||'自訂收藏'),row:x.row||900000+i,slot:Number(x.slot)||0,required:Array.isArray(x.required)?x.required:[]
   })));
 }
 function pools(){
