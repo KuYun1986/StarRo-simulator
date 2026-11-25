@@ -284,6 +284,12 @@ function render(){
   state.page=Math.min(state.page,totalPages);
   const start=(state.page-1)*state.pageSize;
   rendered=results.slice(start,start+state.pageSize);
+  const query=state.query.trim();
+  const webSearch=$('catalogOnlineSearch');
+  if(webSearch){
+    webSearch.href=query?(window.StarroOnlineLookup?.search(query)?.search||'https://www.divine-pride.net/database/item'):'https://www.divine-pride.net/database/item';
+    webSearch.textContent=query?'🌐 全網查詢「'+query.slice(0,26)+'」':'🌐 前往 RO 道具資料庫';
+  }
   $('catalogStatus').textContent=(unified?'全部類型｜':'')+'符合條件 '+results.length.toLocaleString('zh-TW')+' 筆｜每頁 '+state.pageSize+' 筆';
   $('catalogPage').textContent='第 '+state.page+' / '+totalPages+' 頁';
   $('catalogPrev').disabled=state.page<=1;$('catalogNext').disabled=state.page>=totalPages;
