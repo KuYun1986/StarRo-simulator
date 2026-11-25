@@ -42,6 +42,19 @@ const V='https://ro.gnjoy.com.tw/notice/notice_view.aspx?id=216859';
 // Short verified excerpts. These are NOT exhaustive in-game tooltips.
 // Every text below was cross-checked against TWRO's official equipment notes.
 const VERIFIED={
+  '阿斯特莉亞斗篷-LT[1]':{
+    text:'All State+2、MaxHP/SP+10%；精煉每+2增加ATK/MATK+10、每+3無屬性抗性+3%；+9對全體型物理及魔法傷害+10%、+11近遠距物理與全屬性魔法傷害+10%、+13技能後延遲-10%。搭配阿斯特莉亞戰靴-LT另有抗性及HP/SP效果。',
+    url:U
+  },
+  '阿斯特莉亞戰盔-LT[1]':{
+    text:'MaxHP+5%；搭配闇●超魔導師卡片提升念屬性魔法傷害，精煉每+2增加念屬性魔法傷害、+12對全體型魔法傷害+15%；D至A階級另依階級增加MATK、屬性及種族魔法傷害。',
+    url:U
+  },
+  '魔鬼惡火斗篷-LT[1]':{
+    text:'MDEF+10；可依各50%機率發動強酸火煙瓶投擲、爆炸孢子、手推車加農砲Lv1（需備妥施法材料及砲彈）；使用手推車龍捲風Lv10時，另有70%機率發動爆炸炸藥Lv1，已習得較高等級時依公告採用較高等級。',
+    url:U
+  },
+
   '阿斯特莉亞指環-LT[1]':{
     text:'MDEF+10；六種特性素質各+1；可使用聖典Lv5；全階級物理與魔法傷害+8%；無視種族物理與魔法防禦10%。另有戰靴、戰盔及卡片套裝效果。',
     url:U

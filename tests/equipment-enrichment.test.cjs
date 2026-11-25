@@ -36,6 +36,13 @@ test('never use original non-LT ability as LT effect',()=>{
  assert.equal(armorEffect.partial,true);
  assert.ok(armorEffect.url.startsWith('https://ro.gnjoy.com.tw/'));
 });
+test('extra official guide LT effects are available with citations',()=>{
+ for(const name of ['阿斯特莉亞斗篷-LT[1]','阿斯特莉亞戰盔-LT[1]','魔鬼惡火斗篷-LT[1]']){
+  const effect=helper.officialEffect(name);
+  assert.ok(effect?.text?.length>40,name+' verified effect must be available');
+  assert.equal(effect.url,'https://ro.gnjoy.com.tw/notice/guide_view.aspx?id=205519');
+ }
+});
 test('only explicit gacha sources are inherited',()=>{
  assert.equal(helper.isGachaSource('轉蛋：魅力轉蛋（SSS）｜編號 62345'),true);
  assert.equal(helper.isGachaSource('野外魔物掉落'),false);
