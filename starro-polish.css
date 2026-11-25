@@ -247,3 +247,51 @@ body{
 @media(max-width:640px){
  .ux-section-index__links a,.catalog-topnav a{min-height:40px}
 }
+
+/* STARRO CATALOG COLOR UNIFICATION 2026-11-25 */
+:root{
+  --bg:#07121f;--panel:#112033;--panel2:#172b43;--line:#38516d;--text:#f2f7ff;--muted:#b1c8df;
+  --gold:#f6d68f;--blue:#9dc6fb;--accent:#77d9c5;--ro-bg:#07121f;--ro-bg-2:#0e1d2d;
+  --ro-panel:#112033;--ro-panel-2:#152b43;--ro-line:#38516d;--ro-gold:#f6d68f;
+  --ux-bg:#07121f;--ux-panel:#112033;--ux-panel2:#172b43;--ux-border:#38516d;--ux-gold:#f6d68f;
+}
+html{color-scheme:dark}
+body{
+  background:radial-gradient(circle at 14% -6%,rgba(45,104,171,.25),transparent 37%),radial-gradient(circle at 95% 0%,rgba(198,149,62,.13),transparent 38%),linear-gradient(180deg,#091725,#07121f 70%,#070f1b)!important;
+  color:#f2f7ff!important;
+}
+:is(.card,.panel,.section,.toolbar,.summary,.layout>section,.subcats,.special-box,.req-summary-box,.charcalc,.stat,.metric,.cat-manage,.ux-admin-tools,.login-card){
+  background:linear-gradient(135deg,rgba(21,39,61,.97),rgba(13,26,43,.97))!important;
+  border-color:rgba(120,161,206,.31)!important;
+  box-shadow:0 15px 34px rgba(0,8,19,.25),inset 0 1px 0 rgba(255,255,255,.035);
+}
+:is(.starro-navigation,.topnav,.page-links,.starro-section-shortcuts){
+  background:linear-gradient(125deg,rgba(21,41,64,.94),rgba(12,26,43,.94))!important;
+  border-color:rgba(126,168,209,.3)!important;
+}
+:is(.starro-navigation a,.topnav a,.page-links a,.starro-section-shortcuts button){
+  border-radius:11px;color:#dcecfb;
+}
+:is(.starro-navigation a,.topnav a,.page-links a):hover{border-color:#dfbf7d!important;color:#fff5d8!important}
+:is(.kpi,.stat,.metric) b{font-variant-numeric:tabular-nums}
+:is(.card,.panel,.section) :is(h2,h3){color:#f1d796}
+:is(.card,.panel,.section,.toolbar,.summary) :is(input:not([type="checkbox"]),select,textarea){
+  background:#0a1b2e;color:#f5f9ff;border-color:#53708e;
+}
+:is(.card,.panel,.section,.toolbar,.summary) input[type="checkbox"]{accent-color:#d9b96f}
+:is(.card,.panel,.section,.toolbar,.summary) :is(button,.btn).primary{
+  background:linear-gradient(115deg,#2a667f,#2d617c)!important;border-color:#61a8c1!important;color:#f1faff!important;
+}
+:is(.card,.panel,.section,.toolbar,.summary) :is(button,.btn):hover:not(:disabled){border-color:#e0c386!important}
+:where(.item-detail-dialog,.catalog-dialog) .starro-online-lookup{width:100%}
+.starro-online-lookup{
+  margin:16px 0;padding:15px;border-radius:13px;border:1px solid rgba(144,190,231,.42);
+  background:linear-gradient(135deg,#19324d,#101f32);color:#dce9f7;line-height:1.6;
+}
+.starro-online-lookup h3{color:#f6d68f!important;font-size:15px;margin:0 0 5px}
+.starro-online-lookup p{font-size:12px;color:#c1d4ea;margin:0 0 12px}
+.starro-online-links{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0}
+.starro-online-links a{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 12px;border-radius:9px;background:#234564;border:1px solid #6690b2;text-decoration:none;font-size:12px;font-weight:850;color:#f0f8ff;overflow-wrap:anywhere}
+.starro-online-links a:hover{border-color:#f2d487;background:#305473;color:white}
+.starro-online-lookup small{display:block;color:#aebed2;line-height:1.6}
+@media(max-width:560px){.starro-online-lookup{padding:12px}.starro-online-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.starro-online-links a{font-size:11px;padding:8px;min-height:44px}}
