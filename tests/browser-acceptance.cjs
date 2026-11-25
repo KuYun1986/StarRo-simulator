@@ -55,6 +55,8 @@ const server=http.createServer((req,res)=>{
       }
       if(url==='collection-advanced.html'){
         assert.equal(await p.locator('#jroMvpBox').count(),0,'JRO search should be moved out of collection');
+        assert.ok((await p.locator('#groupFilter').textContent()).includes('特殊收藏'),'Special Collection terminology missing');
+        assert.ok((await p.locator('#jroSlots').count())===1,'Special Collection capacity field missing');
         const special=await p.evaluate(()=>{const list=ITEMS.filter(x=>x.group==='特殊收藏');return {count:list.length,key:list.length?keyOf(list[0]):''}});
         assert.ok(special.count>=190,'special collection rename failed');
         assert.ok(special.key.startsWith('JRO收藏|'),'legacy progress key was not preserved');
@@ -101,6 +103,16 @@ const server=http.createServer((req,res)=>{
         await p.locator('#search').fill('');
       }
       if(url==='catalog.html'||url==='collection.html'){
+        const ref=await p.evaluate(()=>{
+          const lookup=window.StarroReferenceLookup;
+          const info=lookup?.details('破壞斧[2]')||{};
+          return {count:Object.keys(window.StarroReferenceIndex?.items||{}).length,
+                  id:info.itemId,image:info.image,sources:info.sources||[]};
+        });
+        assert.ok(ref.count>=1400,'public reference encyclopedia not loaded');
+        assert.equal(ref.id,'1341','item name to ID mapping failed');
+        assert.ok(ref.image.endsWith('/item-icons/1341.png'),'public icon URL missing');
+        assert.ok(ref.sources.some(s=>s.includes('狙擊轉蛋')),'named gacha source not loaded');
         await p.locator('.catalog-card').first().waitFor({timeout:10000});
         assert.ok((await p.locator('.catalog-card').count())>=20,'collection gallery cards missing');
         assert.ok(await p.locator('#catalogTabAll').isVisible(),'unified search mode missing');
