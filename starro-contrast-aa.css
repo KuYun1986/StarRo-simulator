@@ -1,0 +1,229 @@
+/* StarRo global contrast corrections.
+ * Audited with axe-core WCAG 2 AA on 11 pages, desktop/mobile, opened filters,
+ * selected collection sources, modals and admin.
+ * Changes target legibility; preserve distinctive costs, rarity and prize hues
+ * by giving bright text a dark backing where appropriate. 2026-11-25.
+ */
+
+/* Baseline secondary text on the light page and card surfaces. */
+body .wrap :is(.tiny,.muted,.sub,.label,.note,.hint,.help):not(.ok):not(.bad),
+body #adminApp :is(.tiny,.muted,.sub,.label,.note,.feature-summary),
+body .wrap .card .stat :is(.tiny,.muted,.sub,.label,.note),
+body .wrap .card :is(.tiny,.muted,.sub,.label,.note),
+body .wrap .layout>section :is(.tiny,.muted,.sub,.label,.note){
+  color:#405a6b!important;
+}
+body :is(.ux-section-index__title,.ux-admin-tools__title){
+  color:#795324!important;
+}
+/* The legacy code used dark note panels; make plain informational panels
+   follow the light palette so normal text remains readable. */
+body .wrap :is(.note,.bio-note,.quick-calc,.tal-config-block){
+  background-color:#f0f5f8!important;
+  border-color:#c8d9e3!important;
+}
+body .wrap .note{color:#405a6b!important}
+body #onlineBar :is(.label,.tiny){color:#385469!important}
+
+/* Light surfaces + highlighted original green/gold glyphs: keep original hue,
+   change backing to provide AA contrast instead of recoloring cost numbers. */
+body .wrap :is(.stat,.result,.result-box) :is(.ok,b.ok,span.ok),
+body .wrap :is(#autoFinal,#multiTotalP,#bioExpectedTries,#bioStageCount){
+  background:#234334!important;
+  border-radius:6px;
+  padding:2px 6px;
+}
+body .wrap :is(.refine-gold,.refine-legendary-gold){
+  background:#493821!important;
+  border-radius:5px;
+  padding:2px 5px;
+}
+
+/* Main simulator: rune-step and probability tables. */
+body .wrap .tal-config-block{
+  background:#e9f1f6!important;
+  border-color:#c9dbe5!important;
+}
+body .wrap .tal-config-block :is(.tal-field span,.tal-field small){
+  color:#3d576a!important;
+}
+body .wrap .tal-config-block .tal-config-title{
+  color:#226349!important;
+}
+body .wrap #talCpRows td,
+body .wrap #talCpRows th{
+  background:#f7fafc!important;
+  color:#304d60!important;
+}
+body .wrap #talCpSummary{background:#f5f9fb!important;color:#405a6b!important}
+body .wrap .bio-results>div{background:#f5f9fb!important}
+body .wrap .bio-results small{color:#405a6b!important}
+body .wrap .rm-box,
+body .wrap .rm-rules div,
+body .wrap .rm-chips span{
+  background:#edf3f7!important;
+  border-color:#c6d9e3!important;
+}
+body .wrap .rm-box h4,
+body .wrap .rm-rules b{
+  color:#235f43!important;
+}
+body .wrap .rm-rules small,
+body .wrap .rm-chips span,
+body .wrap .rm-controls label>span{
+  color:#405a6b!important;
+}
+body .wrap .rm-rules strong{
+  color:#235f43!important;
+}
+
+/* Equipment material calculator: keep dark notice/payment panels for the
+   original bright prices, but ensure normal labels and headings are light there. */
+body .wrap .quick-calc{
+  background:#f1f6f8!important;
+  border-color:#c7d9e3!important;
+}
+body .wrap .quick-calc-grid label{color:#405a6b!important}
+body .wrap .quick-calc-result{
+  background:#223a4b!important;
+  color:#edf5fa!important;
+  border-color:#59748a!important;
+}
+body .wrap .quick-calc-result :is(#quickCalcFormula,#quickCalcRedResult){
+  color:#f1f7fa!important;
+}
+body .wrap #serviceFeeSimulator > div[style*="background:#0d1623"]{
+  color:#eaf4f9!important;
+}
+body .wrap #serviceFeeSimulator > div[style*="background:#0d1623"] > h3{
+  color:#f1f7fc!important;
+}
+body .wrap #serviceFeeSimulator .auto-service-grid label{
+  color:#e0edf5!important;
+}
+body .wrap #serviceFeeSimulator .auto-service-grid select{
+  background:#f8fafc!important;color:#2c4a60!important;
+}
+body .wrap #runeRentalService > div[style*="background"]{
+  color:#f1f6fa!important;
+}
+body .wrap #runeRentalService > div:nth-child(3) > h3{
+  color:#7db7ff!important;
+}
+body .wrap #runeRentalService > div:nth-child(4) > h3{
+  color:#ffb84d!important;
+}
+body .wrap #serviceMultiOptions ~ div[style*="background:#0b1523"]{
+  color:#edf5f9!important;
+}
+body .wrap #serviceMaterialsText{background:#f5f9fb!important;color:#304d60!important}
+
+/* Collection atlas: metadata, counts, source headings and item detail dialogs. */
+body .catalog-app .catalog-chip{
+  color:#334e60!important;
+  background:#eff4f7!important;
+  border-color:#cbdce4!important;
+}
+body .catalog-app .catalog-status,
+body .catalog-app #catalogStatus,
+body .catalog-app .catalog-info,
+body .catalog-app .catalog-filters,
+body .catalog-app .catalog-network-search>span{
+  color:#3e586a!important;
+}
+body .catalog-dialog .catalog-detail-head p,
+body .catalog-dialog .catalog-detail-list,
+body .catalog-dialog .catalog-equipment-meta dt,
+body .catalog-dialog .catalog-equipment-meta dd,
+body .catalog-dialog :is(.catalog-related__item,.catalog-equipment-row) small{
+  color:#3e586a!important;
+}
+body .catalog-dialog .catalog-detail-section h3{
+  color:#795324!important;
+}
+body .catalog-dialog .catalog-detail-section{
+  border-color:#d2e1e7!important;
+}
+
+/* Collection simulator: each "需求：" label appeared 1276 times per render.
+   Keep it blue, but use blue dark enough on the pale requirement panel. */
+body .wrap .item .required-items strong{
+  color:#235a84!important;
+}
+body .wrap .item .required-items .req-item,
+body .wrap .item .required-items .idtxt,
+body .wrap .item .idtxt,
+body .wrap .item .effect,
+body .wrap .item .cond-list,
+body .wrap .item .cond-row{
+  color:#3d586b!important;
+}
+body .wrap .item .required-items .req-item{
+  background:#eef4f8!important;
+  border-color:#cbdce5!important;
+}
+body .wrap .item .badge.jro{
+  color:#664892!important;
+  border-color:#bba9d6!important;
+  background:#f3eff8!important;
+}
+body .wrap .item .item-prefix{color:#aa3c52!important}
+body .wrap .compact-options .compact-choice small{
+  color:#405b6b!important;
+}
+body .wrap .kpi{
+  background:#244338!important;
+  border-color:#4b796a!important;
+}
+body .wrap .kpi small{color:#deeee8!important}
+body .wrap .kpi b{background:transparent!important}
+body .wrap .collection-auth-panel{
+  background:#eaf2f7!important;
+  border-color:#c2d7e3!important;
+  color:#304b5c!important;
+}
+body .wrap .collection-auth-panel .note,
+body .wrap #collectionCloudStatus:not([data-state="error"]):not([data-state="success"]){
+  color:#405a6b!important;
+}
+body .wrap :is(#selectedRequiredDetails,#missingRequiredDetails,#characterCalcDetails)>summary{
+  color:#334e60!important;
+  background:#e8f1f6!important;
+  border-color:#c5dae5!important;
+}
+body .wrap .footer-note,
+body .wrap :is(.empty,.idtxt){color:#415c70!important}
+
+/* Admin workbench, home cards, and accordion headers. */
+body #adminApp .nav-group-title{
+  color:#795324!important;
+}
+body #adminApp :is(.home-card,.shadow-card) p,
+body #adminApp :is(.home-card,.shadow-card) .feature-summary{
+  color:#3e586a!important;
+}
+body #adminApp .ux-config-details>summary{
+  color:#795324!important;
+}
+body #adminApp .ux-admin-tools :is(.tiny,p,span){
+  color:#405a6b!important;
+}
+body #adminApp a[href="catalog.html"],
+body #adminApp a[href="catalog.html?tab=equipment"]{
+  color:#2c536b!important;
+}
+body #adminApp label[for="adminUxSearch"]{
+  color:#39566b!important;
+}
+body #adminApp .feature-row .feature-summary{
+  color:#405a6b!important;
+}
+
+/* More generous line height in text-dense passages on phones. */
+@media(max-width:700px){
+  body .wrap :is(.tiny,.note),
+  body .catalog-app :is(.catalog-card__effect,.catalog-source-line small),
+  body .wrap .item :is(.effect,.required-items){
+    line-height:1.65!important;
+  }
+}
