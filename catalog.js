@@ -16,7 +16,7 @@ const imageHtml=(src,icon='🎁')=>{
   const url=safeImage(src);
   return '<div class="catalog-cover">'+(url?'<img loading="lazy" decoding="async" referrerpolicy="no-referrer" src="'+esc(url)+'" alt="">':icon)+'</div>';
 };
-const state={tab:'collection',view:'items',page:1,pageSize:36,slot:'all',query:'',group:'all',progress:'all',gachaType:'all'};
+const state={tab:'all',view:'items',page:1,pageSize:36,slot:'all',query:'',group:'all',progress:'all',gachaType:'all'};
 const slots=['全部','頭上','頭中','頭下','鎧甲','武器','盾牌','披肩','鞋子','飾品','影子裝備','卡片','其他'];
 const keyOf=it=>it.group+'|'+it.row+'|'+it.name;
 const progressKey='starro_collection_selected';
@@ -123,7 +123,7 @@ function collectionFilters(item){
   if(state.progress==='unsaved'&&chosen)return false;
   if(state.slot!=='all'&&!inSlot((item.required||[]).join(' ')+' '+item.game+' '+item.name))return false;
   const q=normalize(state.query);
-  return !q||normalize([item.name,item.effect,item.game,item.dc,...(item.required||[])].join(' ')).includes(q);
+  return !q||normalize([item.name,item.effect,item.game,item.dc,...(item.required||[]),typeof JRO_NAME_PREFIX!=='undefined'?(JRO_NAME_PREFIX[keyOf(item)]||''):''].join(' ')).includes(q);
 }
 function gachaFilters(p){
   if(state.gachaType!=='all'&&state.gachaType!==(p.type||'其他'))return false;
@@ -176,36 +176,71 @@ function renderEquipmentCard(item,i){
     button('裝備詳情','equipment',String(i))+'</div></article>';
 }
 let rendered=[];
+function unifiedResults(collections,allPools){
+  const collectionsFound=collections.filter(collectionFilters);
+  const equipmentFound=equipmentEntries().filter(equipmentFilters);
+  const poolsFound=allPools.filter(gachaFilters);
+  const dropsFound=allItems().filter(itemFilters);
+  // With no search term, the collection list is the primary browsing view.
+  // When searching, merge all matching categories without forcing a tab switch.
+  const q=normalize(state.query);
+  const entries=q
+    ? [
+        ...collectionsFound.map(entry=>({kind:'collection',entry})),
+        ...equipmentFound.map(entry=>({kind:'equipment',entry})),
+        ...dropsFound.map(entry=>({kind:'drop',entry})),
+        ...poolsFound.map(entry=>({kind:'pool',entry}))
+      ]
+    : collectionsFound.map(entry=>({kind:'collection',entry}));
+  return {entries,counts:{collection:collectionsFound.length,equipment:equipmentFound.length,
+    gacha:dropsFound.length+poolsFound.length},pools:poolsFound,drops:dropsFound};
+}
 function render(){
   const collections=allCollections(),allPools=pools();
   $('catalogTotal').textContent=collections.length.toLocaleString('zh-TW');
   $('catalogPoolTotal').textContent=allPools.length.toLocaleString('zh-TW');
-  const gacha=state.tab==='gacha',equipment=state.tab==='equipment';
-  $('catalogTabCollection').classList.toggle('active',!gacha&&!equipment);
-  $('catalogTabEquipment').classList.toggle('active',equipment);
-  $('catalogTabEquipment').setAttribute('aria-selected',String(equipment));
-  $('catalogTabGacha').classList.toggle('active',gacha);
-  $('catalogTabCollection').setAttribute('aria-selected',String(!gacha&&!equipment));
-  $('catalogTabGacha').setAttribute('aria-selected',String(gacha));
+  const unified=state.tab==='all',gacha=state.tab==='gacha',equipment=state.tab==='equipment';
+  const tabs={all:'catalogTabAll',collection:'catalogTabCollection',equipment:'catalogTabEquipment',gacha:'catalogTabGacha'};
+  for(const [key,id] of Object.entries(tabs)){
+    $(id).classList.toggle('active',state.tab===key);
+    $(id).setAttribute('aria-selected',String(state.tab===key));
+  }
   $('catalogGachaType').hidden=!gacha;
-  $('catalogGroup').hidden=gacha||equipment;$('catalogProgress').hidden=gacha||equipment;
+  $('catalogGroup').hidden=gacha||equipment;
+  $('catalogProgress').hidden=gacha||equipment;
   $('catalogViewSwitch').hidden=!gacha;
   $('catalogViewSwitch').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));
+  const mixed=unifiedResults(collections,allPools);
+  // In the unified view, the collection filters apply to collection matches only.
+  // Equipment and gacha entries continue matching the same search term.
+  $('catalogSearchSummary').innerHTML=unified
+    ? '<span>一站搜尋：</span><b>收藏 '+mixed.counts.collection+'</b><b>裝備／卡片 '+mixed.counts.equipment+'</b><b>轉蛋來源／獎品 '+mixed.counts.gacha+'</b>'
+    : '';
   let results;
-  if(equipment){results=equipmentEntries().filter(equipmentFilters);}
-  else if(!gacha){results=collections.filter(collectionFilters);}
-  else if(state.view==='pools'){results=allPools.filter(gachaFilters);}
-  else{results=allItems().filter(itemFilters);}
+  if(unified)results=mixed.entries;
+  else if(equipment)results=equipmentEntries().filter(equipmentFilters);
+  else if(!gacha)results=collections.filter(collectionFilters);
+  else if(state.view==='pools')results=allPools.filter(gachaFilters);
+  else results=allItems().filter(itemFilters);
   const totalPages=Math.max(1,Math.ceil(results.length/state.pageSize));
   state.page=Math.min(state.page,totalPages);
   const start=(state.page-1)*state.pageSize;
   rendered=results.slice(start,start+state.pageSize);
-  $('catalogStatus').textContent='符合條件 '+results.length.toLocaleString('zh-TW')+' 筆｜每頁 '+state.pageSize+' 筆';
+  $('catalogStatus').textContent=(unified?'全部類型｜':'')+'符合條件 '+results.length.toLocaleString('zh-TW')+' 筆｜每頁 '+state.pageSize+' 筆';
   $('catalogPage').textContent='第 '+state.page+' / '+totalPages+' 頁';
   $('catalogPrev').disabled=state.page<=1;$('catalogNext').disabled=state.page>=totalPages;
-  $('catalogResults').innerHTML=rendered.length?rendered.map((x,i)=>equipment?renderEquipmentCard(x,i):!gacha?renderCollectionCard(x,i):(state.view==='pools'?renderPoolCard(x,i):renderItemCard(x,i))).join(''):
+  const card=(x,i)=>{
+    const kind=unified?x.kind:(equipment?'equipment':gacha?(state.view==='pools'?'pool':'drop'):'collection');
+    const entry=unified?x.entry:x;
+    if(kind==='equipment')return renderEquipmentCard(entry,i);
+    if(kind==='pool')return renderPoolCard(entry,i);
+    if(kind==='drop')return renderItemCard(entry,i);
+    return renderCollectionCard(entry,i);
+  };
+  $('catalogResults').innerHTML=rendered.length?rendered.map(card).join(''):
     '<div class="catalog-empty">'+(gacha&&!allPools.length?'尚未建立轉蛋資料。可從 StarRo 管理後台新增轉蛋池、獎品與圖片。':'沒有符合條件的項目，請調整關鍵字或分類。')+'</div>';
 }
+
 function detailHeader(name,src,kind){
   return '<div class="catalog-detail-head">'+imageHtml(src,kind==='collection'?'📚':'🎁')+
     '<div><h2 id="catalogDialogTitle">'+esc(name)+'</h2><p>'+esc(kind==='collection'?'收藏效果、需求與轉蛋來源':'轉蛋獎品與來源')+'</p></div></div>';
@@ -216,7 +251,9 @@ function detailSection(title,items){
   '<p class="catalog-notpicked">目前沒有已建立的資料</p>')+'</div>';
 }
 function openDetail(kind,i){
-  const entry=rendered[i];if(!entry)return;
+  const row=rendered[i];if(!row)return;
+  const entry=state.tab==='all'?row.entry:row;
+  if(state.tab==='all')kind=row.kind;
   let html='';
   if(kind==='collection'){
     const req=entry.required||[],sources=collectionSource(entry);
@@ -249,6 +286,7 @@ function init(){
     const b=e.target.closest('button[data-slot]');if(!b)return;state.slot=b.dataset.slot;state.page=1;
     $('catalogSlots').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));render();
   });
+  $('catalogTabAll').onclick=()=>{state.tab='all';state.page=1;render()};
   $('catalogTabCollection').onclick=()=>{state.tab='collection';state.page=1;render()};
   $('catalogTabGacha').onclick=()=>{state.tab='gacha';state.page=1;render()};
   $('catalogTabEquipment').onclick=()=>{state.tab='equipment';state.page=1;render()};
@@ -295,6 +333,7 @@ function init(){
   document.addEventListener('starro-config-applied',render);
   window.addEventListener('storage',e=>{if(e.key===progressKey){selected=loadSaved();render()}});
   const params=new URLSearchParams(location.search);
+  if(params.get('tab')==='collection')state.tab='collection';
   if(params.get('tab')==='gacha')state.tab='gacha';
   if(params.get('tab')==='equipment')state.tab='equipment';
   if(params.get('q')){state.query=params.get('q');$('catalogSearch').value=state.query}
